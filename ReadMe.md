@@ -1,4 +1,4 @@
-## Título del proyecto: Huellas
+# Huellas
 
 ## Resumen del proyecto: 
 Aplicación de gestión de salud de Mascotas, con perfiles para los usuarios y sus mascotas, voluntarios y posiblemente veterinarios y/o aseguradoras
@@ -11,7 +11,7 @@ Aplicación de gestión de salud de Mascotas, con perfiles para los usuarios y s
 ### Generales:
 - Crear una app para que los usuarios puedan tener un sistema dónde puedan gestionar a sus mascotas
 - Que los voluntarios puedan darse de alta y ofrecer servicios para ayudar a los usuarios. 
-- Que veterinarias y aseguradoras puedan estar presente para ofrecer servicios hacia los usuarios.
+- Que veterinarias y aseguradoras puedan estar presente para ofrecer servicios hacia los usuarios.R
 
 ### Específicos:
 - Permitir a los usuarios poder darse de alta
