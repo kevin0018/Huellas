@@ -14,7 +14,8 @@
   "dependencies": {
     "dotenv": "^16.6.1",
     "express": "^4.21.2",
-    "mysql2": "^3.9.0"
+    "mysql2": "^3.9.0",
+    "tailwindcss": "^4.1.11"
   },
   "devDependencies": {
     "@types/express": "^4.17.23",
