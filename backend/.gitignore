@@ -1,0 +1,59 @@
+# Node dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+
+# TypeScript incremental build info
+*.tsbuildinfo
+
+# Env files
+.env
+.env.local
+.env.*.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
+logs/
+*.log
+
+# Coverage / test artifacts
+coverage/
+.nyc_output/
+.vitest/
+
+# Temporary files
+.tmp/
+temp/
+tmp/
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+!.vscode/extensions.json
+
+# Docker
+docker-data/
+.docker/
+# Named volumes persist outside
+mysql_data/
+
+# Git hooks (can be regenerated)
+.husky/_
+
+# Lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+bun.lockb
+
+# Misc caches
+.cache/
+.eslintcache
+.prettier-cache

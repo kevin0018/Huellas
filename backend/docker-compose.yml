@@ -1,0 +1,41 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: Huellas_api
+    env_file:
+      - .env
+    ports:
+      - "${PORT:-3000}:3000"
+    volumes:
+      - .:/app:cached
+      - /app/node_modules
+    depends_on:
+      - mysql
+    command: ["npm","run","dev"]
+  mysql:
+    image: mysql:8.4
+    container_name: Huellas_db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: huellas
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: apppass
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD","mysqladmin","ping","-h","localhost","-u","root","-proot"]
+      interval: 5s
+      retries: 10
+  adminer:
+    image: adminer:latest
+    container_name: huellas_adminer
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+volumes:
+  mysql_data:
