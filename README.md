@@ -1,6 +1,6 @@
 # Huellas
 
-🌐 [Spanish Version] (README.es.md)
+🌐 [Spanish Version](README.es.md)
 
 This application is a health management platform for pet owners, designed with individual profiles for each owner and their pets to centralize all options. We plan to integrate a volunteer system to assist users, and the platform will also allow for the linking of profiles for veterinarians and insurers to keep all information updated and accessible with minimal effort.
 
