@@ -1,6 +1,6 @@
 # Huellas
 
-🌐 [English Version] (README.md)
+🌐 [English Version](README.md)
 
 Esta es una aplicación de gestión de salud para dueños y sus mascotas, con perfiles individuales para cada uno desde donde se podrán gestionar todas las opciones. El sistema también incluirá la integración de voluntarios para ayudar a los usuarios, así como la posibilidad de vincular perfiles de veterinarios y aseguradoras para mantener toda la información actualizada y accesible con el mínimo esfuerzo.
 
@@ -48,7 +48,7 @@ El backend está construido con **Node.js** y **Express**, siguiendo la arquitec
 Hemos configurado un entorno de desarrollo con **Docker** y **Docker Compose** para facilitar la configuración del proyecto. Con estos archivos, cualquier colaborador puede levantar la aplicación, la base de datos y otras dependencias con un solo comando.
 
 ### Colaboradores
-- Kevin Hernandez
-- Aroa Granja
-- Adriana Elias
-- Fernanda Montalvan
+- @kevin0018
+- @MissAruru
+- @adriElias
+- @FerMon98
