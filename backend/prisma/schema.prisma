@@ -1,0 +1,136 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider          = "mysql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+  relationMode      = "foreignKeys"
+}
+
+// --- Enums ---
+
+enum UserType {
+  owner
+  volunteer
+}
+
+enum PetType {
+  dog
+  cat
+  ferret
+}
+
+enum PetSize {
+  large
+  medium
+  small
+}
+
+enum Sex {
+  male
+  female
+}
+
+enum AnimalType {
+  dog
+  cat
+  ferret
+}
+
+// --- Models ---
+
+model User {
+  id        Int        @id @default(autoincrement())
+  name      String
+  last_name String
+  email     String     @unique
+  type      UserType
+  owner     Owner?
+  volunteer Volunteer?
+
+  @@index([type])
+}
+
+model Owner {
+  id   Int  @id
+  user User @relation(fields: [id], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  pets Pet[]
+}
+
+model Volunteer {
+  id          Int   @id
+  description String
+  user        User  @relation(fields: [id], references: [id], onDelete: Restrict, onUpdate: Restrict)
+}
+
+model Pet {
+  id               Int      @id @default(autoincrement())
+  name             String
+  race             String
+  type             PetType
+  owner_id         Int
+  birth_date       DateTime @db.Date
+  size             PetSize
+  microchip_code   String   @unique
+  sex              Sex
+  has_passport     Boolean
+  country_of_origin String?
+  passport_number   String?
+  notes             String?
+
+  owner         Owner            @relation(fields: [owner_id], references: [id], onDelete: Cascade, onUpdate: Restrict)
+  checkups      Checkup[]
+  appointments  Appointment[]
+
+  @@index([owner_id])
+  @@index([type])
+  @@index([size])
+  @@index([sex])
+  @@index([birth_date])
+}
+
+model Checkup {
+  id           Int      @id @default(autoincrement())
+  pet_id       Int
+  procedure_id Int
+  date         DateTime @db.Date
+  notes        String?
+
+  pet       Pet               @relation(fields: [pet_id], references: [id], onDelete: Cascade, onUpdate: Restrict)
+  procedure ProcedureSchedule  @relation(fields: [procedure_id], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  @@index([pet_id])
+  @@index([procedure_id])
+  @@index([date])
+  @@index([pet_id, date])
+}
+
+model Appointment {
+  id      Int      @id @default(autoincrement())
+  pet_id  Int
+  date    DateTime @db.Date
+  reason  String?
+  notes   String?
+
+  pet Pet @relation(fields: [pet_id], references: [id], onDelete: Cascade, onUpdate: Restrict)
+
+  @@index([pet_id])
+  @@index([date])
+  @@index([pet_id, date])
+}
+
+model ProcedureSchedule {
+  id                     Int        @id @default(autoincrement())
+  animal_type            AnimalType
+  procedure_name         String
+  recommended_age_months Int
+  notes                  String?
+
+  checkups Checkup[]
+
+  @@index([animal_type])
+  @@index([procedure_name])
+  @@unique([animal_type, procedure_name])
+}
