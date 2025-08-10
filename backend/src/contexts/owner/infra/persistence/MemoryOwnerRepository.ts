@@ -10,6 +10,17 @@ export class MemoryOwnerRepository implements OwnerRepository {
   }
 
   async save(owner: Owner): Promise<void> {
+    // Verify if Owner id already exists
+    const existingOwner = await this.findById(owner.id);
+    if (existingOwner) {
+      throw new Error('Owner id already exists');
+    }
+    // Verify if email already exists
+    for (const existingOwner of this.owners.values()) {
+      if (existingOwner.email === owner.email) {
+        throw new Error('Email already exists');
+      }
+    }
     this.owners.set(owner.id.getValue(), owner);
   }
 }

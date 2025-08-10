@@ -30,4 +30,23 @@ describe('RegisterOwnerCommandHandler', () => {
     expect(owner?.email).toBe('marc@email.com');
     expect(owner?.petIds).toEqual([]);
   });
+
+  it('should throw error if email already exists', async () => {
+    const command1 = new RegisterOwnerCommand(1, 'Marc', 'Smith', 'marc@email.com');
+    const command2 = new RegisterOwnerCommand(2, 'John', 'Doe', 'marc@email.com');
+
+    await handler.execute(command1);
+
+    await expect(handler.execute(command2)).rejects.toThrow('Email already exists');
+  });
+
+  it('should throw error if Owner id already exists', async () => {
+    const command1 = new RegisterOwnerCommand(1, 'Marc', 'Smith', 'marc@email.com');
+    const command2 = new RegisterOwnerCommand(1, 'John', 'Doe', 'john@email.com');
+
+    await handler.execute(command1);
+
+    await expect(handler.execute(command2)).rejects.toThrow('Owner id already exists');
+  });
+
 });

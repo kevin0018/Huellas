@@ -27,6 +27,30 @@ export class PrismaOwnerRepository implements OwnerRepository {
   }
 
   async save(owner: Owner): Promise<void> {
-    
+    // Verify if the id already exists
+    const existingOwner = await this.findById(owner.id);
+    if (existingOwner) {
+      throw new Error('Owner id already exists');
+    }
+    // Verify if the email already exists
+    const existingEmail = await prisma.user.findUnique({
+      where: { email: owner.email }
+    });
+    if (existingEmail) {
+      throw new Error('Email already exists');
+    }
+    // If it doesn't exist, create the User and the Owner
+    await prisma.user.create({
+      data: {
+        id: owner.id.getValue(),
+        name: owner.name,
+        last_name: owner.lastName,
+        email: owner.email,
+        type: 'owner',
+        owner: {
+          create: {}
+        }
+      }
+    });
   }
 }
