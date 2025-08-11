@@ -1,9 +1,11 @@
+import { CommandHandler, RegisterCommandHandler } from '../../../../../shared/application/CommandHandler.js';
+import { RegisterOwnerCommand } from './RegisterOwnerCommand.js';
 import { OwnerRepository } from '../../../domain/repositories/OwnerRepository.js';
 import { Owner } from '../../../domain/entities/Owner.js';
 import { OwnerId } from '../../../domain/value-objects/OwnerId.js';
-import { RegisterOwnerCommand } from './RegisterOwnerCommand.js';
 
-export class RegisterOwnerCommandHandler {
+@RegisterCommandHandler('register_owner')
+export class RegisterOwnerCommandHandler implements CommandHandler<RegisterOwnerCommand> {
   constructor(private readonly ownerRepository: OwnerRepository) {}
 
   async execute(command: RegisterOwnerCommand): Promise<void> {

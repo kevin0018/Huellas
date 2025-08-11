@@ -32,8 +32,8 @@ describe('RegisterOwnerCommandHandler', () => {
   });
 
   it('should throw error if email already exists', async () => {
-    const command1 = new RegisterOwnerCommand(1, 'Marc', 'Smith', 'marc@email.com');
-    const command2 = new RegisterOwnerCommand(2, 'John', 'Doe', 'marc@email.com');
+  const command1 = new RegisterOwnerCommand(1, 'Marc', 'Smith', 'marc@email.com');
+  const command2 = new RegisterOwnerCommand(2, 'John', 'Doe', 'marc@email.com');
 
     await handler.execute(command1);
 
