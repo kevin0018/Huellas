@@ -39,6 +39,14 @@ enum AnimalType {
   ferret
 }
 
+enum AppointmentReason {
+  VACCINATION
+  GENERAL_CHECKUP
+  DEWORMING
+  OPERATION
+  OTHERS
+}
+
 // --- Models ---
 
 model User {
@@ -46,6 +54,7 @@ model User {
   name      String
   last_name String
   email     String     @unique
+  password  String
   type      UserType
   owner     Owner?
   volunteer Volunteer?
@@ -111,7 +120,7 @@ model Appointment {
   id      Int      @id @default(autoincrement())
   pet_id  Int
   date    DateTime @db.Date
-  reason  String?
+  reason  AppointmentReason
   notes   String?
 
   pet Pet @relation(fields: [pet_id], references: [id], onDelete: Cascade, onUpdate: Restrict)
@@ -125,7 +134,7 @@ model ProcedureSchedule {
   id                     Int        @id @default(autoincrement())
   animal_type            AnimalType
   procedure_name         String
-  recommended_age_months Int
+  recommended_vaccines_age Int
   notes                  String?
 
   checkups Checkup[]
