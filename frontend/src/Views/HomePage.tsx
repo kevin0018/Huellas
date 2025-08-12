@@ -8,7 +8,7 @@ const HomePage: React.FC = () => {
   return (
     <div className="flex flex-col items-center justify-center p-8 bg-gray-50 dark:bg-gray-900 min-h-screen min-w-screen">
       <header className="flex flex-row items-center justify-between w-180 m-5">
-        <img src="./public/huellas.jpg" alt="Huellas Logo" className="mb-4 h-30 rounded-xl"  />
+        <img src="./huellas.jpg" alt="Huellas Logo" className="mb-4 h-30 rounded-xl"  />
         <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
           Welcome to Huellas!
         </h1>
