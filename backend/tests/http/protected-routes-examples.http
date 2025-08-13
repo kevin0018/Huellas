@@ -1,0 +1,36 @@
+# Protected Routes Test Examples
+
+# NOTE: Update the @jwt_token variable below with the token from login response
+@jwt_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoianVhbi5wZXJlekBlbWFpbC5jb20iLCJ0eXBlIjoib3duZXIiLCJpYXQiOjE3NTUwODQwMjcsImV4cCI6MTc1NTE3MDQyN30.amm2JtXQ-d8qd118DQHalqPZkodGZtQ11porQ56dPh8
+
+### Test 1: Access without token (should fail with 401)
+GET http://localhost:3000/api/test/protected
+Content-Type: application/json
+
+###
+
+### Test 2: Access with invalid token (should fail with 401)
+GET http://localhost:3000/api/test/protected
+Authorization: Bearer invalid-token-here
+Content-Type: application/json
+
+###
+
+### Test 3: Access with valid token (should work with 200)
+GET http://localhost:3000/api/test/protected
+Authorization: Bearer {{jwt_token}}
+Content-Type: application/json
+
+###
+
+### Test 4: Access owners only (should work if token is from owner)
+GET http://localhost:3000/api/test/owners-only
+Authorization: Bearer {{jwt_token}}
+Content-Type: application/json
+
+###
+
+### Test 5: Get authenticated user profile
+GET http://localhost:3000/api/auth/profile
+Authorization: Bearer {{jwt_token}}
+Content-Type: application/json
