@@ -36,10 +36,14 @@ export class JwtMiddleware {
 
         const token = authHeader.substring(7); // Remove 'Bearer ' prefix
 
-        const decoded = jwt.verify(
-          token, 
-          process.env.JWT_SECRET || 'your-secret-key'
-        ) as JwtPayload;
+        const jwtSecret = process.env.JWT_SECRET;
+        
+        if (!jwtSecret) {
+          res.status(500).json({ error: 'Server configuration error' });
+          return;
+        }
+
+        const decoded = jwt.verify(token, jwtSecret) as JwtPayload;
 
         // Add user info to request
         req.user = {

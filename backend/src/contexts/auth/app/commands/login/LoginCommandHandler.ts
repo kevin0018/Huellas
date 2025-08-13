@@ -32,14 +32,20 @@ export class LoginCommandHandler {
       throw new Error('Invalid email or password');
     }
 
-    // Generate JWT token
+    // Generate JWT token with secure secret validation
+    const jwtSecret = process.env.JWT_SECRET;
+    
+    if (!jwtSecret) {
+      throw new Error('JWT_SECRET environment variable is required');
+    }
+
     const token = jwt.sign(
       { 
         userId: user.id,
         email: user.email,
         type: user.type
       },
-      process.env.JWT_SECRET || 'your-secret-key',
+      jwtSecret,
       { expiresIn: '24h' }
     );
 
