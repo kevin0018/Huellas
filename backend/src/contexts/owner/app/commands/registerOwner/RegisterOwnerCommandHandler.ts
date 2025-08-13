@@ -7,13 +7,14 @@ export class RegisterOwnerCommandHandler {
   constructor(private readonly ownerRepository: OwnerRepository) {}
 
   async execute(command: RegisterOwnerCommand): Promise<void> {
-    const owner = new Owner(
+    const owner = await Owner.create(
       new OwnerId(command.id),
       command.name,
       command.lastName,
       command.email,
-      []
+      command.password
     );
+    
     await this.ownerRepository.save(owner);
   }
 }
