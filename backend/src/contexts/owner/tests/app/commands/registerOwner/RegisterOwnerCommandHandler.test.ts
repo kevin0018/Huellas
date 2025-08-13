@@ -18,7 +18,8 @@ describe('RegisterOwnerCommandHandler', () => {
       1, // id
       'Marc',
       'Smith',
-      'marc@email.com'
+      'marc@email.com',
+      'hashedPassword123'
     );
 
     await handler.execute(command);
@@ -28,12 +29,14 @@ describe('RegisterOwnerCommandHandler', () => {
     expect(owner?.name).toBe('Marc');
     expect(owner?.lastName).toBe('Smith');
     expect(owner?.email).toBe('marc@email.com');
+    expect(owner?.password).not.toBe('hashedPassword123');
+    expect(owner?.password.length).toBeGreaterThan(50);
     expect(owner?.petIds).toEqual([]);
   });
 
   it('should throw error if email already exists', async () => {
-    const command1 = new RegisterOwnerCommand(1, 'Marc', 'Smith', 'marc@email.com');
-    const command2 = new RegisterOwnerCommand(2, 'John', 'Doe', 'marc@email.com');
+    const command1 = new RegisterOwnerCommand(1, 'Marc', 'Smith', 'marc@email.com', 'password1');
+    const command2 = new RegisterOwnerCommand(2, 'John', 'Doe', 'marc@email.com', 'password2');
 
     await handler.execute(command1);
 
@@ -41,8 +44,8 @@ describe('RegisterOwnerCommandHandler', () => {
   });
 
   it('should throw error if Owner id already exists', async () => {
-    const command1 = new RegisterOwnerCommand(1, 'Marc', 'Smith', 'marc@email.com');
-    const command2 = new RegisterOwnerCommand(1, 'John', 'Doe', 'john@email.com');
+    const command1 = new RegisterOwnerCommand(1, 'Marc', 'Smith', 'marc@email.com', 'password1');
+    const command2 = new RegisterOwnerCommand(1, 'John', 'Doe', 'john@email.com', 'password2');
 
     await handler.execute(command1);
 

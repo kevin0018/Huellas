@@ -22,6 +22,7 @@ export class PrismaOwnerRepository implements OwnerRepository {
       ownerRecord.user.name,
       ownerRecord.user.last_name,
       ownerRecord.user.email,
+      ownerRecord.user.password,
       ownerRecord.pets.map(pet => pet.id)
     );
   }
@@ -46,6 +47,7 @@ export class PrismaOwnerRepository implements OwnerRepository {
         name: owner.name,
         last_name: owner.lastName,
         email: owner.email,
+        password: owner.password,
         type: 'owner',
         owner: {
           create: {}
