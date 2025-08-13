@@ -1,0 +1,63 @@
+### Register Owner Endpoint Test
+
+# Test 1: Register new owner successfully
+POST http://localhost:3000/api/owners/register
+Content-Type: application/json
+
+{
+  "id": 1,
+  "name": "Juan",
+  "lastName": "Pérez",
+  "email": "juan.perez@email.com",
+  "password": "mySecurePassword123"
+}
+
+###
+
+# Test 2: Try to register with missing fields (should fail)
+POST http://localhost:3000/api/owners/register
+Content-Type: application/json
+
+{
+  "id": 2,
+  "name": "María",
+  "email": "maria@email.com"
+}
+
+###
+
+# Test 3: Try to register with duplicate email (should fail)
+POST http://localhost:3000/api/owners/register
+Content-Type: application/json
+
+{
+  "id": 3,
+  "name": "Carlos",
+  "lastName": "García",
+  "email": "juan.perez@email.com",
+  "password": "anotherPassword456"
+}
+
+###
+
+# Test 4: Try to register with duplicate ID (should fail)
+POST http://localhost:3000/api/owners/register
+Content-Type: application/json
+
+{
+  "id": 1,
+  "name": "Ana",
+  "lastName": "López",
+  "email": "ana.lopez@email.com",
+  "password": "yetAnotherPassword789"
+}
+
+###
+
+# Health check
+GET http://localhost:3000/health
+
+###
+
+# Database check
+GET http://localhost:3000/db-check

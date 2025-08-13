@@ -1,10 +1,12 @@
 import express from 'express';
 import { testDbConnection } from './db/pool.js';
+import { createRoutes } from './routes/index.js';
 
 export function buildApp() {
   const app = express();
   app.use(express.json());
 
+  // Health check routes
   app.get('/health', (_req, res) => {
     res.json({ status: 'ok', ts: new Date().toISOString() });
   });
@@ -17,6 +19,10 @@ export function buildApp() {
       res.status(500).json({ db: 'error', message: e.message });
     }
   });
+
+  // API routes
+  console.log('Setting up API routes...');
+  app.use('/api', createRoutes());
 
   return app;
 }
