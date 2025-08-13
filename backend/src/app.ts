@@ -1,6 +1,7 @@
 import express from 'express';
 import { testDbConnection } from './db/pool.js';
 import { createRoutes } from './routes/index.js';
+import { testRoutes } from './test-routes.js';
 
 export function buildApp() {
   const app = express();
@@ -23,6 +24,9 @@ export function buildApp() {
   // API routes
   console.log('Setting up API routes...');
   app.use('/api', createRoutes());
+  
+  // Test routes (for development/testing)
+  app.use('/api/test', testRoutes);
 
   return app;
 }

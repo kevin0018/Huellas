@@ -1,0 +1,60 @@
+### Auth Endpoint Tests
+
+# Test 1: Login with valid owner credentials
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "juan.perez@email.com",
+  "password": "mySecurePassword123"
+}
+
+###
+
+# Test 2: Login with missing email (should fail)
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "password": "mySecurePassword123"
+}
+
+###
+
+# Test 3: Login with missing password (should fail)
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "juan.perez@email.com"
+}
+
+###
+
+# Test 4: Login with invalid email (should fail)
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "nonexistent@email.com",
+  "password": "mySecurePassword123"
+}
+
+###
+
+# Test 5: Login with invalid password (should fail)
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "juan.perez@email.com",
+  "password": "wrongPassword"
+}
+
+###
+
+# Test 6: Login with empty body (should fail)
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{}
