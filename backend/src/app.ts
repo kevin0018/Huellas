@@ -1,10 +1,12 @@
 import express from 'express';
+import redis from 'redis';
 import { testDbConnection } from './db/pool.js';
 import { createRoutes } from './routes/index.js';
 import { testRoutes } from './test-routes.js';
 
 export function buildApp() {
   const app = express();
+  const client = redis.createClient();
   app.use(express.json());
 
   // Health check routes
