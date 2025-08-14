@@ -2,10 +2,19 @@ import express from 'express';
 import { testDbConnection } from './db/pool.js';
 import { createRoutes } from './routes/index.js';
 import { testRoutes } from './test-routes.js';
+import { RedisService } from './config/RedisService.js';
 
-export function buildApp() {
+export async function buildApp() {
   const app = express();
   app.use(express.json());
+
+  // Initialize Redis connection
+  try {
+    const redisService = RedisService.getInstance();
+    await redisService.connect();
+  } catch (error) {
+    console.warn('Redis connection failed!!!, using memory fallback:', error);
+  }
 
   // Health check routes
   app.get('/health', (_req, res) => {

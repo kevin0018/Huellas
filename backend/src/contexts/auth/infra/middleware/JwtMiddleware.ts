@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { UserType } from '../../domain/entities/UserAuth.js';
+import { JwtBlacklist } from '../services/JwtBlacklist.js';
 
 export interface AuthenticatedRequest extends Request {
   user?: {
@@ -20,7 +21,7 @@ export interface JwtPayload {
 
 export class JwtMiddleware {
   static authenticate() {
-    return (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
+    return async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
       try {
         const authHeader = req.headers.authorization;
 
@@ -35,6 +36,13 @@ export class JwtMiddleware {
         }
 
         const token = authHeader.substring(7); // Remove 'Bearer ' prefix
+
+        // Check if token is blacklisted (logout)
+        const isBlacklisted = await JwtBlacklist.isBlacklisted(token);
+        if (isBlacklisted) {
+          res.status(401).json({ error: 'Token has been revoked' });
+          return;
+        }
 
         const jwtSecret = process.env.JWT_SECRET;
         

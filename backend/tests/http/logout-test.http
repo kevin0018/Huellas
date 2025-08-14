@@ -1,0 +1,36 @@
+# Logout Test
+
+# NOTE: Update @jwt_token with a valid token from login
+@jwt_token = token
+
+### Step 1: Login first to get a fresh token
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "juan.perez@email.com",
+  "password": "mySecurePassword123"
+}
+
+###
+
+### Step 2: Test protected route (should work)
+GET http://localhost:3000/api/test/protected
+Authorization: Bearer {{jwt_token}}
+Content-Type: application/json
+
+###
+
+### Step 3: Logout (blacklist the token)
+POST http://localhost:3000/api/auth/logout
+Authorization: Bearer {{jwt_token}}
+Content-Type: application/json
+
+###
+
+### Step 4: Try protected route again (should fail with "Token has been revoked")
+GET http://localhost:3000/api/test/protected
+Authorization: Bearer {{jwt_token}}
+Content-Type: application/json
+
+###
