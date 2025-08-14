@@ -60,18 +60,19 @@ model User {
   volunteer Volunteer?
 
   @@index([type])
+  @@index([email])
 }
 
 model Owner {
   id   Int  @id
-  user User @relation(fields: [id], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  user User @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   pets Pet[]
 }
 
 model Volunteer {
   id          Int   @id
   description String
-  user        User  @relation(fields: [id], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  user        User  @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model Pet {

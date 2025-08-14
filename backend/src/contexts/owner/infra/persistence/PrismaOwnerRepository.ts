@@ -55,4 +55,10 @@ export class PrismaOwnerRepository implements OwnerRepository {
       }
     });
   }
+
+  async delete(id: OwnerId): Promise<void> {
+    await prisma.user.delete({
+      where: { id: id.getValue() }
+    });
+  }
 }
