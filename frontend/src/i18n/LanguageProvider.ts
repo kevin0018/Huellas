@@ -11,7 +11,7 @@ function readInitialLanguage(): Language {
   } catch {
     // ignore storage access errors
   }
-  return 'es';
+  return 'en';
 }
 
 /** Safely persist language; tolerates SSR and privacy modes. */
