@@ -23,4 +23,8 @@ export class MemoryOwnerRepository implements OwnerRepository {
     }
     this.owners.set(owner.id.getValue(), owner);
   }
+
+  async delete(id: OwnerId): Promise<void> {
+    this.owners.delete(id.getValue());
+  }
 }
