@@ -1,24 +1,40 @@
 import React from 'react';
+import Navbar from '../Components/NavBar';
 
-// Define the HomePage component as a React Functional Component (FC).
-// Using React.FC is good practice as it automatically provides type checking for props.
 const HomePage: React.FC = () => {
-  // The component returns a simple JSX structure.
-  // You can add your homepage content, such as a hero section, and more components here.
+
   return (
-    <div className="flex flex-col items-center justify-center p-8 bg-gray-50 dark:bg-gray-900 min-h-screen min-w-screen">
-      <header className="flex flex-row items-center justify-between w-180 m-5">
-        <img src="./huellas.jpg" alt="Huellas Logo" className="mb-4 h-30 rounded-xl"  />
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-          Welcome to Huellas!
+    <>
+    <Navbar />
+    <div className="flex flex-col items-center justify-center p-8 bg-gray-50 dark:bg-[#FDF2DE]">
+      <header className="flex flex-row items-center justify-between m-5 dark:text-white">
+        
+        <h1 className="text-4xl font-caprasimo text-[#51344D]">
+         Bienvenidx a Huellas
         </h1>
 
       </header>
       
-      <p className="text-lg text-gray-700 dark:text-gray-300 text-center max-w-xl">
-        This is where we will build our amazing application.
+<div>
+    <img 
+        src="media/dogs_desktop.png" 
+        alt="Dogs_desktop"
+        className="hidden md:block w-full"
+    />
+
+    <img 
+        src="media/dogs_title.jpg" 
+        alt="dogs_mobile"
+        className="block md:hidden w-full"
+    />
+</div>
+
+      <p className="text-lg text-center text-gray-700 dark:text-gray-800 mt-4">
+        Somos una organización sin fines de lucro dedicada a mejorar la vida de los animales y sus dueños.
+        Nuestro objetivo es crear un mundo donde cada animal tenga un hogar amoroso y cada dueño reciba el apoyo que necesita.
       </p>
     </div>
+    </>
   );
 };
 

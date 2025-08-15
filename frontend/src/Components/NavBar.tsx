@@ -19,10 +19,10 @@ const Navbar: React.FC = () => {
 
                 {/* Menú para Desktop */}
                 <div className="hidden md:flex space-x-6">
-                    <a href="#inicio" className="hover:text-[#51344D]">Inicio</a>
-                    <a href="#servicios" className="hover:text-[#51344D]">Servicios</a>
+                    <a href="#login" className="hover:text-[#51344D]">Iniciar sesión</a>
+                    <a href="#servicios" className="hover:text-[#51344D]">Registrate</a>
                     <a href="#nosotros" className="hover:text-[#51344D]">Sobre Nosotros</a>
-                    <a href="#contacto" className="hover:text-[#51344D]">Contacto</a>
+                    <a href="#contacto" className="hover:text-[#51344D]">Cómo apoyarnos</a>
                 </div>
 
                 {/* Botón de Hamburguesa para móvil */}
@@ -50,10 +50,10 @@ const Navbar: React.FC = () => {
             {/* Menú desplegable para móvil */}
             <div className={`md:hidden ${isOpen ? 'block' : 'hidden'}`}>
                 <div className="flex flex-col items-center space-y-4 pt-4 pb-2">
-                    <a href="#inicio" onClick={toggleMenu} className="hover:text-[#51344D]">Inicio</a>
-                    <a href="#servicios" onClick={toggleMenu} className="hover:text-[#51344D]">Servicios</a>
+                    <a href="#login" onClick={toggleMenu} className="hover:text-[#51344D]">Iniciar sesión</a>
+                    <a href="#registrarse" onClick={toggleMenu} className="hover:text-[#51344D]">Registrate</a>
                     <a href="#nosotros" onClick={toggleMenu} className="hover:text-[#51344D]">Sobre Nosotros</a>
-                    <a href="#contacto" onClick={toggleMenu} className="hover:text-[#51344D]">Contacto</a>
+                    <a href="#apoyarnos" onClick={toggleMenu} className="hover:text-[#51344D]">Cómo apoyarnos</a>
                 </div>
             </div>
         </nav>
