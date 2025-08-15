@@ -1,7 +1,7 @@
 /**
  * Hook to access the TranslatorContext value.
  * Throws an error when used outside of the LanguageProvider to simplify debugging.
- */
+*/
 
 import { useContext } from 'react';
 import { TranslatorContext } from '../TranslatorContext';

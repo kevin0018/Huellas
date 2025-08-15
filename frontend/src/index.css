@@ -1,7 +1,16 @@
-@import url('https://fonts.googleapis.com/css2?family=Caprasimo&family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+@import "./styles/tokens.css";
 @import "tailwindcss";
 
-@theme {
- --font-caprasimo: 'Caprasimo', cursive;
- --font-nunito: 'Nunito', sans-serif;
-}
+/* Make dark: utilities activate when a .dark class is present */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Global page colors so the whole document responds, not only components */
+body { @apply bg-[#FDF2DE] text-[#51344D]; }
+.dark body { @apply bg-[#51344D] text-[#C6E2EF]; }
+
+/* Language select styling for visibility (native dropdown) */
+.select-huellas { @apply appearance-none border rounded-md px-2 py-1 text-sm font-medium shadow-sm; }
+.select-huellas { background-color: #ffffff; color: var(--huellas-eggplant); border-color: var(--huellas-eggplant); }
+.dark .select-huellas { background-color: var(--huellas-eggplant); color: #ffffff; border-color: #ffffff; }
+select.select-huellas option { background-color: #ffffff; color: var(--huellas-eggplant); }
+.dark select.select-huellas option { background-color: var(--huellas-eggplant); color: #ffffff; }

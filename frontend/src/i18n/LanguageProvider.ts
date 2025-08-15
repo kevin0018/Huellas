@@ -1,3 +1,10 @@
+/**
+ * Context provider for i18n.
+ * - Reads initial language from localStorage (fallback to 'es').
+ * - Persists language changes to localStorage.
+ * - Provides a translate function with simple `{{var}}` interpolation.
+*/
+
 import { useState, createElement, useMemo, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import { translations, type Language, type TranslationKey} from './dictionary';
@@ -11,7 +18,7 @@ function readInitialLanguage(): Language {
   } catch {
     // ignore storage access errors
   }
-  return 'en';
+  return 'es';
 }
 
 /** Safely persist language; tolerates SSR and privacy modes. */
