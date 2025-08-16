@@ -3,12 +3,12 @@ import bcrypt from 'bcrypt';
 
 export class Volunteer {
   constructor(
-    private readonly id: VolunteerId,
-    private readonly name: string,
-    private readonly lastName: string,
-    private readonly email: string,
-    private readonly password: string,
-    private readonly description: string,
+    public readonly id: VolunteerId,
+    public readonly name: string,
+    public readonly lastName: string,
+    public readonly email: string,
+    public readonly password: string,
+    public readonly description: string,
   ) {}
 
   static async create(
