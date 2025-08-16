@@ -1,0 +1,21 @@
+/**
+ * Design tokens for Huellas (colors, fonts, radii, spacing).
+ * Adjust in one place to update the whole app.
+*/
+
+/* Typography */
+@import url('https://fonts.googleapis.com/css2?family=Caprasimo:wght@400;700&display=swap');
+.font-caprasimo { font-family: 'Caprasimo', serif; }
+
+/* Brand palette */
+:root {
+  --huellas-eggplant: #51344D;
+  --huellas-lavender-1: #9886AD;
+  --huellas-lavender-2: #BAA9CB;
+  --huellas-ice: #C6E2EF;
+}
+
+
+
+/* Radii */
+:root { --radius-pill: 9999px; }
