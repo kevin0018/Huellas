@@ -17,7 +17,7 @@ export class PrismaOwnerRepository implements OwnerRepository {
 
     if (!ownerRecord || !ownerRecord.user) return null;
 
-    return new Owner(
+    return Owner.createWithHashedPassword(
       new OwnerId(ownerRecord.id),
       ownerRecord.user.name,
       ownerRecord.user.last_name,
