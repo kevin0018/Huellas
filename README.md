@@ -48,7 +48,7 @@ The backend is built with **Node.js** and **Express**, strictly following the he
 We have configured the development environment using **Docker** and **Docker Compose** to simplify the project setup. These files allow any new collaborator to launch the application, database, and other dependencies with a single command.
 
 ### Collaborators
-- @kevin0018
-- @MissAruru
-- @adriElias
-- @FerMon98
+- [@kevin0018](https://github.com/kevin0018)
+- [@MissAruru](https://github.com/MissAruru)
+- [@adriElias](https://github.com/adriElias)
+- [@FerMon98](https://github.com/FerMon98)
