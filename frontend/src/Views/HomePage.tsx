@@ -4,8 +4,6 @@
  */
 
 import React from 'react';
-import ThemeProvider from '../Components/theme/ThemeProvider';
-import LanguageProvider from '../i18n/LanguageProvider';
 import { useTranslation } from '../i18n/hooks/hook';
 import NavBar from '../Components/NavBar';
 import CTAButton from '../Components/CTAButton';
@@ -48,12 +46,10 @@ const HomeContent: React.FC = () => {
 
 const HomePage: React.FC = () => {
   return (
-    <LanguageProvider>
-      <ThemeProvider>
-        <NavBar />
-        <HomeContent />
-      </ThemeProvider>
-    </LanguageProvider>
+    <>
+      <NavBar />
+      <HomeContent />
+    </>
   );
 };
 

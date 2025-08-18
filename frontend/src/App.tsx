@@ -5,6 +5,8 @@
 
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
+import LanguageProvider from './i18n/LanguageProvider';
+import ThemeProvider from './Components/theme/ThemeProvider';
 import HomePage from './Views/HomePage';
 import Login from './Views/Login';
 import Register from './Views/Register';
@@ -17,16 +19,21 @@ import Contact from './Views/contact';
 
 const App: React.FC = () => {
   return (
-    <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/about" element={<AboutUs />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/pet-register" element={<PetRegister />} />
-      <Route path="/calendar" element={<CalendarView />} />
-      <Route path="/user-home" element={<UserHome />} />
-      <Route path="/contact" element={<Contact />} />
-    </Routes>
+    <LanguageProvider>
+      <ThemeProvider>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/about" element={<AboutUs />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/pet-register" element={<PetRegister />} />
+          <Route path="/calendar" element={<CalendarView />} />
+          <Route path="/user-home" element={<UserHome />} />
+          <Route path="/contact" element={<Contact />} />
+        </Routes>
+      </ThemeProvider>
+    </LanguageProvider>
+
   );
 };
 

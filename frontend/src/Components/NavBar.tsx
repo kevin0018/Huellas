@@ -32,7 +32,7 @@ const NavBar: React.FC = () => {
           <Link to="/about" className="hover-eggplant">{translate('aboutUs')}</Link>
           <Link to="/contact" className="hover-eggplant">{translate('contact')}</Link>
           <LanguageSwitcher className="select-huellas" />
-          {/* ThemeSwitcher intencionalmente no se muestra en desktop */}
+          <ThemeSwitcher />
         </div>
 
         {/* Mobile topbar (LanguageSwitcher + burger) */}
@@ -64,7 +64,6 @@ const NavBar: React.FC = () => {
           <Link to="/about" onClick={toggleMenu} className="hover:text-[--huellas-eggplant]">{translate('aboutUs')}</Link>
           <Link to="/contact" onClick={toggleMenu} className="hover:text-[--huellas-eggplant]">{translate('contact')}</Link>
           <div className="flex items-center gap-3">
-            {/* LanguageSwitcher intencionalmente no se muestra en el menú móvil */}
             <ThemeSwitcher />
           </div>
         </div>

@@ -19,14 +19,14 @@ export const en = {
   // --- Landing & App ---
   huellas: "huellas",
   appDescription:
-    "Huellas is an integral platform designed to unify all aspects of your furry companions' health and wellness, no matter how many you have. It centralizes each pet's complete medical history, allowing you to record and check vaccination dates, deworming, known allergies, and any current medication. Additionally, the app helps you never forget an important appointment thanks to its system of programmable reminders for vet visits or the next dose of their medication.",
-  aboutUs: "About us",
+    "Huellas is a comprehensive platform created to bring together every aspect of your pets’ health and wellbeing, no matter how many you have. It keeps a complete medical record for each animal, so you can log and review vaccination dates, deworming, known allergies, and any current medications. Plus, the app makes sure you never miss an important appointment with programmable reminders for vet visits or upcoming medication doses.",
+  aboutUs: "About Us",
   contact: "Contact",
   welcome: "Welcome to Huellas",
-  getStarted: "Get started",
-  howToHelp: "How to help us",
-  howToHelpText: "We are a non-profit organization, but we also need your help to keep going. Here's how you can help us and the furry friends we care for.",
-  supportAnAnimal: "Support a furry friend",
+  getStarted: "Get Started",
+  howToHelp: "How You Can Help",
+  howToHelpText: "We’re a non-profit organization, and we need your support to continue our mission. Here’s how you can help us and the pets we care for.",
+  supportAnAnimal: "Support a Pet",
 
   // --- About Us ---
   ourMission: "Our Mission",
