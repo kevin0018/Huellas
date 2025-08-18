@@ -1,12 +1,33 @@
-import HomePage from './Views/HomePage'
+/**
+ * App routes.
+ * SPA routing via react-router-dom.
+ */
 
-function App() {
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
+import HomePage from './Views/HomePage';
+import Login from './Views/Login';
+import Register from './Views/Register';
+import AboutUs from "./Views/AboutUs";
+import PetRegister from './Views/PetRegister';
+import CalendarView from './Views/CalendarView';
+import UserHome from './Views/UserHome';
+import Contact from './Views/contact';
 
+
+const App: React.FC = () => {
   return (
-    <>
-      <HomePage />
-    </>
-  )
-}
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/about" element={<AboutUs />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/pet-register" element={<PetRegister />} />
+      <Route path="/calendar" element={<CalendarView />} />
+      <Route path="/user-home" element={<UserHome />} />
+      <Route path="/contact" element={<Contact />} />
+    </Routes>
+  );
+};
 
-export default App
+export default App;

@@ -1,9 +1,12 @@
 /**
  * Barra de navegación responsive con menú hamburguesa.
- * Incluye ThemeSwitcher (claro/oscuro) y LanguageSwitcher.
+ * LanguageSwitcher visible en la barra (desktop + móvil topbar).
+ * ThemeSwitcher solo dentro del menú móvil.
+ * Navegación SPA con react-router-dom (Link).
 */
 
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import ThemeSwitcher from './theme/ThemeSwitcher';
 import LanguageSwitcher from '../i18n/LanguageSwitcher';
 import { useTranslation } from '../i18n/hooks/hook';
@@ -14,27 +17,27 @@ const NavBar: React.FC = () => {
   const toggleMenu = (): void => setIsOpen(!isOpen);
 
   return (
-    <nav className="bg-[#BCAAA4] text-white p-4 shadow-md w-full sticky top-0 z-50">
+    <nav className="bg-[#A89B9D] dark:bg-[#A89B9D] text-white p-4 shadow-md w-full sticky top-0 z-50 rounded-xs">
       <div className="container mx-auto flex justify-between items-center">
-        {/* Logo */}
-        <a href="/">
+        {/* Logo + brand */}
+        <Link to="/" className="flex items-center text-eggplant text-xl">
           <img src="/media/logotipo.svg" alt="Logotipo-huellas" className="h-14 w-auto" />
-        </a>
+          <p className="ml-2">Huellas</p>
+        </Link>
 
         {/* Menú Desktop */}
         <div className="hidden md:flex items-center space-x-6">
-          <a href="#inicio" className="hover:text-[--huellas-eggplant]">{translate('home')}</a>
-          <a href="#servicios" className="hover:text-[--huellas-eggplant]">{translate('services')}</a>
-          <a href="#nosotros" className="hover:text-[--huellas-eggplant]">{translate('aboutUs')}</a>
-          <a href="#contacto" className="hover:text-[--huellas-eggplant]">{translate('contact')}</a>
+          <Link to="/" className="hover-eggplant">{translate('home')}</Link>
+          <Link to="/login" className="hover-eggplant">{translate('login')}</Link>
+          <Link to="/about" className="hover-eggplant">{translate('aboutUs')}</Link>
+          <Link to="/contact" className="hover-eggplant">{translate('contact')}</Link>
           <LanguageSwitcher className="select-huellas" />
-          <ThemeSwitcher />
+          {/* ThemeSwitcher intencionalmente no se muestra en desktop */}
         </div>
 
-        {/* Mobile: Theme + Lang + Burger */}
+        {/* Mobile topbar (LanguageSwitcher + burger) */}
         <div className="md:hidden flex items-center gap-3">
           <LanguageSwitcher className="select-huellas" />
-          <ThemeSwitcher />
           <button
             onClick={toggleMenu}
             aria-label="Toggle Menu"
@@ -56,12 +59,12 @@ const NavBar: React.FC = () => {
       {/* Menú desplegable móvil */}
       <div className={`md:hidden ${isOpen ? 'block' : 'hidden'}`}>
         <div className="flex flex-col items-center space-y-4 pt-4 pb-2">
-          <a href="#inicio" onClick={toggleMenu} className="hover:text-[--huellas-eggplant]">{translate('home')}</a>
-          <a href="#servicios" onClick={toggleMenu} className="hover:text-[--huellas-eggplant]">{translate('services')}</a>
-          <a href="#nosotros" onClick={toggleMenu} className="hover:text-[--huellas-eggplant]">{translate('aboutUs')}</a>
-          <a href="#contacto" onClick={toggleMenu} className="hover:text-[--huellas-eggplant]">{translate('contact')}</a>
+          <Link to="/" onClick={toggleMenu} className="hover:text-[--huellas-eggplant]">{translate('home')}</Link>
+          <Link to="/login" onClick={toggleMenu} className="hover:text-[--huellas-eggplant]">{translate('login')}</Link>
+          <Link to="/about" onClick={toggleMenu} className="hover:text-[--huellas-eggplant]">{translate('aboutUs')}</Link>
+          <Link to="/contact" onClick={toggleMenu} className="hover:text-[--huellas-eggplant]">{translate('contact')}</Link>
           <div className="flex items-center gap-3">
-            <LanguageSwitcher className="select-huellas" />
+            {/* LanguageSwitcher intencionalmente no se muestra en el menú móvil */}
             <ThemeSwitcher />
           </div>
         </div>

@@ -4,18 +4,20 @@
 */
 
 /* Typography */
-@import url('https://fonts.googleapis.com/css2?family=Caprasimo:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Caprasimo&family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
 .font-caprasimo { font-family: 'Caprasimo', serif; }
+
+.font-nunito { font-family: 'Nunito', sans-serif; }
 
 /* Brand palette */
 :root {
   --huellas-eggplant: #51344D;
   --huellas-lavender-1: #9886AD;
   --huellas-lavender-2: #BAA9CB;
+  --huellas-rose-quartz: #A89B9D;
   --huellas-ice: #C6E2EF;
+  --huellas-cream: #FDF2DE;
 }
-
-
 
 /* Radii */
 :root { --radius-pill: 9999px; }
