@@ -1,5 +1,4 @@
 import { VolunteerId } from "../value-objects/VolunteerId.js";
-import bcrypt from 'bcrypt';
 
 export class Volunteer {
   private constructor(
@@ -36,20 +35,71 @@ export class Volunteer {
     return this._description;
   }
 
-  // Factory method to create Volunteer with hashed password
-  static async create(
+  // Factory method to create Volunteer
+  static create(
     id: VolunteerId,
     name: string,
     lastName: string,
     email: string,
-    plainPassword: string,
+    password: string,
     description: string,
-  ): Promise<Volunteer> {
-    const hashedPassword = await bcrypt.hash(plainPassword, 12);
-    return new Volunteer(id, name, lastName, email, hashedPassword, description);
+  ): Volunteer {
+    Volunteer.validateName(name);
+    Volunteer.validateLastName(lastName);
+    Volunteer.validateEmail(email);
+    Volunteer.validatePassword(password);
+    Volunteer.validateDescription(description);
+
+    const normalizedEmail = email.toLowerCase().trim();
+    const trimmedName = name.trim();
+    const trimmedLastName = lastName.trim();
+    const trimmedDescription = description.trim();
+
+    return new Volunteer(id, trimmedName, trimmedLastName, normalizedEmail, password, trimmedDescription);
   }
 
-  // Factory method for testing with pre-hashed password
+  // Validation methods
+  private static validateName(name: string): void {
+    if (!name || name.trim().length === 0) {
+      throw new Error('Name is required');
+    }
+  }
+
+  private static validateLastName(lastName: string): void {
+    if (!lastName || lastName.trim().length === 0) {
+      throw new Error('Last name is required');
+    }
+  }
+
+  private static validateEmail(email: string): void {
+    if (!email || email.trim().length === 0) {
+      throw new Error('Email is required');
+    }
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const normalizedEmail = email.toLowerCase().trim();
+    if (!emailRegex.test(normalizedEmail)) {
+      throw new Error('Invalid email format');
+    }
+  }
+
+  private static validatePassword(password: string): void {
+    if (!password) {
+      throw new Error('Password is required');
+    }
+    
+    if (password.length < 8) {
+      throw new Error('Password must be at least 8 characters long');
+    }
+  }
+
+  private static validateDescription(description: string): void {
+    if (!description || description.trim().length === 0) {
+      throw new Error('Description is required');
+    }
+  }
+
+  // Factory method for testing
   static createWithHashedPassword(
     id: VolunteerId,
     name: string,
@@ -61,8 +111,8 @@ export class Volunteer {
     return new Volunteer(id, name, lastName, email, hashedPassword, description);
   }
 
-  // Method to verify password
-  async verifyPassword(plainPassword: string): Promise<boolean> {
-    return bcrypt.compare(plainPassword, this._password);
+  // Domain method to check if user can delete this volunteer account
+  canBeDeletedBy(requestingUserId: number): boolean {
+    return this.id.getValue() === requestingUserId;
   }
 }
