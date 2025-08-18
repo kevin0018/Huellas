@@ -1,0 +1,45 @@
+### Register Volunteer
+POST http://localhost:3000/api/volunteers/register
+Content-Type: application/json
+
+{
+  "name": "Jane",
+  "lastName": "Smith",
+  "email": "jane.volunteer2@example.com",
+  "password": "securePassword123",
+  "description": "I'm a veterinary student with 3 years of experience helping animals. I'm passionate about animal welfare and available weekends."
+}
+
+### Register Volunteer - Invalid Email
+POST http://localhost:3000/api/volunteers
+Content-Type: application/json
+
+{
+  "name": "John",
+  "lastName": "Doe",
+  "email": "invalid-email",
+  "password": "securePassword123",
+  "description": "I love animals"
+}
+
+### Register Volunteer - Short Password
+POST http://localhost:3000/api/volunteers
+Content-Type: application/json
+
+{
+  "name": "John",
+  "lastName": "Doe",
+  "email": "john@example.com",
+  "password": "123",
+  "description": "I love animals"
+}
+
+### Register Volunteer - Missing Fields
+POST http://localhost:3000/api/volunteers
+Content-Type: application/json
+
+{
+  "name": "John",
+  "lastName": "Doe",
+  "email": "john@example.com"
+}

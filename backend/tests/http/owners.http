@@ -5,10 +5,10 @@ POST http://localhost:3000/api/owners/register
 Content-Type: application/json
 
 {
-  "id": 1,
+  "id": 2,
   "name": "Juan",
   "lastName": "Pérez",
-  "email": "juan.perez@email.com",
+  "email": "juan.perez2@email.com",
   "password": "mySecurePassword123"
 }
 
@@ -51,13 +51,3 @@ Content-Type: application/json
   "email": "ana.lopez@email.com",
   "password": "yetAnotherPassword789"
 }
-
-###
-
-# Health check
-GET http://localhost:3000/health
-
-###
-
-# Database check
-GET http://localhost:3000/db-check

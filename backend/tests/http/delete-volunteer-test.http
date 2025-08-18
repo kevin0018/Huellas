@@ -1,0 +1,25 @@
+### Delete Volunteer Account (requires authentication)
+# First login to get token
+@jwt_token = token
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "jane.volunteer@example.com",
+  "password": "securePassword123"
+}
+
+### Delete Volunteer Account - Valid Request
+DELETE http://localhost:3000/api/volunteers/1
+Authorization: Bearer {{jwt_token}}
+
+### Delete Volunteer Account - Unauthorized (no token)
+DELETE http://localhost:3000/api/volunteers/1
+
+### Delete Volunteer Account - Invalid ID
+DELETE http://localhost:3000/api/volunteers/abc
+Authorization: Bearer {{jwt_token}}
+
+### Delete Volunteer Account - Try to delete another user's account
+DELETE http://localhost:3000/api/volunteers/999
+Authorization: Bearer {{jwt_token}}

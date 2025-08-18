@@ -9,8 +9,7 @@ export class MemoryVolunteerRepository implements VolunteerRepository {
     return this.volunteers.get(id.getValue()) ?? null;
   }
 
-  async save(volunteer: Volunteer): Promise<void> {
-    // Check if volunteer with the same ID already exists
+  async save(volunteer: Volunteer): Promise<number> {
     const existingVolunteer = await this.findById(volunteer.id);
     if (existingVolunteer) {
       throw new Error("Volunteer already exists");
@@ -21,7 +20,19 @@ export class MemoryVolunteerRepository implements VolunteerRepository {
         throw new Error("Volunteer with this email already exists");
       }
     }
-    this.volunteers.set(volunteer.id.getValue(), volunteer);
+    
+    const generatedId = this.volunteers.size + 1;
+    const volunteerWithGeneratedId = Volunteer.createWithHashedPassword(
+      new VolunteerId(generatedId),
+      volunteer.name,
+      volunteer.lastName,
+      volunteer.email,
+      volunteer.password,
+      volunteer.description
+    );
+    
+    this.volunteers.set(generatedId, volunteerWithGeneratedId);
+    return generatedId;
   }
 
   async delete(id: VolunteerId): Promise<void> {

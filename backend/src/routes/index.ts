@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { createOwnerRoutes } from './ownerRoutes.js';
 import { createAuthRoutes } from './authRoutes.js';
 import { GetPetController } from '../contexts/pet/infra/controllers/GetPetController.js';
+import { volunteerRoutes } from './volunteerRoutes.js';
 
 export function createRoutes(): Router {
   console.log('Creating main routes...');
@@ -20,6 +21,10 @@ export function createRoutes(): Router {
     const getPetController = new GetPetController();
     await getPetController.handle(req, res);
   })
+
+  // Mount volunteer routes
+  console.log('Mounting volunteer routes on /volunteers...');
+  router.use('/volunteers', volunteerRoutes);
 
   return router;
 }
