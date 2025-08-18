@@ -1,11 +1,11 @@
 ### Register Volunteer
-POST http://localhost:3000/api/volunteers
+POST http://localhost:3000/api/volunteers/register
 Content-Type: application/json
 
 {
   "name": "Jane",
   "lastName": "Smith",
-  "email": "jane.volunteer@example.com",
+  "email": "jane.volunteer2@example.com",
   "password": "securePassword123",
   "description": "I'm a veterinary student with 3 years of experience helping animals. I'm passionate about animal welfare and available weekends."
 }

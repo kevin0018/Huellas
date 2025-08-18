@@ -39,23 +39,30 @@ export class PrismaVolunteerRepository implements VolunteerRepository {
 
     const hashedPassword = await bcrypt.hash(volunteer.password, 12);
 
-    // Create user and volunteer
-    const createdUser = await prisma.user.create({
-      data: {
-        name: volunteer.name,
-        last_name: volunteer.lastName,
-        email: volunteer.email,
-        password: hashedPassword,
-        type: 'volunteer',
-        volunteer: {
-          create: {
-            description: volunteer.description
-          }
+    const result = await prisma.$transaction(async (prisma) => {
+      // Create user first to get the auto-generated ID
+      const createdUser = await prisma.user.create({
+        data: {
+          name: volunteer.name,
+          last_name: volunteer.lastName,
+          email: volunteer.email,
+          password: hashedPassword,
+          type: 'volunteer'
         }
-      }
+      });
+
+      // Then create volunteer using the generated user ID
+      await prisma.volunteer.create({
+        data: {
+          id: createdUser.id,
+          description: volunteer.description
+        }
+      });
+
+      return createdUser.id;
     });
 
-    return createdUser.id;
+    return result;
   }
 
   async delete(id: VolunteerId): Promise<void> {
