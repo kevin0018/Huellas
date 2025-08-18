@@ -4,34 +4,51 @@
 */
 
 export const en = {
-  huellas: "huellas",
-  appDescription: "Huellas is a platform for managing your furry friends' health and wellness, even if you have more than one pet.",
+  // --- General & UI ---
   home: "Home",
-  services: "Services",
-  aboutUs: "About us",
-  contact: "Contact",
-  login: "Login",
-  welcome: "Welcome to Huellas",
-  getStarted: "Get started",
-  howToHelp: "How to help us",
-  settings: "Settings",
-  theme: "Theme",
-  language: "Language",
-  lightMode: "Light mode",
-  darkMode: "Dark mode",
-  profile: "Profile",
-  favorites: "Favorites",
-  name: "Name",
-  email: "Email",
-  edit: "Edit",
+  loading: "Loading...",
   save: "Save",
   cancel: "Cancel",
-  remove: "Remove",
-  clearAll: "Remove all",
-  vaccine: "Vaccine/s",
-  noAppointments: "No upcoming appointments.",
-  viewAppointments: "View appointments",
-  register: "Register now",
+  delete: "Delete",
+  edit: "Edit",
+  actions: "Actions",
+  search: "Search",
+
+  // --- Auth & Login ---
+  login: "Login",
+  register: "Register",
+  logout: "Logout",
+  email: "Email",
+  password: "Password",
+  name: "Name",
+  dontHaveAccount: "Don't have an account? Register",
+  alreadyHaveAccount: "Already have an account? Login",
+
+  // --- Header & Navigation ---
+  pets: "Pets",
+  users: "Users",
+  profile: "Profile",
+
+  // --- Animals Page ---
+  myPets: "My Pets",
+  addPet: "Add Pet",
+  editPet: "Edit Pet",
+  petName: "Pet's Name",
+  species: "Species",
+  breed: "Breed",
+  age: "Age",
+  gender: "Gender",
+  confirmDeletePet: "Are you sure you want to delete this pet?",
+  noPetsFound: "No pets found. Add a new one to get started!",
+
+  // --- Users Page ---
+  userList: "User List",
+  addUser: "Add User",
+  editUser: "Edit User",
+  role: "Role",
+  confirmDeleteUser: "Are you sure you want to delete this user?",
+  noUsersFound: "No users found.",
+
 } as const;
 
 /** Translation keys defined in the canonical `en` dictionary. */
@@ -41,68 +58,101 @@ export type TranslationKey = keyof typeof en;
 export type LocaleMap = Record<TranslationKey, string>;
 
 export const es: LocaleMap = {
-  huellas: "huellas",
-  appDescription: "Huellas es una plataforma para gestionar la salud y bienestar de tus peluditos, incluso si tienes más de uno.",
+   // --- General & UI ---
   home: "Inicio",
-  services: "Servicios",
-  aboutUs: "Sobre Nosotros",
-  contact: "Contacto",
-  login: "Iniciar sesión",
-  welcome: "Bienvenidx a Huellas",
-  getStarted: "Empieza ahora",
-  howToHelp: "Cómo ayudarnos",
-  settings: "Ajustes",
-  theme: "Tema",
-  language: "Idioma",
-  lightMode: "Modo claro",
-  darkMode: "Modo oscuro",
-  profile: "Perfil",
-  favorites: "Favoritos",
-  name: "Nombre",
-  email: "Correo electrónico",
-  edit: "Editar",
+  loading: "Cargando...",
   save: "Guardar",
   cancel: "Cancelar",
-  remove: "Eliminar",
-  clearAll: "Eliminar todo",
-  vaccine: "Vacuna/s",
-  noAppointments: "No hay citas",
-  viewAppointments: "Ver citas",
-  register: "Registrar ahora",
+  delete: "Borrar",
+  edit: "Editar",
+  actions: "Acciones",
+  search: "Buscar",
+
+  // --- Auth & Login ---
+  login: "Iniciar Sesión",
+  logout: "Cerrar Sesión",
+  register: "Registrase",
+  email: "Correo Electrónico",
+  password: "Contraseña",
+  name: "Nombre",
+  dontHaveAccount: "¿No tienes cuenta? Regístrate",
+  alreadyHaveAccount: "¿Ya tienes cuenta? Inicia sesión",
+
+  // --- Header & Navigation ---
+  pets: "Mascotas",
+  users: "Usuarios",
+  profile: "Perfil",
+
+  // --- Animals Page ---
+  myPets: "Mis Mascotas",
+  addPet: "Añadir Mascota",
+  editPet: "Editar Mascota",
+  petName: "Nombre de la Mascota",
+  species: "Especie",
+  breed: "Raza",
+  age: "Edad",
+  gender: "Género",
+  confirmDeletePet: "¿Estás seguro de que quieres borrar esta mascota?",
+  noPetsFound: "No se encontraron mascotas. ¡Añade una nueva para empezar!",
+
+  // --- Users Page ---
+  userList: "Lista de Usuarios",
+  addUser: "Añadir Usuario",
+  editUser: "Editar Usuario",
+  role: "Rol",
+  confirmDeleteUser: "¿Estás seguro de que quieres borrar este usuario?",
+  noUsersFound: "No se encontraron usuarios.",
 };
 
 export const ca: LocaleMap = {
-  huellas: "huellas",
-  appDescription: "Huellas és una plataforma per gestionar la salut i el benestar dels teus peluts, fins i tot si en tens més d'un.",
+  // --- General & UI ---
   home: "Inici",
-  services: "Serveis",
-  aboutUs: "Sobre Nosaltres",
-  contact: "Contacte",
-  login: "Inicia sessió",
-  welcome: "Benvingut/da a Huellas",
-  getStarted: "Comença ara",
-  howToHelp: "Com ens pots ajudar",
-  settings: "Configuració",
-  theme: "Tema",
-  language: "Idioma",
-  lightMode: "Mode clar",
-  darkMode: "Mode fosc",
-  profile: "Perfil",
-  favorites: "Favorits",
+  loading: "Carregant...",
+  save: "Desar",
+  cancel: "Cancel·lar",
+  delete: "Esborrar",
+  edit: "Editar",
+  actions: "Accions",
+  search: "Cercar",
+
+  // --- Auth & Login ---
+  login: "Iniciar Sessió",
+  logout: "Tancar Sessió",
+  email: "Correu Electrònic",
+  password: "Contrasenya",
   name: "Nom",
-  email: "Correu electrònic",
-  edit: "Edita",
-  save: "Desa",
-  cancel: "Cancel·la",
-  remove: "Elimina",
-  clearAll: "Elimina-ho tot",
-  vaccine: "Vacunes",
-  noAppointments: "No hi ha cites properes.",
-  viewAppointments: "Veure cites",
-  register: "Registra't ara",
+  register: "Registrar-se",
+  dontHaveAccount: "No tens un compte? Registra't",
+  alreadyHaveAccount: "Ja tens un compte? Inicia sessió",
+
+  // --- Header & Navigation ---
+  pets: "Mascotes",
+  users: "Usuaris",
+  profile: "Perfil",
+
+  // --- Animals Page ---
+  myPets: "Les Meves Mascotes",
+  addPet: "Afegir Mascota",
+  editPet: "Editar Mascota",
+  petName: "Nom de la Mascota",
+  species: "Espècie",
+  breed: "Raça",
+  age: "Edat",
+  gender: "Gènere",
+  confirmDeletePet: "Estàs segur que vols esborrar aquesta mascota?",
+  noPetsFound: "No s'han trobat mascotes. Afegeix-ne una de nova per començar!",
+
+  // --- Users Page ---
+  userList: "Llista d'Usuaris",
+  addUser: "Afegir Usuari",
+  editUser: "Editar Usuari",
+  role: "Rol",
+  confirmDeleteUser: "Estàs segur que vols esborrar aquest usuari?",
+  noUsersFound: "No s'han trobat usuaris.",
 };
 
 export const translations = { en, es, ca } as const;
 
 /** Language codes available in the dictionary. */
 export type Language = keyof typeof translations;
+
