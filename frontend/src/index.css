@@ -1,12 +1,12 @@
 @import "./styles/tokens.css";
 @import "tailwindcss";
 
-/* Make dark: utilities activate when a .dark class is present */
+/* Activate dark: utilities when a .dark class exists */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Global page colors so the whole document responds, not only components */
-body { @apply bg-[#FDF2DE] text-[#51344D]; }
-.dark body { @apply bg-[#51344D] text-[#C6E2EF]; }
+/* Global page colors (reverted to earlier scheme) */
+body { @apply bg-gray-50 text-gray-900 text-center; }
+.dark body { @apply bg-[#FDF2DE] text-gray-800 text-white; }
 
 /* Language select styling for visibility (native dropdown) */
 .select-huellas { @apply appearance-none border rounded-md px-2 py-1 text-sm font-medium shadow-sm; }
@@ -14,3 +14,16 @@ body { @apply bg-[#FDF2DE] text-[#51344D]; }
 .dark .select-huellas { background-color: var(--huellas-eggplant); color: #ffffff; border-color: #ffffff; }
 select.select-huellas option { background-color: #ffffff; color: var(--huellas-eggplant); }
 .dark select.select-huellas option { background-color: var(--huellas-eggplant); color: #ffffff; }
+
+/* Typography utilities (set brand color by default) */
+.h1, .h2 { @apply text-center; color: var(--huellas-eggplant); }
+.dark .h1, .dark .h2, .dark .text { @apply text-center; color: var(--huellas-cream);}
+.h1 { @apply text-4xl md:text-5xl leading-tight tracking-tight; }
+.h2 { @apply text-2xl md:text-3xl leading-snug; }
+.lead { @apply text-lg md:text-xl opacity-80; }
+
+.text-eggplant { color: var(--huellas-eggplant); }
+.hover-eggplant:hover { color: var(--huellas-eggplant); }
+.dark .hover-eggplant:hover { text-decoration: underline; }
+.dark .hover-eggplant { color: var(--huellas-eggplant); }
+img {border-radius: 25px;}
