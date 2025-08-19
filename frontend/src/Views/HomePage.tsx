@@ -6,7 +6,9 @@
 import React from 'react';
 import { useTranslation } from '../i18n/hooks/hook';
 import NavBar from '../Components/NavBar';
+import Footer from '../Components/footer';
 import CTAButton from '../Components/CTAButton';
+
 
 const HomeContent: React.FC = () => {
   const { translate } = useTranslation();
@@ -49,6 +51,7 @@ const HomePage: React.FC = () => {
     <>
       <NavBar />
       <HomeContent />
+      <Footer />
     </>
   );
 };
