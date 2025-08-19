@@ -1,3 +1,4 @@
+import bcrypt from 'bcrypt';
 import { AuthRepository } from '../../domain/repositories/AuthRepository.js';
 import { UserAuth } from '../../domain/entities/UserAuth.js';
 
@@ -12,6 +13,10 @@ export class MemoryAuthRepository implements AuthRepository {
   async findById(id: number): Promise<UserAuth | null> {
     const user = this.users.find(u => u.id === id);
     return user || null;
+  }
+
+  async verifyPassword(plainPassword: string, hashedPassword: string): Promise<boolean> {
+    return bcrypt.compare(plainPassword, hashedPassword);
   }
 
   // Helper methods for testing

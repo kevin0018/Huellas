@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcrypt';
 import { AuthRepository } from '../../domain/repositories/AuthRepository.js';
 import { UserAuth, UserType } from '../../domain/entities/UserAuth.js';
 
@@ -12,7 +13,7 @@ export class PrismaAuthRepository implements AuthRepository {
 
     if (!userRecord) return null;
 
-    return new UserAuth(
+    return UserAuth.create(
       userRecord.id,
       userRecord.name,
       userRecord.last_name,
@@ -29,7 +30,7 @@ export class PrismaAuthRepository implements AuthRepository {
 
     if (!userRecord) return null;
 
-    return new UserAuth(
+    return UserAuth.create(
       userRecord.id,
       userRecord.name,
       userRecord.last_name,
@@ -37,5 +38,9 @@ export class PrismaAuthRepository implements AuthRepository {
       userRecord.password,
       userRecord.type as UserType
     );
+  }
+
+  async verifyPassword(plainPassword: string, hashedPassword: string): Promise<boolean> {
+    return bcrypt.compare(plainPassword, hashedPassword);
   }
 }
