@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, beforeAll, afterAll } from 'vitest';
 import bcrypt from 'bcrypt';
 import { LoginCommandHandler } from '../../../../app/commands/login/LoginCommandHandler.js';
 import { LoginCommand } from '../../../../app/commands/login/LoginCommand.js';
@@ -8,15 +8,31 @@ import { UserAuth, UserType } from '../../../../domain/entities/UserAuth.js';
 describe('LoginCommandHandler', () => {
   let authRepository: MemoryAuthRepository;
   let handler: LoginCommandHandler;
+  let originalJwtSecret: string | undefined;
+
+  beforeAll(() => {
+    // Set JWT_SECRET for testing
+    originalJwtSecret = process.env.JWT_SECRET;
+    process.env.JWT_SECRET = 'test-secret-key';
+  });
+
+  afterAll(() => {
+    // Restore original JWT_SECRET
+    if (originalJwtSecret) {
+      process.env.JWT_SECRET = originalJwtSecret;
+    } else {
+      delete process.env.JWT_SECRET;
+    }
+  });
 
   beforeEach(async () => {
     authRepository = new MemoryAuthRepository();
     handler = new LoginCommandHandler(authRepository);
     
-    // Create test users with hashed passwords
+    // Create test users with hashed passwords using factory method
     const hashedPassword = await bcrypt.hash('correctPassword123', 12);
     
-    const ownerUser = new UserAuth(
+    const ownerUser = UserAuth.create(
       1,
       'Juan',
       'Pérez',
@@ -25,7 +41,7 @@ describe('LoginCommandHandler', () => {
       UserType.OWNER
     );
     
-    const volunteerUser = new UserAuth(
+    const volunteerUser = UserAuth.create(
       2,
       'María',
       'García',
