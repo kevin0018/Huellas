@@ -3,6 +3,8 @@ import { createOwnerRoutes } from './ownerRoutes.js';
 import { createAuthRoutes } from './authRoutes.js';
 import { GetPetController } from '../contexts/pet/infra/controllers/GetPetController.js';
 import { volunteerRoutes } from './volunteerRoutes.js';
+import { DeletePetController } from '../contexts/pet/infra/controllers/DeletePetController.js';
+import { PetRepository } from '../contexts/pet/infra/persistence/PetRepository.js';
 
 export function createRoutes(): Router {
   console.log('Creating main routes...');
@@ -16,11 +18,19 @@ export function createRoutes(): Router {
   console.log('Mounting owner routes on /owners...');
   router.use('/owners', createOwnerRoutes());
 
-  // Pet Routes
+  // GET Pet Routes
   router.get('/pet/:id', async (req, res) => {
-    const getPetController = new GetPetController();
+    const petRepository = new PetRepository();
+    const getPetController = new GetPetController(petRepository);
     await getPetController.handle(req, res);
-  })
+  });
+
+  //DELETE Pet Routes
+  router.delete('/pet/:id', async (req, res) => {
+    const petRepository = new PetRepository();
+    const deletePetController = new DeletePetController(petRepository);
+    await deletePetController.handle(req, res);
+  });
 
   // Mount volunteer routes
   console.log('Mounting volunteer routes on /volunteers...');
