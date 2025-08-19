@@ -12,21 +12,21 @@ export class DeletePetController {
         const parsedPetId = parseInt(petId);
 
         if (isNaN(parsedPetId)) {
-            return res.status(400).json({ error: 'Invalid pet ID' });
+            return res.status(400).send({ error: 'Invalid pet ID' });
         }
 
         try {
             const petExists = await this.petRepository.findById(parsedPetId);
 
             if (!petExists) {
-                return res.status(404).json({ error: 'Pet not found' });
+                return res.status(404).send({ error: 'Pet not found' });
             }
 
             await this.petRepository.delete(parsedPetId);
-            return res.status(200).json({ message: 'Pet deleted successfully' });
+            return res.status(204)
 
         } catch (error) {
-            return res.status(500).json({ error: 'Internal server error' });
+            return res.status(500).send({ error: 'Internal server error' });
         }
     }
 }
