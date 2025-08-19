@@ -6,7 +6,9 @@
 import React from 'react';
 import { useTranslation } from '../i18n/hooks/hook';
 import NavBar from '../Components/NavBar';
+import Footer from '../Components/footer';
 import CTAButton from '../Components/CTAButton';
+
 
 const HomeContent: React.FC = () => {
   const { translate } = useTranslation();
@@ -19,14 +21,19 @@ const HomeContent: React.FC = () => {
         </h1>
       </header>
 
-      <div className="relative w-full max-w-5xl flex items-center justify-center">
-        <img src="/media/dogs_desktop.png" alt="Dogs_desktop" className="hidden md:block w-220" />
-        <img src="/media/dogs_title.png" alt="dogs_mobile" className="block md:hidden w-full" />
-        {/* CTA overlay to match Figma pill button */}
-        <div className="absolute left-4 bottom-4 md:left-8 md:bottom-8">
-          <CTAButton label={translate('getStarted')} href="#register" />
+      <div className="relative w-full max-w-5xl mx-auto flex flex-row items-center justify-center px-4">
+          {/* Desktop images: visible from md and up */}
+          <img src="/media/dogs_desktop.png" alt="Dogs_desktop" className="hidden lg:block w-full max-w-[500px]"/>
+          <img src="/media/dogs_desktop.png" alt="Dogs_desktop" className="hidden lg:block w-full max-w-[500px]"/>
+          {/* Mobile image: visible below md */}
+          <img src="/media/dogs_title.png" alt="dogs_mobile" className="block lg:hidden w-full max-w-[600px]" />
+
+          {/* CTA overlay */}
+          <div className="absolute left-4 bottom-4 md:left-8 md:bottom-8">
+            <CTAButton label={translate('getStarted')} href="#register" />
+          </div>
         </div>
-      </div>
+
 
       <section className="w-full max-w-5xl mt-8">
         <h2 className="h2 font-caprasimo text-[--huellas-eggplant] dark:text-[--huellas-ice] mb-4">
@@ -49,6 +56,7 @@ const HomePage: React.FC = () => {
     <>
       <NavBar />
       <HomeContent />
+      <Footer />
     </>
   );
 };
