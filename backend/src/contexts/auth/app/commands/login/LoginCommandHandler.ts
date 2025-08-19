@@ -1,4 +1,3 @@
-import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { AuthRepository } from '../../../domain/repositories/AuthRepository.js';
 import { UserType } from '../../../domain/entities/UserAuth.js';
@@ -26,7 +25,7 @@ export class LoginCommandHandler {
     }
 
     // Verify password
-    const isValidPassword = await bcrypt.compare(command.password, user.password);
+    const isValidPassword = await this.authRepository.verifyPassword(command.password, user.password);
     
     if (!isValidPassword) {
       throw new Error('Invalid email or password');
