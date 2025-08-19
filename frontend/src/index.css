@@ -26,4 +26,5 @@ select.select-huellas option { background-color: #ffffff; color: var(--huellas-e
 .hover-eggplant:hover { color: var(--huellas-eggplant); }
 .dark .hover-eggplant:hover { text-decoration: underline; }
 .dark .hover-eggplant { color: var(--huellas-eggplant); }
+.dark p { color: var(--huellas-cream); }
 img {border-radius: 25px;}
