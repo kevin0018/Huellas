@@ -1,6 +1,6 @@
 /**
  * Internationalization dictionary.
- * `en` is the canonical contract; other locales match its KEYS, not its VALUES.
+ * en is the canonical contract; other locales match its KEYS, not its VALUES.
 */
 
 export const en = {
@@ -17,47 +17,53 @@ export const en = {
   clearAll: "Remove all",
 
   // --- Landing & App ---
-  huellas: "huellas",
+  huellas: "Huellas",
   appDescription:
-    "Huellas is a comprehensive platform created to bring together every aspect of your pets’ health and wellbeing, no matter how many you have. It keeps a complete medical record for each animal, so you can log and review vaccination dates, deworming, known allergies, and any current medications. Plus, the app makes sure you never miss an important appointment with programmable reminders for vet visits or upcoming medication doses.",
-  aboutUs: "About Us",
+    "Huellas is an all-in-one platform designed to manage your pets' health and wellness. It centralizes each pet's complete medical history, allowing you to track vaccination dates, deworming, known allergies, and medications. The app also helps you never miss an important appointment with programmable reminders for vet visits or their next dose.",
+  aboutUs: "About us",
   contact: "Contact",
   welcome: "Welcome to Huellas",
   getStarted: "Get Started",
   howToHelp: "How You Can Help",
-  howToHelpText: "We’re a non-profit organization, and we need your support to continue our mission. Here’s how you can help us and the pets we care for.",
+  howToHelpText: "We are a non-profit organization, and we rely on your help to continue our work. Here's how you can support us and the animals in our care.",
   supportAnAnimal: "Support a Pet",
 
   // --- About Us ---
   ourMission: "Our Mission",
-  ourMissionText: "We understand that your furry companions are part of your family, and our purpose is to give you the peace of mind that you are taking care of them in the best possible way. We transform the complexity of managing their health—appointments, vaccines, diets—into a simple and intuitive experience, so you can spend less time organizing and more on what truly matters: enjoying every walk, game, and moment of companionship.",
+  ourMissionText: "We know your pets are family. Our purpose is to give you peace of mind, knowing you're caring for them in the best way possible. We turn complex health management—appointments, vaccines, diets—into a simple, intuitive experience, so you can spend less time organizing and more time enjoying every walk, game, and moment together.",
   ourVision: "Our Vision",
-  ourVisionText: "We dream of a future where every pet lives a longer, healthier, and happier life in a home that understands and cares for them with confidence. We aspire to be the platform that strengthens the unbreakable bond between people and their animals, creating a global community of informed and empowered owners.",
+  ourVisionText: "We dream of a future where every pet lives a longer, healthier, and happier life in a home where they are understood and loved. We aspire to be the platform that strengthens the unbreakable bond between people and their animals, building a global community of informed and empowered owners.",
   meetTheTeam: "Meet the Team",
-  meetTheTeamText: "The Huellas team is made up of developers, designers, and above all, pet owners. The idea was born from our own need to better organize the care of our companions and have the certainty that we were doing it right. That's why we created the tool we always wanted to have at our fingertips.",
-  meetTheTeamText2: "Our dedication translates into a simple and reliable platform, designed to give you security and more quality time with your pet.",
+  meetTheTeamText: "The Huellas team is made up of developers and designers but, most importantly, we're pet owners just like you. The idea was born from our own need to better organize our pets' care and feel confident we were doing it right. That's why we built the tool we always wanted for ourselves.",
+  meetTheTeamText2: "That dedication is reflected in a simple, reliable platform designed to give you peace of mind and more quality time with your pet.",
 
   // --- Auth & Login ---
-  login: "Login",
-  register: "Register",
-  logout: "Logout",
+  login: "Log In",
+  register: "Sign Up",
+  logout: "Log Out",
   email: "Email",
   password: "Password",
   name: "Name",
-  dontHaveAccount: "Don't have an account? Register",
-  alreadyHaveAccount: "Already have an account? Login",
+  dontHaveAccount: "Don't have an account? Sign up",
+  alreadyHaveAccount: "Already have an account? Log in",
 
   // --- Header & Navigation ---
-  pets: "Pets",
+  pets: "My Pets",
   users: "Users",
-  profile: "Profile",
+  profile: "My Profile",
   settings: "Settings",
+  
+  // --- Home page ---
+  homePageTitle: "Welcome back, {{name}}!",
+  homePageSubtitle: "Here’s a look at how your pets are doing today.",
+  addPetButton: "Add a New Pet",
+  agendaButton: "My Agenda",
 
   // --- Settings ---
   theme: "Theme",
   language: "Language",
-  lightMode: "Light mode",
-  darkMode: "Dark mode",
+  lightMode: "Light Mode",
+  darkMode: "Dark Mode",
 
   // --- Animals Page ---
   myPets: "My Pets",
@@ -70,9 +76,9 @@ export const en = {
   gender: "Gender",
   confirmDeletePet: "Are you sure you want to delete this pet?",
   noPetsFound: "No pets found. Add a new one to get started!",
-  vaccine: "Vaccine/s",
+  vaccine: "Vaccines",
   noAppointments: "No upcoming appointments.",
-  viewAppointments: "View appointments",
+  viewAppointments: "View Appointments",
 
   // --- Users Page ---
   userList: "User List",
@@ -84,7 +90,7 @@ export const en = {
 
 } as const;
 
-/** Translation keys defined in the canonical `en` dictionary. */
+/** Translation keys defined in the canonical en dictionary. */
 export type TranslationKey = keyof typeof en;
 
 // LocaleMap locks keys to TranslationKey but allows any string value
@@ -104,7 +110,7 @@ export const es: LocaleMap = {
   clearAll: "Eliminar todo",
 
   // --- Landing & App ---
-  huellas: "huellas",
+  huellas: "Huellas",
   appDescription:
     "Huellas es una plataforma integral diseñada para unificar todos los aspectos de la salud y el bienestar de tus compañeros peludos, sin importar cuántos tengas. Centraliza el historial médico completo de cada mascota, permitiéndote registrar y consultar fechas de vacunación, desparasitaciones, alergias conocidas y cualquier medicación actual. Además, la aplicación te ayuda a no olvidar nunca una cita importante gracias a su sistema de recordatorios programables para visitas al veterinario o la próxima dosis de su medicación.",
   aboutUs: "Sobre Nosotros",
@@ -127,7 +133,7 @@ export const es: LocaleMap = {
   // --- Auth & Login ---
   login: "Iniciar Sesión",
   logout: "Cerrar Sesión",
-  register: "Registrase",
+  register: "Regístrate",
   email: "Correo Electrónico",
   password: "Contraseña",
   name: "Nombre",
@@ -137,8 +143,14 @@ export const es: LocaleMap = {
   // --- Header & Navigation ---
   pets: "Mascotas",
   users: "Usuarios",
-  profile: "Perfil",
+  profile: "Mi perfil",
   settings: "Ajustes",
+
+  // --- Home page ---
+  homePageTitle: "¡Hola de nuevo, {{name}}!",
+  homePageSubtitle: "Aquí tienes todo lo que necesitas para cuidar de tus animales hoy.",
+  addPetButton: "Añadir una nueva mascota",
+  agendaButton: "Mi agenda",
 
   // --- Settings ---
   theme: "Tema",
@@ -184,7 +196,7 @@ export const ca: LocaleMap = {
   clearAll: "Elimina-ho tot",
 
   // --- Landing & App ---
-  huellas: "huellas",
+  huellas: "Huellas",
   appDescription:
     "Huellas és una plataforma integral dissenyada per unificar tots els aspectes de la salut i el benestar dels teus companys peluts, sense importar quants en tinguis. Centralitza l'historial mèdic complet de cada mascota, permetent-te registrar i consultar dates de vacunació, desparasitacions, al·lèrgies conegudes i qualsevol medicació actual. A més, l'aplicació t'ajuda a no oblidar mai una cita important gràcies al seu sistema de recordatoris programables per a visites al veterinari o la pròxima dosi de la seva medicació.",
   aboutUs: "Sobre Nosaltres",
@@ -192,7 +204,7 @@ export const ca: LocaleMap = {
   welcome: "Benvingut/da a Huellas",
   getStarted: "Comença ara",
   howToHelp: "Com ens pots ajudar",
-  howToHelpText: "Som una organització sense ànim de lucre, però també necessitem la teva ajuda per seguir endavant. Aquí et mostrem com pots ajudar-nos a nosaltres i als peluts que cuidem.",
+  howToHelpText: "Som una organització sense ànim de lucre, però también necessitem la teva ajuda per seguir endavant. Aquí et mostrem com pots ajudar-nos a nosaltres i als peluts que cuidem.",
   supportAnAnimal: "Dóna suport a un pelut",
   
   // --- About Us ---
@@ -217,8 +229,14 @@ export const ca: LocaleMap = {
   // --- Header & Navigation ---
   pets: "Mascotes",
   users: "Usuaris",
-  profile: "Perfil",
+  profile: "El meu perfil",
   settings: "Configuració",
+
+  // --- Home page ---
+  homePageTitle: "Hola de nou, {{name}}!",
+  homePageSubtitle: "Aquí tens tot el que necessites per cuidar dels teus animals avui.",
+  addPetButton: "Afegir una nova mascota",
+  agendaButton: "La meva agenda",
 
   // --- Settings ---
   theme: "Tema",
