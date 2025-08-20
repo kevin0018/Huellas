@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { UserType } from '../../domain/entities/UserAuth.js';
 import { JwtBlacklist } from '../services/JwtBlacklist.js';
+import { PetRepository } from '../../../pet/infra/persistence/PetRepository.js';
 
 export interface AuthenticatedRequest extends Request {
   user?: {
@@ -105,5 +106,36 @@ export class JwtMiddleware {
   // Middleware to just require any authenticated user
   static requireAuthenticated() {
     return JwtMiddleware.authenticate();
+  }
+
+  static requireOwnPet() {
+    return [
+      JwtMiddleware.requireOwner(),
+      async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+        const ownerId = req.user?.userId;
+        const petId = req.params.id;
+        const parsedPetId = parseInt(petId);
+
+        if (isNaN(parsedPetId)) {
+          res.status(400).send({ error: "Id must be a number" });
+          return
+        }
+
+        const petRepository = new PetRepository();
+        const pet = await petRepository.findById(parsedPetId);
+
+        if (!pet) {
+          res.status(404).send({ error: "Pet not found" });
+          return
+        }
+
+        if (pet.getOwnerId() !== ownerId) {
+          res.status(403).send({ error: "You don't have access to this pet" });
+          return
+        }
+        
+        next();
+      }
+    ];
   }
 }
