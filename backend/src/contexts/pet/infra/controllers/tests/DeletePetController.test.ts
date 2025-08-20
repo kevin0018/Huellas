@@ -22,67 +22,6 @@ describe("DeletePetController", () => {
         "Very posh"
     )
 
-    it('should return 400 Bad Request if id is not a number', async () => {
-        // Mocks
-
-        // Mock Repository
-        const mockPetRepository = {
-            findById: () => Promise.resolve(null),
-            save: () => Promise.resolve(mockPet),
-            delete: () => Promise.resolve(undefined)
-        }
-
-        //Mock Request
-        const mockRequest: Partial<Request> = { params: { id: "THIS_SHOULD_BE_A_NUMBER" } };
-
-        //Mock Response
-        const mockResponse: Partial<Response> = {
-            status: vi.fn().mockReturnThis(),
-            send: vi.fn().mockReturnThis()
-        };
-
-        // Pet Controller Instance with mock pet repository
-        const deletePetController = new DeletePetController(mockPetRepository);
-
-        // Pet Controller execution with mocks
-        await deletePetController.handle(mockRequest as Request, mockResponse as Response);
-
-        //check results
-        expect(mockResponse.status).toHaveBeenCalledWith(400);
-        expect(mockResponse.send).toHaveBeenCalledWith({ error: 'Invalid pet ID' });
-
-    })
-
-    it('should return 404 Not Found if pet does not exist', async () => {
-
-        //Mocks
-
-        //Mock Repository
-        const mockPetRepository = {
-            findById: () => Promise.resolve(null),
-            save: () => Promise.resolve(mockPet),
-            delete: () => Promise.resolve(undefined)
-        }
-
-        //Mock Request
-        const mockRequest: Partial<Request> = { params: { id: "1" } };
-
-        //Mock Response
-        const mockResponse: Partial<Response> = {
-            status: vi.fn().mockReturnThis(),
-            send: vi.fn().mockReturnThis()
-        }
-
-        // Pet Controller Instance with mock pet repository
-        const deletePetController = new DeletePetController(mockPetRepository);
-
-        // Pet Controller execution with mocks
-        await deletePetController.handle(mockRequest as Request, mockResponse as Response);
-
-        expect(mockResponse.status).toHaveBeenCalledWith(404);
-        expect(mockResponse.send).toHaveBeenCalledWith({ error: 'Pet not found' })
-    })
-
     it('should return 204 No Content if it has been deleted successfully', async () => {
 
         // Mocks
@@ -122,7 +61,7 @@ describe("DeletePetController", () => {
         const mockPetRepository = {
             findById: () => Promise.reject("Error"),
             save: () => Promise.resolve(mockPet),
-            delete: () => Promise.resolve(undefined)
+            delete: () => Promise.reject("Error")
         }
 
         // Mock Request

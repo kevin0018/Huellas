@@ -1,10 +1,11 @@
-import { Router } from 'express';
+import { Router, Response } from 'express';
 import { createOwnerRoutes } from './ownerRoutes.js';
 import { createAuthRoutes } from './authRoutes.js';
 import { GetPetController } from '../contexts/pet/infra/controllers/GetPetController.js';
 import { volunteerRoutes } from './volunteerRoutes.js';
 import { DeletePetController } from '../contexts/pet/infra/controllers/DeletePetController.js';
 import { PetRepository } from '../contexts/pet/infra/persistence/PetRepository.js';
+import { AuthenticatedRequest, JwtMiddleware } from '../contexts/auth/infra/middleware/JwtMiddleware.js';
 
 export function createRoutes(): Router {
   console.log('Creating main routes...');
@@ -19,14 +20,14 @@ export function createRoutes(): Router {
   router.use('/owners', createOwnerRoutes());
 
   // GET Pet Routes
-  router.get('/pet/:id', async (req, res) => {
+  router.get('/pet/:id', ...JwtMiddleware.requireOwnPet(), async (req: AuthenticatedRequest, res: Response) => {
     const petRepository = new PetRepository();
     const getPetController = new GetPetController(petRepository);
     await getPetController.handle(req, res);
   });
 
   //DELETE Pet Routes
-  router.delete('/pet/:id', async (req, res) => {
+  router.delete('/pet/:id', ...JwtMiddleware.requireOwnPet(), async (req: AuthenticatedRequest, res: Response) => {
     const petRepository = new PetRepository();
     const deletePetController = new DeletePetController(petRepository);
     await deletePetController.handle(req, res);
