@@ -1,11 +1,15 @@
-@import "./styles/tokens.css";
+@import "./Styles/tokens.css";
 @import "tailwindcss";
 
 /* Activate dark: utilities when a .dark class exists */
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* Global page colors (reverted to earlier scheme) */
+.background-primary {
+  @apply bg-[#FDF2DE] dark:bg-[#51344D];
+}
 body { @apply bg-gray-50 text-gray-900 text-center; }
+.dark .register-link { color: #fff !important; }
 .dark body { @apply bg-[#FDF2DE] text-gray-800 text-white; }
 
 /* Language select styling for visibility (native dropdown) */
