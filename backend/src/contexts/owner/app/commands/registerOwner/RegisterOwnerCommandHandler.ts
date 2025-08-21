@@ -6,15 +6,20 @@ import { RegisterOwnerCommand } from './RegisterOwnerCommand.js';
 export class RegisterOwnerCommandHandler {
   constructor(private readonly ownerRepository: OwnerRepository) {}
 
-  async execute(command: RegisterOwnerCommand): Promise<void> {
+  async execute(command: RegisterOwnerCommand): Promise<{ id: number; message: string }> {
     const owner = await Owner.create(
-      new OwnerId(command.id),
+      new OwnerId(1),
       command.name,
       command.lastName,
       command.email,
       command.password
     );
     
-    await this.ownerRepository.save(owner);
+    const generatedId = await this.ownerRepository.save(owner);
+
+    return {
+      id: generatedId,
+      message: 'Owner registered successfully'
+    };
   }
 }

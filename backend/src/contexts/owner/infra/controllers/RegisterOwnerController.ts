@@ -7,22 +7,22 @@ export class RegisterOwnerController {
 
   async handle(request: Request, response: Response): Promise<void> {
     try {
-      const { id, name, lastName, email, password } = request.body;
+      const { name, lastName, email, password } = request.body;
 
-      if (!id || !name || !lastName || !email || !password) {
+      if (!name || !lastName || !email || !password) {
         response.status(400).json({ 
-          error: 'Missing required fields: id, name, lastName, email, password' 
+          error: 'Missing required fields: name, lastName, email, password' 
         });
         return;
       }
 
-      const command = new RegisterOwnerCommand(id, name, lastName, email, password);
+      const command = new RegisterOwnerCommand(name, lastName, email, password);
 
-      await this.commandHandler.execute(command);
+      const result = await this.commandHandler.execute(command);
 
       response.status(201).json({ 
-        message: 'Owner registered successfully',
-        data: { id, name, lastName, email }
+        message: result.message,
+        data: { id: result.id, name, lastName, email }
       });
 
     } catch (error) {

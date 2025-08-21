@@ -1,9 +1,10 @@
 import { describe, it, expect, vi } from "vitest";
-import { GetPetController } from "../GetPetController.js";
-import { Pet } from "../../../domain/entities/Pet.js";
 import { Request, Response } from 'express';
+import { Pet } from "../../../domain/entities/Pet.js";
+import { DeletePetController } from "../DeletePetController.js";
 
-describe("GetPetController", () => {
+
+describe("DeletePetController", () => {
 
     const mockPet = new Pet(
         1,
@@ -21,7 +22,7 @@ describe("GetPetController", () => {
         "Very posh"
     )
 
-    it('should return 200 OK if pet does exist', async () => {
+    it('should return 204 No Content if it has been deleted successfully', async () => {
 
         // Mocks
 
@@ -30,7 +31,7 @@ describe("GetPetController", () => {
             findById: () => Promise.resolve(mockPet),
             save: () => Promise.resolve(mockPet),
             delete: () => Promise.resolve(undefined)
-        }
+        };
 
         // Mock Request
         const mockRequest: Partial<Request> = { params: { id: "1" } };
@@ -38,18 +39,19 @@ describe("GetPetController", () => {
         // Mock Response
         const mockResponse: Partial<Response> = {
             status: vi.fn().mockReturnThis(),
-            send: vi.fn().mockReturnThis(),
+            send: vi.fn().mockReturnThis()
         };
 
         // Pet Controller Instance with mock pet repository
-        const getPetController = new GetPetController(mockPetRepository);
+        const deletePetController = new DeletePetController(mockPetRepository);
 
         // Pet Controller execution with mocks
-        await getPetController.handle(mockRequest as Request, mockResponse as Response);
+        await deletePetController.handle(mockRequest as Request, mockResponse as Response);
 
-        expect(mockResponse.send).toHaveBeenCalledWith(mockPet);
-
-    })
+        // Check results
+        expect(mockResponse.status).toHaveBeenCalledWith(204);
+        expect(mockResponse.send).not.toHaveBeenCalled();
+    });
 
     it("should return 500 Internal Server Error if repository fails", async () => {
 
@@ -59,7 +61,7 @@ describe("GetPetController", () => {
         const mockPetRepository = {
             findById: () => Promise.reject("Error"),
             save: () => Promise.resolve(mockPet),
-            delete: () => Promise.resolve(undefined)
+            delete: () => Promise.reject("Error")
         }
 
         // Mock Request
@@ -72,12 +74,13 @@ describe("GetPetController", () => {
         };
 
         // Pet Controller Instance with mock pet repository
-        const getPetController = new GetPetController(mockPetRepository);
+        const deletePetController = new DeletePetController(mockPetRepository);
 
         // Pet Controller execution with mocks
-        await getPetController.handle(mockRequest as Request, mockResponse as Response);
+        await deletePetController.handle(mockRequest as Request, mockResponse as Response);
 
         expect(mockResponse.status).toHaveBeenCalledWith(500);
         expect(mockResponse.send).toHaveBeenCalledWith({ error: 'Internal server error' });
-    })
+    });
 })
+
