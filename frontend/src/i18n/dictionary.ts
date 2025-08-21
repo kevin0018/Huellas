@@ -44,7 +44,12 @@ export const en = {
   email: "Email",
   password: "Password",
   name: "Name",
-  dontHaveAccount: "Don't have an account? Sign up",
+  lastName: "Last Name",
+  description: "Description",
+  owner: "Owner",
+  volunteer: "Volunteer",
+  registerSuccess: "Registration successful!",
+  dontHaveAccount: "Don't have an account?",
   alreadyHaveAccount: "Already have an account? Log in",
 
   // --- Header & Navigation ---
@@ -137,7 +142,12 @@ export const es: LocaleMap = {
   email: "Correo Electrónico",
   password: "Contraseña",
   name: "Nombre",
-  dontHaveAccount: "¿No tienes cuenta? Regístrate",
+  lastName: "Apellido",
+  description: "Descripción",
+  owner: "Titular",
+  volunteer: "Voluntario",
+  registerSuccess: "¡Registro exitoso!",
+  dontHaveAccount: "¿No tienes cuenta?",
   alreadyHaveAccount: "¿Ya tienes cuenta? Inicia sesión",
 
   // --- Header & Navigation ---
@@ -222,8 +232,13 @@ export const ca: LocaleMap = {
   email: "Correu Electrònic",
   password: "Contrasenya",
   name: "Nom",
+  lastName: "Cognom",
+  description: "Descripció",
+  owner: "Titular",
+  volunteer: "Voluntari",
+  registerSuccess: "Registre amb èxit!",
   register: "Registrar-se",
-  dontHaveAccount: "No tens un compte? Registra't",
+  dontHaveAccount: "No tens un compte?",
   alreadyHaveAccount: "Ja tens un compte? Inicia sessió",
 
   // --- Header & Navigation ---
