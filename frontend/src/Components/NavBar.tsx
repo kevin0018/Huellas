@@ -17,12 +17,12 @@ const NavBar: React.FC = () => {
   const toggleMenu = (): void => setIsOpen(!isOpen);
 
   return (
-    <nav className="bg-[#A89B9D] text-white p-4 shadow-md w-full sticky top-0 z-50 rounded-xs">
+    <nav className="bg-[#A89B9D] dark:bg-[#928d8e] text-white p-4 shadow-md w-full sticky top-0 z-50 rounded-xs">
       <div className="container mx-auto flex justify-between items-center">
         {/* Logo + brand */}
-        <Link to="/" className="flex items-center text-eggplant text-xl">
+        <Link to="/" className="flex items-center text-eggplant text-xl text-[#51344D]">
           <img src="/media/logotipo.svg" alt="Logotipo-huellas" className="h-14 w-auto" />
-          <p className="ml-2">Huellas</p>
+          Huellas
         </Link>
 
         {/* Menú Desktop */}
