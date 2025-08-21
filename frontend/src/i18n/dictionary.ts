@@ -37,7 +37,7 @@ export const en = {
   meetTheTeamText: "The Huellas team is made up of developers and designers but, most importantly, we're pet owners just like you. The idea was born from our own need to better organize our pets' care and feel confident we were doing it right. That's why we built the tool we always wanted for ourselves.",
   meetTheTeamText2: "That dedication is reflected in a simple, reliable platform designed to give you peace of mind and more quality time with your pet.",
 
-  // --- Auth & Login ---
+  // --- Auth / Login / register ---
   login: "Log In",
   register: "Sign Up",
   logout: "Log Out",
@@ -50,6 +50,7 @@ export const en = {
   volunteer: "Volunteer",
   registerSuccess: "Registration successful!",
   dontHaveAccount: "Don't have an account?",
+  forgotPassword: "Forgot your password?",
   alreadyHaveAccount: "Already have an account? Log in",
 
   // --- Header & Navigation ---
@@ -135,7 +136,7 @@ export const es: LocaleMap = {
   meetTheTeamText: "El equipo de Huellas está formado por programadores, diseñadores y, ante todo, dueños de mascotas. La idea nació de nuestra propia necesidad de organizar mejor el cuidado de nuestros compañeros y tener la certeza de estar haciéndolo bien. Por eso, creamos la herramienta que siempre quisimos tener a nuestro alcance.",
   meetTheTeamText2: "Nuestra dedicación se traduce en una plataforma sencilla y fiable, pensada para darte seguridad y más tiempo de calidad con tu mascota.",
 
-  // --- Auth & Login ---
+  // --- Auth / Login / Register ---
   login: "Iniciar Sesión",
   logout: "Cerrar Sesión",
   register: "Regístrate",
@@ -148,6 +149,7 @@ export const es: LocaleMap = {
   volunteer: "Voluntario",
   registerSuccess: "¡Registro exitoso!",
   dontHaveAccount: "¿No tienes cuenta?",
+  forgotPassword: "¿Has olvidado tu contraseña?",
   alreadyHaveAccount: "¿Ya tienes cuenta? Inicia sesión",
 
   // --- Header & Navigation ---
@@ -226,7 +228,7 @@ export const ca: LocaleMap = {
   meetTheTeamText: "L'equip de Huellas està format per programadors, dissenyadors i, sobretot, propietaris de mascotes. La idea va néixer de la nostra pròpia necessitat d'organitzar millor la cura dels nostres companys i tenir la certesa d'estar-ho fent bé. Per això, vam crear l'eina que sempre vam voler tenir al nostre abast.",
   meetTheTeamText2: "La nostra dedicació es tradueix en una plataforma senzilla i fiable, pensada per donar-te seguretat i més temps de qualitat amb la teva mascota.",
 
-  // --- Auth & Login ---
+  // --- Auth / Login / Register ---
   login: "Iniciar Sessió",
   logout: "Tancar Sessió",
   email: "Correu Electrònic",
@@ -239,6 +241,7 @@ export const ca: LocaleMap = {
   registerSuccess: "Registre amb èxit!",
   register: "Registrar-se",
   dontHaveAccount: "No tens un compte?",
+  forgotPassword: "Has oblidat la teva contrasenya?",
   alreadyHaveAccount: "Ja tens un compte? Inicia sessió",
 
   // --- Header & Navigation ---
