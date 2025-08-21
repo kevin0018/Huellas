@@ -47,8 +47,7 @@ const HomeContent: React.FC = () => {
       <section className="w-full max-w-5xl mt-20 mb-30">
         <h2 className="h2 font-caprasimo mb-4"> {translate('howToHelp')} </h2>
         <div className="flex flex-col md:flex-row md:justify-between items-center">
-          <img src="/media/helpCat.svg" alt="Helping Cat" className='w-80 mx-auto m-5 hidden lg:block dark:hidden' />
-          <img src="/media/helpCat_blue_thin_solid.png" alt="Helping Cat" className='w-80 mx-auto m-5 hidden lg:dark:block' />
+          <img src="/media/helpCat.svg" alt="Helping Cat" className='w-80 mx-auto m-5' />
           <div className="flex flex-col items-center md:items-start text-left max-w-xl font-nunito">
             <p className="lead text-justify w-full max-w-4xl"> {translate('howToHelpText')} </p>
             <button className="bg-[#51344D] text-white m-4 py-2 px-4 rounded"> {translate('howToHelp')} </button>
