@@ -1,4 +1,6 @@
-
+import { RegisterOwnerCommand } from '../modules/owner/application/commands/RegisterOwnerCommand';
+import { RegisterOwnerCommandHandler } from '../modules/owner/application/commands/RegisterOwnerCommandHandler';
+import { ApiOwnerRepository } from '../modules/owner/infra/ApiOwnerRepository';
 import { useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import ThemeProvider from '../Components/theme/ThemeProvider';
@@ -38,7 +40,21 @@ function RegisterForm() {
     setError(null);
     setSuccess(false);
     try {
-      setSuccess(true);
+      if (userType === 'owner') {
+        const repo = new ApiOwnerRepository();
+        const handler = new RegisterOwnerCommandHandler(repo);
+        const command = new RegisterOwnerCommand(
+          form.name,
+          form.lastName,
+          form.email,
+          form.password
+        );
+        await handler.execute(command);
+        setSuccess(true);
+      } else {
+        // TODO: Implement volunteer registration
+        setError('Registro de voluntario no implementado');
+      }
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);

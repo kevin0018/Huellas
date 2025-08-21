@@ -1,27 +1,33 @@
 import { describe, it, expect, vi } from 'vitest';
 import { RegisterOwnerCommand } from '../../../../application/commands/RegisterOwnerCommand';
 import { RegisterOwnerCommandHandler } from '../../../../application/commands/RegisterOwnerCommandHandler';
+import { Owner } from '../../../../domain/Owner';
 
 describe('RegisterOwnerCommandHandler', () => {
-	it('should call repository and return owner id on success', async () => {
+	it('should call repository with Owner instance', async () => {
 		// Arrange
 		const mockRepository = {
-			register: vi.fn().mockResolvedValue({ id: 123 })
+			register: vi.fn().mockResolvedValue(undefined)
 		};
 		const handler = new RegisterOwnerCommandHandler(mockRepository);
-		const command = new RegisterOwnerCommand({
-			name: 'John',
-			lastName: 'Doe',
-			email: 'john@example.com',
-			password: 'securePassword123'
-		});
+		const command = new RegisterOwnerCommand(
+			'John',
+			'Doe',
+			'john@example.com',
+			'securePassword123'
+		);
 
 		// Act
-		const result = await handler.execute(command);
+		await handler.execute(command);
 
 		// Assert
-		expect(mockRepository.register).toHaveBeenCalledWith(command);
-		expect(result).toEqual({ id: 123 });
+		expect(mockRepository.register).toHaveBeenCalledTimes(1);
+		const ownerArg = mockRepository.register.mock.calls[0][0];
+		expect(ownerArg).toBeInstanceOf(Owner);
+		expect(ownerArg.name).toBe('John');
+		expect(ownerArg.lastName).toBe('Doe');
+		expect(ownerArg.email).toBe('john@example.com');
+		expect(ownerArg.password).toBe('securePassword123');
 	});
 
 	it('should throw if repository fails', async () => {
@@ -30,12 +36,12 @@ describe('RegisterOwnerCommandHandler', () => {
 			register: vi.fn().mockRejectedValue(new Error('API error'))
 		};
 		const handler = new RegisterOwnerCommandHandler(mockRepository);
-		const command = new RegisterOwnerCommand({
-			name: 'Jane',
-			lastName: 'Smith',
-			email: 'jane@example.com',
-			password: 'password456'
-		});
+		const command = new RegisterOwnerCommand(
+			'Jane',
+			'Smith',
+			'jane@example.com',
+			'password456'
+		);
 
 		// Act & Assert
 		await expect(handler.execute(command)).rejects.toThrow('API error');
