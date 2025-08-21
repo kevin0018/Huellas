@@ -15,14 +15,16 @@ describe('RegisterOwnerCommandHandler', () => {
 
   it('should create and save a new Owner with valid data', async () => {
     const command = new RegisterOwnerCommand(
-      1, // id
       'Marc',
       'Smith',
       'marc@email.com',
       'hashedPassword123'
     );
 
-    await handler.execute(command);
+    const result = await handler.execute(command);
+
+    expect(result.id).toBe(1);
+    expect(result.message).toBe('Owner registered successfully');
 
     const owner = await ownerRepository.findById(new OwnerId(1));
     expect(owner).not.toBeNull();
@@ -35,21 +37,25 @@ describe('RegisterOwnerCommandHandler', () => {
   });
 
   it('should throw error if email already exists', async () => {
-    const command1 = new RegisterOwnerCommand(1, 'Marc', 'Smith', 'marc@email.com', 'password1');
-    const command2 = new RegisterOwnerCommand(2, 'John', 'Doe', 'marc@email.com', 'password2');
+    const command1 = new RegisterOwnerCommand('Marc', 'Smith', 'marc@email.com', 'password1');
+    const command2 = new RegisterOwnerCommand('John', 'Doe', 'marc@email.com', 'password2');
 
     await handler.execute(command1);
 
     await expect(handler.execute(command2)).rejects.toThrow('Email already exists');
   });
 
-  it('should throw error if Owner id already exists', async () => {
-    const command1 = new RegisterOwnerCommand(1, 'Marc', 'Smith', 'marc@email.com', 'password1');
-    const command2 = new RegisterOwnerCommand(1, 'John', 'Doe', 'john@email.com', 'password2');
+  it('should auto-generate unique IDs for different owners', async () => {
+    const command1 = new RegisterOwnerCommand('Marc', 'Smith', 'marc@email.com', 'password1');
+    const command2 = new RegisterOwnerCommand('John', 'Doe', 'john@email.com', 'password2');
 
-    await handler.execute(command1);
+    const result1 = await handler.execute(command1);
+    const result2 = await handler.execute(command2);
 
-    await expect(handler.execute(command2)).rejects.toThrow('Owner id already exists');
+    expect(result1.id).toBe(1);
+    expect(result2.id).toBe(2);
+    expect(result1.message).toBe('Owner registered successfully');
+    expect(result2.message).toBe('Owner registered successfully');
   });
 
 });

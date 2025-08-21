@@ -4,24 +4,25 @@ import { OwnerId } from '../../domain/value-objects/OwnerId.js';
 
 export class MemoryOwnerRepository implements OwnerRepository {
   private owners: Map<number, Owner> = new Map();
+  private nextId: number = 1;
 
   async findById(id: OwnerId): Promise<Owner | null> {
     return this.owners.get(id.getValue()) ?? null;
   }
 
-  async save(owner: Owner): Promise<void> {
-    // Verify if Owner id already exists
-    const existingOwner = await this.findById(owner.id);
-    if (existingOwner) {
-      throw new Error('Owner id already exists');
-    }
+  async save(owner: Owner): Promise<number> {
     // Verify if email already exists
     for (const existingOwner of this.owners.values()) {
       if (existingOwner.email === owner.email) {
         throw new Error('Email already exists');
       }
     }
-    this.owners.set(owner.id.getValue(), owner);
+    
+    // Generate new ID and save
+    const generatedId = this.nextId++;
+    this.owners.set(generatedId, owner);
+    
+    return generatedId;
   }
 
   async delete(id: OwnerId): Promise<void> {

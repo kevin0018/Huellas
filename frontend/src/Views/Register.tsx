@@ -1,6 +1,9 @@
 import { RegisterOwnerCommand } from '../modules/owner/application/commands/RegisterOwnerCommand';
 import { RegisterOwnerCommandHandler } from '../modules/owner/application/commands/RegisterOwnerCommandHandler';
 import { ApiOwnerRepository } from '../modules/owner/infra/ApiOwnerRepository';
+import { RegisterVolunteerCommand } from '../modules/volunteer/application/commands/RegisterVolunteerCommand';
+import { RegisterVolunteerCommandHandler } from '../modules/volunteer/application/commands/RegisterVolunteerCommandHandler';
+import { ApiVolunteerRepository } from '../modules/volunteer/infra/ApiVolunteerRepository';
 import { useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import ThemeProvider from '../Components/theme/ThemeProvider';
@@ -51,9 +54,20 @@ function RegisterForm() {
         );
         await handler.execute(command);
         setSuccess(true);
+      } else if (userType === 'volunteer') {
+        const repo = new ApiVolunteerRepository();
+        const handler = new RegisterVolunteerCommandHandler(repo);
+        const command = new RegisterVolunteerCommand(
+          form.name,
+          form.lastName,
+          form.email,
+          form.password,
+          form.description
+        );
+        await handler.execute(command);
+        setSuccess(true);
       } else {
-        // TODO: Implement volunteer registration
-        setError('Registro de voluntario no implementado');
+        setError('type of user not supported');
       }
     } catch (err) {
       if (err instanceof Error) {

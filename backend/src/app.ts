@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import { testDbConnection } from './db/pool.js';
 import { createRoutes } from './routes/index.js';
 import { testRoutes } from './test-routes.js';
@@ -6,6 +7,8 @@ import { RedisService } from './config/RedisService.js';
 
 export async function buildApp() {
   const app = express();
+  app.use(cors());
+  app.options('*', cors());
   app.use(express.json());
 
   // Initialize Redis connection
