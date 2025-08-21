@@ -41,12 +41,12 @@ const ThemeSwitcher: FC<ThemeSwitcherProps> = ({
       >
         {isDark ? (
           // Moon
-          <svg viewBox="0 0 24 24" className="h-4 w-4 text-yellow-300" fill="currentColor">
+          <svg viewBox="0 0 24 24" className="h-4 w-4 !text-yellow-300" fill="currentColor">
             <path d="M21.64 13a1 1 0 0 0-1-.77 8 8 0 0 1-8.87-8.87 1 1 0 0 0-1.27-1A10 10 0 1 0 22.4 14.27a1 1 0 0 0-1-1.27Z"/>
           </svg>
         ) : (
           // Sun
-          <svg viewBox="0 0 24 24" className="h-4 w-4 text-yellow-500" fill="currentColor">
+          <svg viewBox="0 0 24 24" className="h-4 w-4 !text-yellow-500" fill="currentColor">
             <path d="M6.76 4.84l-1.8-1.79-1.41 1.41 1.79 1.8 1.42-1.42zm10.45 14.32l1.79 1.8 1.41-1.41-1.8-1.79-1.4 1.4zM12 4V1h-1v3h1zm0 19v-3h-1v3h1zM4 13H1v-1h3v1zm19 0h-3v-1h3v1zM6.76 19.16l-1.42 1.42-1.79-1.8 1.41-1.41 1.8 1.79zM19.16 6.76l1.42-1.42 1.8 1.79-1.41 1.41-1.81-1.78zM12 6a6 6 0 100 12 6 6 0 000-12z"/>
           </svg>
         )}

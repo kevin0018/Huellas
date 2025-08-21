@@ -27,10 +27,9 @@ const NavBar: React.FC = () => {
 
         {/* Menú Desktop */}
         <div className="hidden md:flex items-center space-x-6">
-          <Link to="/" className="hover-eggplant">{translate('home')}</Link>
+          <Link to="/register" className="hover-eggplant">{translate('register')}</Link>
           <Link to="/login" className="hover-eggplant">{translate('login')}</Link>
           <Link to="/about" className="hover-eggplant">{translate('aboutUs')}</Link>
-          <Link to="/contact" className="hover-eggplant">{translate('contact')}</Link>
           <LanguageSwitcher className="select-huellas" />
           <ThemeSwitcher />
         </div>

@@ -50,7 +50,7 @@ const HomeContent: React.FC = () => {
           <img src="/media/helpCat.svg" alt="Helping Cat" className='w-80 mx-auto m-5' />
           <div className="flex flex-col items-center md:items-start text-left max-w-xl font-nunito">
             <p className="lead text-justify w-full max-w-4xl"> {translate('howToHelpText')} </p>
-            <button className="bg-[#51344D] text-white m-4 py-2 px-4 rounded"> {translate('howToHelp')} </button>
+            <button className="bg-[#51344D] !text-white m-4 py-2 px-4 rounded"> {translate('howToHelp')} </button>
           </div>
         </div>
       </section>
