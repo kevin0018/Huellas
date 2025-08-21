@@ -11,6 +11,29 @@
 /* Activate dark: utilities when a .dark class exists */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Custom theme colors for UserHome page*/
+@theme {
+  --bg-dogs-userhome-mobile-url: url('media/bg_phone_userhome.png');
+  --bg-dogs-userhome-tablet-url: url('media/bg_tablet_userhome.png');
+  --bg-dogs-userhome-desktop-url: url('media/bg_desktop_userhome.png');
+  --bg-dogs-userhome-mobile-dark-url: url('media/bg_phone_userhome_dark.png');
+
+}
+@layer utilities {
+  .bg-dogs-userhome-mobile {
+    background-image: var(--bg-dogs-userhome-mobile-url);
+  }
+  .bg-dogs-userhome-mobile.dark {
+    background-image: var(--bg-dogs-userhome-mobile-dark-url);
+  }
+  .md\:bg-dogs-userhome-tablet {
+    background-image: var(--bg-dogs-userhome-tablet-url);
+  }
+  .lg\:bg-dogs-userhome-desktop {
+    background-image: var(--bg-dogs-userhome-desktop-url);
+  }
+}
+
 /* Global page colors (reverted to earlier scheme) */
 .background-primary {
   @apply bg-[#FDF2DE] dark:bg-[#51344D];
