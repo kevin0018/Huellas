@@ -15,6 +15,7 @@ import PetRegister from './Views/PetRegister';
 import CalendarView from './Views/CalendarView';
 import UserHome from './Views/UserHome';
 import Contact from './Views/contact';
+import PetProfile from './Views/PetProfile';
 
 
 const App: React.FC = () => {
@@ -30,6 +31,7 @@ const App: React.FC = () => {
           <Route path="/calendar" element={<CalendarView />} />
           <Route path="/user-home" element={<UserHome />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/pet-profile" element={<PetProfile />} />
         </Routes>
       </ThemeProvider>
     </LanguageProvider>
