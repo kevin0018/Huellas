@@ -19,7 +19,7 @@
     "db:reset": "prisma db push --force-reset && npm run db:seed",
     "db:migrate:dev": "prisma migrate dev && npm run db:seed"
   },
-    "prisma": {
+  "prisma": {
     "seed": "tsx src/db/seed.ts"
   },
   "dependencies": {
