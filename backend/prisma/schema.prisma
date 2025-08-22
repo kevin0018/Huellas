@@ -33,12 +33,6 @@ enum Sex {
   female
 }
 
-enum AnimalType {
-  dog
-  cat
-  ferret
-}
-
 enum AppointmentReason {
   VACCINATION
   GENERAL_CHECKUP
@@ -133,7 +127,7 @@ model Appointment {
 
 model ProcedureSchedule {
   id                     Int        @id @default(autoincrement())
-  animal_type            AnimalType
+  animal_type            PetType
   procedure_name         String
   recommended_vaccines_age Int
   notes                  String?
