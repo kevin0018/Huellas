@@ -26,7 +26,7 @@ const NavBar: React.FC = () => {
         </Link>
 
         {/* Menú Desktop */}
-        <div className="hidden md:flex items-center space-x-6">
+        <div className="hidden md:flex items-center space-x-6 text-[#51344D]">
           <Link to="/register" className="hover-eggplant">{translate('register')}</Link>
           <Link to="/login" className="hover-eggplant">{translate('login')}</Link>
           <Link to="/about" className="hover-eggplant">{translate('aboutUs')}</Link>
