@@ -2,6 +2,7 @@ import React from "react";
 import ThemeProvider from "../Components/theme/ThemeProvider";
 import NavBar from "../Components/NavBar";
 import Footer from "../Components/footer";
+import { Link } from "react-router-dom";
 
 const UserHome: React.FC = () => {
   return (
@@ -244,7 +245,7 @@ const UserHome: React.FC = () => {
             type="button"
             className="
           flex items-center justify-center gap-3  pr-4
-          bg-[#51344D] text-white font-semibold rounded-lg shadow-md
+          bg-[#51344D] !text-white font-semibold rounded-lg shadow-md
           hover:bg-[#A89B9D] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75
           transition-colors duration-300 ease-in-out "
           >
@@ -255,7 +256,7 @@ const UserHome: React.FC = () => {
               className="h-10 w-10"
             />
 
-            <span>Agenda</span>
+            <Link to="/procedures" className="">Ir a Procedimientos</Link>
           </button>
         </div>
       </div>

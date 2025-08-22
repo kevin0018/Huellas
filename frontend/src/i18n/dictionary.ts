@@ -25,17 +25,22 @@ export const en = {
   welcome: "Welcome to Huellas",
   getStarted: "Get Started",
   howToHelp: "How You Can Help",
-  howToHelpText: "We are a non-profit organization, and we rely on your help to continue our work. Here's how you can support us and the animals in our care.",
+  howToHelpText:
+    "We are a non-profit organization, and we rely on your help to continue our work. Here's how you can support us and the animals in our care.",
   supportAnAnimal: "Support a Pet",
 
   // --- About Us ---
   ourMission: "Our Mission",
-  ourMissionText: "We know your pets are family. Our purpose is to give you peace of mind, knowing you're caring for them in the best way possible. We turn complex health management—appointments, vaccines, diets—into a simple, intuitive experience, so you can spend less time organizing and more time enjoying every walk, game, and moment together.",
+  ourMissionText:
+    "We know your pets are family. Our purpose is to give you peace of mind, knowing you're caring for them in the best way possible. We turn complex health management—appointments, vaccines, diets—into a simple, intuitive experience, so you can spend less time organizing and more time enjoying every walk, game, and moment together.",
   ourVision: "Our Vision",
-  ourVisionText: "We dream of a future where every pet lives a longer, healthier, and happier life in a home where they are understood and loved. We aspire to be the platform that strengthens the unbreakable bond between people and their animals, building a global community of informed and empowered owners.",
+  ourVisionText:
+    "We dream of a future where every pet lives a longer, healthier, and happier life in a home where they are understood and loved. We aspire to be the platform that strengthens the unbreakable bond between people and their animals, building a global community of informed and empowered owners.",
   meetTheTeam: "Meet the Team",
-  meetTheTeamText: "The Huellas team is made up of developers and designers but, most importantly, we're pet owners just like you. The idea was born from our own need to better organize our pets' care and feel confident we were doing it right. That's why we built the tool we always wanted for ourselves.",
-  meetTheTeamText2: "That dedication is reflected in a simple, reliable platform designed to give you peace of mind and more quality time with your pet.",
+  meetTheTeamText:
+    "The Huellas team is made up of developers and designers but, most importantly, we're pet owners just like you. The idea was born from our own need to better organize our pets' care and feel confident we were doing it right. That's why we built the tool we always wanted for ourselves.",
+  meetTheTeamText2:
+    "That dedication is reflected in a simple, reliable platform designed to give you peace of mind and more quality time with your pet.",
 
   // --- Auth / Login / register ---
   login: "Log In",
@@ -88,14 +93,22 @@ export const en = {
   noAppointments: "No upcoming appointments.",
   viewAppointments: "View Appointments",
 
-  // --- Users Page ---
-  userList: "User List",
-  addUser: "Add User",
-  editUser: "Edit User",
-  role: "Role",
-  confirmDeleteUser: "Are you sure you want to delete this user?",
-  noUsersFound: "No users found.",
-
+  // --- Procedures / Vet schedule ---
+  procedures: "Procedures",
+  dose: "Dose",
+  weeks: "Weeks",
+  innerdes: "Internal deworming",
+  innerdestext: "First internal deworming, repeat every 2 weeks until 3 months",
+  extdes: "External deworming",
+  extdestext: "Start of external antiparasitic control",
+  multivac: "Multivalent vaccine",
+  vaccines1: "Distemper, hepatitis, parvovirus, parainfluenza",
+  vaccines2: "Protection against Bordetella and parainfluenza",
+  kennelvac: "Kennel cough vaccine",
+  rabidVac: "Rabies vaccine",
+  rabidText: "Mandatory rabies vaccine (according to local legislation)",
+  lastMultiText: "Final puppy booster for full immunity",
+  reinforceMulti: "Booster of the multivalent vaccine",
 } as const;
 
 /** Translation keys defined in the canonical en dictionary. */
@@ -105,7 +118,7 @@ export type TranslationKey = keyof typeof en;
 export type LocaleMap = Record<TranslationKey, string>;
 
 export const es: LocaleMap = {
-    // --- General & UI ---
+  // --- General & UI ---
   home: "Inicio",
   loading: "Cargando...",
   save: "Guardar",
@@ -126,17 +139,22 @@ export const es: LocaleMap = {
   welcome: "Bienvenidx a Huellas",
   getStarted: "Empieza ahora",
   howToHelp: "Cómo ayudarnos",
-  howToHelpText: "Somos una organización sin fines de lucro, pero también necesitamos tu ayuda para seguir adelante. Aquí te mostramos cómo puedes ayudarnos a nosotros y a los peluditos que cuidamos.",
+  howToHelpText:
+    "Somos una organización sin fines de lucro, pero también necesitamos tu ayuda para seguir adelante. Aquí te mostramos cómo puedes ayudarnos a nosotros y a los peluditos que cuidamos.",
   supportAnAnimal: "Apoya a un peludito",
 
   // --- About Us ---
   ourMission: "Nuestra Misión",
-  ourMissionText: "Entendemos que tus compañeros peludos son parte de tu familia, y nuestro propósito es darte la tranquilidad de que estás cuidando de ellos de la mejor manera posible. Transformamos la complejidad de la gestión de su salud —citas, vacunas, dietas— en una experiencia sencilla e intuitiva, para que puedas dedicar menos tiempo a la organización y más a lo que de verdad importa: disfrutar de cada paseo, juego y momento de compañía.",
+  ourMissionText:
+    "Entendemos que tus compañeros peludos son parte de tu familia, y nuestro propósito es darte la tranquilidad de que estás cuidando de ellos de la mejor manera posible. Transformamos la complejidad de la gestión de su salud —citas, vacunas, dietas— en una experiencia sencilla e intuitiva, para que puedas dedicar menos tiempo a la organización y más a lo que de verdad importa: disfrutar de cada paseo, juego y momento de compañía.",
   ourVision: "Nuestra Visión",
-  ourVisionText: "Soñamos con un futuro donde cada mascota viva una vida más larga, saludable y feliz en un hogar que la comprende y la cuida con confianza. Aspiramos a ser la plataforma que fortalezca el vínculo inquebrantable entre las personas y sus animales, creando una comunidad global de dueños informados y empoderados.",
+  ourVisionText:
+    "Soñamos con un futuro donde cada mascota viva una vida más larga, saludable y feliz en un hogar que la comprende y la cuida con confianza. Aspiramos a ser la plataforma que fortalezca el vínculo inquebrantable entre las personas y sus animales, creando una comunidad global de dueños informados y empoderados.",
   meetTheTeam: "Conoce al Equipo",
-  meetTheTeamText: "El equipo de Huellas está formado por programadores, diseñadores y, ante todo, dueños de mascotas. La idea nació de nuestra propia necesidad de organizar mejor el cuidado de nuestros compañeros y tener la certeza de estar haciéndolo bien. Por eso, creamos la herramienta que siempre quisimos tener a nuestro alcance.",
-  meetTheTeamText2: "Nuestra dedicación se traduce en una plataforma sencilla y fiable, pensada para darte seguridad y más tiempo de calidad con tu mascota.",
+  meetTheTeamText:
+    "El equipo de Huellas está formado por programadores, diseñadores y, ante todo, dueños de mascotas. La idea nació de nuestra propia necesidad de organizar mejor el cuidado de nuestros compañeros y tener la certeza de estar haciéndolo bien. Por eso, creamos la herramienta que siempre quisimos tener a nuestro alcance.",
+  meetTheTeamText2:
+    "Nuestra dedicación se traduce en una plataforma sencilla y fiable, pensada para darte seguridad y más tiempo de calidad con tu mascota.",
 
   // --- Auth / Login / Register ---
   login: "Iniciar Sesión",
@@ -189,13 +207,23 @@ export const es: LocaleMap = {
   noAppointments: "No hay citas",
   viewAppointments: "Ver citas",
 
-  // --- Users Page ---
-  userList: "Lista de Usuarios",
-  addUser: "Añadir Usuario",
-  editUser: "Editar Usuario",
-  role: "Rol",
-  confirmDeleteUser: "¿Estás seguro de que quieres borrar este usuario?",
-  noUsersFound: "No se encontraron usuarios.",
+  // --- Procedimientos / Calendario veterinario ---
+  procedures: "Procedimientos",
+  dose: "Dosis",
+  weeks: "Semanas",
+  innerdes: "Desparasitación interna",
+  innerdestext:
+    "Primera desparasitación interna, repetir cada 2 semanas hasta los 3 meses",
+  extdes: "Desparasitación externa",
+  extdestext: "Inicio del control antiparasitario externo",
+  multivac: "Vacuna polivalente",
+  vaccines1: "Moquillo, hepatitis, parvovirosis, parainfluenza",
+  vaccines2: "Protección contra Bordetella y parainfluenza",
+  kennelvac: "Vacuna contra la tos de las perreras",
+  rabidVac: "Vacuna antirrábica",
+  rabidText: "Vacuna obligatoria contra la rabia (según legislación local)",
+  lastMultiText: "Último refuerzo de cachorro para inmunidad completa",
+  reinforceMulti: "Refuerzo de la vacuna polivalente",
 };
 
 export const ca: LocaleMap = {
@@ -220,17 +248,22 @@ export const ca: LocaleMap = {
   welcome: "Benvingut/da a Huellas",
   getStarted: "Comença ara",
   howToHelp: "Com ens pots ajudar",
-  howToHelpText: "Som una organització sense ànim de lucre, però también necessitem la teva ajuda per seguir endavant. Aquí et mostrem com pots ajudar-nos a nosaltres i als peluts que cuidem.",
+  howToHelpText:
+    "Som una organització sense ànim de lucre, però també necessitem la teva ajuda per seguir endavant. Aquí et mostrem com pots ajudar-nos a nosaltres i als peluts que cuidem.",
   supportAnAnimal: "Dóna suport a un pelut",
   
   // --- About Us ---
   ourMission: "La Nostra Missió",
-  ourMissionText: "Entenem que els teus companys peluts són part de la teva família, i el nostre propòsit és donar-te la tranquil·litat que estàs cuidant d'ells de la millor manera possible. Transformem la complexitat de la gestió de la seva salut —cites, vacunes, dietes— en una experiència senzilla i intuïtiva, perquè puguis dedicar menys temps a l'organització i més al que de veritat importa: gaudir de cada passeig, joc i moment de companyia.",
+  ourMissionText:
+    "Entenem que els teus companys peluts són part de la teva família, i el nostre propòsit és donar-te la tranquil·litat que estàs cuidant d'ells de la millor manera possible. Transformem la complexitat de la gestió de la seva salut —cites, vacunes, dietes— en una experiència senzilla i intuïtiva, perquè puguis dedicar menys temps a l'organització i més al que de veritat importa: gaudir de cada passeig, joc i moment de companyia.",
   ourVision: "La Nostra Visió",
-  ourVisionText: "Somiem amb un futur on cada mascota visqui una vida més llarga, saludable i feliç en una llar que la comprèn i la cuida amb confiança. Aspirem a ser la plataforma que enforteixi el vincle indestructible entre les persones i els seus animals, creant una comunitat global de propietaris informats i empoderats.",
+  ourVisionText:
+    "Somiem amb un futur on cada mascota visqui una vida més llarga, saludable i feliç en una llar que la comprèn i la cuida amb confiança. Aspirem a ser la plataforma que enforteixi el vincle indestructible entre les persones i els seus animals, creant una comunitat global de propietaris informats i empoderats.",
   meetTheTeam: "Coneix l'Equip",
-  meetTheTeamText: "L'equip de Huellas està format per programadors, dissenyadors i, sobretot, propietaris de mascotes. La idea va néixer de la nostra pròpia necessitat d'organitzar millor la cura dels nostres companys i tenir la certesa d'estar-ho fent bé. Per això, vam crear l'eina que sempre vam voler tenir al nostre abast.",
-  meetTheTeamText2: "La nostra dedicació es tradueix en una plataforma senzilla i fiable, pensada per donar-te seguretat i més temps de qualitat amb la teva mascota.",
+  meetTheTeamText:
+    "L'equip de Huellas està format per programadors, dissenyadors i, sobretot, propietaris de mascotes. La idea va néixer de la nostra pròpia necessitat d'organitzar millor la cura dels nostres companys i tenir la certesa d'estar-ho fent bé. Per això, vam crear l'eina que sempre vam voler tenir al nostre abast.",
+  meetTheTeamText2:
+    "La nostra dedicació es tradueix en una plataforma senzilla i fiable, pensada per donar-te seguretat i més temps de qualitat amb la teva mascota.",
 
   // --- Auth / Login / Register ---
   login: "Iniciar Sessió",
@@ -283,13 +316,23 @@ export const ca: LocaleMap = {
   noAppointments: "No hi ha cites properes.",
   viewAppointments: "Veure cites",
 
-  // --- Users Page ---
-  userList: "Llista d'Usuaris",
-  addUser: "Afegir Usuari",
-  editUser: "Editar Usuari",
-  role: "Rol",
-  confirmDeleteUser: "Estàs segur que vols esborrar aquest usuari?",
-  noUsersFound: "No s'han trobat usuaris.",
+  // --- Procediments / Calendari veterinari ---
+  procedures: "Procediments",
+  dose: "Dosi",
+  weeks: "Setmanes",
+  innerdes: "Desparasitació interna",
+  innerdestext:
+    "Primera desparasitació interna, repetir cada 2 setmanes fins als 3 mesos",
+  extdes: "Desparasitació externa",
+  extdestext: "Inici del control antiparasitari extern",
+  multivac: "Vacuna polivalent",
+  vaccines1: "Moquill, hepatitis, parvovirosi, parainfluença",
+  vaccines2: "Protecció contra Bordetella i parainfluença",
+  kennelvac: "Vacuna contra la tos de les perreres",
+  rabidVac: "Vacuna antiràbica",
+  rabidText: "Vacuna obligatòria contra la ràbia (segons legislació local)",
+  lastMultiText: "Últim reforç de cadell per a una immunitat completa",
+  reinforceMulti: "Reforç de la vacuna polivalent",
 };
 
 export const translations = { en, es, ca } as const;
