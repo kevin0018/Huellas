@@ -49,7 +49,7 @@ select.select-huellas option { background-color: #ffffff; color: var(--huellas-e
 
 /* Typography utilities (set brand color by default) */
 
-* {
+p {
   font-family: 'Nunito', sans-serif;
   color: var(--huellas-eggplant);
 }
@@ -69,4 +69,4 @@ h1, h2, h3, h4, h5, h6 { @apply text-center; color: var(--huellas-eggplant); fon
 .dark .h1, .dark .h2, .dark .text { @apply text-center; color: var(--huellas-cream);}
 .dark .hover-eggplant:hover { text-decoration: underline; }
 .dark .hover-eggplant { color: var(--huellas-eggplant); }
-.dark * { color: var(--huellas-cream); }
+.dark p { color: var(--huellas-cream); }
