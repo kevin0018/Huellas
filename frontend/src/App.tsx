@@ -16,6 +16,7 @@ import CalendarView from './Views/CalendarView';
 import UserHome from './Views/UserHome';
 import Contact from './Views/contact';
 import PetProfile from './Views/PetProfile';
+import UserProfile from './Views/UserProfile';
 
 
 const App: React.FC = () => {
@@ -32,6 +33,7 @@ const App: React.FC = () => {
           <Route path="/user-home" element={<UserHome />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/pet-profile" element={<PetProfile />} />
+          <Route path="/user-profile" element={<UserProfile />} />
         </Routes>
       </ThemeProvider>
     </LanguageProvider>
