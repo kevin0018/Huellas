@@ -2,7 +2,6 @@ import { PrismaClient } from '@prisma/client';
 import { OwnerRepository } from '../../domain/repositories/OwnerRepository.js';
 import { Owner } from '../../domain/entities/Owner.js';
 import { OwnerId } from '../../domain/value-objects/OwnerId.js';
-import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
@@ -38,16 +37,13 @@ export class PrismaOwnerRepository implements OwnerRepository {
       throw new Error('Owner with this email already exists');
     }
 
-    const hashedPassword = await bcrypt.hash(owner.password, 12);
-
     const result = await prisma.$transaction(async (prisma) => {
-      // Create user first to get the auto-generated ID
       const createdUser = await prisma.user.create({
         data: {
           name: owner.name,
           last_name: owner.lastName,
           email: owner.email,
-          password: hashedPassword,
+          password: owner.password,
           type: 'owner'
         }
       });
