@@ -51,6 +51,8 @@ export const en = {
   registerSuccess: "Registration successful!",
   dontHaveAccount: "Don't have an account?",
   forgotPassword: "Forgot your password?",
+  acceptTerms: "I accept the terms",
+  readTerms: "Read our T&Cs",
   alreadyHaveAccount: "Already have an account? Log in",
 
   // --- Header & Navigation ---
@@ -150,6 +152,8 @@ export const es: LocaleMap = {
   registerSuccess: "¡Registro exitoso!",
   dontHaveAccount: "¿No tienes cuenta?",
   forgotPassword: "¿Has olvidado tu contraseña?",
+  acceptTerms: "Acepto los términos",
+  readTerms: "Leer Términos y Condiciones",
   alreadyHaveAccount: "¿Ya tienes cuenta? Inicia sesión",
 
   // --- Header & Navigation ---
@@ -239,6 +243,8 @@ export const ca: LocaleMap = {
   owner: "Titular",
   volunteer: "Voluntari",
   registerSuccess: "Registre amb èxit!",
+  acceptTerms: "Accepto els termes",
+  readTerms: "Llegeix els Termes i Condicions",
   register: "Registrar-se",
   dontHaveAccount: "No tens un compte?",
   forgotPassword: "Has oblidat la teva contrasenya?",
