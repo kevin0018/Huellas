@@ -1,11 +1,14 @@
 import React from "react";
-import ThemeProvider from "../Components/theme/ThemeProvider";
+import { Link } from "react-router-dom";
+import { useTranslation } from '../i18n/hooks/hook';
 import NavBar from "../Components/NavBar";
 import Footer from "../Components/footer";
 
 const UserProfile: React.FC = () => {
+  const { translate } = useTranslation();
+
   return (
-    <ThemeProvider>
+    <>
       <NavBar />
       <div className="bg-dogs-userhome-mobile md:bg-dogs-userhome-tablet lg:bg-dogs-userhome-desktop bg-cover bg-center flex flex-col items-center justify-center dark:bg-dogs-userhome-mobile ">
         <div className="flex flex-col items-center justify-center text-center p-4">
@@ -72,14 +75,11 @@ const UserProfile: React.FC = () => {
 
                 {/* Campo voluntario checkbox */}
                 <div className="flex items-center gap-2">
-                    <input type="checkbox" className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 p-6"  />
-                  <label
-                    htmlFor="volunteerOrOwner"
-                    className="inline text-sm font-medium mr-2"
-                  >
+                  <label htmlFor="volunteerOrOwner" className="inline text-sm font-medium flex flex-row items-center">
+                    <input type="checkbox" className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 p-6  mr-2" />
                     ¿Quieres ser voluntario?
                   </label>
-                  
+
                 </div>
 
                 {/* Campo contraseña */}
@@ -147,12 +147,12 @@ const UserProfile: React.FC = () => {
               className="h-10 w-10"
             />
 
-            <span>Agenda</span>
+            <Link to="/calendar" className="">{translate("viewAppointments")}</Link>
           </button>
         </div>
       </div>
       <Footer />
-    </ThemeProvider>
+    </>
   );
 };
 
