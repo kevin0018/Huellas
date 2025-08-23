@@ -1,5 +1,5 @@
 import type { AuthRepository } from '../domain/AuthRepository';
-import type { LoginResponse } from '../domain/User';
+import type { LoginResponse, User } from '../domain/User';
 import { AuthService } from './AuthService';
 
 export class ApiAuthRepository implements AuthRepository {
@@ -64,5 +64,69 @@ export class ApiAuthRepository implements AuthRepository {
     
     // Always clear local storage, even if server call fails
     AuthService.logout();
+  }
+
+  async updateProfile(token: string, profileData: {
+    name: string;
+    lastName: string;
+    email: string;
+  }): Promise<User> {
+    const response = await fetch(`${this.baseUrl}/profile`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(profileData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to update profile');
+    }
+
+    return await response.json();
+  }
+
+  async changePassword(token: string, passwordData: {
+    currentPassword: string;
+    newPassword: string;
+  }): Promise<void> {
+    const response = await fetch(`${this.baseUrl}/password`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(passwordData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to change password');
+    }
+  }
+
+  async toggleVolunteer(token: string, volunteerData?: {
+    description: string;
+  }): Promise<User> {
+    const method = volunteerData ? 'POST' : 'DELETE';
+    const url = `${this.baseUrl}/volunteer`;
+
+    const response = await fetch(url, {
+      method,
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: volunteerData ? JSON.stringify(volunteerData) : undefined,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to toggle volunteer status');
+    }
+
+    return await response.json();
   }
 }
