@@ -58,7 +58,6 @@ export class ApiAuthRepository implements AuthRepository {
           },
         });
       } catch (error) {
-        // Log error but don't throw - we'll clear local storage anyway
         console.warn('Failed to notify server of logout:', error);
       }
     }

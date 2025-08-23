@@ -83,12 +83,12 @@ const UserProfile: React.FC = () => {
             className="w-24 md:w-32 lg:w-48 rounded-full mb-8"
           />
 
-          {/*Sección de formulario para editar tu perfil*/}
+          {/* Section for editing profile */}
 
           <div className="bg-gray-100  flex items-center justify-center">
             <div className="bg-[#FFFAF0] p-8 rounded-lg shadow-lg w-full max-w-4xl">
               <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6 justify-center text-left text-[#51344D]">
-                {/* Campo nombre  */}
+                {/* Name field */}
                 <div className="md:col-span-1">
                   <label htmlFor="name" className="block text-sm font-medium ">
                     Nombre
@@ -105,7 +105,7 @@ const UserProfile: React.FC = () => {
                   />
                 </div>
 
-                {/* Campo apellidos del usuario */}
+                {/* Last name field */}
                 <div className="md:col-span-1">
                   <label
                     htmlFor="lastName"
@@ -125,7 +125,7 @@ const UserProfile: React.FC = () => {
                   />
                 </div>
 
-                {/* Campo correo */}
+                {/* Email field */}
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium ">
                     Correo electrónico
@@ -142,22 +142,22 @@ const UserProfile: React.FC = () => {
                   />
                 </div>
 
-                {/* Campo voluntario checkbox */}
+                {/* Volunteer checkbox */}
                 <div className="flex items-center gap-2">
                   <label htmlFor="isVolunteer" className="text-sm font-medium flex flex-row items-center">
-                    <input 
-                      type="checkbox" 
+                    <input
+                      type="checkbox"
                       name="isVolunteer"
                       id="isVolunteer"
                       checked={formData.isVolunteer}
                       onChange={handleInputChange}
-                      className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 p-6  mr-2" 
+                      className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 p-6  mr-2"
                     />
                     ¿Quieres ser voluntario?
                   </label>
                 </div>
 
-                {/* Campo contraseña */}
+                {/* Password field */}
                 <div>
                   <label
                     htmlFor="password"
@@ -194,7 +194,7 @@ const UserProfile: React.FC = () => {
                   />
                 </div>
 
-                {/* Botón de Envío */}
+                {/* Submit button */}
                 <div className="md:col-span-2 flex justify-end">
                   <button
                     type="submit"
@@ -211,12 +211,12 @@ const UserProfile: React.FC = () => {
           <button
             type="button"
             className="
-          flex items-center justify-center gap-3  pr-4
-          bg-[#BCAAA4] text-white font-semibold rounded-lg shadow-md
-          hover:bg-[#A89B9D] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75
-          transition-colors duration-300 ease-in-out "
+              flex items-center justify-center gap-3  pr-4
+              bg-[#BCAAA4] text-white font-semibold rounded-lg shadow-md
+              hover:bg-[#A89B9D] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75
+              transition-colors duration-300 ease-in-out"
           >
-            {/* Imagen SVG desde la carpeta 'public' */}
+            {/* SVG icon from 'public' */}
             <img
               src="media/agenda_icon.svg"
               alt="Icono de agenda"

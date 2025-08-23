@@ -42,7 +42,5 @@ export class MemoryAuthRepository implements AuthRepository {
   }
 
   async logout(): Promise<void> {
-    // In memory implementation - nothing to do on server side
-    // Local storage will be cleared by the application layer
   }
 }
