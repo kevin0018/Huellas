@@ -5,16 +5,60 @@
  * Navegación SPA con react-router-dom (Link).
 */
 
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import ThemeSwitcher from './theme/ThemeSwitcher';
 import LanguageSwitcher from '../i18n/LanguageSwitcher';
 import { useTranslation } from '../i18n/hooks/hook';
+import { AuthService } from '../modules/auth/infra/AuthService';
+import { LogoutCommand } from '../modules/auth/app/LogoutCommand';
+import { LogoutCommandHandler } from '../modules/auth/app/LogoutCommandHandler';
+import { ApiAuthRepository } from '../modules/auth/infra/ApiAuthRepository';
 
 const NavBar: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { translate } = useTranslation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check auth status on mount and listen for changes
+    setIsLoggedIn(AuthService.isAuthenticated());
+    
+    // Listen for storage changes to update auth state
+    const handleStorageChange = () => {
+      setIsLoggedIn(AuthService.isAuthenticated());
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
   const toggleMenu = (): void => setIsOpen(!isOpen);
+
+  const closeMenu = () => {
+    setIsOpen(false);
+  };
+
+  const handleLogout = async () => {
+    try {
+      const authRepository = new ApiAuthRepository();
+      const logoutHandler = new LogoutCommandHandler(authRepository);
+      const logoutCommand = new LogoutCommand();
+      
+      await logoutHandler.handle(logoutCommand);
+      setIsLoggedIn(false);
+      navigate('/login');
+      closeMenu();
+    } catch (error) {
+      console.error('Error during logout:', error);
+      // Even if logout fails, clear local state
+      AuthService.logout();
+      setIsLoggedIn(false);
+      navigate('/login');
+      closeMenu();
+    }
+  };
 
   return (
     <nav className="bg-[#A89B9D] dark:bg-[#928d8e] text-white p-4 shadow-md w-full sticky top-0 z-50 rounded-xs">
@@ -27,8 +71,22 @@ const NavBar: React.FC = () => {
 
         {/* Menú Desktop */}
         <div className="hidden md:flex items-center space-x-6 text-[#51344D]">
-          <Link to="/register" className="hover-eggplant">{translate('register')}</Link>
-          <Link to="/login" className="hover-eggplant">{translate('login')}</Link>
+          {isLoggedIn ? (
+            <>
+              <Link to="/user-home" className="hover-eggplant">{translate('home')}</Link>
+              <button 
+                onClick={handleLogout}
+                className="hover-eggplant"
+              >
+                {translate('logout')}
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/register" className="hover-eggplant">{translate('register')}</Link>
+              <Link to="/login" className="hover-eggplant">{translate('login')}</Link>
+            </>
+          )}
           <Link to="/about" className="hover-eggplant">{translate('aboutUs')}</Link>
           <LanguageSwitcher className="select-huellas" />
           <ThemeSwitcher />
@@ -58,10 +116,25 @@ const NavBar: React.FC = () => {
       {/* Menú desplegable móvil */}
       <div className={`md:hidden ${isOpen ? 'block' : 'hidden'}`}>
         <div className="flex flex-col items-center space-y-4 pt-4 pb-2">
-          <Link to="/" onClick={toggleMenu} className="hover:text-[--huellas-eggplant]">{translate('home')}</Link>
-          <Link to="/login" onClick={toggleMenu} className="hover:text-[--huellas-eggplant]">{translate('login')}</Link>
-          <Link to="/about" onClick={toggleMenu} className="hover:text-[--huellas-eggplant]">{translate('aboutUs')}</Link>
-          <Link to="/contact" onClick={toggleMenu} className="hover:text-[--huellas-eggplant]">{translate('contact')}</Link>
+          <Link to="/" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">{translate('home')}</Link>
+          {isLoggedIn ? (
+            <>
+              <Link to="/user-home" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">{translate('profile')}</Link>
+              <button 
+                onClick={handleLogout}
+                className="hover:text-[--huellas-eggplant]"
+              >
+                {translate('logout')}
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">{translate('login')}</Link>
+              <Link to="/register" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">{translate('register')}</Link>
+            </>
+          )}
+          <Link to="/about" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">{translate('aboutUs')}</Link>
+          <Link to="/contact" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">{translate('contact')}</Link>
           <div className="flex items-center gap-3">
             <ThemeSwitcher />
           </div>
