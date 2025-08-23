@@ -1,3 +1,4 @@
+import { CreatePetRequest } from "../../app/CreatePetUseCase.js";
 import { Pet } from "../../domain/entities/Pet.js";
 import { IPetRepository } from "../../domain/repositories/IPetRepository.js";
 import { PrismaClient } from '@prisma/client';
@@ -32,21 +33,21 @@ export class PetRepository implements IPetRepository {
     }
 
 
-    async save(pet: Pet): Promise<Pet> {
+    async save(pet: CreatePetRequest): Promise<Pet> {
         const savedPet = await prisma.pet.create({
             data: {
-                name: pet.getName(),
-                race: pet.getRace(),
-                type: pet.getType(),
-                owner_id: pet.getOwnerId(),
-                birth_date: pet.getBirthDate(),
-                size: pet.getSize(),
-                microchip_code: pet.getMicrochipCode(),
-                sex: pet.getSex(),
-                has_passport: pet.getHasPassport(),
-                country_of_origin: pet.getCountryOfOrigin(),
-                passport_number: pet.getPassportNumber(),
-                notes: pet.getNotes()
+                name: pet.name,
+                race: pet.race,
+                type: pet.type,
+                owner_id: pet.ownerId,
+                birth_date: pet.birthDate,
+                size: pet.size,
+                microchip_code: pet.microchipCode,
+                sex: pet.sex,
+                has_passport: pet.hasPassport,
+                country_of_origin: pet.countryOfOrigin,
+                passport_number: pet.passportNumber,
+                notes: pet.notes
 
             }
         })
