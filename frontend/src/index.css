@@ -39,7 +39,7 @@
   @apply bg-[#FDF2DE] dark:bg-[#51344D];
 }
 
-body { @apply bg-gray-50 text-gray-900 text-center 2xl:text-6xl; }
+body { @apply bg-gray-50 text-gray-900 text-center; }
 img {border-radius: 25px;}
 
 /* Language select styling for visibility (native dropdown) */
@@ -70,3 +70,19 @@ h1, h2, h3, h4, h5, h6 { @apply text-center; color: var(--huellas-eggplant); fon
 .dark .hover-eggplant:hover { text-decoration: underline; }
 .dark .hover-eggplant { color: var(--huellas-eggplant); }
 .dark p { color: var(--huellas-cream); }
+
+/* Toast animation */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}

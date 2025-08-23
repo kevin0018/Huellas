@@ -1,8 +1,7 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../i18n/hooks/hook';
 
-const Footer: React.FC = () => {
+export default function Footer() {
   const { translate } = useTranslation();
 
   return (
@@ -14,13 +13,10 @@ const Footer: React.FC = () => {
           <img src="/media/sm/linkedin.png" alt="linkedin" className="w-7 h-7" />
         </div>
         <div className="flex flex-row items-center space-x-4 py-1.5">
-          <Link to="/login" className="text-sm hover-eggplant">{translate('login')}</Link>
-          <Link to="/register" className="text-sm hover-eggplant">{translate('register')}</Link>
           <Link to="/about" className="text-sm hover-eggplant">{translate('aboutUs')}</Link>
+          <Link to="/contact" className="text-sm hover-eggplant">{translate('contact')}</Link>
         </div>
       </div>
     </footer>
   );
 };
-
-export default Footer;

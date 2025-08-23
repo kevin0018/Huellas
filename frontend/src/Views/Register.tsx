@@ -6,6 +6,7 @@ import { RegisterVolunteerCommandHandler } from '../modules/volunteer/applicatio
 import { ApiVolunteerRepository } from '../modules/volunteer/infra/ApiVolunteerRepository';
 import { useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ThemeProvider from '../Components/theme/ThemeProvider';
 import LanguageProvider from '../i18n/LanguageProvider';
 import { useTranslation } from '../i18n/hooks/hook';
@@ -16,6 +17,7 @@ type UserType = 'owner' | 'volunteer';
 
 function RegisterForm() {
   const { translate } = useTranslation();
+  const navigate = useNavigate();
   const [userType, setUserType] = useState<UserType>('owner');
   const [form, setForm] = useState({
     name: '',
@@ -27,7 +29,6 @@ function RegisterForm() {
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -42,15 +43,46 @@ function RegisterForm() {
     setAcceptTerms(e.target.checked);
   };
 
+  const getErrorMessage = (error: string): string => {
+    // Extract the main error message from API response
+    const errorMessage = error.toLowerCase();
+    
+    if (errorMessage.includes('owner with this email already exists') || 
+        errorMessage.includes('volunteer with this email already exists') ||
+        errorMessage.includes('email already exists')) {
+      return translate('emailAlreadyExists');
+    }
+    
+    if (errorMessage.includes('network error') || 
+        errorMessage.includes('fetch') ||
+        errorMessage.includes('connection')) {
+      return translate('networkError');
+    }
+    
+    if (errorMessage.includes('server error') || 
+        errorMessage.includes('internal server error') ||
+        errorMessage.includes('http 5')) {
+      return translate('serverError');
+    }
+    
+    if (errorMessage.includes('missing required fields') ||
+        errorMessage.includes('validation') ||
+        errorMessage.includes('invalid')) {
+      return translate('registrationError');
+    }
+    
+    // Default fallback
+    return translate('registrationError');
+  };
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!acceptTerms) {
-      setError('Debes aceptar los términos y condiciones.');
+      setError(translate('acceptTerms') + '.');
       return;
     }
     setLoading(true);
     setError(null);
-    setSuccess(false);
     try {
       if (userType === 'owner') {
         const repo = new ApiOwnerRepository();
@@ -62,7 +94,8 @@ function RegisterForm() {
           form.password
         );
         await handler.execute(command);
-        setSuccess(true);
+        
+        navigate('/login?registered=true');
       } else if (userType === 'volunteer') {
         const repo = new ApiVolunteerRepository();
         const handler = new RegisterVolunteerCommandHandler(repo);
@@ -74,15 +107,16 @@ function RegisterForm() {
           form.description
         );
         await handler.execute(command);
-        setSuccess(true);
+
+        navigate('/login?registered=true');
       } else {
-        setError('type of user not supported');
+        setError(translate('registrationError'));
       }
     } catch (err) {
       if (err instanceof Error) {
-        setError(err.message);
+        setError(getErrorMessage(err.message));
       } else {
-        setError('Error');
+        setError(translate('registrationError'));
       }
     } finally {
       setLoading(false);
@@ -90,12 +124,12 @@ function RegisterForm() {
   };
 
   return (
-    <div className="flex flex-col items-center min-h-screen background-primary px-2 sm:px-0 overflow-hidden h-screen">
+    <div className="flex flex-col items-center justify-center background-primary px-2 sm:px-0 overflow-hidden" style={{ minHeight: 'calc(100vh - 200px)' }}>
       {/* Background */}
       <div className="fixed inset-0 z-0 w-full h-full bg-repeat bg-[url('/media/bg_phone_userhome.png')] md:bg-[url('/media/bg_tablet_userhome.png')] lg:bg-[url('/media/bg_desktop_userhome.png')] opacity-60 pointer-events-none select-none" aria-hidden="true" />
-      <div className="relative z-10 w-full flex flex-col items-center pt-8 pb-4">
-        <h1 className="h1 font-caprasimo mb-2 text-4xl md:text-5xl text-[#51344D] drop-shadow-lg dark:text-[#FDF2DE]">{translate('register') || 'Únete'}</h1>
-        <form className="w-full max-w-xs sm:max-w-md md:max-w-lg p-6 sm:p-8 bg-white/90 dark:bg-[#51344D]/90 rounded-xl shadow-lg border border-[#51344D] flex flex-col gap-4 mt-0" onSubmit={handleSubmit}>
+      <div className="relative z-10 w-full flex flex-col items-center max-w-lg">
+        <h1 className="h1 font-caprasimo mb-4 text-4xl md:text-5xl text-[#51344D] drop-shadow-lg dark:text-[#FDF2DE]">{translate('register') || 'Únete'}</h1>
+        <form className="w-full max-w-xs sm:max-w-md md:max-w-lg p-6 sm:p-8 bg-white/90 dark:bg-[#51344D]/90 rounded-xl shadow-lg border border-[#51344D] flex flex-col gap-4" onSubmit={handleSubmit}>
           <div className="flex justify-center gap-4 mb-2">
             <label className="inline-flex items-center">
               <input
@@ -194,7 +228,6 @@ function RegisterForm() {
             {loading ? translate('loading') : (translate('register') || 'Registrarme')}
           </button>
           {error && <div className="text-red-600 text-center text-sm">{error}</div>}
-          {success && <div className="text-green-600 text-center text-sm">{translate('registerSuccess') || 'Registro exitoso'}</div>}
         </form>
       </div>
     </div>

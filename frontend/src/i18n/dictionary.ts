@@ -6,6 +6,7 @@
 export const en = {
   // --- General & UI ---
   home: "Home",
+  hello: "Hello",
   loading: "Loading...",
   save: "Save",
   cancel: "Cancel",
@@ -59,6 +60,13 @@ export const en = {
   acceptTerms: "I accept the terms",
   readTerms: "Read our T&Cs",
   alreadyHaveAccount: "Already have an account? Log in",
+
+  // --- Error Messages ---
+  emailAlreadyExists: "This email is already registered",
+  networkError: "Connection error. Please try again",
+  registrationError: "Registration failed. Please try again",
+  invalidCredentials: "Invalid email or password",
+  serverError: "Server error. Please try again later",
 
   // --- Header & Navigation ---
   pets: "My Pets",
@@ -120,6 +128,7 @@ export type LocaleMap = Record<TranslationKey, string>;
 export const es: LocaleMap = {
   // --- General & UI ---
   home: "Inicio",
+  hello: "Hola",
   loading: "Cargando...",
   save: "Guardar",
   cancel: "Cancelar",
@@ -173,6 +182,13 @@ export const es: LocaleMap = {
   acceptTerms: "Acepto los términos",
   readTerms: "Leer Términos y Condiciones",
   alreadyHaveAccount: "¿Ya tienes cuenta? Inicia sesión",
+
+  // --- Error Messages ---
+  emailAlreadyExists: "Este correo ya está registrado",
+  networkError: "Error de conexión. Inténtalo de nuevo",
+  registrationError: "Registro fallido. Inténtalo de nuevo",
+  invalidCredentials: "Correo o contraseña incorrectos",
+  serverError: "Error del servidor. Inténtalo más tarde",
 
   // --- Header & Navigation ---
   pets: "Mascotas",
@@ -229,6 +245,7 @@ export const es: LocaleMap = {
 export const ca: LocaleMap = {
   // --- General & UI ---
   home: "Inici",
+  hello: "Hola",
   loading: "Carregant...",
   save: "Desar",
   cancel: "Cancel·lar",
@@ -282,6 +299,13 @@ export const ca: LocaleMap = {
   dontHaveAccount: "No tens un compte?",
   forgotPassword: "Has oblidat la teva contrasenya?",
   alreadyHaveAccount: "Ja tens un compte? Inicia sessió",
+
+  // --- Error Messages ---
+  emailAlreadyExists: "Aquest correu ja està registrat",
+  networkError: "Error de connexió. Torna-ho a intentar",
+  registrationError: "Registre fallit. Torna-ho a intentar",
+  invalidCredentials: "Correu o contrasenya incorrectes",
+  serverError: "Error del servidor. Intenta-ho més tard",
 
   // --- Header & Navigation ---
   pets: "Mascotes",
