@@ -1,0 +1,128 @@
+### Update User Profile Tests
+### First, login to get token
+
+# @name login
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "juan.perez2@email.com",
+  "password": "mySecurePassword123"
+}
+
+###
+@token = {{login.response.body.token}}
+
+### Test 1: Update Profile - Success
+PUT http://localhost:3000/api/auth/profile
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Kevin Updated",
+  "lastName": "Hernández García",
+  "email": "juan.perez2@email.com"
+}
+
+### Test 2: Update Profile - Missing fields
+PUT http://localhost:3000/api/auth/profile
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Kevin"
+}
+
+### Test 3: Update Profile - Email already exists (if testing with different user)
+PUT http://localhost:3000/api/auth/profile
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Kevin",
+  "lastName": "Hernández",
+  "email": "existing@example.com"
+}
+
+### Test 4: Change Password - Success
+PUT http://localhost:3000/api/auth/password
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "currentPassword": "mySecurePassword123",
+  "newPassword": "newpassword123"
+}
+
+### Test 5: Change Password - Wrong current password
+PUT http://localhost:3000/api/auth/password
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "currentPassword": "wrongpassword",
+  "newPassword": "newpassword123"
+}
+
+### Test 6: Change Password - Missing fields
+PUT http://localhost:3000/api/auth/password
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "currentPassword": "mySecurePassword123"
+}
+
+### Test 7: Change Password - Too short password
+PUT http://localhost:3000/api/auth/password
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "currentPassword": "mySecurePassword123",
+  "newPassword": "123"
+}
+
+### Test 8: Create Volunteer Profile - Success
+POST http://localhost:3000/api/auth/volunteer
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "description": "Me encanta ayudar a los animales y tengo experiencia cuidando perros y gatos. Disponible los fines de semana."
+}
+
+### Test 9: Create Volunteer Profile - Already exists
+POST http://localhost:3000/api/auth/volunteer
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "description": "Otra descripción"
+}
+
+### Test 10: Create Volunteer Profile - Missing description
+POST http://localhost:3000/api/auth/volunteer
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+}
+
+### Test 11: Delete Volunteer Profile - Success
+DELETE http://localhost:3000/api/auth/volunteer
+Authorization: Bearer {{token}}
+
+### Test 12: Delete Volunteer Profile - Not exists
+DELETE http://localhost:3000/api/auth/volunteer
+Authorization: Bearer {{token}}
+
+### Test 13: Profile endpoints without authentication
+PUT http://localhost:3000/api/auth/profile
+Content-Type: application/json
+
+{
+  "name": "Test",
+  "lastName": "User",
+  "email": "test@example.com"
+}
