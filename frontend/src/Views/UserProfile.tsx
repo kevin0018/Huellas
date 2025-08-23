@@ -1,11 +1,74 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from '../i18n/hooks/hook';
 import NavBar from "../Components/NavBar";
 import Footer from "../Components/footer";
+import { AuthService } from '../modules/auth/infra/AuthService';
+import type { User } from '../modules/auth/domain/User';
 
 const UserProfile: React.FC = () => {
   const { translate } = useTranslation();
+  const navigate = useNavigate();
+  const [user, setUser] = useState<User | null>(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    lastName: '',
+    email: '',
+    isVolunteer: false,
+    password: '',
+    confirmPassword: ''
+  });
+
+  useEffect(() => {
+    // Check if user is authenticated
+    if (!AuthService.isAuthenticated()) {
+      navigate('/login');
+      return;
+    }
+
+    // Get user data from AuthService
+    const userData = AuthService.getUser();
+    if (userData) {
+      setUser(userData);
+      setFormData({
+        name: userData.name,
+        lastName: userData.lastName,
+        email: userData.email,
+        isVolunteer: userData.type === 'volunteer',
+        password: '',
+        confirmPassword: ''
+      });
+    }
+  }, [navigate]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // TODO: Implement update user profile logic
+    console.log('Form data to update:', formData);
+  };
+
+  // Show loading while checking authentication
+  if (!user) {
+    return (
+      <>
+        <NavBar />
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <p>{translate('loading')}</p>
+          </div>
+        </div>
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>
@@ -24,7 +87,7 @@ const UserProfile: React.FC = () => {
 
           <div className="bg-gray-100  flex items-center justify-center">
             <div className="bg-[#FFFAF0] p-8 rounded-lg shadow-lg w-full max-w-4xl">
-              <form className="grid grid-cols-1 md:grid-cols-2 gap-6 justify-center text-left text-[#51344D]">
+              <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6 justify-center text-left text-[#51344D]">
                 {/* Campo nombre  */}
                 <div className="md:col-span-1">
                   <label htmlFor="name" className="block text-sm font-medium ">
@@ -34,6 +97,8 @@ const UserProfile: React.FC = () => {
                     type="text"
                     name="name"
                     id="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
                     className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-[#51344D]"
                     required
                     placeholder="Nombre"
@@ -43,15 +108,17 @@ const UserProfile: React.FC = () => {
                 {/* Campo apellidos del usuario */}
                 <div className="md:col-span-1">
                   <label
-                    htmlFor="apellidos"
+                    htmlFor="lastName"
                     className="block text-sm font-medium "
                   >
                     Apellidos
                   </label>
                   <input
                     type="text"
-                    name="name"
-                    id="name"
+                    name="lastName"
+                    id="lastName"
+                    value={formData.lastName}
+                    onChange={handleInputChange}
                     className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-[#51344D]"
                     required
                     placeholder="Apellidos"
@@ -67,6 +134,8 @@ const UserProfile: React.FC = () => {
                     type="email"
                     name="email"
                     id="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
                     className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-[#51344D]"
                     required
                     placeholder="Correo electrónico"
@@ -75,29 +144,35 @@ const UserProfile: React.FC = () => {
 
                 {/* Campo voluntario checkbox */}
                 <div className="flex items-center gap-2">
-                  <label htmlFor="volunteerOrOwner" className="inline text-sm font-medium flex flex-row items-center">
-                    <input type="checkbox" className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 p-6  mr-2" />
+                  <label htmlFor="isVolunteer" className="text-sm font-medium flex flex-row items-center">
+                    <input 
+                      type="checkbox" 
+                      name="isVolunteer"
+                      id="isVolunteer"
+                      checked={formData.isVolunteer}
+                      onChange={handleInputChange}
+                      className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 p-6  mr-2" 
+                    />
                     ¿Quieres ser voluntario?
                   </label>
-
                 </div>
 
                 {/* Campo contraseña */}
-
                 <div>
                   <label
                     htmlFor="password"
                     className="block text-sm font-medium "
                   >
-                    Contraseña
+                    Nueva contraseña (opcional)
                   </label>
                   <input
                     type="password"
                     name="password"
                     id="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
                     className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-[#51344D]"
-                    required
-                    placeholder="Contraseña"
+                    placeholder="Deja en blanco para mantener la actual"
                   />
                 </div>
 
@@ -106,15 +181,16 @@ const UserProfile: React.FC = () => {
                     htmlFor="confirmPassword"
                     className="block text-sm font-medium "
                   >
-                    Confirma tu contraseña
+                    Confirma tu nueva contraseña
                   </label>
                   <input
                     type="password"
-                    name="password"
+                    name="confirmPassword"
                     id="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
                     className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-[#51344D]"
-                    required
-                    placeholder="Confirma tu contraseña"
+                    placeholder="Confirma tu nueva contraseña"
                   />
                 </div>
 

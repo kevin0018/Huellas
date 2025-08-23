@@ -39,7 +39,7 @@
   @apply bg-[#FDF2DE] dark:bg-[#51344D];
 }
 
-body { @apply bg-gray-50 text-gray-900 text-center 2xl:text-6xl; }
+body { @apply bg-gray-50 text-gray-900 text-center; }
 img {border-radius: 25px;}
 
 /* Language select styling for visibility (native dropdown) */

@@ -74,6 +74,7 @@ const NavBar: React.FC = () => {
           {isLoggedIn ? (
             <>
               <Link to="/user-home" className="hover-eggplant">{translate('home')}</Link>
+              <Link to="/user-profile" className="hover-eggplant">{translate('profile')}</Link>
               <button 
                 onClick={handleLogout}
                 className="hover-eggplant"
@@ -116,10 +117,10 @@ const NavBar: React.FC = () => {
       {/* Menú desplegable móvil */}
       <div className={`md:hidden ${isOpen ? 'block' : 'hidden'}`}>
         <div className="flex flex-col items-center space-y-4 pt-4 pb-2">
-          <Link to="/" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">{translate('home')}</Link>
           {isLoggedIn ? (
             <>
-              <Link to="/user-home" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">{translate('profile')}</Link>
+              <Link to="/user-home" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">{translate('home')}</Link>
+              <Link to="/user-profile" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">{translate('profile')}</Link>
               <button 
                 onClick={handleLogout}
                 className="hover:text-[--huellas-eggplant]"
@@ -129,6 +130,7 @@ const NavBar: React.FC = () => {
             </>
           ) : (
             <>
+              <Link to="/" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">{translate('home')}</Link>
               <Link to="/login" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">{translate('login')}</Link>
               <Link to="/register" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">{translate('register')}</Link>
             </>
