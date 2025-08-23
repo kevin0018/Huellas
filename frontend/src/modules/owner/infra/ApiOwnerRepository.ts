@@ -30,8 +30,18 @@ export class ApiOwnerRepository implements OwnerRepository {
 			}
 
 			if (!response.ok) {
-				const error = await response.text();
-				throw new Error(`API error: ${error}`);
+				try {
+					const errorData = await response.json();
+					throw new Error(errorData.error || `HTTP ${response.status}`);
+				} catch {
+					if (response.status === 409) {
+						throw new Error('Owner with this email already exists');
+					} else if (response.status >= 500) {
+						throw new Error('Server error');
+					} else {
+						throw new Error(`HTTP ${response.status}`);
+					}
+				}
 			}
 		}
 }

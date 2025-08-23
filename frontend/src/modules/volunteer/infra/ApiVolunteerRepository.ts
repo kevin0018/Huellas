@@ -25,8 +25,20 @@ export class ApiVolunteerRepository implements VolunteerRepository {
     });
 
     if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`API error: ${error}`);
+      try {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `HTTP ${response.status}`);
+      } catch {
+        // If JSON parsing fails, we can't read text anymore because stream is consumed
+        // Just throw a generic error based on status code
+        if (response.status === 409) {
+          throw new Error('Volunteer with this email already exists');
+        } else if (response.status >= 500) {
+          throw new Error('Server error');
+        } else {
+          throw new Error(`HTTP ${response.status}`);
+        }
+      }
     }
   }
 }
