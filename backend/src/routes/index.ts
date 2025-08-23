@@ -3,6 +3,7 @@ import { createOwnerRoutes } from './ownerRoutes.js';
 import { createAuthRoutes } from './authRoutes.js';
 import { volunteerRoutes } from './volunteerRoutes.js';
 import { createPetRoutes } from './petRoutes.js';
+import { createProcedureRoutes } from './procedureRoutes.js';
 
 export function createRoutes(): Router {
   console.log('Creating main routes...');
@@ -23,6 +24,10 @@ export function createRoutes(): Router {
   // Mount pet routes
   console.log('Mounting pet routes on /pets...');
   router.use('/pets', createPetRoutes());
+
+  // Mount procedure routes
+  console.log('Mounting procedure routes on /procedures...');
+  router.use('/procedures', createProcedureRoutes());
 
   return router;
 }
