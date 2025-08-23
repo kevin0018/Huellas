@@ -1,27 +1,25 @@
 import { Request, Response } from "express";
 import { IPetRepository } from "../../domain/repositories/IPetRepository.js";
-import { CreatePetUseCase } from "../../app/CreatePetUseCase.js";
+import { UpdatePetUseCase } from "../../app/UpdatePetUseCase.js";
 
-export class PostPetController {
-  private createPetUseCase: CreatePetUseCase;
+export class PatchPetController {
+  private updatePetUseCase: UpdatePetUseCase;
 
   constructor(petRepository: IPetRepository) {
-    this.createPetUseCase = new CreatePetUseCase(petRepository);
+    this.updatePetUseCase = new UpdatePetUseCase(petRepository);
   }
 
   async handle(req: Request, res: Response) {
     try {
-      const { name, race, type, birthDate, size, microchipCode, sex, hasPassport, countryOfOrigin, passportNumber, notes } = req.body;
+      const { name, race, birthDate, size, sex, hasPassport, countryOfOrigin, passportNumber, notes } = req.body;
+      const id = parseInt(req.params.id);
 
-      const pet = await this.createPetUseCase.execute({
+      const pet = await this.updatePetUseCase.execute(id, {
         name,
         race,
-        type,
-        ownerId: req.user?.userId as number,
-        birthDate, 
+        birthDate,
         size,
-        microchipCode,
-        sex, 
+        sex,
         hasPassport,
         countryOfOrigin,
         passportNumber,
