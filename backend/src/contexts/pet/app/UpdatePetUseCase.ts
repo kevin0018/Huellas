@@ -1,16 +1,16 @@
 import { IPetRepository } from "../domain/repositories/IPetRepository.js";
 import { Pet } from "../domain/entities/Pet.js";
-import { CreatePetRequest } from "../../../types/pet.js";
+import { EditPetRequest } from "../../../types/pet.js";
 
-export class CreatePetUseCase {
+export class UpdatePetUseCase {
   private petRepository: IPetRepository;
 
   constructor(petRepository: IPetRepository) {
     this.petRepository = petRepository;
   }
 
-  async execute(createPetBody: CreatePetRequest): Promise<Pet> {
-    const pet = await this.petRepository.save(createPetBody);
+  async execute(id: number, editPetBody: EditPetRequest): Promise<Pet> {
+    const pet = await this.petRepository.update(id, editPetBody);
 
     return pet;
   }

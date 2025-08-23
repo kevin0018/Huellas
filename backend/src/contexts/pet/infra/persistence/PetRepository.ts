@@ -1,4 +1,4 @@
-import { CreatePetRequest } from "../../app/CreatePetUseCase.js";
+import { CreatePetRequest, EditPetRequest } from "../../../../types/pet.js";
 import { Pet } from "../../domain/entities/Pet.js";
 import { IPetRepository } from "../../domain/repositories/IPetRepository.js";
 import { PrismaClient } from '@prisma/client';
@@ -77,5 +77,42 @@ export class PetRepository implements IPetRepository {
                 id: id
             }
         })
+    }
+
+    async update(id: number, data: EditPetRequest): Promise<Pet>{
+        const editedPet = await prisma.pet.update({
+            where: {
+                id: id
+            },
+            data: {
+                name: data.name,
+                race: data.race,
+                birth_date: data.birthDate,
+                size: data.size,
+                sex: data.sex,
+                has_passport: data.hasPassport,
+                country_of_origin: data.countryOfOrigin,
+                passport_number: data.passportNumber,
+                notes: data.notes                
+            },
+        })
+        
+        const pet = new Pet(
+            editedPet.id,
+            editedPet.name,
+            editedPet.race,
+            editedPet.type,
+            editedPet.owner_id,
+            editedPet.birth_date,
+            editedPet.size,
+            editedPet.microchip_code,
+            editedPet.sex,
+            editedPet.has_passport,
+            editedPet.country_of_origin,
+            editedPet.passport_number,
+            editedPet.notes
+        )
+
+        return pet;
     }
 }

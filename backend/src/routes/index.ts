@@ -7,6 +7,7 @@ import { DeletePetController } from '../contexts/pet/infra/controllers/DeletePet
 import { PetRepository } from '../contexts/pet/infra/persistence/PetRepository.js';
 import { AuthenticatedRequest, JwtMiddleware } from '../contexts/auth/infra/middleware/JwtMiddleware.js';
 import { PostPetController } from '../contexts/pet/infra/controllers/PostPetController.js';
+import { PatchPetController } from '../contexts/pet/infra/controllers/PatchPetController.js';
 
 export function createRoutes(): Router {
   console.log('Creating main routes...');
@@ -39,6 +40,13 @@ export function createRoutes(): Router {
     const petRepository = new PetRepository();
     const createPetController = new PostPetController(petRepository);
     await createPetController.handle(req, res);
+  });
+
+  //PATCH Pet Route
+  router.patch('/pet/:id', ...JwtMiddleware.requireOwnPet(), async (req: AuthenticatedRequest, res: Response) => {
+    const petRepository = new PetRepository();
+    const editPetController = new PatchPetController(petRepository);
+    await editPetController.handle(req, res);
   })
 
   // Mount volunteer routes
