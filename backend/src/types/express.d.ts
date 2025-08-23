@@ -4,7 +4,7 @@ import { UserType } from '../contexts/auth/domain/entities/UserAuth.js';
 declare global {
   namespace Express {
     interface Request {
-      user?: {
+      user: {
         userId: number;
         email: string;
         type: UserType;

@@ -6,4 +6,5 @@ export interface IPetRepository {
     save(pet: CreatePetRequest): Promise<Pet>;
     delete(id: number): Promise<void>;
     update(id: number, data: EditPetRequest): Promise<Pet>;
+    findByOwnerId(ownerId: number): Promise<Pet[]>;
 }
