@@ -11,14 +11,13 @@ export class PostPetController {
 
   async handle(req: Request, res: Response) {
     try {
-      const { id, name, race, type, ownerId, birthDate, size, microchipCode, sex, hasPassport, countryOfOrigin, passportNumber, notes } = req.body;
+      const { name, race, type, birthDate, size, microchipCode, sex, hasPassport, countryOfOrigin, passportNumber, notes } = req.body;
 
-      await this.createPetUseCase.execute({
-        id: parseInt(id),
+      const pet = await this.createPetUseCase.execute({
         name,
         race,
         type,
-        ownerId: parseInt(ownerId),
+        ownerId: req.user?.userId as number,
         birthDate, 
         size,
         microchipCode,
@@ -29,7 +28,8 @@ export class PostPetController {
         notes
       });
 
-      return res.status(201).send({ message: "Pet creado correctamente ✅" });
+
+      return res.status(201).send(pet);
     } catch (error) {
       return res.status(400).send({ error: (error as Error).message });
     }
