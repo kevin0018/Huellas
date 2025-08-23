@@ -17,7 +17,7 @@ export class PostPetController {
         name,
         race,
         type,
-        ownerId: req.user?.userId as number,
+        ownerId: req.user.userId as number,
         birthDate, 
         size,
         microchipCode,

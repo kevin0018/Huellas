@@ -5,7 +5,7 @@ import { JwtBlacklist } from '../services/JwtBlacklist.js';
 import { PetRepository } from '../../../pet/infra/persistence/PetRepository.js';
 
 export interface AuthenticatedRequest extends Request {
-  user?: {
+  user: {
     userId: number;
     email: string;
     type: UserType;
@@ -80,7 +80,7 @@ export class JwtMiddleware {
     return [
       JwtMiddleware.authenticate(),
       (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
-        if (req.user?.type !== UserType.OWNER) {
+        if (req.user.type !== UserType.OWNER) {
           res.status(403).json({ error: 'Access denied. Owner role required.' });
           return;
         }
@@ -94,7 +94,7 @@ export class JwtMiddleware {
     return [
       JwtMiddleware.authenticate(),
       (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
-        if (req.user?.type !== UserType.VOLUNTEER) {
+        if (req.user.type !== UserType.VOLUNTEER) {
           res.status(403).json({ error: 'Access denied. Volunteer role required.' });
           return;
         }
@@ -112,7 +112,7 @@ export class JwtMiddleware {
     return [
       JwtMiddleware.requireOwner(),
       async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-        const ownerId = req.user?.userId;
+        const ownerId = req.user.userId;
         const petId = req.params.id;
         const parsedPetId = parseInt(petId);
 
