@@ -1,8 +1,7 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../i18n/hooks/hook';
 
-const Footer: React.FC = () => {
+export default function Footer() {
   const { translate } = useTranslation();
 
   return (
@@ -21,5 +20,3 @@ const Footer: React.FC = () => {
     </footer>
   );
 };
-
-export default Footer;

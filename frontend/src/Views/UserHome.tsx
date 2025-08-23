@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import ThemeProvider from "../Components/theme/ThemeProvider";
 import LanguageProvider from "../i18n/LanguageProvider";
 import { useTranslation } from "../i18n/hooks/hook";
@@ -8,7 +8,7 @@ import { AuthService } from "../modules/auth/infra/AuthService";
 import type { User } from "../modules/auth/domain/User";
 import { useNavigate } from "react-router-dom";
 
-const UserHomeContent: React.FC = () => {
+function UserHomeContent() {
   const { translate } = useTranslation();
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
@@ -124,7 +124,7 @@ const UserHomeContent: React.FC = () => {
     );
 };
 
-const UserHome: React.FC = () => {
+export default function UserHome() {
   return (
     <LanguageProvider>
       <ThemeProvider>
@@ -133,5 +133,3 @@ const UserHome: React.FC = () => {
     </LanguageProvider>
   );
 };
-
-export default UserHome;

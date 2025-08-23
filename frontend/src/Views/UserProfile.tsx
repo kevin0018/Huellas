@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from '../i18n/hooks/hook';
 import NavBar from "../Components/NavBar";
@@ -6,7 +6,7 @@ import Footer from "../Components/footer";
 import { AuthService } from '../modules/auth/infra/AuthService';
 import type { User } from '../modules/auth/domain/User';
 
-const UserProfile: React.FC = () => {
+export default function UserProfile() {
   const { translate } = useTranslation();
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
@@ -231,5 +231,3 @@ const UserProfile: React.FC = () => {
     </>
   );
 };
-
-export default UserProfile;

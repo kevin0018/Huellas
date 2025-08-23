@@ -5,7 +5,7 @@
  * Navegación SPA con react-router-dom (Link).
 */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ThemeSwitcher from './theme/ThemeSwitcher';
 import LanguageSwitcher from '../i18n/LanguageSwitcher';
@@ -15,7 +15,7 @@ import { LogoutCommand } from '../modules/auth/app/LogoutCommand';
 import { LogoutCommandHandler } from '../modules/auth/app/LogoutCommandHandler';
 import { ApiAuthRepository } from '../modules/auth/infra/ApiAuthRepository';
 
-const NavBar: React.FC = () => {
+export default function NavBar() {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { translate } = useTranslation();
@@ -145,5 +145,3 @@ const NavBar: React.FC = () => {
     </nav>
   );
 };
-
-export default NavBar;
