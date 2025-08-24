@@ -42,10 +42,10 @@ function UserHomeContent() {
 
         {/* Content overlay */}
         <div className="relative z-10 w-full flex flex-col items-center max-w-4xl py-4">
-          <div className="bg-[#FDF2DE]/90 dark:bg-[#51344D]/90 border-[#BCAAA4] border-2 rounded-lg shadow-lg p-6 w-full mx-auto text-center">
-          <h1 className="h1 font-caprasimo mb-4 py-8 dark:text-[#FDF2DE]">
+          <h1 className="h1 font-caprasimo mb-4 py-8 text-4xl md:text-5xl text-[#51344D] drop-shadow-lg dark:text-[#FDF2DE]">
             {translate("hello")}, {user.name}!
           </h1>
+          <div className="bg-[#FDF2DE]/90 dark:bg-[#51344D]/90 border-[#BCAAA4] border-2 rounded-lg shadow-lg p-6 w-full mx-auto text-center">
           <p className="lead text-[--huellas-eggplant]/80 dark:text-[#FDF2DE] text-justify mb-8 px-4">
             {translate("homePageSubtitle")}
           </p>

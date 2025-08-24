@@ -1,45 +1,68 @@
-import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useTranslation } from '../i18n/hooks/hook';
+import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import NavBar from "../Components/NavBar";
 import Footer from "../Components/footer";
-import { AuthService } from '../modules/auth/infra/AuthService';
+import VolunteerModal from "../Components/VolunteerModal";
+import { ApiAuthRepository } from '../modules/auth/infra/ApiAuthRepository';
+import { UpdateProfileCommandHandler } from '../modules/auth/application/commands/UpdateProfileCommandHandler';
+import { ChangePasswordCommandHandler } from '../modules/auth/application/commands/ChangePasswordCommandHandler';
+import { ToggleVolunteerCommandHandler } from '../modules/auth/application/commands/ToggleVolunteerCommandHandler';
+import { UpdateProfileCommand } from '../modules/auth/application/commands/UpdateProfileCommand';
+import { ChangePasswordCommand } from '../modules/auth/application/commands/ChangePasswordCommand';
+import { ToggleVolunteerCommand } from '../modules/auth/application/commands/ToggleVolunteerCommand';
 import type { User } from '../modules/auth/domain/User';
+import { isVolunteer, UserType } from '../modules/auth/domain/User';
 
 export default function UserProfile() {
-  const { translate } = useTranslation();
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isVolunteerModalOpen, setIsVolunteerModalOpen] = useState(false);
+  const [pendingVolunteerChange, setPendingVolunteerChange] = useState<boolean | null>(null);
+  const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     lastName: '',
     email: '',
     isVolunteer: false,
-    password: '',
+    currentPassword: '',
+    newPassword: '',
     confirmPassword: ''
   });
 
-  useEffect(() => {
-    // Check if user is authenticated
-    if (!AuthService.isAuthenticated()) {
-      navigate('/login');
-      return;
-    }
+  // Initialize command handlers with useMemo to avoid recreation on every render
+  const authRepository = useMemo(() => new ApiAuthRepository(), []);
+  const updateProfileHandler = useMemo(() => new UpdateProfileCommandHandler(authRepository), [authRepository]);
+  const changePasswordHandler = useMemo(() => new ChangePasswordCommandHandler(authRepository), [authRepository]);
+  const toggleVolunteerHandler = useMemo(() => new ToggleVolunteerCommandHandler(authRepository), [authRepository]);
 
-    // Get user data from AuthService
-    const userData = AuthService.getUser();
-    if (userData) {
-      setUser(userData);
-      setFormData({
-        name: userData.name,
-        lastName: userData.lastName,
-        email: userData.email,
-        isVolunteer: userData.type === 'volunteer',
-        password: '',
-        confirmPassword: ''
-      });
-    }
-  }, [navigate]);
+  useEffect(() => {
+    const loadUserProfile = async () => {
+      try {
+        const userSession = await authRepository.getCurrentUser();
+        if (userSession) {
+          setUser(userSession);
+          setFormData({
+            name: userSession.name,
+            lastName: userSession.lastName,
+            email: userSession.email,
+            isVolunteer: isVolunteer(userSession),
+            currentPassword: '',
+            newPassword: '',
+            confirmPassword: ''
+          });
+        } else {
+          navigate('/');
+        }
+      } catch (error) {
+        console.error('Error loading user profile:', error);
+        navigate('/');
+      }
+    };
+
+    loadUserProfile();
+  }, [navigate, authRepository]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -47,50 +70,190 @@ export default function UserProfile() {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
+    
+    // Clear messages when user starts typing
+    if (error) setError('');
+    if (successMessage) setSuccessMessage('');
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement update user profile logic
-    console.log('Form data to update:', formData);
+    setIsLoading(true);
+    setError('');
+    setSuccessMessage('');
+
+    try {
+      const command = new UpdateProfileCommand(
+        formData.name,
+        formData.lastName,
+        formData.email
+      );
+      
+      await updateProfileHandler.handle(command);
+      
+      // Update local user state
+      if (user) {
+        const updatedUser = {
+          ...user,
+          name: formData.name,
+          lastName: formData.lastName,
+          email: formData.email
+        };
+        setUser(updatedUser);
+      }
+      
+      // TODO: Add translation
+      setSuccessMessage('Perfil actualizado correctamente');
+    } catch (error) {
+      // TODO: Add translation
+      setError(error instanceof Error ? error.message : 'Error al actualizar el perfil');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  // Show loading while checking authentication
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (formData.newPassword !== formData.confirmPassword) {
+      // TODO: Add translation
+      setError('Las contraseñas no coinciden');
+      return;
+    }
+    
+    if (formData.newPassword.length < 6) {
+      // TODO: Add translation
+      setError('La contraseña debe tener al menos 6 caracteres');
+      return;
+    }
+
+    setIsLoading(true);
+    setError('');
+    setSuccessMessage('');
+
+    try {
+      const command = new ChangePasswordCommand(
+        formData.currentPassword,
+        formData.newPassword
+      );
+      
+      await changePasswordHandler.handle(command);
+      
+      // Clear password fields
+      setFormData(prev => ({
+        ...prev,
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+      }));
+      
+      // TODO: Add translation
+      setSuccessMessage('Contraseña cambiada correctamente');
+    } catch (error) {
+      // TODO: Add translation
+      setError(error instanceof Error ? error.message : 'Error al cambiar la contraseña');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleVolunteerToggle = async () => {
+    if (!user) return;
+    
+    const newVolunteerStatus = !isVolunteer(user);
+    setPendingVolunteerChange(newVolunteerStatus);
+    
+    if (newVolunteerStatus) {
+      // Open modal for volunteer registration
+      setIsVolunteerModalOpen(true);
+    } else {
+      // Direct toggle for volunteer deletion
+      await executeVolunteerToggle(newVolunteerStatus);
+    }
+  };
+
+  const executeVolunteerToggle = async (becomesVolunteer: boolean, description?: string) => {
+    if (!user) return;
+
+    setIsLoading(true);
+    setError('');
+    setSuccessMessage('');
+
+    try {
+      const command = new ToggleVolunteerCommand(becomesVolunteer, description);
+      await toggleVolunteerHandler.handle(command);
+      
+      // Update local user state
+      const updatedUser = { ...user, type: becomesVolunteer ? UserType.VOLUNTEER : UserType.OWNER } as User;
+      setUser(updatedUser);
+      setFormData(prev => ({ ...prev, isVolunteer: becomesVolunteer }));
+      
+      // TODO: Add translation
+      const messageKey = becomesVolunteer ? 'Perfil de voluntario creado correctamente' : 'Perfil de voluntario eliminado correctamente';
+      setSuccessMessage(messageKey);
+    } catch (error) {
+      // TODO: Add translation
+      setError(error instanceof Error ? error.message : 'Error al actualizar el estado de voluntario');
+    } finally {
+      setIsLoading(false);
+      setPendingVolunteerChange(null);
+    }
+  };
+
+  const handleVolunteerModalSubmit = async (description?: string) => {
+    setIsVolunteerModalOpen(false);
+    if (pendingVolunteerChange !== null) {
+      await executeVolunteerToggle(pendingVolunteerChange, description);
+    }
+  };
+
+  const handleVolunteerModalCancel = () => {
+    setIsVolunteerModalOpen(false);
+    setPendingVolunteerChange(null);
+  };
+
   if (!user) {
-    return (
-      <>
-        <NavBar />
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <p>{translate('loading')}</p>
-          </div>
-        </div>
-        <Footer />
-      </>
-    );
+    return <div className="flex justify-center items-center min-h-screen">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+    </div>;
   }
 
   return (
     <>
       <NavBar />
-      <div className="bg-dogs-userhome-mobile md:bg-dogs-userhome-tablet lg:bg-dogs-userhome-desktop bg-cover bg-center flex flex-col items-center justify-center dark:bg-dogs-userhome-mobile ">
-        <div className="flex flex-col items-center justify-center text-center p-4">
-          <h1 className="h1 font-caprasimo mb-4 py-8">Mi información</h1>
+      <div className="flex flex-col items-center justify-center background-primary px-2 sm:px-0 overflow-hidden" style={{ minHeight: 'calc(100vh - 80px)' }}>
+        {/* Responsive background with dogs */}
+        <div className="fixed inset-0 z-0 w-full h-full bg-repeat bg-[url('/media/bg_phone_userhome.png')] md:bg-[url('/media/bg_tablet_userhome.png')] lg:bg-[url('/media/bg_desktop_userhome.png')] opacity-60 pointer-events-none select-none" aria-hidden="true" />
+
+        {/* Content overlay */}
+        <div className="relative z-10 w-full flex flex-col items-center max-w-4xl py-4">
+          <h1 className="h1 font-caprasimo mb-4 py-8 text-4xl md:text-5xl text-[#51344D] drop-shadow-lg dark:text-[#FDF2DE]">Mi Perfil</h1>
 
           <img
             src="/media/pfp_sample.svg"
-            alt=""
+            alt="Perfil" // TODO: Add translation variable for alt text
             className="w-24 md:w-32 lg:w-48 rounded-full mb-8"
           />
 
-          {/* Section for editing profile */}
+          {/* Error and Success Messages */}
+          {error && (
+            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+              {error}
+            </div>
+          )}
+          {successMessage && (
+            <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
+              {successMessage}
+            </div>
+          )}
 
-          <div className="bg-gray-100  flex items-center justify-center">
-            <div className="bg-[#FFFAF0] p-8 rounded-lg shadow-lg w-full max-w-4xl">
-              <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6 justify-center text-left text-[#51344D]">
-                {/* Name field */}
+          {/* Profile Update Form */}
+          <div className="bg-gray-100 dark:bg-[#51344D] flex items-center justify-center mb-6">
+            <div className="bg-[#FFFAF0]/90 dark:bg-[#51344D]/90 p-8 rounded-lg shadow-lg w-full max-w-4xl">
+              <form onSubmit={handleUpdateProfile} className="grid grid-cols-1 md:grid-cols-2 gap-6 justify-center text-left text-[#51344D] dark:text-[#FDF2DE]">
                 <div className="md:col-span-1">
-                  <label htmlFor="name" className="block text-sm font-medium ">
+                  <label htmlFor="name" className="block text-sm font-medium">
+                    {/* TODO: Add translation */}
                     Nombre
                   </label>
                   <input
@@ -99,18 +262,16 @@ export default function UserProfile() {
                     id="name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-[#51344D]"
+                    className="mt-1 block w-full px-3 py-2 bg-white dark:bg-[#51344D] dark:text-[#FDF2DE] border border-gray-300 dark:border-[#FDF2DE] rounded-md shadow-sm placeholder-gray-400 dark:placeholder-[#FDF2DE] focus:outline-none focus:ring-indigo-500 focus:border-[#51344D] dark:focus:border-[#FDF2DE]"
                     required
                     placeholder="Nombre"
+                    disabled={isLoading}
                   />
                 </div>
 
-                {/* Last name field */}
                 <div className="md:col-span-1">
-                  <label
-                    htmlFor="lastName"
-                    className="block text-sm font-medium "
-                  >
+                  <label htmlFor="lastName" className="block text-sm font-medium">
+                    {/* TODO: Add translation */}
                     Apellidos
                   </label>
                   <input
@@ -119,15 +280,16 @@ export default function UserProfile() {
                     id="lastName"
                     value={formData.lastName}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-[#51344D]"
+                    className="mt-1 block w-full px-3 py-2 bg-white dark:bg-[#51344D] dark:text-[#FDF2DE] border border-gray-300 dark:border-[#FDF2DE] rounded-md shadow-sm placeholder-gray-400 dark:placeholder-[#FDF2DE] focus:outline-none focus:ring-indigo-500 focus:border-[#51344D] dark:focus:border-[#FDF2DE]"
                     required
                     placeholder="Apellidos"
+                    disabled={isLoading}
                   />
                 </div>
 
-                {/* Email field */}
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium ">
+                <div className="md:col-span-2">
+                  <label htmlFor="email" className="block text-sm font-medium">
+                    {/* TODO: Add translation */}
                     Correo electrónico
                   </label>
                   <input
@@ -136,52 +298,97 @@ export default function UserProfile() {
                     id="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-[#51344D]"
+                    className="mt-1 block w-full px-3 py-2 bg-white dark:bg-[#51344D] dark:text-[#FDF2DE] border border-gray-300 dark:border-[#FDF2DE] rounded-md shadow-sm placeholder-gray-400 dark:placeholder-[#FDF2DE] focus:outline-none focus:ring-indigo-500 focus:border-[#51344D] dark:focus:border-[#FDF2DE]"
                     required
-                    placeholder="Correo electrónico"
+                    placeholder="correo@ejemplo.com"
+                    disabled={isLoading}
                   />
                 </div>
 
-                {/* Volunteer checkbox */}
-                <div className="flex items-center gap-2">
-                  <label htmlFor="isVolunteer" className="text-sm font-medium flex flex-row items-center">
-                    <input
-                      type="checkbox"
-                      name="isVolunteer"
-                      id="isVolunteer"
-                      checked={formData.isVolunteer}
-                      onChange={handleInputChange}
-                      className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 p-6  mr-2"
-                    />
-                    ¿Quieres ser voluntario?
-                  </label>
+                {/* Volunteer Status */}
+                <div className="md:col-span-2 flex items-center justify-between p-4 bg-gray-50 dark:bg-[#51344D] rounded-lg border-2 border-[#BCAAA4] dark:border-[#FDF2DE]">
+                  <div>
+                    <span className="text-sm font-medium">Estado de voluntario:</span>
+                    <span className={`ml-2 px-2 py-1 rounded text-xs ${isVolunteer(user) ? 'bg-green-100 text-green-800 dark:bg-green-700 dark:text-green-100' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-100'}`}>
+                      {/* TODO: Add translation */}
+                      {isVolunteer(user) ? 'Voluntario' : 'Propietario'}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleVolunteerToggle}
+                    disabled={isLoading}
+                    className={`px-4 py-2 rounded-md font-medium transition-colors ${
+                      isVolunteer(user)
+                        ? 'bg-red-600 hover:bg-red-700 text-white'
+                        : 'bg-[#BCAAA4] hover:bg-[#A89B9D] text-white'
+                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                  >
+                    {/* TODO: Add translation */}
+                    {isLoading ? 'Procesando...' : isVolunteer(user) ? 'Dejar de ser voluntario' : 'Ser voluntario'}
+                  </button>
                 </div>
 
-                {/* Password field */}
-                <div>
-                  <label
-                    htmlFor="password"
-                    className="block text-sm font-medium "
+                <div className="md:col-span-2 flex justify-end">
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="py-2 px-4 bg-[#BCAAA4] hover:bg-[#A89B9D] text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Nueva contraseña (opcional)
+                    {/* TODO: Add translation */}
+                    {isLoading ? 'Guardando...' : 'Guardar cambios'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          {/* Password Change Form */}
+          <div className="bg-gray-100 dark:bg-[#51344D] flex items-center justify-center">
+            <div className="bg-[#FFFAF0]/90 dark:bg-[#51344D]/90 p-8 rounded-lg shadow-lg w-full max-w-4xl">
+              <h3 className="text-lg font-semibold mb-4 text-[#51344D] dark:text-[#FDF2DE]">
+                {/* TODO: Add translation */}
+                Cambiar contraseña
+              </h3>
+              <form onSubmit={handleChangePassword} className="grid grid-cols-1 md:grid-cols-2 gap-6 justify-center text-left text-[#51344D] dark:text-[#FDF2DE]">
+                <div className="md:col-span-2">
+                  <label htmlFor="currentPassword" className="block text-sm font-medium">
+                    {/* TODO: Add translation */}
+                    Contraseña actual
                   </label>
                   <input
                     type="password"
-                    name="password"
-                    id="password"
-                    value={formData.password}
+                    name="currentPassword"
+                    id="currentPassword"
+                    value={formData.currentPassword}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-[#51344D]"
-                    placeholder="Deja en blanco para mantener la actual"
+                    className="mt-1 block w-full px-3 py-2 bg-white dark:bg-[#51344D] dark:text-[#FDF2DE] border border-gray-300 dark:border-[#FDF2DE] rounded-md shadow-sm placeholder-gray-400 dark:placeholder-[#FDF2DE] focus:outline-none focus:ring-indigo-500 focus:border-[#51344D] dark:focus:border-[#FDF2DE]"
+                    placeholder="Introduce tu contraseña actual"
+                    disabled={isLoading}
                   />
                 </div>
 
-                <div>
-                  <label
-                    htmlFor="confirmPassword"
-                    className="block text-sm font-medium "
-                  >
-                    Confirma tu nueva contraseña
+                <div className="md:col-span-1">
+                  <label htmlFor="newPassword" className="block text-sm font-medium">
+                    {/* TODO: Add translation */}
+                    Nueva contraseña
+                  </label>
+                  <input
+                    type="password"
+                    name="newPassword"
+                    id="newPassword"
+                    value={formData.newPassword}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full px-3 py-2 bg-white dark:bg-[#51344D] dark:text-[#FDF2DE] border border-gray-300 dark:border-[#FDF2DE] rounded-md shadow-sm placeholder-gray-400 dark:placeholder-[#FDF2DE] focus:outline-none focus:ring-indigo-500 focus:border-[#51344D] dark:focus:border-[#FDF2DE]"
+                    placeholder="Introduce nueva contraseña"
+                    disabled={isLoading}
+                  />
+                </div>
+
+                <div className="md:col-span-1">
+                  <label htmlFor="confirmPassword" className="block text-sm font-medium">
+                    {/* TODO: Add translation */}
+                    Confirmar nueva contraseña
                   </label>
                   <input
                     type="password"
@@ -189,45 +396,38 @@ export default function UserProfile() {
                     id="confirmPassword"
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-[#51344D]"
-                    placeholder="Confirma tu nueva contraseña"
+                    className="mt-1 block w-full px-3 py-2 bg-white dark:bg-[#51344D] dark:text-[#FDF2DE] border border-gray-300 dark:border-[#FDF2DE] rounded-md shadow-sm placeholder-gray-400 dark:placeholder-[#FDF2DE] focus:outline-none focus:ring-indigo-500 focus:border-[#51344D] dark:focus:border-[#FDF2DE]"
+                    placeholder="Confirma la nueva contraseña"
+                    disabled={isLoading}
                   />
                 </div>
 
-                {/* Submit button */}
                 <div className="md:col-span-2 flex justify-end">
                   <button
                     type="submit"
-                    className="py-2 px-4 bg-[#BCAAA4] hover:bg-[#A89B9D] text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-300 ease-in-out"
+                    disabled={isLoading || !formData.currentPassword || !formData.newPassword}
+                    className="py-2 px-4 bg-[#BCAAA4] hover:bg-[#A89B9D] text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Guardar cambios
+                    {/* TODO: Add translation */}
+                    {isLoading ? 'Cambiando...' : 'Cambiar contraseña'}
                   </button>
                 </div>
               </form>
             </div>
           </div>
         </div>
-        <div className="p-10 flex justify-center">
-          <button
-            type="button"
-            className="
-              flex items-center justify-center gap-3  pr-4
-              bg-[#BCAAA4] text-white font-semibold rounded-lg shadow-md
-              hover:bg-[#A89B9D] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75
-              transition-colors duration-300 ease-in-out"
-          >
-            {/* SVG icon from 'public' */}
-            <img
-              src="media/agenda_icon.svg"
-              alt="Icono de agenda"
-              className="h-10 w-10"
-            />
-
-            <Link to="/calendar" className="">{translate("viewAppointments")}</Link>
-          </button>
-        </div>
       </div>
+
+      {/* Volunteer Modal */}
+      <VolunteerModal
+        isOpen={isVolunteerModalOpen}
+        isCurrentlyVolunteer={isVolunteer(user)}
+        onConfirm={handleVolunteerModalSubmit}
+        onCancel={handleVolunteerModalCancel}
+        isLoading={isLoading}
+      />
+
       <Footer />
     </>
   );
-};
+}

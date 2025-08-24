@@ -50,9 +50,9 @@ export default function VolunteerModal({
         onClick={handleCancel}
       ></div>
       
-      <div className="relative bg-white rounded-lg shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto border-2 border-[#fdf2de]">
+      <div className="relative bg-white dark:bg-[#51344D] rounded-lg shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto border-2 border-[#fdf2de]">
         <div className="p-6">
-          <h3 className="text-lg font-semibold text-[#51344D] mb-4">
+          <h3 className="text-lg font-semibold text-[#51344D] dark:!text-[#FDF2DE] mb-4">
             {isCurrentlyVolunteer 
               ? '¿Dejar de ser voluntario?' 
               : '¡Conviértete en voluntario!'
@@ -62,18 +62,18 @@ export default function VolunteerModal({
           <form onSubmit={handleSubmit}>
             {isCurrentlyVolunteer ? (
               <div className="mb-6">
-                <p className="text-gray-700 mb-4">
+                <p className="text-gray-700 dark:text-[#FDF2DE] mb-4">
                   ¿Estás seguro de que quieres dejar de ser voluntario? 
                   Perderás el acceso a las funciones de voluntario.
                 </p>
               </div>
             ) : (
               <div className="mb-6">
-                <p className="text-gray-700 mb-4">
+                <p className="text-gray-700 dark:text-[#FDF2DE] mb-4">
                   ¡Genial! Cuéntanos un poco sobre ti y tu experiencia con animales.
                 </p>
                 
-                <label htmlFor="volunteer-description" className="block text-sm font-medium text-[#51344D] mb-2">
+                <label htmlFor="volunteer-description" className="block text-sm font-medium text-[#51344D] dark:text-[#FDF2DE] mb-2">
                   Descripción *
                 </label>
                 <textarea
@@ -86,14 +86,14 @@ export default function VolunteerModal({
                   disabled={isLoading}
                   required
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 dark:text-[#FDF2DE] mt-1">
                   Comparte tu experiencia, motivación y cualquier habilidad relevante.
                 </p>
               </div>
             )}
 
             {error && (
-              <div className="mb-4 p-3 bg-red-100 border border-red-300 text-red-700 rounded-md text-sm">
+              <div className="mb-4 p-3 bg-red-100 dark:bg-red-900 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-100 rounded-md text-sm">
                 {error}
               </div>
             )}
