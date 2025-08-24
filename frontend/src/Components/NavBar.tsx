@@ -62,9 +62,9 @@ export default function NavBar() {
 
   return (
     <nav className="bg-[#A89B9D] dark:bg-[#928d8e] text-white p-4 shadow-md w-full sticky top-0 z-50 rounded-xs">
-      <div className="container mx-auto flex justify-between items-center">
+      <div className="container mx-auto flex justify-between items-center ">
         {/* Logo + brand */}
-        <Link to="/" className="flex items-center text-eggplant text-xl text-[#51344D]">
+        <Link to="/" className="flex items-center text-eggplant text-xl text-[#51344D] 3xl:!text-[2rem]">
           <img src="/media/logotipo.svg" alt="Logotipo-huellas" className="h-14 w-auto" />
           Huellas
         </Link>
@@ -73,8 +73,8 @@ export default function NavBar() {
         <div className="hidden md:flex items-center space-x-6 text-[#51344D]">
           {isLoggedIn ? (
             <>
-              <Link to="/user-home" className="3xl:text-[1.5rem]">{translate('home')}</Link>
-              <Link to="/user-profile" className="3xl:text-[1.5rem]">{translate('profile')}</Link>
+              <Link to="/user-home" className="3xl:!text-[2rem]">{translate('home')}</Link>
+              <Link to="/user-profile" className="3xl:!text-[1.9rem]">{translate('profile')}</Link>
               <button 
                 onClick={handleLogout}
                 className="hover-eggplant"

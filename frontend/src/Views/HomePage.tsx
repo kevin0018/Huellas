@@ -33,6 +33,8 @@ const HomeContent: React.FC = () => {
         {/* #3 (third copy for TV Screens) */} 
         <img src="/media/dogs_desktop.png" alt="Dogs desktop (light)" className="hidden 3xl:block dark:hidden w-full max-w-[500px]" /> 
         <img src="/media/dogs_desktop_purple_bg_white_lines.png" alt="Dogs desktop (dark)" className="hidden 3xl:dark:block w-full max-w-[500px]" /> 
+        <img src="/media/dogs_desktop.png" alt="Dogs desktop (light)" className="hidden 3xl:block dark:hidden w-full max-w-[500px]" /> 
+        <img src="/media/dogs_desktop_purple_bg_white_lines.png" alt="Dogs desktop (dark)" className="hidden 3xl:dark:block w-full max-w-[500px]" /> 
         
         {/* Mobile image */} 
         <img src="/media/dogs_title.png" alt="dogs_mobile" className="block lg:hidden w-full max-w-[600px]" /> 
@@ -43,7 +45,7 @@ const HomeContent: React.FC = () => {
         </div> 
       </section>
 
-      <p className="lead text-justify w-full max-w-5xl font-nunito 3xl:max-w-[80%] ">{translate('appDescription')}</p>
+      <p className="lead text-justify w-full max-w-5xl font-nunito 3xl:max-w-[70%] 3xl:!text-[2rem]">{translate('appDescription')}</p>
 
       <section className="w-full max-w-5xl mt-20 mb-30">
         <h2 className="h2 font-caprasimo mb-4"> {translate('howToHelp')} </h2>

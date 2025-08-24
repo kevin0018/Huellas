@@ -100,7 +100,7 @@ h1, h2, h3, h4, h5, h6 { @apply text-center; color: var(--huellas-eggplant); fon
     .h2 { @apply text-4xl m-10}
 
     a {
-      font-size: 1.5rem !important;
+      font-size: 1.7rem !important;
     }
 
     p { 
