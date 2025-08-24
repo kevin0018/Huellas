@@ -11,8 +11,8 @@ import ThemeSwitcher from './theme/ThemeSwitcher';
 import LanguageSwitcher from '../i18n/LanguageSwitcher';
 import { useTranslation } from '../i18n/hooks/hook';
 import { AuthService } from '../modules/auth/infra/AuthService';
-import { LogoutCommand } from '../modules/auth/app/LogoutCommand';
-import { LogoutCommandHandler } from '../modules/auth/app/LogoutCommandHandler';
+import { LogoutCommand } from '../modules/auth/application/commands/LogoutCommand';
+import { LogoutCommandHandler } from '../modules/auth/application/commands/LogoutCommandHandler';
 import { ApiAuthRepository } from '../modules/auth/infra/ApiAuthRepository';
 
 export default function NavBar() {

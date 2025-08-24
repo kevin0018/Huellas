@@ -1,10 +1,6 @@
-import type { AuthRepository } from '../domain/AuthRepository';
+import type { AuthRepository } from '../../domain/AuthRepository';
 import type { LogoutCommand } from './LogoutCommand';
 
-/**
- * Handler for LogoutCommand following CQRS pattern.
- * Orchestrates logout through domain repository.
- */
 export class LogoutCommandHandler {
   private readonly authRepository: AuthRepository;
   
