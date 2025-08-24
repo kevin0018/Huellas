@@ -20,7 +20,7 @@ export default function UserProfile() {
   const [isVolunteerModalOpen, setIsVolunteerModalOpen] = useState(false);
   const [pendingVolunteerChange, setPendingVolunteerChange] = useState<boolean | null>(null);
   const [error, setError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     lastName: '',
@@ -64,6 +64,13 @@ export default function UserProfile() {
     loadUserProfile();
   }, [navigate, authRepository]);
 
+  // Helper function to show toast message
+  const showToastMessage = () => {
+    setShowSuccessToast(true);
+    // Auto-hide toast after 4 seconds
+    setTimeout(() => setShowSuccessToast(false), 4000);
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
@@ -73,14 +80,12 @@ export default function UserProfile() {
     
     // Clear messages when user starts typing
     if (error) setError('');
-    if (successMessage) setSuccessMessage('');
   };
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
-    setSuccessMessage('');
 
     try {
       const command = new UpdateProfileCommand(
@@ -103,7 +108,7 @@ export default function UserProfile() {
       }
       
       // TODO: Add translation
-      setSuccessMessage('Perfil actualizado correctamente');
+      showToastMessage();
     } catch (error) {
       // TODO: Add translation
       setError(error instanceof Error ? error.message : 'Error al actualizar el perfil');
@@ -129,7 +134,6 @@ export default function UserProfile() {
 
     setIsLoading(true);
     setError('');
-    setSuccessMessage('');
 
     try {
       const command = new ChangePasswordCommand(
@@ -148,7 +152,7 @@ export default function UserProfile() {
       }));
       
       // TODO: Add translation
-      setSuccessMessage('Contraseña cambiada correctamente');
+      showToastMessage();
     } catch (error) {
       // TODO: Add translation
       setError(error instanceof Error ? error.message : 'Error al cambiar la contraseña');
@@ -177,7 +181,6 @@ export default function UserProfile() {
 
     setIsLoading(true);
     setError('');
-    setSuccessMessage('');
 
     try {
       const command = new ToggleVolunteerCommand(becomesVolunteer, description);
@@ -189,8 +192,7 @@ export default function UserProfile() {
       setFormData(prev => ({ ...prev, isVolunteer: becomesVolunteer }));
       
       // TODO: Add translation
-      const messageKey = becomesVolunteer ? 'Perfil de voluntario creado correctamente' : 'Perfil de voluntario eliminado correctamente';
-      setSuccessMessage(messageKey);
+      showToastMessage();
     } catch (error) {
       // TODO: Add translation
       setError(error instanceof Error ? error.message : 'Error al actualizar el estado de voluntario');
@@ -239,11 +241,6 @@ export default function UserProfile() {
           {error && (
             <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
               {error}
-            </div>
-          )}
-          {successMessage && (
-            <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
-              {successMessage}
             </div>
           )}
 
@@ -426,6 +423,17 @@ export default function UserProfile() {
         onCancel={handleVolunteerModalCancel}
         isLoading={isLoading}
       />
+
+      {/* Success Toast */}
+      {showSuccessToast && (
+        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-fade-in">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+          {/* TODO: Add translation */}
+          <span className="font-medium">Acción completada correctamente</span>
+        </div>
+      )}
 
       <Footer />
     </>
