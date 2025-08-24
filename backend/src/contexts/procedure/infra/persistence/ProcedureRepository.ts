@@ -1,16 +1,16 @@
 import { PetType, PrismaClient } from "@prisma/client";
 import { Procedure } from "../../domain/entities/Procedure.js";
-import { IProcedureRepository } from "../../domain/repository/IProcedureRepository.js";
+import { IProcedureRepository } from "../../domain/repositories/IProcedureRepository.js";
 
 const prisma = new PrismaClient();
 
 export class ProcedureRepository implements IProcedureRepository {
   async findByPetType(type: PetType): Promise<Procedure[]> {
     const results = await prisma.procedureSchedule.findMany({
-      where:{
+      where: {
         animal_type: type
       },
-      orderBy:{
+      orderBy: {
         recommended_vaccines_age: "asc"
       }
     })
@@ -24,5 +24,23 @@ export class ProcedureRepository implements IProcedureRepository {
     ))
 
     return procedures;
+  }
+
+  async findById(id: number): Promise<Procedure | null> {
+    const procedure = await prisma.procedureSchedule.findUnique({
+      where: { id: id },
+    });
+
+    if (!procedure) {
+      return null
+    }
+
+    return new Procedure(
+      procedure.id,
+      procedure.animal_type,
+      procedure.procedure_name,
+      procedure.recommended_vaccines_age,
+      procedure.notes
+    );
   }
 }
