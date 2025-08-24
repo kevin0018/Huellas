@@ -27,7 +27,7 @@ const ThemeSwitcher: FC<ThemeSwitcherProps> = ({
       aria-checked={isDark}
       aria-label={isDark ? ariaLabelLight : ariaLabelDark}
       onClick={toggleTheme}
-      className={`relative inline-flex h-8 w-16 items-center rounded-full transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[--huellas-eggplant] ${
+      className={`relative inline-flex h-8 w-16 3xl:h-10 3xl:w-20 items-center rounded-full transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[--huellas-eggplant] ${
         isDark ? 'bg-gray-800' : 'bg-gray-300'
       } ${className ?? ''}`}
       title={isDark ? 'Dark' : 'Light'}
@@ -35,7 +35,7 @@ const ThemeSwitcher: FC<ThemeSwitcherProps> = ({
       {/* Knob */}
       <span
         aria-hidden
-        className={`pointer-events-none absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded-full transition-transform duration-300 ${
+        className={`pointer-events-none absolute left-1 top-1 flex h-6 w-6 3xl:h-8 3xl:w-8 items-center justify-center rounded-full transition-transform duration-300 ${
           isDark ? 'translate-x-8 bg-gray-700' : 'translate-x-0 bg-white'
         }`}
       >

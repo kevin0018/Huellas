@@ -21,35 +21,38 @@ const HomeContent: React.FC = () => {
         </h1>
       </header>
 
-      <div className="relative w-full max-w-5xl mx-auto flex flex-row items-center justify-center px-4 mb-10">
-        {/* Desktop images */}
-        {/* #1 */}
-        <img src="/media/dogs_desktop.png" alt="Dogs desktop (light)" className="hidden lg:block dark:hidden w-full max-w-[500px]" />
-        <img src="/media/dogs_desktop_purple_bg_white_lines.png" alt="Dogs desktop (dark)" className="hidden lg:dark:block w-full max-w-[500px]" />
+      <section className="relative w-full max-w-5xl mx-auto flex flex-row items-center justify-center px-4 mb-10"> 
+        {/* Desktop images */} {/* #1 */} 
+        <img src="/media/dogs_desktop.png" alt="Dogs desktop (light)" className="hidden lg:block dark:hidden w-full max-w-[500px]" /> 
+        <img src="/media/dogs_desktop_purple_bg_white_lines.png" alt="Dogs desktop (dark)" className="hidden lg:dark:block w-full max-w-[500px]" /> 
+        
+        {/* #2 (second copy beside the first) */} 
+        <img src="/media/dogs_desktop.png" alt="Dogs desktop (light)" className="hidden lg:block dark:hidden w-full max-w-[500px]" /> 
+        <img src="/media/dogs_desktop_purple_bg_white_lines.png" alt="Dogs desktop (dark)" className="hidden lg:dark:block w-full max-w-[500px]" /> 
 
-        {/* #2 (second copy beside the first) */}
-        <img src="/media/dogs_desktop.png" alt="Dogs desktop (light)" className="hidden lg:block dark:hidden w-full max-w-[500px]" />
-        <img src="/media/dogs_desktop_purple_bg_white_lines.png" alt="Dogs desktop (dark)" className="hidden lg:dark:block w-full max-w-[500px]" />
+        {/* #3 (third copy for TV Screens) */} 
+        <img src="/media/dogs_desktop.png" alt="Dogs desktop (light)" className="hidden 3xl:block dark:hidden w-full max-w-[500px]" /> 
+        <img src="/media/dogs_desktop_purple_bg_white_lines.png" alt="Dogs desktop (dark)" className="hidden 3xl:dark:block w-full max-w-[500px]" /> 
+        <img src="/media/dogs_desktop.png" alt="Dogs desktop (light)" className="hidden 3xl:block dark:hidden w-full max-w-[500px]" /> 
+        <img src="/media/dogs_desktop_purple_bg_white_lines.png" alt="Dogs desktop (dark)" className="hidden 3xl:dark:block w-full max-w-[500px]" /> 
+        
+        {/* Mobile image */} 
+        <img src="/media/dogs_title.png" alt="dogs_mobile" className="block lg:hidden w-full max-w-[600px]" /> 
+        
+        {/* CTA overlay */} 
+        <div className="absolute left-4 bottom-4 md:left-8 md:bottom-8"> 
+          <CTAButton label={translate('getStarted')} href="#register" /> 
+        </div> 
+      </section>
 
-        {/* Mobile image */}
-        <img src="/media/dogs_title.png" alt="dogs_mobile" className="block lg:hidden w-full max-w-[600px]" />
-
-        {/* CTA overlay */}
-        <div className="absolute left-4 bottom-4 md:left-8 md:bottom-8">
-          <CTAButton label={translate('getStarted')} href="#register" />
-        </div>
-      </div>
-
-
-      <p className="lead text-justify w-full max-w-5xl mx-auto font-nunito">{translate('appDescription')}</p>
-
+      <p className="lead text-justify w-full max-w-5xl font-nunito 3xl:max-w-[70%] 3xl:!text-[2rem]">{translate('appDescription')}</p>
 
       <section className="w-full max-w-5xl mt-20 mb-30">
         <h2 className="h2 font-caprasimo mb-4"> {translate('howToHelp')} </h2>
         <div className="flex flex-col md:flex-row md:justify-between items-center">
           <img src="/media/helpCat.svg" alt="Helping Cat" className='w-80 mx-auto m-5' />
-          <div className="flex flex-col items-center md:items-start text-left max-w-xl font-nunito">
-            <p className="lead text-justify w-full max-w-4xl"> {translate('howToHelpText')} </p>
+          <div className="flex flex-col items-center text-left max-w-xl md:items-start font-nunito 3xl:max-w-[70%]">
+            <p className="lead text-justify w-full max-w-4xl 3xl:max-w-[80%]"> {translate('howToHelpText')} </p>
             <button className="bg-[#51344D] !text-white m-4 py-2 px-4 rounded"> {translate('howToHelp')} </button>
           </div>
         </div>

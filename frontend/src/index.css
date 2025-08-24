@@ -17,8 +17,9 @@
   --bg-dogs-userhome-tablet-url: url('media/bg_tablet_userhome.png');
   --bg-dogs-userhome-desktop-url: url('media/bg_desktop_userhome.png');
   --bg-dogs-userhome-mobile-dark-url: url('media/bg_phone_userhome_dark.png');
-
+  --breakpoint-3xl: 110rem;
 }
+
 @layer utilities {
   .bg-dogs-userhome-mobile {
     background-image: var(--bg-dogs-userhome-mobile-url);
@@ -39,7 +40,7 @@
   @apply bg-[#FDF2DE] dark:bg-[#51344D];
 }
 
-body { @apply bg-gray-50 text-gray-900 text-center; }
+body { @apply bg-gray-50 text-gray-900 text-center ; }
 img {border-radius: 25px;}
 
 /* Language select styling for visibility (native dropdown) */
@@ -85,4 +86,50 @@ h1, h2, h3, h4, h5, h6 { @apply text-center; color: var(--huellas-eggplant); fon
 
 .animate-fade-in {
   animation: fade-in 0.3s ease-out;
+}
+
+@media (min-width: 110rem) {
+  body {
+    font-size: 1.7rem !important;
+    
+    section {
+      max-width: 80%;
+    }
+
+    .h1 { @apply text-6xl m-4}
+    .h2 { @apply text-4xl m-10}
+
+    a {
+      font-size: 1.7rem !important;
+    }
+
+    p { 
+    font-size: 2rem !important; 
+    }
+
+    label {
+      font-size: 1.5rem !important;
+    }
+    input {
+      font-size: 1.25rem !important;
+      
+    }
+
+    span {
+      font-size: 1.25rem !important;
+    }
+  }
+
+  .aboutUsDiv {
+    max-width: 90% ;
+  }
+
+  .proceduresText {
+    max-width: 80%;
+    margin-bottom: 6rem;
+    p {
+      font-size: 1.5rem !important;
+    }
+  }
+
 }

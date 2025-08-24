@@ -107,12 +107,12 @@ const LanguageSwitcher: FC<{ className?: string }> = ({ className }) => {
         aria-label="Change language"
         onClick={() => setOpen((o) => !o)}
         onKeyDown={onTriggerKeyDown}
-        className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-transparent p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2"
+        className="inline-flex h-6 w-6 3xl:h-8 3xl:w-8 items-center justify-center rounded-md bg-transparent p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2"
       >
         <img
           src={SRC_BY_LANG[currentLanguage]}
           alt=""
-          className="h-5 w-5 rounded-sm"
+          className="h-5 w-5 3xl:h-8 3xl:w-8 rounded-sm"
         />
         <span className="sr-only">{LABEL_BY_LANG[currentLanguage]}</span>
       </button>
