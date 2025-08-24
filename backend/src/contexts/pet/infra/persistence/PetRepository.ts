@@ -32,7 +32,6 @@ export class PetRepository implements IPetRepository {
     );
   }
 
-
   async save(pet: CreatePetRequest): Promise<Pet> {
     const savedPet = await prisma.pet.create({
       data: {

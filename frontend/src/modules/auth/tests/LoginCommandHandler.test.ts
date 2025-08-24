@@ -17,7 +17,11 @@ describe('LoginCommandHandler', () => {
           type: 'owner'
         }
       }),
-      logout: vi.fn().mockResolvedValue(undefined)
+      logout: vi.fn().mockResolvedValue(undefined),
+      updateProfile: vi.fn(),
+      changePassword: vi.fn(),
+      getCurrentUser: vi.fn(),
+      toggleVolunteer: vi.fn()
     };
     const handler = new LoginCommandHandler(mockRepository);
     const command = new LoginCommand('owner@example.com', 'password123');

@@ -1,7 +1,7 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import { AuthenticatedRequest } from "../../../auth/infra/middleware/JwtMiddleware.js";
 import { FindProceduresByPetTypeUseCase } from "../../app/FindProceduresByPetTypeUseCase.js";
-import { IProcedureRepository } from "../../domain/repository/IProcedureRepository.js";
+import { IProcedureRepository } from "../../domain/repositories/IProcedureRepository.js";
 import { PetType } from "@prisma/client";
 
 export class GetProceduresController {

@@ -4,6 +4,7 @@ import { createAuthRoutes } from './authRoutes.js';
 import { volunteerRoutes } from './volunteerRoutes.js';
 import { createPetRoutes } from './petRoutes.js';
 import { createProcedureRoutes } from './procedureRoutes.js';
+import { createCheckupRoutes } from './checkupRoutes.js';
 
 export function createRoutes(): Router {
   console.log('Creating main routes...');
@@ -28,6 +29,11 @@ export function createRoutes(): Router {
   // Mount procedure routes
   console.log('Mounting procedure routes on /procedures...');
   router.use('/procedures', createProcedureRoutes());
+
+  // Mount checkup routes
+  console.log('Mounting checkup routes on /checkup...');
+  router.use('/checkups', createCheckupRoutes());
+
 
   return router;
 }
