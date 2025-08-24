@@ -18,6 +18,7 @@ import Contact from './Views/contact';
 import PetProfile from './Views/PetProfile';
 import UserProfile from './Views/UserProfile';
 import Procedures from './Views/Procedures';
+import VolunteerBoard from './Views/VolunteerBoard';
 
 
 
@@ -37,6 +38,7 @@ const App: React.FC = () => {
           <Route path="/pet-profile" element={<PetProfile />} />
           <Route path="/user-profile" element={<UserProfile />} />
           <Route path="/procedures" element={<Procedures />} />
+          <Route path="/volunteer-board" element={<VolunteerBoard />} />
         </Routes>
       </ThemeProvider>
     </LanguageProvider>
