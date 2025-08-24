@@ -1,6 +1,7 @@
 import type { AuthRepository } from '../../domain/AuthRepository';
 import type { User } from '../../domain/User';
 import { ToggleVolunteerCommand } from './ToggleVolunteerCommand';
+import { AuthService } from '../../infra/AuthService';
 
 export class ToggleVolunteerCommandHandler {
   private readonly authRepository: AuthRepository;
@@ -10,7 +11,7 @@ export class ToggleVolunteerCommandHandler {
   }
 
   async handle(command: ToggleVolunteerCommand): Promise<User> {
-    const token = localStorage.getItem('authToken');
+    const token = AuthService.getToken();
     if (!token) {
       throw new Error('No authentication token found');
     }
@@ -25,8 +26,8 @@ export class ToggleVolunteerCommandHandler {
       command.isBecomingVolunteer ? { description: command.description! } : undefined
     );
 
-    // Update user data in localStorage
-    localStorage.setItem('userData', JSON.stringify(updatedUser));
+    // Update user data using AuthService
+    AuthService.saveAuth(token, updatedUser);
 
     return updatedUser;
   }

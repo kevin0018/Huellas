@@ -1,6 +1,7 @@
 import type { AuthRepository } from '../../domain/AuthRepository';
 import type { User } from '../../domain/User';
 import { UpdateProfileCommand } from './UpdateProfileCommand';
+import { AuthService } from '../../infra/AuthService';
 
 export class UpdateProfileCommandHandler {
   private readonly authRepository: AuthRepository;
@@ -10,7 +11,7 @@ export class UpdateProfileCommandHandler {
   }
 
   async handle(command: UpdateProfileCommand): Promise<User> {
-    const token = localStorage.getItem('authToken');
+    const token = AuthService.getToken();
     if (!token) {
       throw new Error('No authentication token found');
     }
@@ -21,8 +22,8 @@ export class UpdateProfileCommandHandler {
       email: command.email
     });
 
-    // Update user data in localStorage
-    localStorage.setItem('userData', JSON.stringify(updatedUser));
+    // Update user data using AuthService
+    AuthService.saveAuth(token, updatedUser);
 
     return updatedUser;
   }

@@ -1,5 +1,6 @@
 import type { AuthRepository } from '../../domain/AuthRepository';
 import { ChangePasswordCommand } from './ChangePasswordCommand';
+import { AuthService } from '../../infra/AuthService';
 
 export class ChangePasswordCommandHandler {
   private readonly authRepository: AuthRepository;
@@ -9,7 +10,7 @@ export class ChangePasswordCommandHandler {
   }
 
   async handle(command: ChangePasswordCommand): Promise<void> {
-    const token = localStorage.getItem('authToken');
+    const token = AuthService.getToken();
     if (!token) {
       throw new Error('No authentication token found');
     }
