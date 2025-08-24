@@ -15,9 +15,9 @@ export class GetMyPetsController {
       const ownerId = req.user.userId;
       const pets = await this.findPetsByOwnerUseCase.execute(ownerId);
 
-      return res.status(201).send(pets);
+      return res.status(200).send(pets);
     } catch (error) {
-      return res.status(400).send({ error: (error as Error).message });
+      return res.status(500).send({ error: (error as Error).message });
     }
   }
 }

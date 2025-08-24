@@ -28,6 +28,9 @@ export class CheckupRepository implements ICheckupRepository {
     const results = await prisma.checkup.findMany({
       where:{
         pet_id: petId
+      },
+      orderBy: {
+        date: "desc"
       }
     });
 
