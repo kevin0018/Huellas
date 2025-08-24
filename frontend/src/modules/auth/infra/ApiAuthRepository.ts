@@ -1,5 +1,5 @@
 import type { AuthRepository } from '../domain/AuthRepository';
-import type { LoginResponse } from '../domain/User';
+import type { LoginResponse, User } from '../domain/User';
 import { AuthService } from './AuthService';
 
 export class ApiAuthRepository implements AuthRepository {
@@ -46,23 +46,141 @@ export class ApiAuthRepository implements AuthRepository {
   }
 
   async logout(): Promise<void> {
+    let response: Response;
+    try {
+      response = await fetch(`${this.baseUrl}/logout`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${AuthService.getToken()}`,
+        }
+      });
+    } catch (err) {
+      throw new Error('Network error: ' + (err instanceof Error ? err.message : String(err)));
+    }
+
+    if (!response.ok) {
+      console.warn('Logout failed on server, clearing local token anyway');
+    }
+
+    AuthService.logout();
+  }
+
+  async getCurrentUser(): Promise<User | null> {
+    // First try to get from localStorage for performance
+    const cachedUser = AuthService.getUser();
     const token = AuthService.getToken();
     
-    if (token) {
-      try {
-        await fetch(`${this.baseUrl}/logout`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-      } catch (error) {
-        console.warn('Failed to notify server of logout:', error);
-      }
+    if (!token) {
+      return null;
     }
+
+    // If we have a cached user and it's a volunteer with description, return it
+    // Otherwise, fetch from backend to get complete profile
+    if (cachedUser && !(cachedUser.type === 'volunteer' && !cachedUser.description)) {
+      return cachedUser;
+    }
+
+    try {
+      // Fetch complete profile from backend
+      const response = await fetch(`${this.baseUrl}/profile`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        // If request fails, return cached user if available
+        return cachedUser;
+      }
+
+      const userData = await response.json();
+      const completeUser = userData.user;
+      
+      // Update localStorage with complete user data
+      AuthService.saveAuth(token, completeUser);
+      
+      return completeUser;
+    } catch (error) {
+      console.error('Error fetching current user:', error);
+      // Return cached user as fallback
+      return cachedUser;
+    }
+  }
+
+  async updateProfile(token: string, profileData: {
+    name: string;
+    lastName: string;
+    email: string;
+    description?: string;
+  }): Promise<User> {
+    const response = await fetch(`${this.baseUrl}/profile`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(profileData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to update profile');
+    }
+
+    const updatedUser = await response.json();
     
-    // Always clear local storage, even if server call fails
-    AuthService.logout();
+    // Update user in localStorage to keep it in sync
+    AuthService.saveAuth(token, updatedUser.user || updatedUser);
+    
+    return updatedUser.user || updatedUser;
+  }
+
+  async changePassword(token: string, passwordData: {
+    currentPassword: string;
+    newPassword: string;
+  }): Promise<void> {
+    const response = await fetch(`${this.baseUrl}/password`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(passwordData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to change password');
+    }
+  }
+
+  async toggleVolunteer(token: string, volunteerData?: {
+    description: string;
+  }): Promise<User> {
+    const method = volunteerData ? 'POST' : 'DELETE';
+    const url = `${this.baseUrl}/volunteer`;
+
+    const response = await fetch(url, {
+      method,
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: volunteerData ? JSON.stringify(volunteerData) : undefined,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to toggle volunteer status');
+    }
+
+    const updatedUser = await response.json();
+    
+    // Update user in localStorage to keep it in sync
+    AuthService.saveAuth(token, updatedUser.user || updatedUser);
+    
+    return updatedUser.user || updatedUser;
   }
 }

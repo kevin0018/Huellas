@@ -2,6 +2,8 @@ import jwt from 'jsonwebtoken';
 import { AuthRepository } from '../../../domain/repositories/AuthRepository.js';
 import { UserType } from '../../../domain/entities/UserAuth.js';
 import { LoginCommand } from './LoginCommand.js';
+import { GetCurrentProfileQueryHandler } from '../../queries/getCurrentProfile/GetCurrentProfileQueryHandler.js';
+import { GetCurrentProfileQuery } from '../../queries/getCurrentProfile/GetCurrentProfileQuery.js';
 
 export interface LoginResult {
   token: string;
@@ -11,11 +13,15 @@ export interface LoginResult {
     lastName: string;
     email: string;
     type: UserType;
+    description?: string;
   };
 }
 
 export class LoginCommandHandler {
-  constructor(private readonly authRepository: AuthRepository) {}
+  constructor(
+    private readonly authRepository: AuthRepository,
+    private readonly getCurrentProfileHandler: GetCurrentProfileQueryHandler
+  ) {}
 
   async execute(command: LoginCommand): Promise<LoginResult> {
     const user = await this.authRepository.findByEmail(command.email);
@@ -30,6 +36,10 @@ export class LoginCommandHandler {
     if (!isValidPassword) {
       throw new Error('Invalid email or password');
     }
+
+    // Get complete user profile including description if volunteer
+    const query = new GetCurrentProfileQuery(user.id);
+    const userProfile = await this.getCurrentProfileHandler.handle(query);
 
     // Generate JWT token with secure secret validation
     const jwtSecret = process.env.JWT_SECRET;
@@ -55,7 +65,8 @@ export class LoginCommandHandler {
         name: user.name,
         lastName: user.lastName,
         email: user.email,
-        type: user.type
+        type: user.type,
+        description: userProfile?.description
       }
     };
   }

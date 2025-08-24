@@ -36,15 +36,17 @@ function UserHomeContent() {
   return (
     <>
       <NavBar />
-      <div 
-        className="bg-dogs-userhome-mobile md:bg-dogs-userhome-tablet lg:bg-dogs-userhome-desktop bg-cover bg-center flex flex-col items-center justify-center dark:bg-dogs-userhome-mobile"
-        style={{ minHeight: 'calc(100vh - 180px)' }}
-      >
-        <div className="bg-[#FDF2DE] border-[#BCAAA4] border-2 rounded-lg shadow-lg p-6 w-full max-w-4xl mx-auto text-center">
-          <h1 className="h1 font-caprasimo mb-4 py-8">
+      <div className="flex flex-col items-center justify-center background-primary px-2 sm:px-0 overflow-hidden" style={{ minHeight: 'calc(100vh - 180px)' }}>
+        {/* Responsive background with dogs */}
+        <div className="fixed inset-0 z-0 w-full h-full bg-repeat bg-[url('/media/bg_phone_userhome.png')] md:bg-[url('/media/bg_tablet_userhome.png')] lg:bg-[url('/media/bg_desktop_userhome.png')] opacity-60 pointer-events-none select-none" aria-hidden="true" />
+
+        {/* Content overlay */}
+        <div className="relative z-10 w-full flex flex-col items-center max-w-4xl py-4">
+          <h1 className="h1 font-caprasimo mb-4 py-8 text-4xl md:text-5xl text-[#51344D] drop-shadow-lg dark:text-[#FDF2DE]">
             {translate("hello")}, {user.name}!
           </h1>
-          <p className="lead text-[--huellas-eggplant]/80 dark:text-[--huellas-ice] text-justify mb-8 px-4">
+          <div className="bg-[#FDF2DE]/90 dark:bg-[#51344D]/90 border-[#BCAAA4] border-2 rounded-lg shadow-lg p-6 w-full mx-auto text-center">
+          <p className="lead text-[--huellas-eggplant]/80 dark:text-[#FDF2DE] text-justify mb-8 px-4">
             {translate("homePageSubtitle")}
           </p>
             <div className="flex flex-col md:flex-row lg:flex-row items-center justify-center gap-4 mt-8">
@@ -119,9 +121,10 @@ function UserHomeContent() {
             </div>
           </div>
         </div>
-        <Footer />
-      </>
-    );
+      </div>
+      <Footer />
+    </>
+  );
 };
 
 export default function UserHome() {
