@@ -10,7 +10,8 @@ const CalendarView: React.FC = () => {
     <>
         <NavBar />
           <div className="flex flex-col items-center justify-center min-h-screen bg-[#FDF2DE] dark:bg-[#51344D]">
-            <h1 className="h1 font-caprasimo mb-4">{translate('welcome')}</h1>
+            <h1 className="h1 mb-4">{translate('procedures')}</h1>
+            <Link to="/procedures">Añadir procedimiento</Link>
           </div>
         <Footer />
     </>

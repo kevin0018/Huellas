@@ -73,8 +73,8 @@ export default function NavBar() {
         <div className="hidden md:flex items-center space-x-6 text-[#51344D]">
           {isLoggedIn ? (
             <>
-              <Link to="/user-home" className="hover-eggplant">{translate('home')}</Link>
-              <Link to="/user-profile" className="hover-eggplant">{translate('profile')}</Link>
+              <Link to="/user-home" className="3xl:text-[1.5rem]">{translate('home')}</Link>
+              <Link to="/user-profile" className="3xl:text-[1.5rem]">{translate('profile')}</Link>
               <button 
                 onClick={handleLogout}
                 className="hover-eggplant"
@@ -86,9 +86,9 @@ export default function NavBar() {
             <>
               <Link to="/register" className="hover-eggplant">{translate('register')}</Link>
               <Link to="/login" className="hover-eggplant">{translate('login')}</Link>
+              <Link to="/about" className="hover-eggplant">{translate('aboutUs')}</Link>
             </>
           )}
-          <Link to="/about" className="hover-eggplant">{translate('aboutUs')}</Link>
           <LanguageSwitcher className="select-huellas" />
           <ThemeSwitcher />
         </div>
