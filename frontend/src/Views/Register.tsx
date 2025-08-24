@@ -128,7 +128,7 @@ function RegisterForm() {
       {/* Background */}
       <div className="fixed inset-0 z-0 w-full h-full bg-repeat bg-[url('/media/bg_phone_userhome.png')] md:bg-[url('/media/bg_tablet_userhome.png')] lg:bg-[url('/media/bg_desktop_userhome.png')] opacity-60 pointer-events-none select-none" aria-hidden="true" />
       <div className="relative z-10 w-full flex flex-col items-center max-w-lg">
-        <h1 className="h1 font-caprasimo mb-4 text-4xl md:text-5xl text-[#51344D] drop-shadow-lg dark:text-[#FDF2DE]">{translate('register') || 'Únete'}</h1>
+        <h1 className="h1 font-caprasimo m-8 text-4xl md:text-5xl text-[#51344D] drop-shadow-lg dark:text-[#FDF2DE]">{translate('register') || 'Únete'}</h1>
         <form className="w-full max-w-xs sm:max-w-md md:max-w-lg p-6 sm:p-8 bg-white/90 dark:bg-[#51344D]/90 rounded-xl shadow-lg border border-[#51344D] flex flex-col gap-4" onSubmit={handleSubmit}>
           <div className="flex justify-center gap-4 mb-2">
             <label className="inline-flex items-center">
@@ -212,7 +212,7 @@ function RegisterForm() {
                   className="accent-eggplant w-4 h-4"
                   required
                 />
-                <span className="text-sm select-none dark:text-[#FDF2DE]">{translate('acceptTerms')}</span>
+                <span className="text-sm select-none dark:text-[#FDF2DE] 3xl:!text-[1.5rem]">{translate('acceptTerms')}</span>
               </span>
               <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-xs underline text-[#51344D] hover:opacity-80 dark:text-[#FDF2DE] mt-1 ml-0">
                 {translate('readTerms')}

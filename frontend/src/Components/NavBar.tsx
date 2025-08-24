@@ -121,7 +121,7 @@ export default function NavBar() {
             <>
               <Link to="/user-home" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">{translate('home')}</Link>
               <Link to="/user-profile" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">{translate('profile')}</Link>
-              <button 
+              <button
                 onClick={handleLogout}
                 className="hover:text-[--huellas-eggplant]"
               >

@@ -14,7 +14,6 @@ import AboutUs from "./Views/AboutUs";
 import PetRegister from './Views/PetRegister';
 import CalendarView from './Views/CalendarView';
 import UserHome from './Views/UserHome';
-import Contact from './Views/contact';
 import PetProfile from './Views/PetProfile';
 import UserProfile from './Views/UserProfile';
 import Procedures from './Views/Procedures';
@@ -33,7 +32,6 @@ const App: React.FC = () => {
           <Route path="/pet-register" element={<PetRegister />} />
           <Route path="/calendar" element={<CalendarView />} />
           <Route path="/user-home" element={<UserHome />} />
-          <Route path="/contact" element={<Contact />} />
           <Route path="/pet-profile" element={<PetProfile />} />
           <Route path="/user-profile" element={<UserProfile />} />
           <Route path="/procedures" element={<Procedures />} />

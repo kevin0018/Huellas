@@ -9,10 +9,10 @@ const Procedures: React.FC = () => {
     return (
         <div className="w-full max-auto bg-[url(/media/bg_desktop_userhome.png)]">
             <NavBar />
-            <h1 className="h1 m-6">{translate('procedures')}</h1>
+            <h1 className="h1 m-6 3xl:!m-15">{translate('procedures')}</h1>
 
-            <section className="flex items-center justify-center">
-                <div className="bg-[#FDF2DE] border-1 border-[#BCAAA4] text-start rounded-xl grid grid-cols-1 gap-8 m-4 p-4 md:grid-cols-2 lg:grid-cols-3 lg:max-w-5xl">
+            <section className="flex m-auto justify-center">
+                <div className="bg-[#FDF2DE] border-1 border-[#BCAAA4] text-start rounded-xl grid grid-cols-1 gap-8 m-4 p-4 md:grid-cols-2 lg:grid-cols-3 lg:max-w-5xl proceduresText">
                     <div>
                         <p className="bg-[#c7b9bb] px-2 py-1 mb-3">0 - 2 {translate('weeks')}</p>
                         <label className="flex items-center">
