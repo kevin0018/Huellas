@@ -29,6 +29,7 @@ describe('ChangePasswordCommandHandler', () => {
       logout: vi.fn(),
       updateProfile: vi.fn(),
       changePassword: vi.fn(),
+      getCurrentUser: vi.fn(),
       toggleVolunteer: vi.fn()
     };
 

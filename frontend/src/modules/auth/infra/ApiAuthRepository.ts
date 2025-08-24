@@ -46,24 +46,29 @@ export class ApiAuthRepository implements AuthRepository {
   }
 
   async logout(): Promise<void> {
-    const token = AuthService.getToken();
-    
-    if (token) {
-      try {
-        await fetch(`${this.baseUrl}/logout`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-      } catch (error) {
-        console.warn('Failed to notify server of logout:', error);
-      }
+    let response: Response;
+    try {
+      response = await fetch(`${this.baseUrl}/logout`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${AuthService.getToken()}`,
+        }
+      });
+    } catch (err) {
+      throw new Error('Network error: ' + (err instanceof Error ? err.message : String(err)));
     }
-    
-    // Always clear local storage, even if server call fails
+
+    if (!response.ok) {
+      console.warn('Logout failed on server, clearing local token anyway');
+    }
+
     AuthService.logout();
+  }
+
+  async getCurrentUser(): Promise<User | null> {
+    // Get user from localStorage instead of making API call
+    // since we already save user data during login
+    return AuthService.getUser();
   }
 
   async updateProfile(token: string, profileData: {
@@ -85,7 +90,12 @@ export class ApiAuthRepository implements AuthRepository {
       throw new Error(errorData.error || 'Failed to update profile');
     }
 
-    return await response.json();
+    const updatedUser = await response.json();
+    
+    // Update user in localStorage to keep it in sync
+    AuthService.saveAuth(token, updatedUser.user || updatedUser);
+    
+    return updatedUser.user || updatedUser;
   }
 
   async changePassword(token: string, passwordData: {
@@ -127,6 +137,11 @@ export class ApiAuthRepository implements AuthRepository {
       throw new Error(errorData.error || 'Failed to toggle volunteer status');
     }
 
-    return await response.json();
+    const updatedUser = await response.json();
+    
+    // Update user in localStorage to keep it in sync
+    AuthService.saveAuth(token, updatedUser.user || updatedUser);
+    
+    return updatedUser.user || updatedUser;
   }
 }

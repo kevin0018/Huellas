@@ -45,6 +45,12 @@ export class MemoryAuthRepository implements AuthRepository {
     // Memory repository doesn't need to do anything for logout
   }
 
+  async getCurrentUser(): Promise<User | null> {
+    // In memory repository, simulate getting user from "session"
+    // For testing purposes, return the first user if available
+    return this.users[0]?.user || null;
+  }
+
   async updateProfile(token: string, profileData: {
     name: string;
     lastName: string;

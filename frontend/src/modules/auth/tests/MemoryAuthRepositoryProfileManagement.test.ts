@@ -201,4 +201,32 @@ describe('MemoryAuthRepository - Profile Management', () => {
       expect(ownerUser.type).toBe(UserType.OWNER);
     });
   });
+
+  describe('getCurrentUser', () => {
+    it('should return current user from memory repository', async () => {
+      // Act
+      const currentUser = await repository.getCurrentUser();
+
+      // Assert
+      expect(currentUser).not.toBeNull();
+      expect(currentUser!.id).toBe(1);
+      expect(currentUser!.name).toBe('John');
+      expect(currentUser!.lastName).toBe('Doe');
+      expect(currentUser!.email).toBe('owner@example.com');
+      expect(currentUser!.type).toBe(UserType.OWNER);
+    });
+
+    it('should return null when no users exist in memory repository', async () => {
+      // Arrange - Create a repository and access its private users array
+      const emptyRepository = new MemoryAuthRepository();
+      // We know this is a test, so we'll access the private property carefully
+      Object.defineProperty(emptyRepository, 'users', { value: [], writable: true });
+
+      // Act
+      const currentUser = await emptyRepository.getCurrentUser();
+
+      // Assert
+      expect(currentUser).toBeNull();
+    });
+  });
 });
