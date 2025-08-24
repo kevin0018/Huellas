@@ -6,6 +6,7 @@ import { LogoutCommandHandler } from '../contexts/auth/app/commands/logout/Logou
 import { UpdateUserProfileCommandHandler } from '../contexts/auth/app/commands/updateProfile/UpdateUserProfileCommandHandler.js';
 import { ChangePasswordCommandHandler } from '../contexts/auth/app/commands/changePassword/ChangePasswordCommandHandler.js';
 import { CreateVolunteerProfileCommandHandler, DeleteVolunteerProfileCommandHandler } from '../contexts/auth/app/commands/toggleVolunteer/VolunteerCommandHandlers.js';
+import { GetCurrentProfileQueryHandler } from '../contexts/auth/app/queries/getCurrentProfile/GetCurrentProfileQueryHandler.js';
 import { PrismaAuthRepository } from '../contexts/auth/infra/repositories/PrismaAuthRepository.js';
 import { JwtMiddleware, AuthenticatedRequest } from '../contexts/auth/infra/middleware/JwtMiddleware.js';
 
@@ -16,7 +17,8 @@ export function createAuthRoutes(): Router {
   const authRepository = new PrismaAuthRepository();
   
   // Auth handlers
-  const loginHandler = new LoginCommandHandler(authRepository);
+  const getCurrentProfileHandler = new GetCurrentProfileQueryHandler(authRepository);
+  const loginHandler = new LoginCommandHandler(authRepository, getCurrentProfileHandler);
   const logoutHandler = new LogoutCommandHandler();
   const authController = new AuthController(loginHandler, logoutHandler);
 
@@ -29,7 +31,8 @@ export function createAuthRoutes(): Router {
     updateProfileHandler, 
     changePasswordHandler, 
     createVolunteerHandler, 
-    deleteVolunteerHandler
+    deleteVolunteerHandler,
+    getCurrentProfileHandler
   );
 
   // Auth routes
@@ -42,6 +45,10 @@ export function createAuthRoutes(): Router {
   });
 
   // Profile routes (authenticated)
+  router.get('/profile', JwtMiddleware.requireAuthenticated(), async (req: AuthenticatedRequest, res) => {
+    await profileController.getCurrentProfile(req, res);
+  });
+
   router.put('/profile', JwtMiddleware.requireAuthenticated(), async (req: AuthenticatedRequest, res) => {
     await profileController.updateProfile(req, res);
   });

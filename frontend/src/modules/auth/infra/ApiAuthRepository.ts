@@ -66,9 +66,47 @@ export class ApiAuthRepository implements AuthRepository {
   }
 
   async getCurrentUser(): Promise<User | null> {
-    // Get user from localStorage instead of making API call
-    // since we already save user data during login
-    return AuthService.getUser();
+    // First try to get from localStorage for performance
+    const cachedUser = AuthService.getUser();
+    const token = AuthService.getToken();
+    
+    if (!token) {
+      return null;
+    }
+
+    // If we have a cached user and it's a volunteer with description, return it
+    // Otherwise, fetch from backend to get complete profile
+    if (cachedUser && !(cachedUser.type === 'volunteer' && !cachedUser.description)) {
+      return cachedUser;
+    }
+
+    try {
+      // Fetch complete profile from backend
+      const response = await fetch(`${this.baseUrl}/profile`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        // If request fails, return cached user if available
+        return cachedUser;
+      }
+
+      const userData = await response.json();
+      const completeUser = userData.user;
+      
+      // Update localStorage with complete user data
+      AuthService.saveAuth(token, completeUser);
+      
+      return completeUser;
+    } catch (error) {
+      console.error('Error fetching current user:', error);
+      // Return cached user as fallback
+      return cachedUser;
+    }
   }
 
   async updateProfile(token: string, profileData: {

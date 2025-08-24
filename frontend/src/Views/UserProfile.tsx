@@ -11,7 +11,7 @@ import { UpdateProfileCommand } from '../modules/auth/application/commands/Updat
 import { ChangePasswordCommand } from '../modules/auth/application/commands/ChangePasswordCommand';
 import { ToggleVolunteerCommand } from '../modules/auth/application/commands/ToggleVolunteerCommand';
 import type { User } from '../modules/auth/domain/User';
-import { isVolunteer, UserType } from '../modules/auth/domain/User';
+import { isVolunteer } from '../modules/auth/domain/User';
 
 export default function UserProfile() {
   const navigate = useNavigate();
@@ -98,19 +98,17 @@ export default function UserProfile() {
         formData.description
       );
       
-      await updateProfileHandler.handle(command);
+      const updatedUser = await updateProfileHandler.handle(command);
       
-      // Update local user state
-      if (user) {
-        const updatedUser = {
-          ...user,
-          name: formData.name,
-          lastName: formData.lastName,
-          email: formData.email,
-          description: formData.description
-        };
-        setUser(updatedUser);
-      }
+      // Update local user state with the complete user data from backend
+      setUser(updatedUser);
+      setFormData(prev => ({
+        ...prev,
+        name: updatedUser.name,
+        lastName: updatedUser.lastName,
+        email: updatedUser.email,
+        description: updatedUser.description || ''
+      }));
       
       // TODO: Add translation
       showToastMessage();
@@ -172,13 +170,8 @@ export default function UserProfile() {
     const newVolunteerStatus = !isVolunteer(user);
     setPendingVolunteerChange(newVolunteerStatus);
     
-    if (newVolunteerStatus) {
-      // Open modal for volunteer registration
-      setIsVolunteerModalOpen(true);
-    } else {
-      // Direct toggle for volunteer deletion
-      await executeVolunteerToggle(newVolunteerStatus);
-    }
+    // Always open modal for confirmation, whether becoming or leaving volunteer
+    setIsVolunteerModalOpen(true);
   };
 
   const executeVolunteerToggle = async (becomesVolunteer: boolean, description?: string) => {
@@ -189,12 +182,15 @@ export default function UserProfile() {
 
     try {
       const command = new ToggleVolunteerCommand(becomesVolunteer, description);
-      await toggleVolunteerHandler.handle(command);
+      const updatedUser = await toggleVolunteerHandler.handle(command);
       
-      // Update local user state
-      const updatedUser = { ...user, type: becomesVolunteer ? UserType.VOLUNTEER : UserType.OWNER } as User;
+      // Update local user state with the complete user data from backend
       setUser(updatedUser);
-      setFormData(prev => ({ ...prev, isVolunteer: becomesVolunteer }));
+      setFormData(prev => ({ 
+        ...prev, 
+        isVolunteer: becomesVolunteer,
+        description: updatedUser.description || ''
+      }));
       
       // TODO: Add translation
       showToastMessage();
