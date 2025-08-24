@@ -34,6 +34,5 @@ export function createRoutes(): Router {
   console.log('Mounting checkup routes on /checkup...');
   router.use('/checkups', createCheckupRoutes());
 
-
   return router;
 }
