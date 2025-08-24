@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
-import { LogoutCommandHandler } from '../app/LogoutCommandHandler';
-import { LogoutCommand } from '../app/LogoutCommand';
+import { LogoutCommandHandler } from '../application/commands/LogoutCommandHandler';
+import { LogoutCommand } from '../application/commands/LogoutCommand';
 import type { AuthRepository } from '../domain/AuthRepository';
 
 describe('LogoutCommandHandler', () => {
@@ -8,6 +8,10 @@ describe('LogoutCommandHandler', () => {
     // Arrange
     const mockAuthRepository: AuthRepository = {
       login: vi.fn(),
+      updateProfile: vi.fn(),
+      changePassword: vi.fn(),
+      getCurrentUser: vi.fn(),
+      toggleVolunteer: vi.fn(),
       logout: vi.fn().mockResolvedValue(undefined)
     };
     const handler = new LogoutCommandHandler(mockAuthRepository);
@@ -25,6 +29,10 @@ describe('LogoutCommandHandler', () => {
     const error = new Error('Network error');
     const mockAuthRepository: AuthRepository = {
       login: vi.fn(),
+      updateProfile: vi.fn(),
+      changePassword: vi.fn(),
+      getCurrentUser: vi.fn(),
+      toggleVolunteer: vi.fn(),
       logout: vi.fn().mockRejectedValue(error)
     };
     const handler = new LogoutCommandHandler(mockAuthRepository);
