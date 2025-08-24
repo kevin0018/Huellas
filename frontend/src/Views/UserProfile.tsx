@@ -26,6 +26,7 @@ export default function UserProfile() {
     lastName: '',
     email: '',
     isVolunteer: false,
+    description: '',
     currentPassword: '',
     newPassword: '',
     confirmPassword: ''
@@ -48,6 +49,7 @@ export default function UserProfile() {
             lastName: userSession.lastName,
             email: userSession.email,
             isVolunteer: isVolunteer(userSession),
+            description: userSession.description || '',
             currentPassword: '',
             newPassword: '',
             confirmPassword: ''
@@ -71,8 +73,9 @@ export default function UserProfile() {
     setTimeout(() => setShowSuccessToast(false), 4000);
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value, type } = e.target;
+    const checked = 'checked' in e.target ? e.target.checked : undefined;
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
@@ -91,7 +94,8 @@ export default function UserProfile() {
       const command = new UpdateProfileCommand(
         formData.name,
         formData.lastName,
-        formData.email
+        formData.email,
+        formData.description
       );
       
       await updateProfileHandler.handle(command);
@@ -102,7 +106,8 @@ export default function UserProfile() {
           ...user,
           name: formData.name,
           lastName: formData.lastName,
-          email: formData.email
+          email: formData.email,
+          description: formData.description
         };
         setUser(updatedUser);
       }
@@ -325,6 +330,26 @@ export default function UserProfile() {
                     {isLoading ? 'Procesando...' : isVolunteer(user) ? 'Dejar de ser voluntario' : 'Ser voluntario'}
                   </button>
                 </div>
+
+                {/* Volunteer Description - Only shown for volunteers */}
+                {isVolunteer(user) && (
+                  <div className="md:col-span-2">
+                    <label htmlFor="description" className="block text-sm font-medium mb-2">
+                      {/* TODO: Add translation */}
+                      Descripción del voluntario
+                    </label>
+                    <textarea
+                      id="description"
+                      name="description"
+                      rows={3}
+                      value={formData.description}
+                      onChange={handleInputChange}
+                      placeholder="Describe tu experiencia, habilidades y motivación como voluntario..."
+                      className="w-full px-3 py-2 bg-white dark:bg-[#51344D] border border-gray-300 dark:border-[#FDF2DE] rounded-md shadow-sm focus:outline-none focus:ring-[#BCAAA4] focus:border-[#BCAAA4] text-[#51344D] dark:text-[#FDF2DE] placeholder-gray-400 dark:placeholder-gray-300 resize-vertical min-h-[80px]"
+                      disabled={isLoading}
+                    />
+                  </div>
+                )}
 
                 <div className="md:col-span-2 flex justify-end">
                   <button

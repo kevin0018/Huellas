@@ -19,7 +19,8 @@ export class UpdateProfileCommandHandler {
     const updatedUser = await this.authRepository.updateProfile(token, {
       name: command.name,
       lastName: command.lastName,
-      email: command.email
+      email: command.email,
+      description: command.description
     });
 
     // Update user data using AuthService

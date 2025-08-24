@@ -17,7 +17,7 @@ export class ProfileController {
 
   async updateProfile(request: AuthenticatedRequest, response: Response): Promise<void> {
     try {
-      const { name, lastName, email } = request.body;
+      const { name, lastName, email, description } = request.body;
       const userId = request.user!.userId;
 
       if (!name || !lastName || !email) {
@@ -27,8 +27,11 @@ export class ProfileController {
         return;
       }
 
-      const command = new UpdateUserProfileCommand(userId, name, lastName, email);
+      const command = new UpdateUserProfileCommand(userId, name, lastName, email, description);
       const updatedUser = await this.updateProfileHandler.handle(command);
+
+      // Get full user info including description if volunteer
+      const userWithDescription = await this.updateProfileHandler.repository.getUserWithDescription(updatedUser.id);
 
       response.status(200).json({
         message: 'Profile updated successfully',
@@ -37,7 +40,8 @@ export class ProfileController {
           name: updatedUser.name,
           lastName: updatedUser.lastName,
           email: updatedUser.email,
-          type: updatedUser.type
+          type: updatedUser.type,
+          description: userWithDescription?.description
         }
       });
 

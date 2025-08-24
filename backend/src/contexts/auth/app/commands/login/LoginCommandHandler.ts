@@ -11,6 +11,7 @@ export interface LoginResult {
     lastName: string;
     email: string;
     type: UserType;
+    description?: string;
   };
 }
 
@@ -29,6 +30,15 @@ export class LoginCommandHandler {
     
     if (!isValidPassword) {
       throw new Error('Invalid email or password');
+    }
+
+    // Get volunteer description if user is a volunteer
+    let description: string | undefined;
+    if (user.type === UserType.VOLUNTEER) {
+      const userWithDescription = await this.authRepository.getUserWithDescription(user.id);
+      if (userWithDescription) {
+        description = userWithDescription.description;
+      }
     }
 
     // Generate JWT token with secure secret validation
@@ -55,7 +65,8 @@ export class LoginCommandHandler {
         name: user.name,
         lastName: user.lastName,
         email: user.email,
-        type: user.type
+        type: user.type,
+        description
       }
     };
   }

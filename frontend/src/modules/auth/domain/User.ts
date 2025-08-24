@@ -11,6 +11,7 @@ export interface User {
   lastName: string;
   email: string;
   type: UserType;
+  description?: string; // For volunteers
 }
 
 export interface LoginResponse {

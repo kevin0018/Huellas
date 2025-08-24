@@ -27,6 +27,7 @@ describe('UpdateUserProfileCommandHandler', () => {
       updatePassword: vi.fn(),
       createVolunteerProfile: vi.fn(),
       deleteVolunteerProfile: vi.fn(),
+      getUserWithDescription: vi.fn(),
       hasVolunteerProfile: vi.fn()
     };
 

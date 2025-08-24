@@ -5,6 +5,10 @@ import { UserAuth } from '../../../domain/entities/UserAuth.js';
 export class UpdateUserProfileCommandHandler {
   constructor(private readonly authRepository: AuthRepository) {}
 
+  get repository(): AuthRepository {
+    return this.authRepository;
+  }
+
   async handle(command: UpdateUserProfileCommand): Promise<UserAuth> {
     // Validate email uniqueness (exclude current user)
     const existingUser = await this.authRepository.findByEmail(command.email);
@@ -17,7 +21,8 @@ export class UpdateUserProfileCommandHandler {
       command.userId,
       command.name,
       command.lastName,
-      command.email
+      command.email,
+      command.description
     );
   }
 }

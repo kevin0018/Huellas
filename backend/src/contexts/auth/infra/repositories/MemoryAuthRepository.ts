@@ -21,11 +21,24 @@ export class MemoryAuthRepository implements AuthRepository {
     return user || null;
   }
 
+  async getUserWithDescription(id: number): Promise<{ user: UserAuth; description?: string } | null> {
+    const user = this.users.find(u => u.id === id);
+    if (!user) {
+      return null;
+    }
+
+    const volunteerProfile = this.volunteerProfiles.find(v => v.userId === id);
+    return {
+      user,
+      description: volunteerProfile?.description
+    };
+  }
+
   async verifyPassword(plainPassword: string, hashedPassword: string): Promise<boolean> {
     return bcrypt.compare(plainPassword, hashedPassword);
   }
 
-  async updateProfile(userId: number, name: string, lastName: string, email: string): Promise<UserAuth> {
+  async updateProfile(userId: number, name: string, lastName: string, email: string, description?: string): Promise<UserAuth> {
     const userIndex = this.users.findIndex(u => u.id === userId);
     if (userIndex === -1) {
       throw new Error('User not found');
@@ -42,6 +55,17 @@ export class MemoryAuthRepository implements AuthRepository {
     );
 
     this.users[userIndex] = updatedUser;
+
+    // Update volunteer description if provided and user is volunteer
+    if (description !== undefined && existingUser.type === UserType.VOLUNTEER) {
+      const volunteerIndex = this.volunteerProfiles.findIndex(v => v.userId === userId);
+      if (volunteerIndex >= 0) {
+        this.volunteerProfiles[volunteerIndex].description = description;
+      } else {
+        this.volunteerProfiles.push({ userId, description });
+      }
+    }
+
     return updatedUser;
   }
 

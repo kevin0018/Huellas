@@ -8,6 +8,7 @@ export interface AuthRepository {
     name: string;
     lastName: string;
     email: string;
+    description?: string;
   }): Promise<User>;
   changePassword(token: string, passwordData: {
     currentPassword: string;

@@ -75,6 +75,7 @@ export class ApiAuthRepository implements AuthRepository {
     name: string;
     lastName: string;
     email: string;
+    description?: string;
   }): Promise<User> {
     const response = await fetch(`${this.baseUrl}/profile`, {
       method: 'PUT',

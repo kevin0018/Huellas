@@ -24,34 +24,77 @@ export class PrismaAuthRepository implements AuthRepository {
   }
 
   async findById(id: number): Promise<UserAuth | null> {
-    const userRecord = await prisma.user.findUnique({
+    const user = await prisma.user.findUnique({
       where: { id }
     });
 
-    if (!userRecord) return null;
+    if (!user) {
+      return null;
+    }
 
     return UserAuth.create(
-      userRecord.id,
-      userRecord.name,
-      userRecord.last_name,
-      userRecord.email,
-      userRecord.password,
-      userRecord.type as UserType
+      user.id,
+      user.name,
+      user.last_name,
+      user.email,
+      user.password,
+      user.type as UserType
     );
+  }
+
+  async getUserWithDescription(id: number): Promise<{ user: UserAuth; description?: string } | null> {
+    const user = await prisma.user.findUnique({
+      where: { id },
+      include: {
+        volunteer: true
+      }
+    });
+
+    if (!user) {
+      return null;
+    }
+
+    const userAuth = UserAuth.create(
+      user.id,
+      user.name,
+      user.last_name,
+      user.email,
+      user.password,
+      user.type as UserType
+    );
+
+    return {
+      user: userAuth,
+      description: user.volunteer?.description
+    };
   }
 
   async verifyPassword(plainPassword: string, hashedPassword: string): Promise<boolean> {
     return bcrypt.compare(plainPassword, hashedPassword);
   }
 
-  async updateProfile(userId: number, name: string, lastName: string, email: string): Promise<UserAuth> {
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: {
-        name,
-        last_name: lastName,
-        email
+  async updateProfile(userId: number, name: string, lastName: string, email: string, description?: string): Promise<UserAuth> {
+    const updatedUser = await prisma.$transaction(async (tx) => {
+      // Update basic user information
+      const user = await tx.user.update({
+        where: { id: userId },
+        data: {
+          name,
+          last_name: lastName,
+          email
+        }
+      });
+
+      // If description is provided and user is a volunteer, update volunteer description
+      if (description !== undefined && user.type === 'volunteer') {
+        await tx.volunteer.upsert({
+          where: { id: userId },
+          update: { description },
+          create: { id: userId, description }
+        });
       }
+
+      return user;
     });
 
     return UserAuth.create(
