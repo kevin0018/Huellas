@@ -4,6 +4,10 @@ import { UserType } from '../../domain/entities/UserAuth.js';
 import { JwtBlacklist } from '../services/JwtBlacklist.js';
 import { PetRepository } from '../../../pet/infra/persistence/PetRepository.js';
 
+// Simple cache for owner profile checks to avoid repeated DB queries
+const ownerProfileCache = new Map<number, boolean>();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
 export interface AuthenticatedRequest extends Request {
   user: {
     userId: number;
@@ -79,12 +83,58 @@ export class JwtMiddleware {
   static requireOwner() {
     return [
       JwtMiddleware.authenticate(),
-      (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
-        if (req.user.type !== UserType.OWNER) {
-          res.status(403).json({ error: 'Access denied. Owner role required.' });
+      async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+        // Allow if user type is OWNER
+        if (req.user.type === UserType.OWNER) {
+          next();
           return;
         }
-        next();
+
+        // If user is VOLUNTEER, check if they also have an owner profile
+        if (req.user.type === UserType.VOLUNTEER) {
+          try {
+            const userId = req.user.userId;
+            
+            // Check cache first
+            const cached = ownerProfileCache.get(userId);
+            if (cached !== undefined) {
+              if (cached) {
+                next();
+                return;
+              } else {
+                res.status(403).json({ error: 'Access denied. Owner role required.' });
+                return;
+              }
+            }
+
+            // Cache miss - check database
+            const { PrismaClient } = await import('@prisma/client');
+            const prisma = new PrismaClient();
+            
+            const ownerProfile = await prisma.owner.findUnique({
+              where: { id: userId }
+            });
+
+            const hasOwnerProfile = !!ownerProfile;
+            
+            // Cache the result
+            ownerProfileCache.set(userId, hasOwnerProfile);
+            
+            // Clear cache after TTL
+            setTimeout(() => {
+              ownerProfileCache.delete(userId);
+            }, CACHE_TTL);
+
+            if (hasOwnerProfile) {
+              next();
+              return;
+            }
+          } catch (error) {
+            console.error('Error checking owner profile:', error);
+          }
+        }
+
+        res.status(403).json({ error: 'Access denied. Owner role required.' });
       }
     ];
   }
