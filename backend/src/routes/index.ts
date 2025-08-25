@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router } from 'express';
 import { createOwnerRoutes } from './ownerRoutes.js';
 import { createAuthRoutes } from './authRoutes.js';
 import { volunteerRoutes } from './volunteerRoutes.js';
