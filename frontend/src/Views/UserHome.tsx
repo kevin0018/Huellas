@@ -90,6 +90,13 @@ function UserHomeContent() {
                   <Link to="/calendar">Mi agenda</Link>
                 </button>
 
+                <button type="button" className=" flex items-center justify-center gap-3  p-2 pr-4 bg-[#51344D] text-white font-semibold rounded-lg shadow-md hover:bg-[#A89B9D] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition-colors duration-300 ease-in-out cursor-pointer ">
+                  <svg className="h-10 w-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <Link to="/appointments">Mis Citas</Link>
+                </button>
+
                 <button type="button" className=" flex items-center justify-center gap-3  p-4 bg-[#51344D] text-white font-semibold rounded-lg shadow-md hover:bg-[#A89B9D] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition-colors duration-300 ease-in-out cursor-pointer ">
                   <img src="media/paw_icon.svg" alt="Icono de añadir mascota" className="h-7 w-7" />
                   <Link to="/pet-register">Añade una nueva mascota</Link>
