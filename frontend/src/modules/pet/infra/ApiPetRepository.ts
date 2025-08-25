@@ -1,156 +1,45 @@
-// src/modules/pet/infra/ApiPetRepository.ts
-import { Pet } from '../domain/Pet';
-// ⚠️ importa AuthService si existe en tu proyecto:
-import { AuthService } from '../../auth/infra/AuthService';
+import type { PetRepository } from '../domain/PetRepository.js';
+import type { Pet } from '../domain/Pet.js';
+import { AuthService } from '../../auth/infra/AuthService.js';
 
-export class ApiPetRepository {
-  private readonly baseUrl: string;
+export class ApiPetRepository implements PetRepository {
+  private readonly baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
-  constructor() {
-    const apiUrl = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
-    this.baseUrl = `${apiUrl}/pets`;
-  }
-
-  // ---------- helpers ----------
-  private readCookie(name: string): string | null {
-    const m = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/([.$?*|{}()[\]\\/+^])/g, '\\$1') + '=([^;]*)'));
-    return m ? decodeURIComponent(m[1]) : null;
-  }
-
-  private getAuthHeaders(): HeadersInit {
-    // intenta en este orden: AuthService, localStorage, sessionStorage, cookie
-    const svc: any = AuthService as any;
-    const raw =
-      (svc?.getToken?.() as string | undefined) ??
-      localStorage.getItem('token') ??
-      localStorage.getItem('accessToken') ??
-      sessionStorage.getItem('token') ??
-      this.readCookie('token') ??
-      '';
-
-    if (!raw) return {};
-    const header = raw.startsWith('Bearer ') ? raw : `Bearer ${raw}`;
-    return { Authorization: header };
-  }
-
-  private async doFetch(input: RequestInfo, init?: RequestInit): Promise<Response> {
-    let res: Response;
-    try {
-      res = await fetch(input, {
-        ...init,
-        credentials: 'include', // por si usas cookies además del header
-        headers: {
-          'Content-Type': 'application/json',
-          ...(init?.headers || {}),
-          ...this.getAuthHeaders(),
-        },
-      });
-    } catch (err) {
-      throw new Error('Network error: ' + (err instanceof Error ? err.message : String(err)));
-    }
-    return res;
-  }
-
-  private async ensureOk(res: Response) {
-    if (!res.ok) {
-      // intenta leer el cuerpo de error para mostrar un mensaje útil
-      try {
-        const data = await res.json();
-        if (data?.error) throw new Error(data.error);
-      } catch {}
-      if (res.status === 401) throw new Error('Unauthorized');
-      if (res.status === 403) throw new Error('Forbidden');
-      if (res.status >= 500) throw new Error('Server error');
-      throw new Error(`HTTP ${res.status}`);
-    }
-  }
-
-  private toPayload(pet: Pet) {
+  private getAuthHeaders(): Record<string, string> {
+    const token = AuthService.getToken();
     return {
-      name: pet.name,
-      race: pet.race,
-      type: pet.type,
-      sex: pet.sex,
-      size: pet.size,
-      birth_date: pet.birthDate ? pet.birthDate.toISOString().slice(0, 10) : null,
-      microchip_code: pet.microchipCode,
-      has_passport: pet.hasPassport,
-      country_of_origin: pet.countryOfOrigin,
-      passport_number: pet.passportNumber,
-      notes: pet.notes,
+      'Content-Type': 'application/json',
+      ...(token && { 'Authorization': `Bearer ${token}` })
     };
   }
 
-  private fromDto(d: any): Pet {
-    return Pet.create({
-      id: d.id,
-      name: d.name,
-      race: d.race ?? null,
-      type: d.type,
-      ownerId: d.ownerId ?? d.owner_id,
-      birthDate: d.birthDate ? new Date(d.birthDate) : (d.birth_date ? new Date(d.birth_date) : null),
-      size: d.size ?? null,
-      microchipCode: d.microchipCode ?? d.microchip_code ?? null,
-      sex: d.sex,
-      hasPassport: Boolean(d.hasPassport ?? d.has_passport),
-      countryOfOrigin: d.countryOfOrigin ?? d.country_of_origin ?? null,
-      passportNumber: d.passportNumber ?? d.passport_number ?? null,
-      notes: d.notes ?? null,
+  async getUserPets(): Promise<Pet[]> {
+    const response = await fetch(`${this.baseUrl}/owners/my-pets`, {
+      method: 'GET',
+      headers: this.getAuthHeaders()
     });
-  }
 
-  // ---------- API ----------
-  async register(pet: Pet): Promise<void> {
-    const res = await this.doFetch(this.baseUrl, {
-      method: 'POST',
-      body: JSON.stringify(this.toPayload(pet)),
-    });
-    await this.ensureOk(res);
-  }
-
-  async getMine() {
-    const res = await this.doFetch(`${this.baseUrl}/mine`, { method: 'GET' });
-    await this.ensureOk(res);
-    const data = await res.json();
-    return (Array.isArray(data) ? data : []).map((d: any) => this.fromDto(d));
-  }
-
-  async getById(id: number) {
-    const res = await this.doFetch(`${this.baseUrl}/${id}`, { method: 'GET' });
-    if (!res.ok) {
-      if (res.status === 404) return null;
-      await this.ensureOk(res);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch pets: ${response.statusText}`);
     }
-    const data = await res.json();
-    return this.fromDto(data);
-  }
 
-  async patch(id: number, pet: Partial<Pet>): Promise<void> {
-    const payload: Record<string, unknown> = {};
-    if ('name' in pet) payload.name = pet.name;
-    if ('race' in pet) payload.race = pet.race ?? null;
-    if ('type' in pet) payload.type = (pet as any).type;
-    if ('sex' in pet) payload.sex = (pet as any).sex;
-    if ('size' in pet) payload.size = (pet as any).size;
-    if ('birthDate' in pet) {
-      const bd = (pet as any).birthDate as Date | null | undefined;
-      payload.birth_date = bd ? bd.toISOString().slice(0, 10) : null;
-    }
-    if ('microchipCode' in pet) payload.microchip_code = (pet as any).microchipCode ?? null;
-    if ('hasPassport' in pet) payload.has_passport = !!(pet as any).hasPassport;
-    if ('countryOfOrigin' in pet) payload.country_of_origin = (pet as any).countryOfOrigin ?? null;
-    if ('passportNumber' in pet) payload.passport_number = (pet as any).passportNumber ?? null;
-    if ('notes' in pet) payload.notes = (pet as any).notes ?? null;
-
-    const res = await this.doFetch(`${this.baseUrl}/${id}`, {
-      method: 'PATCH',
-      body: JSON.stringify(payload),
-    });
-    await this.ensureOk(res);
-  }
-
-  async delete(id: number): Promise<void> {
-    const res = await this.doFetch(`${this.baseUrl}/${id}`, { method: 'DELETE' });
-    await this.ensureOk(res);
+    const rawPets = await response.json();
+    
+    // Transform backend response to frontend format
+    return rawPets.map((pet: Record<string, unknown>) => ({
+      id: pet.id as number,
+      name: pet.name as string,
+      race: pet.race as string,
+      type: pet.type as Pet['type'],
+      ownerId: pet.ownerId || pet.owner_id as number,
+      birthDate: pet.birthDate || pet.birth_date as string,
+      size: pet.size as Pet['size'],
+      microchipCode: pet.microchipCode || pet.microchip_code as string,
+      sex: pet.sex as Pet['sex'],
+      hasPassport: pet.hasPassport || pet.has_passport as boolean,
+      countryOfOrigin: (pet.countryOfOrigin || pet.country_of_origin as string) || undefined,
+      passportNumber: (pet.passportNumber || pet.passport_number as string) || undefined,
+      notes: (pet.notes as string) || undefined
+    }));
   }
 }

@@ -8,6 +8,7 @@ import { PostPetController } from '../contexts/pet/infra/controllers/PostPetCont
 import { CheckupRepository } from '../contexts/checkup/infra/persistence/CheckupRepository.js';
 import { PostCheckupController } from '../contexts/checkup/infra/controllers/PostCheckupController.js';
 import { ProcedureRepository } from '../contexts/procedure/infra/persistence/ProcedureRepository.js';
+import { GetPetCheckupsController } from '../contexts/checkup/infra/controllers/GetPetCheckupsController.js';
 
 export function createPetRoutes(): Router {
   console.log('Creating pet routes...');
@@ -25,6 +26,7 @@ export function createPetRoutes(): Router {
   const createPetController = new PostPetController(petRepository);
   const editPetController = new PatchPetController(petRepository);
   const createCheckupController = new PostCheckupController(checkupRepository, petRepository, procedureRepository);
+  const getPetCheckupsController = new GetPetCheckupsController(checkupRepository);
 
   // Routes
   // GET Pet Route
@@ -47,10 +49,15 @@ export function createPetRoutes(): Router {
     await editPetController.handle(req, res);
   });
 
- //POST Checkup Route
+ // POST Checkup Route
   router.post('/:id/checkup', ...JwtMiddleware.requireOwnPet(), async (req: AuthenticatedRequest, res: Response) => {
     await createCheckupController.handle(req, res);
   });
+
+  // Get pet Checkups Route 
+  router.get('/:id/checkups', ...JwtMiddleware.requireOwnPet(), async (req: AuthenticatedRequest, res: Response) => {
+    await getPetCheckupsController.handle(req, res);
+  })
 
   return router;
 }

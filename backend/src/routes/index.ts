@@ -1,10 +1,11 @@
-import { Router, Response } from 'express';
+import { Router } from 'express';
 import { createOwnerRoutes } from './ownerRoutes.js';
 import { createAuthRoutes } from './authRoutes.js';
 import { volunteerRoutes } from './volunteerRoutes.js';
 import { createPetRoutes } from './petRoutes.js';
 import { createProcedureRoutes } from './procedureRoutes.js';
 import { createCheckupRoutes } from './checkupRoutes.js';
+import appointmentRoutes from './appointmentRoutes.js';
 
 export function createRoutes(): Router {
   console.log('Creating main routes...');
@@ -34,6 +35,9 @@ export function createRoutes(): Router {
   console.log('Mounting checkup routes on /checkup...');
   router.use('/checkups', createCheckupRoutes());
 
+  // Mount appointment routes
+  console.log('Mounting appointment routes on /appointments...');
+  router.use('/appointments', appointmentRoutes);
 
   return router;
 }
