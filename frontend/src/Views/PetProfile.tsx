@@ -1,7 +1,13 @@
 import React from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import NavBar from "../Components/NavBar";
 import Footer from "../Components/footer";
-import { Link } from "react-router-dom";
+
+import { ApiPetRepository } from "../modules/pet/infra/ApiPetRepository";
+import type { Pet } from "../modules/pet/domain/Pet";
+import { getPetSizeLabel, getPetTypeLabel, getSexLabel } from "../modules/pet/domain/Pet";
+import { AuthService } from "../modules/auth/infra/AuthService";
 
 type ProfileDetailProps = {
   label: string;
@@ -11,85 +17,126 @@ type ProfileDetailProps = {
 const ProfileDetail: React.FC<ProfileDetailProps> = ({ label, value }) => (
   <div className="text-center md:text-left">
     <h3 className="block font-caprasimo text-[#51344D] uppercase tracking-wider">{label}</h3>
-    <p className="mt-1 text-base ">{value}</p>
+    <p className="mt-1 text-base">{value}</p>
   </div>
 );
 
+function formatDate(iso?: string | null) {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "—";
+  return d.toLocaleDateString("es-ES"); // dd/mm/aaaa
+}
 
 const PetProfile: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
 
-  const petData = {
-    name: "Rocky",
-    sex: "Macho",
-    birthDate: "15/05/2021",
-    race: "Mestizo",
-    type: "Perro",
-    size: "Mediano",
-    chipCode: "941000012345678",
-    hasPassport: true,
-    passportNumber: "ESP123456789",
-    origin: "Refugio local",
-    comments: "Es muy juguetón y le encantan los paseos por la montaña. Se lleva bien con otros perros y niños."
-  };
+  const repo = useMemo(() => new ApiPetRepository(), []);
+  const [pet, setPet] = useState<Pet | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Auth + load
+  useEffect(() => {
+    if (!AuthService.isAuthenticated()) {
+      navigate("/login");
+      return;
+    }
+
+    const petId = Number(id);
+    if (!petId || Number.isNaN(petId)) {
+      setError("Identificador de mascota inválido");
+      setLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await repo.getPetById(petId);
+        if (!cancelled) setPet(data);
+      } catch (e: any) {
+        // If backend returns 401, bounce to login
+        if (String(e?.message || "").toLowerCase().includes("unauthorized")) {
+          navigate("/login");
+          return;
+        }
+        setError(e instanceof Error ? e.message : "No se pudo cargar la mascota");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id, repo, navigate]);
 
   return (
     <>
-     <NavBar />
-      <div 
-        className="min-h-screen bg-[#FDF6E8] bg-cover bg-center flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8"
-        
-      >
+      <NavBar />
+      <div className="min-h-screen bg-[#FDF6E8] bg-cover bg-center flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
         <div className="flex flex-col items-center justify-center text-center w-full max-w-4xl mx-auto">
           <h1 className="text-4xl md:text-5xl font-caprasimo mb-6 text-[#51344D]">Perfil de la Mascota</h1>
 
-          {/* Recuadro con el nombre de la mascota */}
-          <div className="p-4  mb-8">
-            <img src="/media/pfp_sample.svg" alt="" />
-          </div>
-
-          {/* Sección de visualización de datos */}
-          <div className="bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-xl w-full">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-6">
-              <ProfileDetail label="Nombre" value={petData.name} />
-              <ProfileDetail label="Sexo" value={petData.sex} />
-              <ProfileDetail label="Fecha de Nacimiento" value={petData.birthDate} />
-              <ProfileDetail label="Raza" value={petData.race} />
-              <ProfileDetail label="Tipo" value={petData.type} />
-              <ProfileDetail label="Tamaño" value={petData.size} />
-              <ProfileDetail label="Código Microchip" value={petData.chipCode} />
-              <ProfileDetail label="Pasaporte" value={petData.hasPassport ? petData.passportNumber : "No"} />
-              <ProfileDetail label="Origen" value={petData.origin} />
+          {/* Loading / Error */}
+          {loading && (
+            <div className="flex items-center gap-3 my-8 text-[#51344D]">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-current" />
+              Cargando…
             </div>
-            
-            {/* Campo de comentarios */}
-            <div className="text-center border-t pt-6 mt-6">
-               <h3 className="block text-[#51344D] uppercase tracking-wider">Comentarios Adicionales</h3>
-               <p className="mt-2 text-base text-gray-700 max-w-2xl mx-auto">{petData.comments}</p>
+          )}
+          {error && (
+            <div className="my-4 p-3 bg-red-100 border border-red-300 text-red-700 rounded">
+              {error}
             </div>
-          </div>
-        </div>
+          )}
 
-        <div className="p-10 flex justify-center">
-          <button
-            type="button"
-            className="
-              flex items-center justify-center gap-3 py-3 px-6
-              bg-[#51344D] text-white font-semibold rounded-lg shadow-md
-              hover:bg-[#A89B9D] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#51344D]
-              transition-all duration-300 ease-in-out transform hover:scale-105"
-          >
-            
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z" />
-            </svg>
-             <Link to="/pet-register">Editar perfil de mascota</Link>
-            
-          </button>
+          {/* Avatar */}
+          {!loading && !error && (
+            <>
+              <div className="p-4 mb-8">
+                <img src="/media/pfp_sample.svg" alt="" />
+              </div>
+
+              {/* Details */}
+              <div className="bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-xl w-full 3xl:max-w-[3500px]">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-6 text-center">
+                  <ProfileDetail label="Nombre" value={pet?.name ?? "—"} />
+                  <ProfileDetail label="Sexo" value={pet ? getSexLabel(pet.sex) : "—"} />
+                  <ProfileDetail label="Fecha de Nacimiento" value={formatDate(pet?.birthDate)} />
+                  <ProfileDetail label="Raza" value={pet?.race || "—"} />
+                  <ProfileDetail label="Tipo" value={pet ? getPetTypeLabel(pet.type) : "—"} />
+                  <ProfileDetail label="Tamaño" value={pet ? getPetSizeLabel(pet.size) : "—"} />
+                  <ProfileDetail label="Código Microchip" value={pet?.microchipCode || "—"} />
+                  <ProfileDetail label="Pasaporte" value={pet?.hasPassport ? (pet?.passportNumber || "Sí") : "No"} />
+                  <ProfileDetail label="Origen" value={pet?.countryOfOrigin || "—"} />
+                </div>
+
+                <div className="text-center border-t pt-6 mt-6">
+                  <h3 className="block text-[#51344D] uppercase tracking-wider">Comentarios Adicionales</h3>
+                  <p className="mt-2 text-base text-gray-700 max-w-2xl mx-auto">{pet?.notes || "—"}</p>
+                </div>
+              </div>
+
+              <div className="p-10 flex justify-center">
+                <Link to="/pet-register" className=" flex items-center justify-center gap-3 py-3 px-6 bg-[#51344D] text-white font-semibold rounded-lg shadow-md hover:bg-[#A89B9D] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#51344D] transition-all duration-300 ease-in-out transform hover:scale-105">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z" />
+                  </svg>
+                  Editar perfil de mascota
+                </Link>
+              </div>
+            </>
+          )}
         </div>
       </div>
-     <Footer />
+      <Footer />
     </>
-  
   );
 };
 
