@@ -16,15 +16,20 @@ export class ApiAppointmentRepository implements AppointmentRepository {
   async getAppointments(): Promise<Appointment[]> {
     const response = await fetch(`${this.baseUrl}/appointments`, {
       method: 'GET',
-      headers: this.getAuthHeaders()
+      headers: this.getAuthHeaders(),
     });
 
     if (!response.ok) {
+      if (response.status === 404) {
+        // Some backends 404 when the list is empty; treat it as no data.
+        return [];
+      }
       throw new Error(`Failed to fetch appointments: ${response.statusText}`);
     }
 
     return response.json();
   }
+
 
   async getAppointment(id: number): Promise<Appointment> {
     const response = await fetch(`${this.baseUrl}/appointments/${id}`, {
@@ -80,4 +85,6 @@ export class ApiAppointmentRepository implements AppointmentRepository {
       throw new Error(errorData.error || `Failed to delete appointment: ${response.statusText}`);
     }
   }
+
+  
 }

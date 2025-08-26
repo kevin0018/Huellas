@@ -61,10 +61,10 @@ export default function NavBar() {
   };
 
   return (
-    <nav className="bg-[#A89B9D] dark:bg-[#928d8e] text-white p-4 shadow-md w-full sticky top-0 z-50 rounded-xs">
+    <nav className="bg-[#A89B9D] dark:bg-[#928d8e] text-white p-4 shadow-md w-full sticky top-0 z-50 rounded-xs 3xl:max-w-80%">
       <div className="container mx-auto flex justify-between items-center ">
         {/* Logo + brand */}
-        <Link to="/" className="flex items-center text-eggplant text-xl text-[#51344D] 3xl:!text-[2rem]">
+        <Link to="/" className="flex items-center text-eggplant text-xl text-[#51344D] 3xl:!text-[3rem]">
           <img src="/media/logotipo.svg" alt="Logotipo-huellas" className="h-14 w-auto" />
           Huellas
         </Link>
@@ -74,19 +74,19 @@ export default function NavBar() {
           {isLoggedIn ? (
             <>
               <Link to="/user-home" className="3xl:!text-[2rem]">{translate('home')}</Link>
-              <Link to="/user-profile" className="3xl:!text-[1.9rem]">{translate('profile')}</Link>
+              <Link to="/user-profile" className="3xl:!text-[2rem]">{translate('profile')}</Link>
               <button 
                 onClick={handleLogout}
-                className="hover-eggplant"
+                className="3xl:!text-[2rem]"
               >
                 {translate('logout')}
               </button>
             </>
           ) : (
             <>
-              <Link to="/register" className="hover-eggplant">{translate('register')}</Link>
-              <Link to="/login" className="hover-eggplant">{translate('login')}</Link>
-              <Link to="/about" className="hover-eggplant">{translate('aboutUs')}</Link>
+              <Link to="/register" className="3xl:!text-[2rem]">{translate('register')}</Link>
+              <Link to="/login" className="3xl:!text-[2rem]">{translate('login')}</Link>
+              <Link to="/about" className="3xl:!text-[2rem]">{translate('aboutUs')}</Link>
             </>
           )}
           <LanguageSwitcher className="select-huellas" />
