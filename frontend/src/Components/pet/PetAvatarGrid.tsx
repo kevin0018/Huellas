@@ -9,7 +9,7 @@ export function PetAvatarGrid({ pets }: { pets: Pet[] }) {
         <div key={p.id} className="flex flex-col items-center">
           <Link to={`/pets/${p.id}`}>
             <img src="/media/pfp_sample.svg" alt={p.name}
-                 className="w-24 md:w-32 lg:w-48 rounded-full hover:scale-105 transition" />
+                 className="w-20 md:w-30 lg:w-35 rounded-full hover:scale-105 transition" />
           </Link>
           <p className="mt-2 font-semibold">{p.name}</p>
         </div>

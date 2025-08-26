@@ -31,6 +31,8 @@ export class AppointmentController {
   }
 
   async createAppointment(req: Request, res: Response): Promise<void> {
+    console.log('createAppointment req.user:', req.user);
+    console.log('createAppointment req.body:', req.body);
     try {
       const ownerId = req.user?.userId;
       if (!ownerId) {

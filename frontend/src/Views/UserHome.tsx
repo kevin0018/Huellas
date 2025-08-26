@@ -81,7 +81,7 @@ function UserHomeContent() {
 
             <div className="flex flex-col md:flex-row lg:flex-row items-center justify-center gap-4 mt-8 3xl:gap-10">
               {/* Pets */}
-              <div className="w-full">
+              <div className="w-full md:w-2/3 lg:w-2/3 flex flex-col items-center">
                 {loading && <p>{translate("loading")}</p>}
                 {error && <p className="text-red-600">{error}</p>}
                 {!loading && !error && <PetAvatarGrid pets={pets} />}
