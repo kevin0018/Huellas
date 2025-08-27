@@ -75,6 +75,7 @@ export default function NavBar() {
             <>
               <Link to="/user-home" className="3xl:!text-[2rem]">{translate('home')}</Link>
               <Link to="/user-profile" className="3xl:!text-[2rem]">{translate('profile')}</Link>
+              <Link to="/volunteer-board" className="3xl:!text-[2rem]">Buscar voluntarios</Link>
               <button 
                 onClick={handleLogout}
                 className="3xl:!text-[2rem]"
@@ -121,6 +122,7 @@ export default function NavBar() {
             <>
               <Link to="/user-home" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">{translate('home')}</Link>
               <Link to="/user-profile" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">{translate('profile')}</Link>
+              <Link to="/volunteer-board" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">Buscar voluntarios</Link>
               <button
                 onClick={handleLogout}
                 className="hover:text-[--huellas-eggplant]"
