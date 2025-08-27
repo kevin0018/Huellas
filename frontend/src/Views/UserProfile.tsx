@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import NavBar from "../Components/NavBar";
 import Footer from "../Components/footer";
+import GoBackButton from "../Components/GoBackButton";
 import VolunteerModal from "../Components/VolunteerModal";
 import { ApiAuthRepository } from '../modules/auth/infra/ApiAuthRepository';
 import { UpdateProfileCommandHandler } from '../modules/auth/application/commands/UpdateProfileCommandHandler';
@@ -230,7 +231,10 @@ export default function UserProfile() {
 
         {/* Content overlay */}
         <div className="relative z-10 w-full flex flex-col items-center max-w-6xl py-4">
-          <h1 className="h1 font-caprasimo mb-4 py-8 text-4xl md:text-5xl text-[#51344D] drop-shadow-lg dark:text-[#FDF2DE]">Mi Perfil</h1>
+          <div className="w-full text-left mt-20 max-w-6xl xl:max-w-7xl 3xl:max-w-[1600px] 3xl:mt-0">
+            <GoBackButton variant="outline" hideIfNoHistory className="bg-white" />
+          </div>
+          <h1 className="h1 font-caprasimo mb-4 text-4xl md:text-5xl text-[#51344D] drop-shadow-lg dark:text-[#FDF2DE]">Mi Perfil</h1>
 
           <img
             src="/media/pfp_sample.svg"
