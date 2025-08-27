@@ -1,0 +1,219 @@
+### Appointment API Tests - Complete Flow
+
+### Variables
+@baseUrl = http://localhost:3000/api
+@authToken = {{auth_login.response.body.token}}
+@petId1 = {{create_pet1.response.body.id}}
+@petId2 = {{create_pet2.response.body.id}}
+
+### 1. Register a new test user (owner)
+# @name register_user
+POST {{baseUrl}}/owners/register
+Content-Type: application/json
+
+{
+  "name": "Test",
+  "lastName": "Owner",
+  "email": "test.owner.appointments@example.com",
+  "password": "testPassword123"
+}
+
+### 2. Login as the test owner to get auth token
+# @name auth_login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "test.owner.appointments@example.com",
+  "password": "testPassword123"
+}
+
+### 3. Create first test pet
+# @name create_pet1
+POST {{baseUrl}}/pets
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "name": "Luna",
+  "race": "Golden Retriever",
+  "type": "dog",
+  "birthDate": "2022-03-15T00:00:00.000Z",
+  "size": "large",
+  "microchipCode": "TEST001234567890",
+  "sex": "female",
+  "hasPassport": true,
+  "countryOfOrigin": "Spain",
+  "passportNumber": "ESP123456789",
+  "notes": "Very friendly and active dog"
+}
+
+### 4. Create second test pet
+# @name create_pet2
+POST {{baseUrl}}/pets
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "name": "Michi",
+  "race": "Persian",
+  "type": "cat",
+  "birthDate": "2021-07-20T00:00:00.000Z",
+  "size": "medium",
+  "microchipCode": "TEST001234567891",
+  "sex": "male",
+  "hasPassport": false,
+  "notes": "Indoor cat, very calm"
+}
+
+### 5. Verify pets were created - Get user's pets
+# @name get_pets
+GET {{baseUrl}}/pets
+Authorization: Bearer {{authToken}}
+
+### 6. Create appointment for first pet (Luna)
+# @name create_appointment1
+POST {{baseUrl}}/appointments
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "petId": {{petId1}},
+  "date": "2025-09-15T10:00:00.000Z",
+  "reason": "VACCINATION",
+  "notes": "Annual vaccination for Luna"
+}
+
+### 7. Create appointment for second pet (Michi)
+# @name create_appointment2
+POST {{baseUrl}}/appointments
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "petId": {{petId2}},
+  "date": "2025-09-20T14:00:00.000Z",
+  "reason": "GENERAL_CHECKUP",
+  "notes": "Regular checkup for Michi"
+}
+
+### 8. Get all appointments for the owner
+GET {{baseUrl}}/appointments
+Authorization: Bearer {{authToken}}
+
+### 9. Get specific appointment by ID (Luna's appointment)
+# @name get_appointment1
+GET {{baseUrl}}/appointments/{{create_appointment1.response.body.id}}
+Authorization: Bearer {{authToken}}
+
+### 10. Update Luna's appointment
+PUT {{baseUrl}}/appointments/{{create_appointment1.response.body.id}}
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "date": "2025-09-16T10:00:00.000Z",
+  "reason": "VACCINATION",
+  "notes": "Updated: Annual vaccination for Luna - moved to Tuesday"
+}
+
+### 11. Create a third appointment for Luna (DENTAL)
+# @name create_appointment3
+POST {{baseUrl}}/appointments
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "petId": {{petId1}},
+  "date": "2025-10-05T15:00:00.000Z",
+  "reason": "OPERATION",
+  "notes": "Dental cleaning for Luna"
+}
+
+### 12. Get all appointments again (should show 3 appointments)
+GET {{baseUrl}}/appointments
+Authorization: Bearer {{authToken}}
+
+### 13. Delete Michi's appointment
+DELETE {{baseUrl}}/appointments/{{create_appointment2.response.body.id}}
+Authorization: Bearer {{authToken}}
+
+### 14. Try to get deleted appointment (should return 404)
+GET {{baseUrl}}/appointments/{{create_appointment2.response.body.id}}
+Authorization: Bearer {{authToken}}
+
+### 15. Get final list of appointments (should show 2 remaining)
+GET {{baseUrl}}/appointments
+Authorization: Bearer {{authToken}}
+
+###
+
+### Error Testing
+
+### 16. Create appointment with invalid reason
+POST {{baseUrl}}/appointments
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "petId": {{petId1}},
+  "date": "2025-09-15T10:00:00.000Z",
+  "reason": "INVALID_REASON",
+  "notes": "This should fail"
+}
+
+### 17. Create appointment with missing data
+POST {{baseUrl}}/appointments
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "petId": {{petId1}}
+}
+
+### 18. Create appointment with non-existent pet (should fail)
+POST {{baseUrl}}/appointments
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "petId": 99999,
+  "date": "2025-09-15T10:00:00.000Z",
+  "reason": "VACCINATION",
+  "notes": "This should fail - pet doesn't exist"
+}
+
+### 19. Try to access appointment without authentication
+GET {{baseUrl}}/appointments
+
+### 20. Try to update appointment without authentication
+PUT {{baseUrl}}/appointments/{{create_appointment1.response.body.id}}
+Content-Type: application/json
+
+{
+  "notes": "This should fail"
+}
+
+###
+
+### Cleanup (optional - run if you want to clean up test data)
+
+### 21. Delete remaining appointments
+DELETE {{baseUrl}}/appointments/{{create_appointment1.response.body.id}}
+Authorization: Bearer {{authToken}}
+
+###
+DELETE {{baseUrl}}/appointments/{{create_appointment3.response.body.id}}
+Authorization: Bearer {{authToken}}
+
+### 22. Delete test pets
+DELETE {{baseUrl}}/pets/{{petId1}}
+Authorization: Bearer {{authToken}}
+
+###
+DELETE {{baseUrl}}/pets/{{petId2}}
+Authorization: Bearer {{authToken}}
+
+### 23. Delete test user (if endpoint exists)
+DELETE {{baseUrl}}/owners/{{register_user.response.body.id}}
+Authorization: Bearer {{authToken}}

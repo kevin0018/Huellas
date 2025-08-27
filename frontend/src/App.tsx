@@ -13,6 +13,7 @@ import Register from './Views/Register';
 import AboutUs from "./Views/AboutUs";
 import PetRegister from './Views/PetRegister';
 import CalendarView from './Views/CalendarView';
+import AppointmentsView from './Views/AppointmentsView';
 import UserHome from './Views/UserHome';
 import PetProfile from './Views/PetProfile';
 import UserProfile from './Views/UserProfile';
@@ -33,8 +34,9 @@ const App: React.FC = () => {
           <Route path="/register" element={<Register />} />
           <Route path="/pet-register" element={<PetRegister />} />
           <Route path="/calendar" element={<CalendarView />} />
+          <Route path="/appointments" element={<AppointmentsView />} />
           <Route path="/user-home" element={<UserHome />} />
-          <Route path="/pet-profile" element={<PetProfile />} />
+          <Route path="/pets/:id" element={<PetProfile />} />
           <Route path="/user-profile" element={<UserProfile />} />
           <Route path="/procedures" element={<Procedures />} />
           <Route path="/volunteer-board" element={<VolunteerBoard />} />

@@ -229,7 +229,7 @@ export default function UserProfile() {
         <div className="fixed inset-0 z-0 w-full h-full bg-repeat bg-[url('/media/bg_phone_userhome.png')] md:bg-[url('/media/bg_tablet_userhome.png')] lg:bg-[url('/media/bg_desktop_userhome.png')] opacity-60 pointer-events-none select-none" aria-hidden="true" />
 
         {/* Content overlay */}
-        <div className="relative z-10 w-full flex flex-col items-center max-w-4xl py-4">
+        <div className="relative z-10 w-full flex flex-col items-center max-w-6xl py-4">
           <h1 className="h1 font-caprasimo mb-4 py-8 text-4xl md:text-5xl text-[#51344D] drop-shadow-lg dark:text-[#FDF2DE]">Mi Perfil</h1>
 
           <img
@@ -246,8 +246,8 @@ export default function UserProfile() {
           )}
 
           {/* Profile Update Form */}
-          <div className="bg-gray-100 dark:bg-[#51344D] flex items-center justify-center mb-6">
-            <div className="bg-[#FFFAF0]/90 dark:bg-[#51344D]/90 p-8 rounded-lg shadow-lg w-full max-w-4xl">
+          <div className="bg-gray-100 dark:bg-[#51344D] flex items-center justify-center mb-6 3xl:max-w-[90%] 3xl:!text-[1rem]">
+            <div className="bg-[#FFFAF0]/90 dark:bg-[#51344D]/90 p-8 rounded-lg shadow-lg w-full max-w-6xl">
               <form onSubmit={handleUpdateProfile} className="grid grid-cols-1 md:grid-cols-2 gap-6 justify-center text-left text-[#51344D] dark:text-[#FDF2DE]">
                 <div className="md:col-span-1">
                   <label htmlFor="name" className="block text-sm font-medium">
@@ -351,7 +351,7 @@ export default function UserProfile() {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="py-2 px-4 bg-[#BCAAA4] hover:bg-[#A89B9D] text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="py-2 px-4 bg-[#BCAAA4] hover:bg-[#A89B9D] mx-auto text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {/* TODO: Add translation */}
                     {isLoading ? 'Guardando...' : 'Guardar cambios'}
@@ -362,15 +362,15 @@ export default function UserProfile() {
           </div>
 
           {/* Password Change Form */}
-          <div className="bg-gray-100 dark:bg-[#51344D] flex items-center justify-center">
-            <div className="bg-[#FFFAF0]/90 dark:bg-[#51344D]/90 p-8 rounded-lg shadow-lg w-full max-w-4xl">
-              <h3 className="text-lg font-semibold mb-4 text-[#51344D] dark:text-[#FDF2DE]">
+          <div className="bg-gray-100 dark:bg-[#51344D] flex items-center justify-center mb-6 3xl:max-w-[70%] 3xl:!text-[1rem]">
+            <div className="bg-[#FFFAF0]/90 dark:bg-[#51344D]/90 p-8 rounded-lg shadow-lg w-full max-w-6xl">
+              <h3 className="text-lg font-semibold mb-4 text-[#51344D] dark:text-[#FDF2DE] 3xl:!text-[1.7rem]">
                 {/* TODO: Add translation */}
                 Cambiar contraseña
               </h3>
               <form onSubmit={handleChangePassword} className="grid grid-cols-1 md:grid-cols-2 gap-6 justify-center text-left text-[#51344D] dark:text-[#FDF2DE]">
                 <div className="md:col-span-2">
-                  <label htmlFor="currentPassword" className="block text-sm font-medium">
+                  <label htmlFor="currentPassword" className="block text-sm font-medium 3xl:!text-[1.3rem]">
                     {/* TODO: Add translation */}
                     Contraseña actual
                   </label>
@@ -387,7 +387,7 @@ export default function UserProfile() {
                 </div>
 
                 <div className="md:col-span-1">
-                  <label htmlFor="newPassword" className="block text-sm font-medium">
+                  <label htmlFor="newPassword" className="block text-sm font-medium 3xl:!text-[1.3rem]">
                     {/* TODO: Add translation */}
                     Nueva contraseña
                   </label>
@@ -404,7 +404,7 @@ export default function UserProfile() {
                 </div>
 
                 <div className="md:col-span-1">
-                  <label htmlFor="confirmPassword" className="block text-sm font-medium">
+                  <label htmlFor="confirmPassword" className="block text-sm font-medium 3xl:!text-[1.3rem]">
                     {/* TODO: Add translation */}
                     Confirmar nueva contraseña
                   </label>
@@ -424,7 +424,7 @@ export default function UserProfile() {
                   <button
                     type="submit"
                     disabled={isLoading || !formData.currentPassword || !formData.newPassword}
-                    className="py-2 px-4 bg-[#BCAAA4] hover:bg-[#A89B9D] text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="py-2 px-4 bg-[#BCAAA4] hover:bg-[#A89B9D] mx-auto text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {/* TODO: Add translation */}
                     {isLoading ? 'Cambiando...' : 'Cambiar contraseña'}
