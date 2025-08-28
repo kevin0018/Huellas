@@ -17,7 +17,6 @@ import AppointmentsView from './Views/AppointmentsView';
 import UserHome from './Views/UserHome';
 import PetProfile from './Views/PetProfile';
 import UserProfile from './Views/UserProfile';
-import Procedures from './Views/Procedures';
 import VolunteerBoard from './Views/VolunteerBoard';
 import VolunteerHome from './Views/VolunteerHome';
 
@@ -39,7 +38,6 @@ const App: React.FC = () => {
           <Route path="/user-home" element={<UserHome />} />
           <Route path="/pets/:id" element={<PetProfile />} />
           <Route path="/user-profile" element={<UserProfile />} />
-          <Route path="/procedures" element={<Procedures />} />
           <Route path="/volunteer-board" element={<VolunteerBoard />} />
           <Route path="/volunteer-home" element={<VolunteerHome />} />
         </Routes>
