@@ -41,6 +41,34 @@ enum AppointmentReason {
   OTHERS
 }
 
+enum ConversationStatus {
+  ACTIVE
+  ARCHIVED
+  CLOSED
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  FILE
+  SYSTEM
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+  EXPIRED
+}
+
+enum PostCategory {
+  GENERAL
+  URGENT
+  EVENT
+  VOLUNTEER_NEEDED
+  ANNOUNCEMENT
+}
+
 // --- Models ---
 
 model User {
@@ -53,40 +81,48 @@ model User {
   owner     Owner?
   volunteer Volunteer?
 
+  // Chat system relations
+  created_conversations     Conversation[]            @relation("CreatedConversations")
+  conversation_participants ConversationParticipant[]
+  sent_messages             Message[]
+
+  // Volunteer post relations
+  authored_posts VolunteerPost[] @relation("AuthoredPosts")
+
   @@index([type])
   @@index([email])
 }
 
 model Owner {
-  id   Int  @id
-  user User @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  id   Int   @id
+  user User  @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   pets Pet[]
 }
 
 model Volunteer {
-  id          Int   @id
+  id          Int    @id
   description String
-  user        User  @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user        User   @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model Pet {
-  id               Int      @id @default(autoincrement())
-  name             String
-  race             String
-  type             PetType
-  owner_id         Int
-  birth_date       DateTime @db.Date
-  size             PetSize
-  microchip_code   String   @unique
-  sex              Sex
-  has_passport     Boolean
+  id                Int      @id @default(autoincrement())
+  name              String
+  race              String
+  type              PetType
+  owner_id          Int
+  birth_date        DateTime @db.Date
+  size              PetSize
+  microchip_code    String   @unique
+  sex               Sex
+  has_passport      Boolean
   country_of_origin String?
   passport_number   String?
   notes             String?
 
-  owner         Owner            @relation(fields: [owner_id], references: [id], onDelete: Cascade, onUpdate: Restrict)
-  checkups      Checkup[]
-  appointments  Appointment[]
+  owner        Owner         @relation(fields: [owner_id], references: [id], onDelete: Cascade, onUpdate: Restrict)
+  checkups     Checkup[]
+  appointments Appointment[]
 
   @@index([owner_id])
   @@index([type])
@@ -103,7 +139,7 @@ model Checkup {
   notes        String?
 
   pet       Pet               @relation(fields: [pet_id], references: [id], onDelete: Cascade, onUpdate: Restrict)
-  procedure ProcedureSchedule  @relation(fields: [procedure_id], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  procedure ProcedureSchedule @relation(fields: [procedure_id], references: [id], onDelete: Restrict, onUpdate: Restrict)
 
   @@index([pet_id])
   @@index([procedure_id])
@@ -112,11 +148,11 @@ model Checkup {
 }
 
 model Appointment {
-  id      Int      @id @default(autoincrement())
-  pet_id  Int
-  date    DateTime @db.Date
-  reason  AppointmentReason
-  notes   String?
+  id     Int               @id @default(autoincrement())
+  pet_id Int
+  date   DateTime          @db.Date
+  reason AppointmentReason
+  notes  String?
 
   pet Pet @relation(fields: [pet_id], references: [id], onDelete: Cascade, onUpdate: Restrict)
 
@@ -126,15 +162,92 @@ model Appointment {
 }
 
 model ProcedureSchedule {
-  id                     Int        @id @default(autoincrement())
-  animal_type            PetType
-  procedure_name         String
+  id                       Int     @id @default(autoincrement())
+  animal_type              PetType
+  procedure_name           String
   recommended_vaccines_age Int
-  notes                  String?
+  notes                    String?
 
   checkups Checkup[]
 
+  @@unique([animal_type, procedure_name])
   @@index([animal_type])
   @@index([procedure_name])
-  @@unique([animal_type, procedure_name])
+}
+
+model Conversation {
+  id         Int                @id @default(autoincrement())
+  title      String?
+  status     ConversationStatus @default(ACTIVE)
+  created_at DateTime           @default(now())
+  updated_at DateTime           @updatedAt
+  created_by Int
+
+  creator      User                      @relation("CreatedConversations", fields: [created_by], references: [id], onDelete: Cascade, onUpdate: Restrict)
+  participants ConversationParticipant[]
+  messages     Message[]
+
+  @@index([status])
+  @@index([created_by])
+  @@index([created_at])
+  @@index([updated_at])
+}
+
+model ConversationParticipant {
+  id              Int       @id @default(autoincrement())
+  conversation_id Int
+  user_id         Int
+  joined_at       DateTime  @default(now())
+  last_read_at    DateTime?
+
+  conversation Conversation @relation(fields: [conversation_id], references: [id], onDelete: Cascade, onUpdate: Restrict)
+  user         User         @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict)
+
+  @@unique([conversation_id, user_id])
+  @@index([conversation_id])
+  @@index([user_id])
+  @@index([joined_at])
+}
+
+model Message {
+  id              Int         @id @default(autoincrement())
+  conversation_id Int
+  sender_id       Int
+  content         String      @db.Text
+  type            MessageType @default(TEXT)
+  created_at      DateTime    @default(now())
+  updated_at      DateTime    @updatedAt
+  edited_at       DateTime?
+
+  conversation Conversation @relation(fields: [conversation_id], references: [id], onDelete: Cascade, onUpdate: Restrict)
+  sender       User         @relation(fields: [sender_id], references: [id], onDelete: Cascade, onUpdate: Restrict)
+
+  @@index([conversation_id])
+  @@index([sender_id])
+  @@index([created_at])
+  @@index([conversation_id, created_at])
+}
+
+model VolunteerPost {
+  id           Int          @id @default(autoincrement())
+  title        String
+  content      String       @db.Text
+  author_id    Int
+  category     PostCategory @default(GENERAL)
+  status       PostStatus   @default(DRAFT)
+  created_at   DateTime     @default(now())
+  updated_at   DateTime     @updatedAt
+  published_at DateTime?
+  expires_at   DateTime?
+
+  author User @relation("AuthoredPosts", fields: [author_id], references: [id], onDelete: Cascade, onUpdate: Restrict)
+
+  @@index([author_id])
+  @@index([category])
+  @@index([status])
+  @@index([created_at])
+  @@index([published_at])
+  @@index([expires_at])
+  @@index([category, status])
+  @@index([status, published_at])
 }
