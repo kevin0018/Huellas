@@ -4,6 +4,7 @@ import React, { useState } from 'react'; // AÑADIR useState
 import NavBar from '../Components/NavBar';
 import Footer from '../Components/footer';
 import ProceduresModal from '../Views/ProceduresModal';
+import GoBackButton from '../Components/GoBackButton';
 
 const CalendarView: React.FC = () => {
     // AÑADIR 1: Estado para controlar la visibilidad del modal
@@ -13,6 +14,9 @@ const CalendarView: React.FC = () => {
         <div className="w-full min-h-screen flex flex-col bg-[url(/media/bg_desktop_userhome.png)]">
             <NavBar />
             <main className="flex-grow p-6">
+                <div className="w-full text-left mt-2 max-w-6xl xl:max-w-7xl 3xl:max-w-[1600px] 3xl:mt-0">
+                    <GoBackButton variant="outline" hideIfNoHistory className="bg-white" />
+                </div>
                 <div className="flex justify-between items-center mb-6">
                     <h1 className="h1">Mi Agenda</h1>
                     
