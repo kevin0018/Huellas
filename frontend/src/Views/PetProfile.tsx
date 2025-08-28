@@ -107,14 +107,15 @@ const PetProfile: React.FC = () => {
           {!loading && !error && (
             <>
               <div className="mb-8">
-                <div className="avatar-circle size-36 md:size-40 mx-auto">
-                  <img src="/media/pfp_sample.svg" alt="Foto de perfil de la mascota" className="size-full object-cover"
-                  />
+                <div className="avatar-shadow mx-auto m-8">
+                  <div className="avatar-circle size-24 sm:size-28 md:size-42">
+                    <img src="/media/pfp_sample.svg" alt="Perfil" className="size-full object-contain" />
+                  </div>
                 </div>
               </div>
 
               {/* Details */}
-              <div className="themed-card themed-card-invL p-8 w-full 3xl:max-w-[90%]">
+              <div className="themed-card themed-card-invL p-8 w-full 3xl:max-w-[90%] rounded-xl border-1 border-[#FDF2DE] border solid">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-6 text-center">
                   <ProfileDetail label="Nombre" value={pet?.name ?? "—"} />
                   <ProfileDetail label="Sexo" value={pet ? getSexLabel(pet.sex) : "—"} />
@@ -134,7 +135,7 @@ const PetProfile: React.FC = () => {
               </div>
 
               <div className="p-10 flex justify-center">
-                <Link to= {`/pets/${pet?.id}/edit`} className="flex items-center justify-center gap-3 py-3 px-6 bg-[#51344D] text-white font-semibold rounded-lg shadow-md hover:bg-[#A89B9D] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#51344D] transition-all duration-300 ease-in-out transform hover:scale-105" >
+                <Link to={`/pets/${pet?.id}/edit`} className="flex items-center justify-center gap-3 py-3 px-6 bg-[#51344D] text-white font-semibold rounded-lg shadow-md hover:bg-[#A89B9D] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#51344D] transition-all duration-300 ease-in-out transform hover:scale-105" >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z" />
                   </svg>

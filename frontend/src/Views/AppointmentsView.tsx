@@ -136,7 +136,7 @@ function AppointmentsView() {
         <div className="relative z-10 container mx-auto px-4 py-8">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="w-full text-left mt-2 max-w-6xl xl:max-w-7xl 3xl:max-w-[1600px] 3xl:mt-0">
+            <div className="w-full text-left max-w-4xl mx-auto">
               <GoBackButton variant="outline" hideIfNoHistory className="bg-white" />
             </div>
             <h1 className="text-4xl md:text-5xl font-caprasimo mb-4 text-[#51344D] dark:text-[#FDF2DE] drop-shadow-lg">
