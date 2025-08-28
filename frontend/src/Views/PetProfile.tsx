@@ -80,12 +80,12 @@ const PetProfile: React.FC = () => {
   return (
     <>
       <NavBar />
-      <div className="min-h-screen bg-[#FDF6E8] bg-cover bg-center flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
-        <div className="flex flex-col items-center justify-center text-center w-full max-w-6xl xl:max-w-7xl 3xl:max-w-[1600px] mx-auto">
+      <div className="bg-dogs-userhome-mobile md:bg-dogs-userhome-tablet lg:bg-dogs-userhome-desktop bg-cover bg-center flex flex-col items-center justify-center dark:bg-dogs-userhome-mobile">
+        <div className="flex flex-col items-center justify-center text-center w-full max-w-6xl xl:max-w-7xl 3xl:max-w-[1600px] mx-auto ">
 
           {/* Go back */}
-          <div className="w-full text-left mb-2">
-            <GoBackButton variant="outline" hideIfNoHistory />
+          <div className="w-full text-left mx-auto mt-4">
+            <GoBackButton variant="outline" hideIfNoHistory className="bg-white" />
           </div>
 
           <h1 className="text-4xl md:text-5xl font-caprasimo mb-6 text-[#51344D]">Perfil de la Mascota</h1>
@@ -115,7 +115,7 @@ const PetProfile: React.FC = () => {
               </div>
 
               {/* Details */}
-              <div className="themed-card themed-card-invL p-8 w-full 3xl:max-w-[90%] rounded-xl border-1 border-[#FDF2DE] border solid">
+              <div className="themed-card themed-card-invL p-8 w-full 3xl:max-w-[90%] rounded-xl bg-[#FDF2DE] dark:bg-[#51344D]">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-6 text-center">
                   <ProfileDetail label="Nombre" value={pet?.name ?? "—"} />
                   <ProfileDetail label="Sexo" value={pet ? getSexLabel(pet.sex) : "—"} />

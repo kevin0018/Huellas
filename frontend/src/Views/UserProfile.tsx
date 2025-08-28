@@ -321,7 +321,7 @@ export default function UserProfile() {
                     onClick={handleVolunteerToggle}
                     disabled={isLoading}
                     className={`px-4 py-2 rounded-md font-medium transition-colors ${isVolunteer(user)
-                        ? 'bg-red-600 hover:bg-red-700 text-white'
+                        ? 'bg-red-800 hover:bg-red-600 text-white !px-2 !py-0'
                         : 'bg-[#BCAAA4] hover:bg-[#A89B9D] text-white'
                       } disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
@@ -354,7 +354,7 @@ export default function UserProfile() {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="py-2 px-4 bg-[#BCAAA4] hover:bg-[#A89B9D] mx-auto text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="py-2 px-4 bg-[#51344D] hover:bg-[#A89B9D] mx-auto text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {/* TODO: Add translation */}
                     {isLoading ? 'Guardando...' : 'Guardar cambios'}
@@ -427,7 +427,7 @@ export default function UserProfile() {
                   <button
                     type="submit"
                     disabled={isLoading || !formData.currentPassword || !formData.newPassword}
-                    className="py-2 px-4 bg-[#BCAAA4] hover:bg-[#A89B9D] mx-auto text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="py-2 px-4 bg-[#51344D] hover:bg-[#A89B9D] mx-auto text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {/* TODO: Add translation */}
                     {isLoading ? 'Cambiando...' : 'Cambiar contraseña'}
