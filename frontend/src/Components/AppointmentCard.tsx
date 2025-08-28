@@ -34,7 +34,7 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
   };
 
   return (
-    <div className="bg-white/90 dark:bg-[#51344D]/90 rounded-xl shadow-lg border border-[#51344D]/20 dark:border-[#FDF2DE]/20 p-6 mb-4">
+    <div className="bg-white/90 dark:bg-[#51344D]/90 rounded-xl shadow-lg border border-[#51344D]/20 dark:border-[#FDF2DE]/20 p-6 mx-1 mb-4 themed-card-invL">
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-2">
@@ -61,8 +61,7 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
               onClick={() => onEdit(appointment)}
               className="
                 p-2 text-[#51344D] hover:text-[#9886AD] dark:text-[#FDF2DE] 
-                dark:hover:text-[#BAA9CB] transition-colors
-              "
+                dark:hover:text-[#BAA9CB] transition-colors"
               title="Editar cita" /* TODO: Add to translation dictionary */
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

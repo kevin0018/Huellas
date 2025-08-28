@@ -34,19 +34,11 @@
     background-image: var(--bg-dogs-userhome-desktop-url);
   }
 
-  /* Tarjeta base (por si ya la usas en otros sitios) */
-  .themed-card {
-    @apply bg-white/80 backdrop-blur-sm rounded-3xl ring-1 ring-[#51344D]/15;
-    box-shadow:
-      0 12px 0 0 #51344D1f,                     /* línea inferior */
-      0 28px 48px -20px rgba(81,52,77,.35);     /* blur inferior */
-  }
-
-  /* Variante: sombra en L invertida (abajo + derecha) */
+  /* Tarjeta base: sombra en L invertida (abajo + derecha) */
   .themed-card-invL {
     box-shadow:
-      0 12px 0 0 #51344D1f,                     /* línea inferior */
-      12px 0 0 0 #51344D1f,                     /* línea derecha */
+      0 12px 0 0 #51344d37,                     /* línea inferior */
+      12px 0 0 0 #51344d37,                     /* línea derecha */
       0 28px 48px -20px rgba(81,52,77,.35),     /* blur inferior */
       28px 0 48px -20px rgba(81,52,77,.25);     /* blur derecha */
   }
@@ -54,15 +46,6 @@
   /* Wrapper circular para avatares con sombra y aro suave */
   .avatar-circle {
     @apply rounded-full overflow-hidden ring-2 ring-[#51344D]/25;
-    box-shadow:
-      0 8px 0 0 #51344D1f,
-      0 18px 36px -18px rgba(81,52,77,.35);
-    background:
-      radial-gradient(120px 120px at 30% 30%, #FDF6E8 0%, #ffffff 60%);
-  }
-
-  .themed-avatar {
-    @apply rounded-full ring-2 ring-[#51344D]/25;
     box-shadow:
       0 8px 0 0 #51344D1f,
       0 18px 36px -18px rgba(81,52,77,.35);

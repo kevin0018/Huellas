@@ -6,10 +6,10 @@ export function PetAvatarGrid({ pets }: { pets: Pet[] }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       {pets.map(p => (
-        <div key={p.id} className="flex flex-col items-center">
-          <Link to={`/pets/${p.id}`}>
+        <div key={p.id} className="flex flex-col items-center ">
+          <Link to={`/pets/${p.id}`} className="avatar-circle size-36 md:size-35 mx-auto">
             <img src="/media/pfp_sample.svg" alt={p.name}
-                 className="w-20 md:w-30 lg:w-35 rounded-full hover:scale-105 transition" />
+                 className="w-20 md:w-30 lg:w-35 rounded-full hover:scale-105 transition " />
           </Link>
           <p className="mt-2 font-semibold">{p.name}</p>
         </div>

@@ -78,7 +78,7 @@ function UserHomeContent() {
             {translate("hello")}, {user.name}!
           </h1>
 
-          <div className="bg-[#FDF2DE]/90 dark:bg-[#51344D]/90 border-[#BCAAA4] border-2 rounded-lg shadow-lg p-6 w-full mx-auto text-center my-10">
+          <div className="bg-[#FDF2DE]/90 dark:bg-[#51344D]/90 border-[#BCAAA4] border-2 rounded-lg shadow-lg p-6 w-full mx-auto text-center my-10 themed-card-invL">
             <p className="lead text-[--huellas-eggplant]/80 dark:text-[#FDF2DE] text-justify mb-8 px-4">
               {translate("homePageSubtitle")}
             </p>

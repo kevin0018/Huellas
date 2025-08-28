@@ -132,9 +132,11 @@ const PetRegister: React.FC = () => {
             {isEdit ? 'Editar mascota' : 'Añadir mascota'}
           </h1>
 
-          <img src="/media/logotipo.svg" alt="" className="w-24 md:w-32 lg:w-48 rounded-full bg-white mb-8 themed-avatar" />
+          <div className="avatar-circle size-30 mx-auto my-8">
+            <img src="/media/logotipo.svg" alt="" className="w-24 md:w-32 lg:w-48 rounded-full bg-white mb-8 themed-avatar" />
+          </div>
 
-          <div className="bg-gray-100 flex items-center justify-center themed-card themed-card-invL">
+          <div className="bg-gray-100 flex items-center justify-center rounded-xl p-4 border-solid border-2 border-black themed-card themed-card-invL">
             <div className="bg-[#FFFAF0] p-8 rounded-lg shadow-lg w-full max-w-4xl text-[#51344D]">
               {error && <p className="text-red-600 mb-4">{error}</p>}
 
