@@ -4,10 +4,9 @@ import { useState } from 'react';
 import NavBar from '../Components/NavBar';
 import Footer from '../Components/footer';
 import GoBackButton from '../Components/GoBackButton.js';
-import ProcedureCard from '../Components/ProcedureCard.js';
-import ProcedureModal from '../Components/ProceduresModal.js'; // Modal para editar
+import ProcedureCard from '../Components/ProcedureCard';
+import ProcedureModal from '../Components/ProceduresModal';
 
-// Datos de los procedimientos hardcodeados
 const proceduresData = [
     { key: 'innerdes', timeframe: '0-2 semanas', nombre: 'Desparasitación Interna', descripcion: 'Tratamiento para eliminar parásitos intestinales.' },
     { key: 'extdes', timeframe: '2-6 semanas', nombre: 'Desparasitación Externa', descripcion: 'Aplicación de pipeta o collar.' },
@@ -22,7 +21,7 @@ type ProcedureDataState = { isCompleted: boolean; notes: string; date: string; }
 type AllProceduresState = { [key: string]: ProcedureDataState };
 
 function ProceduresView() {
-  // Estado principal que guarda los datos de cada procedimiento
+  // 1. Este es el estado principal que las tarjetas leen.
   const [proceduresState, setProceduresState] = useState<AllProceduresState>(() => {
     const initialState: AllProceduresState = {};
     proceduresData.forEach(proc => {
@@ -72,9 +71,9 @@ function ProceduresView() {
             </p>
           </div>
 
-          {/* Cuadrícula de tarjetas de procedimientos */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {proceduresData.map((procedure) => (
+              // 3. Cada tarjeta recibe el estado actualizado en cada renderizado.
               <ProcedureCard
                 key={procedure.key}
                 procedure={procedure}
@@ -85,11 +84,11 @@ function ProceduresView() {
           </div>
         </div>
 
-        {/* Modal para editar (solo se renderiza si es necesario) */}
         {isModalOpen && editingProcedure && (
             <ProcedureModal
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
+                // 4. Se pasa la función de guardado al modal.
                 onSubmit={handleSaveChanges}
                 procedure={editingProcedure}
                 initialState={proceduresState[editingProcedure.key]}
