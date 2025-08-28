@@ -18,7 +18,7 @@ type ProfileDetailProps = {
 const ProfileDetail: React.FC<ProfileDetailProps> = ({ label, value }) => (
   <div className="text-center md:text-left">
     <h3 className="block font-caprasimo text-[#51344D] uppercase tracking-wider">{label}</h3>
-    <p className="mt-1 text-base">{value}</p>
+    <p className="mt-1 text-center">{value}</p>
   </div>
 );
 
@@ -81,10 +81,11 @@ const PetProfile: React.FC = () => {
     <>
       <NavBar />
       <div className="min-h-screen bg-[#FDF6E8] bg-cover bg-center flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
-        <div className="flex flex-col items-center justify-center text-center w-full max-w-4xl mx-auto">
+        <div className="flex flex-col items-center justify-center text-center w-full max-w-6xl xl:max-w-7xl 3xl:max-w-[1600px] mx-auto">
+
           {/* Go back */}
-          <div className="w-full text-left">
-            <GoBackButton hideIfNoHistory />
+          <div className="w-full text-left mb-2">
+            <GoBackButton variant="outline" hideIfNoHistory />
           </div>
 
           <h1 className="text-4xl md:text-5xl font-caprasimo mb-6 text-[#51344D]">Perfil de la Mascota</h1>
@@ -105,12 +106,15 @@ const PetProfile: React.FC = () => {
           {/* Avatar */}
           {!loading && !error && (
             <>
-              <div className="p-4 mb-8">
-                <img src="/media/pfp_sample.svg" alt="" />
+              <div className="mb-8">
+                <div className="avatar-circle size-36 md:size-40 mx-auto">
+                  <img src="/media/pfp_sample.svg" alt="Foto de perfil de la mascota" className="size-full object-cover"
+                  />
+                </div>
               </div>
 
               {/* Details */}
-              <div className="bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-xl w-full 3xl:max-w-[3500px]">
+              <div className="themed-card themed-card-invL p-8 w-full 3xl:max-w-[90%]">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-6 text-center">
                   <ProfileDetail label="Nombre" value={pet?.name ?? "—"} />
                   <ProfileDetail label="Sexo" value={pet ? getSexLabel(pet.sex) : "—"} />
@@ -130,10 +134,7 @@ const PetProfile: React.FC = () => {
               </div>
 
               <div className="p-10 flex justify-center">
-                <Link
-                  to="/pet-register"
-                  className=" flex items-center justify-center gap-3 py-3 px-6 bg-[#51344D] text-white font-semibold rounded-lg shadow-md hover:bg-[#A89B9D] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#51344D] transition-all duration-300 ease-in-out transform hover:scale-105"
-                >
+                <Link to= {`/pets/${pet?.id}/edit`} className="flex items-center justify-center gap-3 py-3 px-6 bg-[#51344D] text-white font-semibold rounded-lg shadow-md hover:bg-[#A89B9D] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#51344D] transition-all duration-300 ease-in-out transform hover:scale-105" >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z" />
                   </svg>

@@ -1,14 +1,17 @@
 import React from "react";
-import ThemeProvider from "../Components/theme/ThemeProvider";
+import GoBackButton from '../Components/GoBackButton';
 import NavBar from "../Components/NavBar";
 import Footer from "../Components/footer";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { ApiPetRepository } from "../modules/pet/infra/ApiPetRepository";
 import type { Pet, PetSize, PetType, Sex } from "../modules/pet/domain/Pet";
 
 const PetRegister: React.FC = () => {
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+  const isEdit = !!id;
+
   const repo = React.useMemo(() => new ApiPetRepository(), []);
 
   const [saving, setSaving] = React.useState(false);
@@ -24,8 +27,8 @@ const PetRegister: React.FC = () => {
     microchipCode: "",
     sex: "male" as Sex,
     hasPassport: false,
-    countryOfOrigin: "",
-    passportNumber: "",
+    countryOfOrigin: "",      // always enabled
+    passportNumber: "",       // disabled when hasPassport = false
     notes: "",
   });
 
@@ -36,37 +39,104 @@ const PetRegister: React.FC = () => {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
+  // If editing, load the pet and prefill form
+  React.useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if (!isEdit) return;
+      try {
+        setError(null);
+        const pet = await repo.getPetById(Number(id));
+        if (cancelled) return;
+
+        setForm({
+          name: pet.name || "",
+          race: pet.race || "",
+          type: pet.type,
+          // convert ISO -> YYYY-MM-DD for date input
+          birthDate: pet.birthDate ? String(pet.birthDate).slice(0, 10) : "",
+          size: pet.size,
+          microchipCode: pet.microchipCode || "",
+          sex: pet.sex,
+          hasPassport: !!pet.hasPassport,
+          // Make countryOfOrigin always editable
+          countryOfOrigin: pet.countryOfOrigin || "",
+          // Keep passport number disabled when hasPassport = false
+          passportNumber: pet.passportNumber || "",
+          notes: pet.notes || "",
+        });
+      } catch (e) {
+        setError(e instanceof Error ? e.message : String(e));
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [id, isEdit, repo]);
+
   async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setSaving(true);
-    setError(null);
+  e.preventDefault();
+  setSaving(true);
+  setError(null);
 
-    try {
-      // Frontend validation matching backend requirements
-      if (!form.name.trim()) throw new Error('El nombre es obligatorio.');
-      if (!form.race.trim()) throw new Error('La raza es obligatoria.');
-      if (!form.birthDate) throw new Error('La fecha de nacimiento es obligatoria.');
-      if (!form.microchipCode.trim()) throw new Error('El código de microchip es obligatorio.');
+  try {
+    if (!form.name.trim()) throw new Error('El nombre es obligatorio.');
+    if (!form.race.trim()) throw new Error('La raza es obligatoria.');
+    if (!form.birthDate) throw new Error('La fecha de nacimiento es obligatoria.');
+    if (!form.microchipCode.trim()) throw new Error('El código de microchip es obligatorio.');
 
-      await repo.create(form);           // ownerId comes from JWT on the server
-      navigate('/user-home', { replace: true });
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
-    } finally {
-      setSaving(false);
+    if (isEdit) {
+      await repo.update(Number(id), {
+        name: form.name,
+        race: form.race,
+        birthDate: form.birthDate, // repo.update convierte a ISO
+        size: form.size,
+        sex: form.sex,
+        hasPassport: form.hasPassport,
+        countryOfOrigin: form.countryOfOrigin?.trim() || undefined,         // <- no null
+        passportNumber: form.hasPassport ? (form.passportNumber?.trim() || undefined) : undefined, // <- no null
+        notes: form.notes?.trim() || undefined,                              // <- no null
+      });
+    } else {
+      await repo.create({
+        name: form.name,
+        race: form.race,
+        type: form.type,
+        birthDate: form.birthDate,
+        size: form.size,
+        microchipCode: form.microchipCode,
+        sex: form.sex,
+        hasPassport: form.hasPassport,
+        countryOfOrigin: form.countryOfOrigin?.trim() || undefined,         // <- no null
+        passportNumber: form.hasPassport ? (form.passportNumber?.trim() || undefined) : undefined, // <- no null
+        notes: form.notes?.trim() || undefined,                              // <- no null
+      });
     }
+
+    navigate('/user-home', { replace: true });
+  } catch (e) {
+    setError(e instanceof Error ? e.message : String(e));
+  } finally {
+    setSaving(false);
   }
+}
+
 
   return (
-    <ThemeProvider>
+    <>
       <NavBar />
-      <div className="bg-dogs-userhome-mobile md:bg-dogs-userhome-tablet lg:bg-dogs-userhome-desktop bg-cover bg-center flex flex-col items-center justify-center dark:bg-dogs-userhome-mobile ">
+      <div className="bg-dogs-userhome-mobile md:bg-dogs-userhome-tablet lg:bg-dogs-userhome-desktop bg-cover bg-center flex flex-col items-center justify-center dark:bg-dogs-userhome-mobile">
+        <div className="w-full text-left mt-20 max-w-6xl xl:max-w-7xl 3xl:max-w-[1600px]">
+          <GoBackButton variant="outline" hideIfNoHistory className="bg-white"/>
+        </div>
         <div className="flex flex-col items-center justify-center text-center p-4">
-          <h1 className="h1 font-caprasimo mb-4 py-8">Añadir mascota</h1>
+          <h1 className="h1 font-caprasimo mb-4 ">
+            {isEdit ? 'Editar mascota' : 'Añadir mascota'}
+          </h1>
 
-          <img src="/media/logotipo.svg" alt="" className="w-24 md:w-32 lg:w-48 rounded-full bg-white mb-8" />
+          <div className="avatar-circle size-30 mx-auto my-8">
+            <img src="/media/logotipo.svg" alt="" className="w-24 md:w-32 lg:w-48 rounded-full bg-white mb-8 themed-avatar" />
+          </div>
 
-          <div className="bg-gray-100 flex items-center justify-center">
+          <div className="bg-gray-100 flex items-center justify-center rounded-xl p-4 border-solid border-2 border-black themed-card themed-card-invL">
             <div className="bg-[#FFFAF0] p-8 rounded-lg shadow-lg w-full max-w-4xl text-[#51344D]">
               {error && <p className="text-red-600 mb-4">{error}</p>}
 
@@ -160,7 +230,7 @@ const PetRegister: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Nº pasaporte */}
+                {/* Nº pasaporte (disabled if !hasPassport) */}
                 <div>
                   <label htmlFor="passportNumber" className="block text-sm font-medium">Número de Pasaporte</label>
                   <input id="passportNumber" value={form.passportNumber}
@@ -169,13 +239,12 @@ const PetRegister: React.FC = () => {
                     disabled={!form.hasPassport} />
                 </div>
 
-                {/* Origen */}
+                {/* Origen (ALWAYS enabled now) */}
                 <div>
                   <label htmlFor="countryOfOrigin" className="block text-sm font-medium">Origen</label>
                   <input id="countryOfOrigin" value={form.countryOfOrigin}
                     onChange={(e) => onChange("countryOfOrigin", e.target.value)}
-                    className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-[#51344D]"
-                    disabled={!form.hasPassport} />
+                    className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-[#51344D]" />
                 </div>
 
                 {/* Comentarios */}
@@ -190,7 +259,7 @@ const PetRegister: React.FC = () => {
                 <div className="md:col-span-2 flex justify-end">
                   <button type="submit" disabled={saving}
                     className="py-2 px-4 bg-[#51344D] hover:bg-[#A89B9D] text-white font-semibold rounded-md shadow-md transition">
-                    {saving ? "Guardando…" : "Guardar cambios"}
+                    {saving ? "Guardando…" : isEdit ? "Guardar cambios" : "Crear mascota"}
                   </button>
                 </div>
               </form>
@@ -199,14 +268,14 @@ const PetRegister: React.FC = () => {
 
           <div className="p-10 flex justify-center">
             <Link to="/procedures" className="flex items-center justify-center gap-3 pr-4 bg-[#51344D] !text-white font-semibold rounded-lg shadow-md hover:bg-[#A89B9D] transition">
-              <img src="media/agenda_icon.svg" alt="Icono de agenda" className="h-10 w-10" />
+              <img src="/media/agenda_icon.svg" alt="Icono de agenda" className="h-10 w-10" />
               Ir a Procedimientos
             </Link>
           </div>
         </div>
       </div>
       <Footer />
-    </ThemeProvider>
+    </>
   );
 };
 

@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import NavBar from "../Components/NavBar";
 import Footer from "../Components/footer";
+import GoBackButton from "../Components/GoBackButton";
 import VolunteerModal from "../Components/VolunteerModal";
 import { ApiAuthRepository } from '../modules/auth/infra/ApiAuthRepository';
 import { UpdateProfileCommandHandler } from '../modules/auth/application/commands/UpdateProfileCommandHandler';
@@ -229,14 +230,15 @@ export default function UserProfile() {
         <div className="fixed inset-0 z-0 w-full h-full bg-repeat bg-[url('/media/bg_phone_userhome.png')] md:bg-[url('/media/bg_tablet_userhome.png')] lg:bg-[url('/media/bg_desktop_userhome.png')] opacity-60 pointer-events-none select-none" aria-hidden="true" />
 
         {/* Content overlay */}
-        <div className="relative z-10 w-full flex flex-col items-center max-w-6xl py-4">
-          <h1 className="h1 font-caprasimo mb-4 py-8 text-4xl md:text-5xl text-[#51344D] drop-shadow-lg dark:text-[#FDF2DE]">Mi Perfil</h1>
+        <div className="relative z-10 w-full flex flex-col items-center max-w-6xl py-4 ">
+          <div className="w-full text-left mt-20 max-w-6xl xl:max-w-7xl 3xl:max-w-[1600px] 3xl:mt-0">
+            <GoBackButton variant="outline" hideIfNoHistory className="bg-white" />
+          </div>
+          <h1 className="h1 font-caprasimo mb-4 text-4xl md:text-5xl text-[#51344D] drop-shadow-lg dark:text-[#FDF2DE]">Mi Perfil</h1>
 
-          <img
-            src="/media/pfp_sample.svg"
-            alt="Perfil" // TODO: Add translation variable for alt text
-            className="w-24 md:w-32 lg:w-48 rounded-full mb-8"
-          />
+          <div className="avatar-circle size-36 md:size-40 mx-auto my-8">
+            <img src="/media/pfp_sample.svg" alt="Perfil" className="w-24 md:w-32 lg:w-48 rounded-full mb-8"/>
+          </div>
 
           {/* Error and Success Messages */}
           {error && (

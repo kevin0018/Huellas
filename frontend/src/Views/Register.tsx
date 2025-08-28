@@ -11,6 +11,7 @@ import ThemeProvider from '../Components/theme/ThemeProvider';
 import LanguageProvider from '../i18n/LanguageProvider';
 import { useTranslation } from '../i18n/hooks/hook';
 import NavBar from '../Components/NavBar';
+import GoBackButton from '../Components/GoBackButton';
 
 type UserType = 'owner' | 'volunteer';
 
@@ -46,31 +47,31 @@ function RegisterForm() {
   const getErrorMessage = (error: string): string => {
     // Extract the main error message from API response
     const errorMessage = error.toLowerCase();
-    
-    if (errorMessage.includes('owner with this email already exists') || 
-        errorMessage.includes('volunteer with this email already exists') ||
-        errorMessage.includes('email already exists')) {
+
+    if (errorMessage.includes('owner with this email already exists') ||
+      errorMessage.includes('volunteer with this email already exists') ||
+      errorMessage.includes('email already exists')) {
       return translate('emailAlreadyExists');
     }
-    
-    if (errorMessage.includes('network error') || 
-        errorMessage.includes('fetch') ||
-        errorMessage.includes('connection')) {
+
+    if (errorMessage.includes('network error') ||
+      errorMessage.includes('fetch') ||
+      errorMessage.includes('connection')) {
       return translate('networkError');
     }
-    
-    if (errorMessage.includes('server error') || 
-        errorMessage.includes('internal server error') ||
-        errorMessage.includes('http 5')) {
+
+    if (errorMessage.includes('server error') ||
+      errorMessage.includes('internal server error') ||
+      errorMessage.includes('http 5')) {
       return translate('serverError');
     }
-    
+
     if (errorMessage.includes('missing required fields') ||
-        errorMessage.includes('validation') ||
-        errorMessage.includes('invalid')) {
+      errorMessage.includes('validation') ||
+      errorMessage.includes('invalid')) {
       return translate('registrationError');
     }
-    
+
     // Default fallback
     return translate('registrationError');
   };
@@ -94,7 +95,7 @@ function RegisterForm() {
           form.password
         );
         await handler.execute(command);
-        
+
         navigate('/login?registered=true');
       } else if (userType === 'volunteer') {
         const repo = new ApiVolunteerRepository();
@@ -127,8 +128,11 @@ function RegisterForm() {
     <div className="flex flex-col items-center justify-center background-primary px-2 sm:px-0 overflow-hidden" style={{ minHeight: 'calc(100vh - 200px)' }}>
       {/* Background */}
       <div className="fixed inset-0 z-0 w-full h-full bg-repeat bg-[url('/media/bg_phone_userhome.png')] md:bg-[url('/media/bg_tablet_userhome.png')] lg:bg-[url('/media/bg_desktop_userhome.png')] opacity-60 pointer-events-none select-none" aria-hidden="true" />
+      <div className="w-full text-left mt-10 max-w-6xl xl:max-w-6xl 3xl:max-w-[1600px]">
+        <GoBackButton variant="outline" hideIfNoHistory className="bg-white" />
+      </div>
       <div className="relative z-10 w-full flex flex-col items-center max-w-lg">
-        <h1 className="h1 font-caprasimo m-8 text-4xl md:text-5xl text-[#51344D] drop-shadow-lg dark:text-[#FDF2DE]">{translate('register') || 'Únete'}</h1>
+        <h1 className="h1 font-caprasimo mb-8 text-4xl md:text-5xl text-[#51344D] drop-shadow-lg dark:text-[#FDF2DE]">{translate('register') || 'Únete'}</h1>
         <form className="w-full max-w-xs sm:max-w-md md:max-w-lg p-6 sm:p-8 bg-white/90 dark:bg-[#51344D]/90 rounded-xl shadow-lg border border-[#51344D] flex flex-col gap-4" onSubmit={handleSubmit}>
           <div className="flex justify-center gap-4 mb-2">
             <label className="inline-flex items-center">
