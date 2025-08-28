@@ -12,7 +12,7 @@ import Login from './Views/Login';
 import Register from './Views/Register';
 import AboutUs from "./Views/AboutUs";
 import PetRegister from './Views/PetRegister';
-import CalendarView from './Views/CalendarView';
+import CalendarView from './Views/ProceduresView';
 import AppointmentsView from './Views/AppointmentsView';
 import UserHome from './Views/UserHome';
 import PetProfile from './Views/PetProfile';
