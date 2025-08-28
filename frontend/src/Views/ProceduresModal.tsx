@@ -1,4 +1,3 @@
-// src/components/ProceduresModal.tsx
 import React, { useState } from 'react';
 
 interface ProceduresModalProps {
