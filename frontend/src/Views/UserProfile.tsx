@@ -81,7 +81,7 @@ export default function UserProfile() {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
-    
+
     // Clear messages when user starts typing
     if (error) setError('');
   };
@@ -98,9 +98,9 @@ export default function UserProfile() {
         formData.email,
         formData.description
       );
-      
+
       const updatedUser = await updateProfileHandler.handle(command);
-      
+
       // Update local user state with the complete user data from backend
       setUser(updatedUser);
       setFormData(prev => ({
@@ -110,7 +110,7 @@ export default function UserProfile() {
         email: updatedUser.email,
         description: updatedUser.description || ''
       }));
-      
+
       // TODO: Add translation
       showToastMessage();
     } catch (error) {
@@ -123,13 +123,13 @@ export default function UserProfile() {
 
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (formData.newPassword !== formData.confirmPassword) {
       // TODO: Add translation
       setError('Las contraseñas no coinciden');
       return;
     }
-    
+
     if (formData.newPassword.length < 6) {
       // TODO: Add translation
       setError('La contraseña debe tener al menos 6 caracteres');
@@ -144,9 +144,9 @@ export default function UserProfile() {
         formData.currentPassword,
         formData.newPassword
       );
-      
+
       await changePasswordHandler.handle(command);
-      
+
       // Clear password fields
       setFormData(prev => ({
         ...prev,
@@ -154,7 +154,7 @@ export default function UserProfile() {
         newPassword: '',
         confirmPassword: ''
       }));
-      
+
       // TODO: Add translation
       showToastMessage();
     } catch (error) {
@@ -167,10 +167,10 @@ export default function UserProfile() {
 
   const handleVolunteerToggle = async () => {
     if (!user) return;
-    
+
     const newVolunteerStatus = !isVolunteer(user);
     setPendingVolunteerChange(newVolunteerStatus);
-    
+
     // Always open modal for confirmation, whether becoming or leaving volunteer
     setIsVolunteerModalOpen(true);
   };
@@ -184,15 +184,15 @@ export default function UserProfile() {
     try {
       const command = new ToggleVolunteerCommand(becomesVolunteer, description);
       const updatedUser = await toggleVolunteerHandler.handle(command);
-      
+
       // Update local user state with the complete user data from backend
       setUser(updatedUser);
-      setFormData(prev => ({ 
-        ...prev, 
+      setFormData(prev => ({
+        ...prev,
         isVolunteer: becomesVolunteer,
         description: updatedUser.description || ''
       }));
-      
+
       // TODO: Add translation
       showToastMessage();
     } catch (error) {
@@ -236,8 +236,10 @@ export default function UserProfile() {
           </div>
           <h1 className="h1 font-caprasimo mb-4 text-4xl md:text-5xl text-[#51344D] drop-shadow-lg dark:text-[#FDF2DE]">Mi Perfil</h1>
 
-          <div className="avatar-circle size-36 md:size-40 mx-auto my-8">
-            <img src="/media/pfp_sample.svg" alt="Perfil" className="w-24 md:w-32 lg:w-48 rounded-full mb-8"/>
+          <div className="avatar-shadow mx-auto m-8">
+            <div className="avatar-circle size-24 sm:size-28 md:size-36">
+              <img src="/media/pfp_sample.svg" alt="Perfil" className="size-full object-contain" />
+            </div>
           </div>
 
           {/* Error and Success Messages */}
@@ -248,8 +250,8 @@ export default function UserProfile() {
           )}
 
           {/* Profile Update Form */}
-          <div className="bg-gray-100 dark:bg-[#51344D] flex items-center justify-center mb-6 3xl:max-w-[90%] 3xl:!text-[1rem]">
-            <div className="bg-[#FFFAF0]/90 dark:bg-[#51344D]/90 p-8 rounded-lg shadow-lg w-full max-w-6xl">
+          <div className="bg-gray-100 dark:bg-[#51344D] flex items-center justify-center mb-6 3xl:max-w-[90%] 3xl:!text-[1rem] ">
+            <div className="bg-[#FFFAF0]/90 dark:bg-[#51344D]/90 p-8 rounded-lg shadow-lg w-full max-w-6xl themed-card-invL">
               <form onSubmit={handleUpdateProfile} className="grid grid-cols-1 md:grid-cols-2 gap-6 justify-center text-left text-[#51344D] dark:text-[#FDF2DE]">
                 <div className="md:col-span-1">
                   <label htmlFor="name" className="block text-sm font-medium">
@@ -318,11 +320,10 @@ export default function UserProfile() {
                     type="button"
                     onClick={handleVolunteerToggle}
                     disabled={isLoading}
-                    className={`px-4 py-2 rounded-md font-medium transition-colors ${
-                      isVolunteer(user)
-                        ? 'bg-red-600 hover:bg-red-700 text-white'
+                    className={`px-4 py-2 rounded-md font-medium transition-colors ${isVolunteer(user)
+                        ? 'bg-red-800 hover:bg-red-600 text-white !px-2 !py-0'
                         : 'bg-[#BCAAA4] hover:bg-[#A89B9D] text-white'
-                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                      } disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
                     {/* TODO: Add translation */}
                     {isLoading ? 'Procesando...' : isVolunteer(user) ? 'Dejar de ser voluntario' : 'Ser voluntario'}
@@ -353,7 +354,7 @@ export default function UserProfile() {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="py-2 px-4 bg-[#BCAAA4] hover:bg-[#A89B9D] mx-auto text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="py-2 px-4 bg-[#51344D] hover:bg-[#A89B9D] mx-auto text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {/* TODO: Add translation */}
                     {isLoading ? 'Guardando...' : 'Guardar cambios'}
@@ -364,7 +365,7 @@ export default function UserProfile() {
           </div>
 
           {/* Password Change Form */}
-          <div className="bg-gray-100 dark:bg-[#51344D] flex items-center justify-center mb-6 3xl:max-w-[70%] 3xl:!text-[1rem]">
+          <div className="bg-gray-100 dark:bg-[#51344D] flex items-center justify-center mb-6 3xl:max-w-[70%] 3xl:!text-[1rem] themed-card-invL rounded-xl">
             <div className="bg-[#FFFAF0]/90 dark:bg-[#51344D]/90 p-8 rounded-lg shadow-lg w-full max-w-6xl">
               <h3 className="text-lg font-semibold mb-4 text-[#51344D] dark:text-[#FDF2DE] 3xl:!text-[1.7rem]">
                 {/* TODO: Add translation */}
@@ -426,7 +427,7 @@ export default function UserProfile() {
                   <button
                     type="submit"
                     disabled={isLoading || !formData.currentPassword || !formData.newPassword}
-                    className="py-2 px-4 bg-[#BCAAA4] hover:bg-[#A89B9D] mx-auto text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="py-2 px-4 bg-[#51344D] hover:bg-[#A89B9D] mx-auto text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {/* TODO: Add translation */}
                     {isLoading ? 'Cambiando...' : 'Cambiar contraseña'}

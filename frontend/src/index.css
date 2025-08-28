@@ -37,20 +37,41 @@
   /* Tarjeta base: sombra en L invertida (abajo + derecha) */
   .themed-card-invL {
     box-shadow:
-      0 12px 0 0 #51344d37,                     /* línea inferior */
-      12px 0 0 0 #51344d37,                     /* línea derecha */
+      5px 5px 0 3px #51344d37,                     /* línea inferior */
+      8px 10px 30px 3px #51344d37,                     /* línea derecha */
       0 28px 48px -20px rgba(81,52,77,.35),     /* blur inferior */
       28px 0 48px -20px rgba(81,52,77,.25);     /* blur derecha */
   }
 
-  /* Wrapper circular para avatares con sombra y aro suave */
+  /* Wrapper que genera la sombra circular */
+  .avatar-shadow {
+    display: inline-block;
+    border-radius: 9999px;
+    /* Sombra suave para móviles */
+    filter:
+      drop-shadow(0 6px 0 #51344D1a)
+      drop-shadow(0 14px 24px rgba(81,52,77,.28));
+  }
+  @media (min-width: 768px) {
+    .avatar-shadow {
+      /* Un poco más intensa en md+ */
+      filter:
+        drop-shadow(0 10px 0 #51344D1f)
+        drop-shadow(0 24px 10px rgba(81,52,77,.35));
+    }
+  }
+
+  /* Disco del avatar: recorte + aro */
   .avatar-circle {
-    @apply rounded-full overflow-hidden ring-2 ring-[#51344D]/25;
-    box-shadow:
-      0 8px 0 0 #51344D1f,
-      0 18px 36px -18px rgba(81,52,77,.35);
-    background:
-      radial-gradient(120px 120px at 30% 30%, #FDF6E8 0%, #ffffff 60%);
+    @apply rounded-full overflow-hidden ring-1 ring-[#51344D]/20 bg-white;
+  }
+  @media (min-width: 640px) {
+    .avatar-circle {
+      @apply ring-2;
+      /* opcional: un ligero brillo interno a juego */
+      background:
+        radial-gradient(circle at 30% 30%, #FDF6E8 0 55%, #ffffff 60% 100%);
+    }
   }
 }
 
