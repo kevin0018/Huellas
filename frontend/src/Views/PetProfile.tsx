@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import NavBar from "../Components/NavBar";
 import Footer from "../Components/footer";
+import GoBackButton from '../Components/GoBackButton';
 
 import { ApiPetRepository } from "../modules/pet/infra/ApiPetRepository";
 import type { Pet } from "../modules/pet/domain/Pet";
@@ -17,7 +18,7 @@ type ProfileDetailProps = {
 const ProfileDetail: React.FC<ProfileDetailProps> = ({ label, value }) => (
   <div className="text-center md:text-left">
     <h3 className="block font-caprasimo text-[#51344D] uppercase tracking-wider">{label}</h3>
-    <p className="mt-1 text-base">{value}</p>
+    <p className="mt-1 text-center">{value}</p>
   </div>
 );
 
@@ -79,8 +80,14 @@ const PetProfile: React.FC = () => {
   return (
     <>
       <NavBar />
-      <div className="min-h-screen bg-[#FDF6E8] bg-cover bg-center flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
-        <div className="flex flex-col items-center justify-center text-center w-full max-w-4xl mx-auto">
+      <div className="bg-dogs-userhome-mobile md:bg-dogs-userhome-tablet lg:bg-dogs-userhome-desktop bg-cover bg-center flex flex-col items-center justify-center dark:bg-dogs-userhome-mobile">
+        <div className="flex flex-col items-center justify-center text-center w-full max-w-6xl xl:max-w-7xl 3xl:max-w-[1600px] mx-auto ">
+
+          {/* Go back */}
+          <div className="w-full text-left mx-auto mt-4">
+            <GoBackButton variant="outline" hideIfNoHistory className="bg-white" />
+          </div>
+
           <h1 className="text-4xl md:text-5xl font-caprasimo mb-6 text-[#51344D]">Perfil de la Mascota</h1>
 
           {/* Loading / Error */}
@@ -99,12 +106,16 @@ const PetProfile: React.FC = () => {
           {/* Avatar */}
           {!loading && !error && (
             <>
-              <div className="p-4 mb-8">
-                <img src="/media/pfp_sample.svg" alt="" />
+              <div className="mb-8">
+                <div className="avatar-shadow mx-auto m-8">
+                  <div className="avatar-circle size-24 sm:size-28 md:size-42">
+                    <img src="/media/pfp_sample.svg" alt="Perfil" className="size-full object-contain" />
+                  </div>
+                </div>
               </div>
 
               {/* Details */}
-              <div className="bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-xl w-full 3xl:max-w-[3500px]">
+              <div className="themed-card themed-card-invL p-8 w-full 3xl:max-w-[90%] rounded-xl bg-[#FDF2DE] dark:bg-[#51344D]">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-6 text-center">
                   <ProfileDetail label="Nombre" value={pet?.name ?? "—"} />
                   <ProfileDetail label="Sexo" value={pet ? getSexLabel(pet.sex) : "—"} />
@@ -124,7 +135,7 @@ const PetProfile: React.FC = () => {
               </div>
 
               <div className="p-10 flex justify-center">
-                <Link to="/pet-register" className=" flex items-center justify-center gap-3 py-3 px-6 bg-[#51344D] text-white font-semibold rounded-lg shadow-md hover:bg-[#A89B9D] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#51344D] transition-all duration-300 ease-in-out transform hover:scale-105">
+                <Link to={`/pets/${pet?.id}/edit`} className="flex items-center justify-center gap-3 py-3 px-6 bg-[#51344D] text-white font-semibold rounded-lg shadow-md hover:bg-[#A89B9D] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#51344D] transition-all duration-300 ease-in-out transform hover:scale-105" >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z" />
                   </svg>

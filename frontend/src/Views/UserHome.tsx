@@ -5,6 +5,7 @@ import LanguageProvider from "../i18n/LanguageProvider";
 import { useTranslation } from "../i18n/hooks/hook";
 import NavBar from "../Components/NavBar";
 import Footer from "../Components/footer";
+import GoBackButton from "../Components/GoBackButton";  
 import { AuthService } from "../modules/auth/infra/AuthService";
 import type { User } from "../modules/auth/domain/User";
 import type { Pet } from "../modules/pet/domain/Pet";
@@ -70,11 +71,14 @@ function UserHomeContent() {
         <div className="fixed inset-0 z-0 w-full h-full bg-repeat bg-[url('/media/bg_phone_userhome.png')] md:bg-[url('/media/bg_tablet_userhome.png')] lg:bg-[url('/media/bg_desktop_userhome.png')] opacity-60 pointer-events-none select-none" aria-hidden="true" />
 
         <div className="relative z-10 w-full flex flex-col items-center max-w-4xl py-4 3xl:max-w-[50%] ">
-          <h1 className="h1 font-caprasimo mb-4 py-8 text-4xl md:text-5xl text-[#51344D] drop-shadow-lg dark:text-[#FDF2DE]">
-            {translate("hello")}, {user.name}!
+          <div className="w-full text-left mt-10 max-w-6xl mx-auto xl:max-w-7xl ">
+            <GoBackButton variant="outline" hideIfNoHistory className="bg-white" />
+          </div>
+          <h1 className="h1 font-caprasimo mb-5 text-4xl md:text-5xl text-[#51344D] drop-shadow-lg dark:text-[#FDF2DE]">
+            {translate("hello")}, {user.name}
           </h1>
 
-          <div className="bg-[#FDF2DE]/90 dark:bg-[#51344D]/90 border-[#BCAAA4] border-2 rounded-lg shadow-lg p-6 w-full mx-auto text-center">
+          <div className="bg-[#FDF2DE]/90 dark:bg-[#51344D]/90 border-[#BCAAA4] border-2 rounded-lg shadow-lg p-6 w-full mx-auto text-center my-10 themed-card-invL">
             <p className="lead text-[--huellas-eggplant]/80 dark:text-[#FDF2DE] text-justify mb-8 px-4">
               {translate("homePageSubtitle")}
             </p>
@@ -101,7 +105,7 @@ function UserHomeContent() {
               <div className="flex flex-col gap-4 p-4">
                 <Link to="/calendar" className="flex items-center justify-center gap-3 p-2 pr-4 bg-[#51344D] text-white font-semibold rounded-lg shadow-md hover:bg-[#A89B9D] transition">
                   <img src="media/agenda_icon.svg" alt="Icono de agenda" className="h-10 w-10" />
-                  Mi agenda
+                  Mis procedimientos
                 </Link>
                 <Link to="/appointments" className="flex items-center justify-center gap-3 p-2 pr-4 bg-[#51344D] text-white font-semibold rounded-lg shadow-md hover:bg-[#A89B9D] transition">
                   <svg className="h-10 w-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

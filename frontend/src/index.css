@@ -13,10 +13,10 @@
 
 /* Custom theme colors for UserHome page*/
 @theme {
-  --bg-dogs-userhome-mobile-url: url('media/bg_phone_userhome.png');
-  --bg-dogs-userhome-tablet-url: url('media/bg_tablet_userhome.png');
-  --bg-dogs-userhome-desktop-url: url('media/bg_desktop_userhome.png');
-  --bg-dogs-userhome-mobile-dark-url: url('media/bg_phone_userhome_dark.png');
+  --bg-dogs-userhome-mobile-url: url('/media/bg_phone_userhome.png');
+  --bg-dogs-userhome-tablet-url: url('/media/bg_tablet_userhome.png');
+  --bg-dogs-userhome-desktop-url: url('/media/bg_desktop_userhome.png');
+  --bg-dogs-userhome-mobile-dark-url: url('/media/bg_phone_userhome_dark.png');
   --breakpoint-3xl: 110rem;
 }
 
@@ -32,6 +32,46 @@
   }
   .lg\:bg-dogs-userhome-desktop {
     background-image: var(--bg-dogs-userhome-desktop-url);
+  }
+
+  /* Tarjeta base: sombra en L invertida (abajo + derecha) */
+  .themed-card-invL {
+    box-shadow:
+      5px 5px 0 3px #51344d37,                     /* línea inferior */
+      8px 10px 30px 3px #51344d37,                     /* línea derecha */
+      0 28px 48px -20px rgba(81,52,77,.35),     /* blur inferior */
+      28px 0 48px -20px rgba(81,52,77,.25);     /* blur derecha */
+  }
+
+  /* Wrapper que genera la sombra circular */
+  .avatar-shadow {
+    display: inline-block;
+    border-radius: 9999px;
+    /* Sombra suave para móviles */
+    filter:
+      drop-shadow(0 6px 0 #51344D1a)
+      drop-shadow(0 14px 24px rgba(81,52,77,.28));
+  }
+  @media (min-width: 768px) {
+    .avatar-shadow {
+      /* Un poco más intensa en md+ */
+      filter:
+        drop-shadow(0 10px 0 #51344D1f)
+        drop-shadow(0 24px 10px rgba(81,52,77,.35));
+    }
+  }
+
+  /* Disco del avatar: recorte + aro */
+  .avatar-circle {
+    @apply rounded-full overflow-hidden ring-1 ring-[#51344D]/20 bg-white;
+  }
+  @media (min-width: 640px) {
+    .avatar-circle {
+      @apply ring-2;
+      /* opcional: un ligero brillo interno a juego */
+      background:
+        radial-gradient(circle at 30% 30%, #FDF6E8 0 55%, #ffffff 60% 100%);
+    }
   }
 }
 

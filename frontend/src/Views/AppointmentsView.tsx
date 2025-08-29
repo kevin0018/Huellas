@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import NavBar from '../Components/NavBar';
 import Footer from '../Components/footer';
+import GoBackButton from '../Components/GoBackButton.js';
 import AppointmentCard from '../Components/AppointmentCard';
 import AppointmentModal from '../Components/AppointmentModal';
 import type { Appointment, AppointmentReason } from '../modules/appointment/domain/Appointment.js';
@@ -135,6 +136,9 @@ function AppointmentsView() {
         <div className="relative z-10 container mx-auto px-4 py-8">
           {/* Header */}
           <div className="text-center mb-8">
+            <div className="w-full text-left max-w-4xl mx-auto">
+              <GoBackButton variant="outline" hideIfNoHistory className="bg-white" />
+            </div>
             <h1 className="text-4xl md:text-5xl font-caprasimo mb-4 text-[#51344D] dark:text-[#FDF2DE] drop-shadow-lg">
               Mis Citas {/* TODO: Add to translation dictionary */}
             </h1>
