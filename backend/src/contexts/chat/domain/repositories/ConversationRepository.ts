@@ -7,4 +7,5 @@ export interface ConversationRepository {
   create(conversation: Conversation): Promise<Conversation>;
   update(conversation: Conversation): Promise<Conversation>;
   delete(id: number): Promise<void>;
+  updateLastReadAt(conversationId: number, userId: number, timestamp: Date): Promise<void>;
 }

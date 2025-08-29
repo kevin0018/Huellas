@@ -1,0 +1,33 @@
+### Test Chat API Endpoints
+
+### Get conversations (requires authentication)
+GET http://localhost:13000/chat/conversations
+Authorization: Bearer YOUR_JWT_TOKEN
+
+### Create a new conversation
+POST http://localhost:13000/chat/conversations
+Authorization: Bearer YOUR_JWT_TOKEN
+Content-Type: application/json
+
+{
+  "title": "Test Conversation",
+  "participantIds": [2, 3]
+}
+
+### Get messages from a conversation
+GET http://localhost:13000/chat/conversations/1/messages
+Authorization: Bearer YOUR_JWT_TOKEN
+
+### Send a message
+POST http://localhost:13000/chat/conversations/1/messages
+Authorization: Bearer YOUR_JWT_TOKEN
+Content-Type: application/json
+
+{
+  "content": "Hello, this is a test message!",
+  "type": "TEXT"
+}
+
+### Get unread message count
+GET http://localhost:13000/chat/messages/unread/count
+Authorization: Bearer YOUR_JWT_TOKEN

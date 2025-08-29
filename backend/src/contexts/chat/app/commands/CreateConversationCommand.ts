@@ -1,5 +1,5 @@
 export interface CreateConversationCommand {
-  title?: string | null;
-  participantIds: number[];
+  title?: string;
   createdBy: number;
+  participantIds: number[];
 }
