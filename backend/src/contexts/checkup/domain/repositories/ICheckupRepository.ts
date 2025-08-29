@@ -7,4 +7,5 @@ export interface ICheckupRepository {
   update(id: number, data: EditCheckupData): Promise<Checkup>;
   delete(id: number): Promise<void>;
   save(data: CreateCheckupData): Promise<Checkup>;
+  findByPetProcedure(petId: number, procedureId: number): Promise<Checkup | null>;
 }

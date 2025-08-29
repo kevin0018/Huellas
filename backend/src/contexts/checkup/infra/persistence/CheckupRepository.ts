@@ -26,7 +26,7 @@ export class CheckupRepository implements ICheckupRepository {
 
   async findByPetId(petId: number): Promise<Checkup[]> {
     const results = await prisma.checkup.findMany({
-      where:{
+      where: {
         pet_id: petId
       },
       orderBy: {
@@ -53,7 +53,7 @@ export class CheckupRepository implements ICheckupRepository {
       data: {
         procedure_id: data.procedureId,
         date: data.date,
-        notes: data.notes        
+        notes: data.notes
       },
     })
 
@@ -70,7 +70,7 @@ export class CheckupRepository implements ICheckupRepository {
 
   async delete(id: number): Promise<void> {
     await prisma.checkup.delete({
-      where:{
+      where: {
         id: id
       }
     })
@@ -95,5 +95,26 @@ export class CheckupRepository implements ICheckupRepository {
     );
 
     return newCheckup;
+  }
+
+  async findByPetProcedure(petId: number, procedureId: number): Promise<Checkup | null> {
+    const checkup = await prisma.checkup.findFirst({
+      where: {
+        pet_id: petId,
+        procedure_id: procedureId
+      }
+    });
+
+    if (!checkup) {
+      return null;
+    }
+
+    return new Checkup(
+      checkup.id,
+      checkup.pet_id,
+      checkup.procedure_id,
+      checkup.date,
+      checkup.notes
+    );
   }
 }
