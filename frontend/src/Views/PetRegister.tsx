@@ -73,74 +73,78 @@ const PetRegister: React.FC = () => {
   }, [id, isEdit, repo]);
 
   async function onSubmit(e: React.FormEvent) {
-  e.preventDefault();
-  setSaving(true);
-  setError(null);
+    e.preventDefault();
+    setSaving(true);
+    setError(null);
 
-  try {
-    if (!form.name.trim()) throw new Error('El nombre es obligatorio.');
-    if (!form.race.trim()) throw new Error('La raza es obligatoria.');
-    if (!form.birthDate) throw new Error('La fecha de nacimiento es obligatoria.');
-    if (!form.microchipCode.trim()) throw new Error('El código de microchip es obligatorio.');
+    try {
+      if (!form.name.trim()) throw new Error('El nombre es obligatorio.');
+      if (!form.race.trim()) throw new Error('La raza es obligatoria.');
+      if (!form.birthDate) throw new Error('La fecha de nacimiento es obligatoria.');
+      if (!form.microchipCode.trim()) throw new Error('El código de microchip es obligatorio.');
 
-    if (isEdit) {
-      await repo.update(Number(id), {
-        name: form.name,
-        race: form.race,
-        birthDate: form.birthDate, // repo.update convierte a ISO
-        size: form.size,
-        sex: form.sex,
-        hasPassport: form.hasPassport,
-        countryOfOrigin: form.countryOfOrigin?.trim() || undefined,         // <- no null
-        passportNumber: form.hasPassport ? (form.passportNumber?.trim() || undefined) : undefined, // <- no null
-        notes: form.notes?.trim() || undefined,                              // <- no null
-      });
-    } else {
-      await repo.create({
-        name: form.name,
-        race: form.race,
-        type: form.type,
-        birthDate: form.birthDate,
-        size: form.size,
-        microchipCode: form.microchipCode,
-        sex: form.sex,
-        hasPassport: form.hasPassport,
-        countryOfOrigin: form.countryOfOrigin?.trim() || undefined,         // <- no null
-        passportNumber: form.hasPassport ? (form.passportNumber?.trim() || undefined) : undefined, // <- no null
-        notes: form.notes?.trim() || undefined,                              // <- no null
-      });
+      if (isEdit) {
+        await repo.update(Number(id), {
+          name: form.name,
+          race: form.race,
+          birthDate: form.birthDate, // repo.update convierte a ISO
+          size: form.size,
+          sex: form.sex,
+          hasPassport: form.hasPassport,
+          countryOfOrigin: form.countryOfOrigin?.trim() || undefined,         // <- no null
+          passportNumber: form.hasPassport ? (form.passportNumber?.trim() || undefined) : undefined, // <- no null
+          notes: form.notes?.trim() || undefined,                              // <- no null
+        });
+      } else {
+        await repo.create({
+          name: form.name,
+          race: form.race,
+          type: form.type,
+          birthDate: form.birthDate,
+          size: form.size,
+          microchipCode: form.microchipCode,
+          sex: form.sex,
+          hasPassport: form.hasPassport,
+          countryOfOrigin: form.countryOfOrigin?.trim() || undefined,         // <- no null
+          passportNumber: form.hasPassport ? (form.passportNumber?.trim() || undefined) : undefined, // <- no null
+          notes: form.notes?.trim() || undefined,                              // <- no null
+        });
+      }
+
+      navigate('/user-home', { replace: true });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setSaving(false);
     }
-
-    navigate('/user-home', { replace: true });
-  } catch (e) {
-    setError(e instanceof Error ? e.message : String(e));
-  } finally {
-    setSaving(false);
   }
-}
 
 
   return (
     <>
       <NavBar />
       <div className="bg-dogs-userhome-mobile md:bg-dogs-userhome-tablet lg:bg-dogs-userhome-desktop bg-cover bg-center flex flex-col items-center justify-center dark:bg-dogs-userhome-mobile">
-        <div className="w-full text-left mt-20 max-w-6xl xl:max-w-7xl 3xl:max-w-[1600px]">
-          <GoBackButton variant="outline" hideIfNoHistory className="bg-white"/>
+        <div className="w-full text-left mt-10 max-w-3xl xl:max-w-4xl 3xl:max-w-[1600px]">
+          <GoBackButton variant="outline" hideIfNoHistory className="bg-white" />
         </div>
         <div className="flex flex-col items-center justify-center text-center p-4">
-          <h1 className="h1 font-caprasimo mb-4 ">
+          <h1 className="h1 font-caprasimo mb-2 ">
             {isEdit ? 'Editar mascota' : 'Añadir mascota'}
           </h1>
 
-          <div className="avatar-circle size-30 mx-auto my-8">
-            <img src="/media/logotipo.svg" alt="" className="w-24 md:w-32 lg:w-48 rounded-full bg-white mb-8 themed-avatar" />
+          <div className="mb-8">
+            <div className="avatar-shadow mx-auto m-4">
+              <div className="avatar-circle size-24 sm:size-28 md:size-35">
+                <img src="/media/pfp_sample.svg" alt="Perfil" className="size-full object-contain" />
+              </div>
+            </div>
           </div>
 
-          <div className="bg-gray-100 flex items-center justify-center rounded-xl p-4 border-solid border-2 border-black themed-card themed-card-invL">
-            <div className="bg-[#FFFAF0] p-8 rounded-lg shadow-lg w-full max-w-4xl text-[#51344D]">
+          <div className="flex items-center justify-center rounded-xl themed-card-invL">
+            <div className="bg-[#FFFAF0] p-8 rounded-lg shadow-lg w-full max-w-4xl text-[#51344D] ">
               {error && <p className="text-red-600 mb-4">{error}</p>}
 
-              <form className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left" onSubmit={onSubmit}>
+              <form className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left " onSubmit={onSubmit}>
                 {/* Nombre */}
                 <div className="md:col-span-1">
                   <label htmlFor="name" className="block text-sm font-medium">Nombre *</label>

@@ -71,11 +71,11 @@ function UserHomeContent() {
         <div className="fixed inset-0 z-0 w-full h-full bg-repeat bg-[url('/media/bg_phone_userhome.png')] md:bg-[url('/media/bg_tablet_userhome.png')] lg:bg-[url('/media/bg_desktop_userhome.png')] opacity-60 pointer-events-none select-none" aria-hidden="true" />
 
         <div className="relative z-10 w-full flex flex-col items-center max-w-4xl py-4 3xl:max-w-[50%] ">
-          <div className="w-full text-left mt-10 max-w-6xl xl:max-w-7xl 3xl:max-w-[1600px]">
+          <div className="w-full text-left mt-10 max-w-6xl mx-auto xl:max-w-7xl ">
             <GoBackButton variant="outline" hideIfNoHistory className="bg-white" />
           </div>
           <h1 className="h1 font-caprasimo mb-5 text-4xl md:text-5xl text-[#51344D] drop-shadow-lg dark:text-[#FDF2DE]">
-            {translate("hello")}, {user.name}!
+            {translate("hello")}, {user.name}
           </h1>
 
           <div className="bg-[#FDF2DE]/90 dark:bg-[#51344D]/90 border-[#BCAAA4] border-2 rounded-lg shadow-lg p-6 w-full mx-auto text-center my-10 themed-card-invL">
