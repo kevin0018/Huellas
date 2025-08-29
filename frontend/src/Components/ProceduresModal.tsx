@@ -73,7 +73,7 @@ const ProcedureModal: React.FC<ProcedureModalProps> = ({ isOpen, onClose, onSubm
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50 p-4" onClick={onClose}>
+    <div className="fixed inset-0 flex justify-center items-center z-50 p-4" onClick={onClose}>
       <div className="bg-gray-50 rounded-xl shadow-2xl w-full max-w-lg" onClick={(e) => e.stopPropagation()}>
         <header className="flex justify-between items-center p-4 border-b">
           <h2 className="text-2xl text-gray-800">{procedure.nombre}</h2>
