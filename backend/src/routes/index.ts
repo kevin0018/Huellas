@@ -6,6 +6,7 @@ import { createPetRoutes } from './petRoutes.js';
 import { createProcedureRoutes } from './procedureRoutes.js';
 import { createCheckupRoutes } from './checkupRoutes.js';
 import {createAppointmentRoutes } from './appointmentRoutes.js';
+import postsRoutes from "./postsRoutes.js";
 
 export function createRoutes(): Router {
   console.log('Creating main routes...');
@@ -38,6 +39,10 @@ export function createRoutes(): Router {
   // Mount appointment routes
   console.log('Mounting appointment routes on /appointments...');
   router.use('/appointments', createAppointmentRoutes());
+
+  // Mount posts routes
+  console.log('Mounting posts routes on /posts...');
+  router.use('/posts', postsRoutes);
 
   return router;
 }
