@@ -74,3 +74,21 @@ export const getSexLabel = (sex: Sex): string => {
       return sex;
   }
 };
+
+export const clone = (pet: Pet): Pet => {
+  return {
+    id: pet.id,
+    name: pet.name,
+    race: pet.race,
+    type: pet.type,
+    ownerId: pet.ownerId,
+    birthDate: pet.birthDate,
+    size: pet.size,
+    microchipCode: pet.microchipCode,
+    sex: pet.sex,
+    hasPassport: pet.hasPassport,
+    countryOfOrigin: pet.countryOfOrigin,
+    passportNumber: pet.passportNumber,
+    notes: pet.notes
+  };
+};
