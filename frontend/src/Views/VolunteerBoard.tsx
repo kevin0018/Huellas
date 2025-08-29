@@ -2,7 +2,8 @@ import NavBar from "../Components/NavBar";
 import Footer from "../Components/footer";
 import GoBackButton from "../Components/GoBackButton";
 
-type AnuncioCardProps = {
+// --- Tipos: icono SVG O imagen URL (exclusivos) ---
+type BaseProps = {
   title: string;
   author: string;
   description: string;
@@ -20,20 +21,19 @@ function AnuncioCard({ title, author, description, imageUrl }: AnuncioCardProps)
         <div className="bg-white rounded-full p-1">
           <img src={imageUrl} alt="Icono del anuncio" className="w-8 h-8" />
         </div>
-        <h3 className=" text-white text-lg">{title}</h3>
+        <h3 className="text-white text-lg">{title}</h3>
       </div>
 
       <p className="mt-4 text-left font-semibold text-[#51344D]">{author}</p>
 
-      <div className="mt-2 p-3 w-full h-40 bg-white border border-gray-300 rounded-lg">
+      <div className="mt-2 p-3 w-full h-40 bg-white border border-gray-300 rounded-lg overflow-y-auto">
         <p className="text-gray-600 text-left">{description}</p>
       </div>
     </div>
   );
 }
 
-
-// --- Componente principal de la página ---
+// --- Página ---
 function VolunteerBoard() {
   return (
     <>
@@ -50,10 +50,10 @@ function VolunteerBoard() {
             Tablón de anuncios
           </h1>
           <p className="text-center text-lg text-[#51344D]/80 mb-10">
-            Aquí puedes buscar entre los voluntarios más cercanos a ti.
+            Aquí puedes buscar entre los voluntarios más cercanos a ti en Barcelona.
           </p>
 
-          {/* Grid para las tarjetas de anuncios */}
+          {/* Grid de tarjetas */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 
             <AnuncioCard
