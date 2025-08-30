@@ -1,51 +1,90 @@
+import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import NavBar from "../Components/NavBar";
 import Footer from "../Components/footer";
 import GoBackButton from "../Components/GoBackButton";
-import type { ReactNode } from "react";
+import AnuncioCard from "../Components/AnuncioCard";
 
-// --- Tipos: icono SVG O imagen URL (exclusivos) ---
-type BaseProps = {
-  title: string;
-  author: string;
-  description: string;
+import { useVolunteerPosts } from "../modules/posts/application/useVolunteerPosts";
+import type { PostCategory, VolunteerPostListItem } from "../modules/posts/domain/types";
+
+import { AuthService } from "../modules/auth/infra/AuthService";
+import { DeleteVolunteerPostCommand } from "../modules/posts/application/commands/DeleteVolunteerPostCommand";
+import { DeleteVolunteerPostCommandHandler } from "../modules/posts/application/commands/DeleteVolunteerPostCommandHandler";
+
+const CATEGORY_LABEL: Record<PostCategory, string> = {
+  GENERAL: "General",
+  PET_SITTING: "Cuidado en casa",
+  WALKING_EXERCISE: "Paseos y ejercicio",
+  VET_TRANSPORT: "Transporte a veterinario",
+  FOSTER_CARE: "Casa de acogida",
+  TRAINING_BEHAVIOR: "Adiestramiento y conducta",
+  SHELTER_SUPPORT: "Apoyo a protectoras",
+  GROOMING_HYGIENE: "Higiene y peluquería",
+  MEDICAL_SUPPORT: "Soporte médico",
+  ADOPTION_REHOMING: "Adopción / Reubicación",
+  LOST_AND_FOUND: "Mascotas perdidas",
 };
 
-type AnuncioCardProps =
-  | (BaseProps & { iconSvg: ReactNode; imageUrl?: never })
-  | (BaseProps & { imageUrl: string; iconSvg?: never });
+const CATEGORY_OPTIONS: { value: PostCategory | "ALL"; label: string }[] = [
+  { value: "ALL", label: "Todos" },
+  { value: "GENERAL", label: CATEGORY_LABEL.GENERAL },
+  { value: "PET_SITTING", label: CATEGORY_LABEL.PET_SITTING },
+  { value: "WALKING_EXERCISE", label: CATEGORY_LABEL.WALKING_EXERCISE },
+  { value: "VET_TRANSPORT", label: CATEGORY_LABEL.VET_TRANSPORT },
+  { value: "FOSTER_CARE", label: CATEGORY_LABEL.FOSTER_CARE },
+  { value: "TRAINING_BEHAVIOR", label: CATEGORY_LABEL.TRAINING_BEHAVIOR },
+  { value: "SHELTER_SUPPORT", label: CATEGORY_LABEL.SHELTER_SUPPORT },
+  { value: "GROOMING_HYGIENE", label: CATEGORY_LABEL.GROOMING_HYGIENE },
+  { value: "MEDICAL_SUPPORT", label: CATEGORY_LABEL.MEDICAL_SUPPORT },
+  { value: "ADOPTION_REHOMING", label: CATEGORY_LABEL.ADOPTION_REHOMING },
+  { value: "LOST_AND_FOUND", label: CATEGORY_LABEL.LOST_AND_FOUND },
+];
 
-// --- Card ---
-function AnuncioCard(props: AnuncioCardProps) {
-  const { title, author, description } = props;
-
-  return (
-    <div className="bg-[#FDF2DE] border-2 border-[#BCAAA4] rounded-2xl p-4 flex flex-col shadow-lg transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-2xl">
-      <div className="flex items-center gap-3 bg-[#BCAAA4] p-2 rounded-lg">
-        <div className="bg-white rounded-full p-1 flex items-center justify-center w-10 h-10">
-          {"iconSvg" in props ? (
-            props.iconSvg
-          ) : (
-            <img
-              src={props.imageUrl}
-              alt={`Icono de ${title}`}
-              className="w-8 h-8 object-contain"
-            />
-          )}
-        </div>
-        <h3 className="text-white text-lg">{title}</h3>
-      </div>
-
-      <p className="mt-4 text-left font-semibold text-[#51344D]">{author}</p>
-
-      <div className="mt-2 p-3 w-full h-40 bg-white border border-gray-300 rounded-lg overflow-y-auto">
-        <p className="text-gray-600 text-left">{description}</p>
-      </div>
-    </div>
-  );
+function excerpt(text: string, max = 240): string {
+  if (!text) return "";
+  return text.length > max ? `${text.slice(0, max).trim()}…` : text;
 }
 
-// --- Página ---
 function VolunteerBoard() {
+  const navigate = useNavigate();
+
+  const currentUser = useMemo(() => AuthService.getUser(), []);
+  const currentUserId = currentUser?.id ?? null;
+
+  const [selectedCategory, setSelectedCategory] = useState<PostCategory | "ALL">("ALL");
+  const [myOnly, setMyOnly] = useState<boolean>(false); // ⬅️ NUEVO
+
+  const {
+    items,
+    total,
+    page,
+    pageSize,
+    loading,
+    error,
+    goToPage,
+    reload,
+  } = useVolunteerPosts({
+    pageSize: 12,
+    category: selectedCategory === "ALL" ? undefined : (selectedCategory as PostCategory),
+    authorId: myOnly && currentUserId ? currentUserId : undefined, // ⬅️ NUEVO
+  });
+
+  async function handleDelete(postId: number) {
+    const ok = window.confirm("¿Seguro que quieres eliminar este anuncio?");
+    if (!ok) return;
+    try {
+      const cmd = new DeleteVolunteerPostCommand(postId);
+      const handler = new DeleteVolunteerPostCommandHandler();
+      await handler.execute(cmd);
+      await reload();
+    } catch (err: any) {
+      console.error("[VolunteerBoard] delete error:", err);
+      alert(err?.message || "No se pudo eliminar el anuncio");
+    }
+  }
+
   return (
     <>
       <NavBar />
@@ -59,93 +98,122 @@ function VolunteerBoard() {
         />
 
         <div className="relative z-10 w-full max-w-6xl">
-          {/* Go back */}
           <div className="w-full text-left mx-auto mt-8">
             <GoBackButton variant="outline" hideIfNoHistory className="bg-white" />
           </div>
+
           <h1 className="h1 font-caprasimo mb-2 text-5xl text-[#51344D] drop-shadow-lg text-center">
             Tablón de anuncios
           </h1>
-          <p className="text-center text-lg text-[#51344D]/80 mb-10">
+          <p className="text-center text-lg text-[#51344D]/80 mb-6">
             Aquí puedes buscar entre los voluntarios más cercanos a ti en Barcelona.
           </p>
 
-          {/* Grid de tarjetas */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <AnuncioCard
-              title="Paseadora canina en Gràcia"
-              author="Elena Rodríguez"
-              description="¡Hola! Ofrezco paseos de una hora por las mañanas en el barrio de Gràcia. Tengo experiencia con perros de todas las razas y tamaños. ¡Tu amigo peludo estará en buenas manos!"
-              iconSvg={
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-[#51344D]">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M10.05 4.05a7 7 0 11-7 7m7-7a7 7 0 107 7m-7-7v7m0-7H6m4 7h6m-3-3l-3 3m0 0l3 3m-3-3h3m-6 3H6m-4 7h12c1.657 0 3-1.343 3-3V7c0-1.657-1.343-3-3-3H6M4 21v-3" />
-                </svg>
-              }
-            />
+          {/* Filtros compactos: categoría + “Mis anuncios” */}
+          <div className="mb-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="w-full sm:w-auto max-w-sm relative">
+              <label htmlFor="category" className="sr-only">Filtrar por categoría</label>
+              <select
+                id="category"
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value as PostCategory | "ALL")}
+                className="block w-full appearance-none rounded-md border border-[#BCAAA4] bg-white py-2 pl-3 pr-10 text-[#51344D] shadow-sm focus:outline-none focus:ring-2 focus:ring-[#51344D]"
+              >
+                {CATEGORY_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                <svg className="h-5 w-5 text-[#51344D]/70" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.188l3.71-3.957a.75.75 0 011.08 1.04l-4.24 4.53a.75.75 0 01-1.08 0l-4.24-4.53a.75.75 0 01.02-1.06z" clipRule="evenodd" /></svg>
+              </div>
+            </div>
 
-            <AnuncioCard
-              title="Cuido tu gato en vacaciones"
-              author="Marcos Soler"
-              description="¿Te vas de viaje? Puedo ir a tu casa a cuidar de tu gato, asegurándome de que tenga comida, agua y mucho cariño. Soy responsable y un gran amante de los felinos."
-              iconSvg={
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-[#51344D]">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5a4.5 4.5 0 00-4.5 4.5V9a4.5 4.5 0 004.5 4.5m-4.5-4.5H12c2.485 0 4.5 2.015 4.5 4.5s-2.015 4.5-4.5 4.5H7.5m4.5-9v-3m0 0v-3m0 3h3m-3 0h-3m3 0V7.5M7.5 7.5c-2.485 0-4.5 2.015-4.5 4.5s2.015 4.5 4.5 4.5h9c2.485 0 4.5-2.015 4.5-4.5S16.985 7.5 14.5 7.5h-9z" />
-                </svg>
-              }
-            />
-
-            <AnuncioCard
-              title="Voluntario para el refugio"
-              author="Sofía Vidal"
-              description="Busco ayuda en el refugio local los fines de semana. Necesitamos manos para limpiar, jugar con los cachorros y ayudar en los eventos de adopción. ¡Cualquier ayuda es bienvenida!"
-              iconSvg={
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-[#51344D]">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.072 60.072 0 00-.416 1.157 60.072 60.072 0 00-.416 1.157 5.998 5.998 0 00.914 3.023A6.003 6.003 0 007.71 18.5c.379.083.757.167 1.134.25A6.002 6.002 0 0012 21.5c.377 0 .755-.083 1.134-.167a6.002 6.002 0 002.404-1.314 6.003 6.003 0 00.914-3.023 60.072 60.072 0 00-.416-1.157 60.072 60.072 0 00-.416-1.157 6.002 6.002 0 00-3.023-2.404C13.243 7.84 12.62 7.5 12 7.5c-.62 0-1.243.34-1.857.914a6.002 6.002 0 00-3.023 2.404zM12 6a9 9 0 100 18A9 9 0 0012 6z" />
-                </svg>
-              }
-            />
-
-            <AnuncioCard
-              title="Transporte a veterinario"
-              author="Javier Moreno"
-              description="Dispongo de coche adaptado para transportar mascotas de forma segura a sus citas veterinarias. Si no tienes cómo llevarlo, cuenta conmigo. Zona de Sants-Montjuïc."
-              iconSvg={
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-[#51344D]">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h8m-9 8h8M5 16h14c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v7c0 1.1.9 2 2 2zM9 13v-2m-2 2v-2" />
-                </svg>
-              }
-            />
-
-            <AnuncioCard
-              title="Casa de acogida temporal"
-              author="Isabel Jiménez"
-              description="Tengo espacio en mi hogar para ser casa de acogida para perros pequeños o gatos mientras encuentran a su familia definitiva. Colaboro con varias protectoras locales."
-              iconSvg={
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-[#51344D]">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.171-.439 1.612 0L21.75 12M4.5 19.5h15c.621 0 1.125-.504 1.125-1.125v-10.5c0-.621-.504-1.125-1.125-1.125H4.5c-.621 0-1.125.504-1.125 1.125v10.5c0 .621.504 1.125 1.125 1.125zM12 17.25V12" />
-                </svg>
-              }
-            />
-
-            <AnuncioCard
-              title="Adiestramiento básico a domicilio"
-              author="David Ruiz"
-              description="Soy adiestrador canino y ofrezco sesiones de obediencia básica a domicilio. Ayudo a corregir problemas de comportamiento como tirones de correa o ladridos excesivos."
-              iconSvg={
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-[#51344D]">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
-              }
-            />
-
-            {/* Ejemplo usando imagen en lugar de SVG */}
-            <AnuncioCard
-              title="Nombre del anuncio"
-              author="Autor del anuncio"
-              description="Información del anuncio (solo una pequeña preview de varias líneas como máximo)..."
-              imageUrl="/media/pfp_sample.svg"
-            />
+            <label className="inline-flex items-center gap-2 select-none">
+              <input
+                type="checkbox"
+                className="h-4 w-4 rounded border-[#BCAAA4] text-[#51344D] focus:ring-[#51344D]"
+                checked={myOnly}
+                onChange={(e) => setMyOnly(e.target.checked)}
+                disabled={!currentUserId}
+              />
+              <span className={`text-sm ${currentUserId ? "text-[#51344D]" : "text-[#51344D]/50"}`}>
+                Mis anuncios
+              </span>
+            </label>
           </div>
+
+          {loading && <div className="text-center text-[#51344D] mb-6">Cargando anuncios…</div>}
+          {error && <div className="text-center text-red-600 mb-6">Error: {error}</div>}
+
+          {/* Mensaje vacío cuando filtro “Mis anuncios” */}
+          {!loading && !error && items.length === 0 && myOnly && (
+            <div className="text-center text-[#51344D]/80 mb-8">
+              Aún no tienes anuncios publicados.
+            </div>
+          )}
+
+          {/* Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {!loading && !error && items.map((post: VolunteerPostListItem) => {
+              const authorName = `${post.author.name} ${post.author.last_name}`.trim();
+              const isAuthor = currentUserId === post.author.id;
+
+              return (
+                <div key={post.id} className="flex flex-col">
+                  <AnuncioCard
+                    title={post.title}
+                    author={authorName}
+                    description={excerpt(post.content)}
+                    category={post.category}
+                    onOpenChat={() => navigate(`/chat?postId=${post.id}&with=${post.author.id}`)}
+                  />
+
+                  {isAuthor && (
+                    <div className="mt-3 flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(post.id)}
+                        className="inline-flex items-center gap-2 rounded-lg border border-[#BCAAA4] bg-white px-3 py-2 hover:bg-[#FDF2DE] transition"
+                        title="Eliminar anuncio"
+                        aria-label="Eliminar anuncio"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-[#51344D]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 3h6m-9 4h12m-1 0-1 13a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 7m3 0V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M10 11v6M14 11v6" />
+                        </svg>
+                        <span className="text-[#51344D]">Eliminar</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Paginación */}
+          {!loading && !error && total > pageSize && (
+            <div className="flex items-center justify-center gap-4 mt-10">
+              <button
+                className="px-4 py-2 rounded-md border border-[#BCAAA4] bg-white hover:bg-[#FDF2DE] disabled:opacity-50"
+                disabled={page <= 1}
+                onClick={() => goToPage(page - 1)}
+              >
+                ← Anterior
+              </button>
+              <span className="text-[#51344D]">
+                Página {page} de {Math.ceil(total / pageSize)}
+              </span>
+              <button
+                className="px-4 py-2 rounded-md border border-[#BCAAA4] bg-white hover:bg-[#FDF2DE] disabled:opacity-50"
+                disabled={page >= Math.ceil(total / pageSize)}
+                onClick={() => goToPage(page + 1)}
+              >
+                Siguiente →
+              </button>
+            </div>
+          )}
         </div>
       </div>
       <Footer />
