@@ -15,8 +15,7 @@ export class PostPetController {
       const {
         name, race, type, birthDate, size, microchipCode,
         sex, hasPassport, countryOfOrigin, passportNumber, notes,
-        ownerId: ownerIdFromBody,
-      } = req.body as any;
+      } = req.body;
 
       const currentDate = new Date();
 
@@ -26,14 +25,7 @@ export class PostPetController {
 
       const isoDate = new Date(birthDate).toISOString();
 
-      const ownerId =
-        ownerIdFromBody ??
-        (req.user as any)?.ownerId ??
-        (req.user as any)?.userId;
-
-      if (!ownerId) {
-        return res.status(400).send({ error: "Missing ownerId." });
-      }
+      const ownerId = req.user.userId;
 
       const pet = await this.createPetUseCase.execute({
         name,
