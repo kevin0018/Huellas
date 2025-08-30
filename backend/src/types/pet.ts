@@ -18,7 +18,7 @@ export type CreatePetRequest = {
 export type EditPetRequest = {
   name?: string;
   race?: string;
-  birthDate?: string;
+  birthDate?: Date;
   size?: PetSize;
   sex?: Sex;
   hasPassport?: boolean;

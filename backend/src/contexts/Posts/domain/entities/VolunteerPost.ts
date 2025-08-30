@@ -51,7 +51,6 @@ export class VolunteerPost {
   public getUpdatedAt(): Date { return this.updatedAt; }
   public getPublishedAt(): Date | null { return this.publishedAt; }
   public getExpiresAt(): Date | null { return this.expiresAt; }
-
   // --- Setters (si quieres permitir mutaciones controladas) ---
   public setTitle(v: string): void { this.title = v; }
   public setContent(v: string): void { this.content = v; }

@@ -79,6 +79,18 @@ export class PetRepository implements IPetRepository {
   }
 
   async update(id: number, data: EditPetRequest): Promise<Pet> {
+    const editData: EditPetRequest = {};
+
+    if (data.name !== undefined) editData.name = data.name;
+    if (data.race !== undefined) editData.race = data.race;
+    if (data.birthDate !== undefined) editData.birthDate = data.birthDate;
+    if (data.size !== undefined) editData.size = data.size;
+    if (data.sex !== undefined) editData.sex = data.sex;
+    if (data.hasPassport !== undefined) editData.hasPassport = data.hasPassport;
+    if (data.countryOfOrigin !== undefined) editData.countryOfOrigin = data.countryOfOrigin;
+    if (data.passportNumber !== undefined) editData.passportNumber = data.passportNumber;
+    if (data.notes !== undefined) editData.notes = data.notes;
+
     const editedPet = await prisma.pet.update({
       where: {
         id: id
@@ -137,7 +149,7 @@ export class PetRepository implements IPetRepository {
       item.passport_number,
       item.notes
     ))
-    
+
     return pets;
   }
 }
