@@ -19,6 +19,7 @@ import PetProfile from './Views/PetProfile';
 import UserProfile from './Views/UserProfile';
 import VolunteerBoard from './Views/VolunteerBoard';
 import VolunteerHome from './Views/VolunteerHome';
+import ChatView from './Views/chatView';
 
 
 
@@ -40,6 +41,7 @@ const App: React.FC = () => {
           <Route path="/user-profile" element={<UserProfile />} />
           <Route path="/volunteer-board" element={<VolunteerBoard />} />
           <Route path="/volunteer-home" element={<VolunteerHome />} />
+          <Route path="/chat" element={<ChatView />} />
         </Routes>
       </ThemeProvider>
     </LanguageProvider>

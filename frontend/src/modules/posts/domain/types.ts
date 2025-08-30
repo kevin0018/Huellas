@@ -44,3 +44,16 @@ export interface VolunteerPostListResult {
   page: number;
   pageSize: number;
 }
+
+export interface VolunteerPost {            // <- respuesta del POST (controller devuelve authorId)
+  id: number;
+  title: string;
+  content: string;
+  category: PostCategory;
+  status: PostStatus;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string | null;
+  expiresAt: string | null;
+  authorId: number;
+}

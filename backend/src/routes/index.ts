@@ -20,6 +20,10 @@ export function createRoutes(): Router {
   console.log('Mounting owner routes on /owners...');
   router.use('/owners', createOwnerRoutes());
 
+  // Mount posts routes
+  console.log('Mounting posts routes on /posts...');
+  router.use('/volunteers', postsRoutes);
+
   // Mount volunteer routes
   console.log('Mounting volunteer routes on /volunteers...');
   router.use('/volunteers', volunteerRoutes);
@@ -39,10 +43,6 @@ export function createRoutes(): Router {
   // Mount appointment routes
   console.log('Mounting appointment routes on /appointments...');
   router.use('/appointments', createAppointmentRoutes());
-
-  // Mount posts routes
-  console.log('Mounting posts routes on /posts...');
-  router.use('/posts', postsRoutes);
 
   return router;
 }

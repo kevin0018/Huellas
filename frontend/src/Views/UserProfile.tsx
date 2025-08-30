@@ -322,7 +322,7 @@ export default function UserProfile() {
                     disabled={isLoading}
                     className={`px-4 py-2 rounded-md font-medium transition-colors ${isVolunteer(user)
                         ? 'bg-red-800 hover:bg-red-600 text-white !px-2 !py-0'
-                        : 'bg-[#BCAAA4] hover:bg-[#A89B9D] text-white'
+                        : 'bg-[#51344D] hover:bg-[#A89B9D] text-white'
                       } disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
                     {/* TODO: Add translation */}
