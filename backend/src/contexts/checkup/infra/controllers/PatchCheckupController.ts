@@ -70,7 +70,7 @@ export class PatchCheckupController {
       // Update
       const updatedCheckup = await this.checkupRepository.update(checkupId, editData);
 
-      return res.status(201).send(updatedCheckup);
+      return res.status(200).send(updatedCheckup);
     } catch (error) {
       return res.status(400).send({ error: (error as Error).message });
     }

@@ -26,7 +26,7 @@ export class PatchPetController {
         notes
       });
 
-      return res.status(201).send(pet);
+      return res.status(200).send(pet);
     } catch (error) {
       return res.status(400).send({ error: (error as Error).message });
     }

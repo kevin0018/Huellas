@@ -17,6 +17,7 @@ export class PostPetController {
         sex, hasPassport, countryOfOrigin, passportNumber, notes,
         ownerId: ownerIdFromBody,        // <-- allow ownerId from body
       } = req.body as any;
+      const isoDate = new Date(birthDate).toISOString();
 
       // fallback to JWT user if body didn't provide ownerId
       const ownerId =
@@ -33,7 +34,7 @@ export class PostPetController {
         race,
         type,
         ownerId,
-        birthDate, // already ISO string from frontend
+        birthDate: isoDate, // already ISO string from frontend
         size,
         microchipCode,
         sex,

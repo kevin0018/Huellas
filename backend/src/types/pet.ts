@@ -5,7 +5,7 @@ export type CreatePetRequest = {
   race: string;
   type: PetType;
   ownerId: number;
-  birthDate: Date;
+  birthDate: string;
   size: PetSize;
   microchipCode: string;
   sex: Sex;
@@ -18,7 +18,7 @@ export type CreatePetRequest = {
 export type EditPetRequest = {
   name?: string;
   race?: string;
-  birthDate?: Date;
+  birthDate?: string;
   size?: PetSize;
   sex?: Sex;
   hasPassport?: boolean;
