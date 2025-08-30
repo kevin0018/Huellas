@@ -10,6 +10,7 @@ export class UpdatePetUseCase {
   }
 
   async execute(id: number, editPetBody: EditPetRequest): Promise<Pet> {
+
     const pet = await this.petRepository.update(id, editPetBody);
 
     return pet;
