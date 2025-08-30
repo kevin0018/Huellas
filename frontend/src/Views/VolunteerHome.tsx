@@ -1,26 +1,52 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import NavBar from "../Components/NavBar";
 import Footer from "../Components/footer";
 import GoBackButton from "../Components/GoBackButton";
-import { useNavigate } from "react-router-dom";
 
-// Command + handler (sin parameter properties para evitar erasableSyntaxOnly)
 import { CreateVolunteerPostCommand } from "../modules/posts/application/commands/CreateVolunteerPostCommand";
 import { CreateVolunteerPostCommandHandler } from "../modules/posts/application/commands/CreateVolunteerPostCommandHandler";
 import type { PostCategory } from "../modules/posts/domain/types";
 
 const createPostHandler = new CreateVolunteerPostCommandHandler();
 
-// --- Componente principal de la página ---
+// Opciones de categoría para el select
+const CATEGORY_LABEL: Record<PostCategory, string> = {
+  GENERAL: "General",
+  PET_SITTING: "Cuidado en casa",
+  WALKING_EXERCISE: "Paseos y ejercicio",
+  VET_TRANSPORT: "Transporte a veterinario",
+  FOSTER_CARE: "Casa de acogida",
+  TRAINING_BEHAVIOR: "Adiestramiento y conducta",
+  SHELTER_SUPPORT: "Apoyo a protectoras",
+  GROOMING_HYGIENE: "Higiene y peluquería",
+  MEDICAL_SUPPORT: "Soporte médico",
+  ADOPTION_REHOMING: "Adopción / Reubicación",
+  LOST_AND_FOUND: "Mascotas perdidas",
+};
+
 function VolunteerBoard() {
   const navigate = useNavigate();
 
-  // Estado de envío/mensajes (no altera tu layout)
+  // Estado de envío/mensajes
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [ok, setOk] = useState(false);
 
-  // Manejar submit del formulario (impide el GET por querystring)
+  // Estado local para controles nuevos
+  const [category, setCategory] = useState<PostCategory>("GENERAL");
+  const [expiresAt, setExpiresAt] = useState<string>("");
+
+  // Hoy en formato YYYY-MM-DD para limitar el datepicker (no fechas pasadas)
+  const todayStr = useMemo(() => {
+    const d = new Date();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    return `${d.getFullYear()}-${mm}-${dd}`;
+  }, []);
+
+  // Submit del formulario (evita GET con querystring y hace POST a la API)
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setSubmitting(true);
@@ -40,21 +66,15 @@ function VolunteerBoard() {
         return;
       }
 
-      // Categoría por defecto (backend la requiere)
-      const category: PostCategory = "GENERAL";
+      const expiresIso = expiresAt ? new Date(expiresAt).toISOString() : null;
 
-      // Expiración no presente en tu UI → la dejamos en null
-      const expiresAt: string | null = null;
-
-      const cmd = new CreateVolunteerPostCommand(title, content, category, expiresAt);
+      const cmd = new CreateVolunteerPostCommand(title, content, category, expiresIso);
       await createPostHandler.execute(cmd);
 
       setOk(true);
-      // Redirigimos al tablón
       navigate("/volunteer-board");
     } catch (err: any) {
       console.error("[VolunteerHome] create post error:", err);
-      // Mensaje amigable: si no es volunteer, el backend devuelve 403
       const msg =
         typeof err?.message === "string" && err.message.includes("403")
           ? "Necesitas activar tu perfil de voluntario para publicar."
@@ -84,8 +104,9 @@ function VolunteerBoard() {
           <div className="w-full text-left mx-auto mt-8">
             <GoBackButton variant="outline" hideIfNoHistory className="bg-white" />
           </div>
+
           <h1 className="h1 font-caprasimo mb-8 text-4xl md:text-5xl text-[#51344D] drop-shadow-lg dark:text-[#FDF2DE]">
-            ¡Hola nuevo, voluntario!
+            Hola, voluntarix
           </h1>
 
           <div className="bg-[#FDF2DE]/90 dark:bg-[#51344D]/90 border-[#BCAAA4] border-2 rounded-lg shadow-lg p-6 w-full mx-auto text-center themed-card-invL">
@@ -93,23 +114,14 @@ function VolunteerBoard() {
               Aquí tienes todo lo que necesitas para empezar a ayudar.
             </p>
 
-            {/* Mensajes de estado (no cambian el layout principal) */}
-            {error && (
-              <div className="mb-4 text-red-700 font-semibold">{error}</div>
-            )}
-            {ok && (
-              <div className="mb-4 text-green-700 font-semibold">
-                ¡Anuncio creado!
-              </div>
-            )}
+            {/* Mensajes de estado */}
+            {error && <div className="mb-4 text-red-700 font-semibold">{error}</div>}
+            {ok && <div className="mb-4 text-green-700 font-semibold">¡Anuncio creado!</div>}
 
             <div className="flex flex-col md:flex-row lg:flex-row items-center justify-center gap-4 mt-8 3xl:gap-10">
               {/* Formulario simplificado con layout de grid */}
-              <form
-                className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left text-[#51344D]"
-                onSubmit={onSubmit}
-              >
-                {/* Campo Titulo del anuncio */}
+              <form className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left text-[#51344D]" onSubmit={onSubmit}>
+                {/* Título */}
                 <div className="md:col-span-2">
                   <label htmlFor="title" className="block text-sm font-medium">
                     Título del anuncio
@@ -124,11 +136,9 @@ function VolunteerBoard() {
                   />
                 </div>
 
-                {/* Campo Nombre (UI informativa; no se envía a la API) */}
+                {/* Nombre (UI informativa; no se envía) */}
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium">
-                    Nombre
-                  </label>
+                  <label htmlFor="name" className="block text-sm font-medium">Nombre</label>
                   <input
                     type="text"
                     name="nombre"
@@ -138,11 +148,9 @@ function VolunteerBoard() {
                   />
                 </div>
 
-                {/* Campo Apellidos */}
+                {/* Apellidos (UI informativa; no se envía) */}
                 <div>
-                  <label htmlFor="apellidos" className="block text-sm font-medium">
-                    Apellidos
-                  </label>
+                  <label htmlFor="apellidos" className="block text-sm font-medium">Apellidos</label>
                   <input
                     type="text"
                     name="apellidos"
@@ -152,11 +160,9 @@ function VolunteerBoard() {
                   />
                 </div>
 
-                {/* Campo Correo Electrónico */}
+                {/* Email (UI informativa; no se envía) */}
                 <div className="md:col-span-2">
-                  <label htmlFor="email" className="block text-sm font-medium">
-                    Correo electrónico
-                  </label>
+                  <label htmlFor="email" className="block text-sm font-medium">Correo electrónico</label>
                   <input
                     type="email"
                     name="email"
@@ -166,11 +172,9 @@ function VolunteerBoard() {
                   />
                 </div>
 
-                {/* Campo Número de teléfono */}
+                {/* Teléfono (UI informativa; no se envía) */}
                 <div className="md:col-span-2">
-                  <label htmlFor="number" className="block text-sm font-medium">
-                    Número de teléfono
-                  </label>
+                  <label htmlFor="number" className="block text-sm font-medium">Número de teléfono</label>
                   <input
                     type="number"
                     name="number"
@@ -180,11 +184,42 @@ function VolunteerBoard() {
                   />
                 </div>
 
-                {/* Campo Textarea (Comentarios → content para la API) */}
+                {/* Categoría (nuevo) */}
                 <div className="md:col-span-2">
-                  <label htmlFor="comentarios" className="block text-sm font-medium">
-                    Comentarios
-                  </label>
+                  <label htmlFor="category" className="block text-sm font-medium">Categoría</label>
+                  <select
+                    id="category"
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value as PostCategory)}
+                    className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#51344D]"
+                  >
+                    {Object.keys(CATEGORY_LABEL).map((key) => {
+                      const k = key as PostCategory;
+                      return (
+                        <option key={k} value={k}>
+                          {CATEGORY_LABEL[k]}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
+
+                {/* Expiración (opcional) */}
+                <div className="md:col-span-2">
+                  <label htmlFor="expires" className="block text-sm font-medium">Expira (opcional)</label>
+                  <input
+                    id="expires"
+                    type="date"
+                    min={todayStr}
+                    value={expiresAt}
+                    onChange={(e) => setExpiresAt(e.target.value)}
+                    className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#51344D]"
+                  />
+                </div>
+
+                {/* Comentarios → content */}
+                <div className="md:col-span-2">
+                  <label htmlFor="comentarios" className="block text-sm font-medium">Comentarios</label>
                   <textarea
                     id="comentarios"
                     name="comentarios"
@@ -194,7 +229,7 @@ function VolunteerBoard() {
                   ></textarea>
                 </div>
 
-                {/* Botón de enviar */}
+                {/* Botón enviar */}
                 <div className="md:col-span-2">
                   <button
                     type="submit"
@@ -206,17 +241,14 @@ function VolunteerBoard() {
                 </div>
               </form>
 
+              {/* CTA lateral */}
               <div className="flex flex-col gap-4 p-4">
                 <button
                   type="button"
                   className=" flex items-center justify-center gap-3  p-4 bg-[#51344D] text-white font-semibold rounded-lg shadow-md hover:bg-[#A89B9D] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition-colors duration-300 ease-in-out cursor-pointer "
                   onClick={() => navigate("/volunteer-board")}
                 >
-                  <img
-                    src="media/paw_icon.svg"
-                    alt="Icono de añadir mascota"
-                    className="h-7 w-7"
-                  />
+                  <img src="media/paw_icon.svg" alt="Icono de añadir mascota" className="h-7 w-7" />
                   Mis anuncios publicados
                 </button>
               </div>
