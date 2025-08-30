@@ -5,7 +5,7 @@ export type CreatePetRequest = {
   race: string;
   type: PetType;
   ownerId: number;
-  birthDate: Date;
+  birthDate: string;
   size: PetSize;
   microchipCode: string;
   sex: Sex;

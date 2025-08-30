@@ -12,13 +12,14 @@ import Login from './Views/Login';
 import Register from './Views/Register';
 import AboutUs from "./Views/AboutUs";
 import PetRegister from './Views/PetRegister';
-import CalendarView from './Views/CalendarView';
+import ProceduresView from './Views/ProceduresView';
 import AppointmentsView from './Views/AppointmentsView';
 import UserHome from './Views/UserHome';
 import PetProfile from './Views/PetProfile';
 import UserProfile from './Views/UserProfile';
 import VolunteerBoard from './Views/VolunteerBoard';
 import VolunteerHome from './Views/VolunteerHome';
+import ChatView from './Views/chatView';
 
 
 
@@ -33,13 +34,14 @@ const App: React.FC = () => {
           <Route path="/register" element={<Register />} />
           <Route path="/pet-register" element={<PetRegister />} />
           <Route path="/pets/:id/edit" element={<PetRegister />} />
-          <Route path="/calendar" element={<CalendarView />} />
+          <Route path="/procedures-view" element={<ProceduresView />} />
           <Route path="/appointments" element={<AppointmentsView />} />
           <Route path="/user-home" element={<UserHome />} />
           <Route path="/pets/:id" element={<PetProfile />} />
           <Route path="/user-profile" element={<UserProfile />} />
           <Route path="/volunteer-board" element={<VolunteerBoard />} />
           <Route path="/volunteer-home" element={<VolunteerHome />} />
+          <Route path="/chat" element={<ChatView />} />
         </Routes>
       </ThemeProvider>
     </LanguageProvider>

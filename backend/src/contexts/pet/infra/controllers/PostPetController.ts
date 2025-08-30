@@ -15,25 +15,24 @@ export class PostPetController {
       const {
         name, race, type, birthDate, size, microchipCode,
         sex, hasPassport, countryOfOrigin, passportNumber, notes,
-        ownerId: ownerIdFromBody,        // <-- allow ownerId from body
-      } = req.body as any;
+      } = req.body;
 
-      // fallback to JWT user if body didn't provide ownerId
-      const ownerId =
-        ownerIdFromBody ??
-        (req.user as any)?.ownerId ??      // if your JWT ever carries ownerId
-        (req.user as any)?.userId;         // last resort
+      const currentDate = new Date();
 
-      if (!ownerId) {
-        return res.status(400).send({ error: "Missing ownerId." });
+      if (birthDate && new Date(birthDate) > currentDate) {
+        return res.status(400).send({ error: "The date of birth cannot be later than the current date." });
       }
+
+      const isoDate = new Date(birthDate).toISOString();
+
+      const ownerId = req.user.userId;
 
       const pet = await this.createPetUseCase.execute({
         name,
         race,
         type,
         ownerId,
-        birthDate, // already ISO string from frontend
+        birthDate: isoDate,
         size,
         microchipCode,
         sex,
