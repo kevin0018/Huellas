@@ -14,25 +14,31 @@ import { AuthService } from '../modules/auth/infra/AuthService';
 import { LogoutCommand } from '../modules/auth/application/commands/LogoutCommand';
 import { LogoutCommandHandler } from '../modules/auth/application/commands/LogoutCommandHandler';
 import { ApiAuthRepository } from '../modules/auth/infra/ApiAuthRepository';
+import { UserType, type User } from '../modules/auth/domain/User';
 
 export default function NavBar() {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userType, setUserType] = useState<UserType | null>(null);
   const { translate } = useTranslation();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // Check auth status on mount and listen for changes
-    setIsLoggedIn(AuthService.isAuthenticated());
-    
-    // Listen for storage changes to update auth state
-    const handleStorageChange = () => {
-      setIsLoggedIn(AuthService.isAuthenticated());
-    };
-    
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
+useEffect(() => {
+  const checkAuthStatus = () => {
+    const authenticated = AuthService.isAuthenticated();
+    setIsLoggedIn(authenticated);
+    if (authenticated) {
+      const user: User | null = AuthService.getUser();
+      setUserType(user ? user.type : null);
+    } else {
+      setUserType(null);
+    }
+  };
+
+  checkAuthStatus();
+  window.addEventListener('storage', checkAuthStatus);
+  return () => window.removeEventListener('storage', checkAuthStatus);
+}, []);
 
   const toggleMenu = (): void => setIsOpen(!isOpen);
 
@@ -55,6 +61,7 @@ export default function NavBar() {
       // Even if logout fails, clear local state
       AuthService.logout();
       setIsLoggedIn(false);
+      setUserType(null); 
       navigate('/login');
       closeMenu();
     }
@@ -75,7 +82,9 @@ export default function NavBar() {
             <>
               <Link to="/user-home" className="3xl:!text-[2rem]">{translate('home')}</Link>
               <Link to="/user-profile" className="3xl:!text-[2rem]">{translate('profile')}</Link>
-              <Link to="/volunteer-home" className="3xl:!text-[2rem]">Voluntariado</Link>
+               {userType === UserType.VOLUNTEER && (
+      <Link to="/volunteer-home" className="3xl:!text-[2rem]">Voluntariado</Link>
+    )}
 
               <Link to="/volunteer-board" className="3xl:!text-[2rem]">Buscar voluntarios</Link>
               <button 
@@ -124,7 +133,9 @@ export default function NavBar() {
             <>
               <Link to="/user-home" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">{translate('home')}</Link>
               <Link to="/user-profile" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">{translate('profile')}</Link>
-              <Link to="/volunteer-home" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">Voluntariado</Link>
+               {userType === UserType.VOLUNTEER && (
+      <Link to="/volunteer-home" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">Voluntariado</Link>
+    )}
               <Link to="/volunteer-board" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">Buscar voluntarios</Link>
               <button
                 onClick={handleLogout}
