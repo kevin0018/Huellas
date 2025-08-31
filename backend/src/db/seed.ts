@@ -4,6 +4,7 @@ import { seedProcedureSchedules } from './seeds/procedureScheduleSeeder.js';
 import { seedPets } from './seeds/petSeeder.js';
 import { seedCheckups } from './seeds/checkupSeeder.js';
 import { seedAppointments } from './seeds/appointmentSeeder.js';
+import {seedVolunteerPosts} from './seeds/postsSeeder.js';
 
 const prisma = new PrismaClient();
 
@@ -19,6 +20,7 @@ async function main() {
         await prisma.owner.deleteMany();
         await prisma.volunteer.deleteMany();
         await prisma.user.deleteMany();
+        await prisma.volunteerPost.deleteMany();
 
         console.log('🗑️ Cleared existing data');
 
@@ -37,6 +39,9 @@ async function main() {
 
         await seedAppointments(prisma);
         console.log('📅 Appointments seeded');
+
+        await seedVolunteerPosts(prisma);
+        console.log('📝 Volunteer posts seeded');
 
         console.log('✅ Database seeding completed successfully!');
     } catch (error) {
