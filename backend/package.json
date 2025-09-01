@@ -23,7 +23,7 @@
     "seed": "tsx src/db/seed.ts"
   },
   "dependencies": {
-    "@prisma/client": "^6.14.0",
+    "@prisma/client": "^6.15.0",
     "@types/bcrypt": "^6.0.0",
     "@types/redis": "^4.0.10",
     "@types/socket.io": "^3.0.1",
