@@ -27,6 +27,7 @@ export async function seedPets(prisma: PrismaClient) {
                 notes: 'Muy amigable y activa. Le encanta jugar con otros perros.'
             }
         }),
+
         prisma.pet.create({
             data: {
                 name: 'Charlie',
@@ -57,6 +58,7 @@ export async function seedPets(prisma: PrismaClient) {
                 notes: 'Perro guardián muy inteligente. Necesita ejercicio intenso diario.'
             }
         }),
+
         prisma.pet.create({
             data: {
                 name: 'Sophie',
@@ -89,6 +91,7 @@ export async function seedPets(prisma: PrismaClient) {
                 notes: 'Gata muy independiente y vocal. Descendiente de línea tailandesa.'
             }
         }),
+
         prisma.pet.create({
             data: {
                 name: 'Chloe',
@@ -119,6 +122,7 @@ export async function seedPets(prisma: PrismaClient) {
                 notes: 'Problemas respiratorios leves típicos de la raza. Evitar ejercicio intenso.'
             }
         }),
+
         prisma.pet.create({
             data: {
                 name: 'Bella',
@@ -135,6 +139,7 @@ export async function seedPets(prisma: PrismaClient) {
                 notes: 'Gata de gran tamaño, muy sociable con otros animales.'
             }
         }),
+
         prisma.pet.create({
             data: {
                 name: 'Zeus',
@@ -151,6 +156,7 @@ export async function seedPets(prisma: PrismaClient) {
                 notes: 'Muy protector y leal. Entrenamiento en obediencia avanzada.'
             }
         }),
+
         prisma.pet.create({
             data: {
                 name: 'Toby',
@@ -166,7 +172,71 @@ export async function seedPets(prisma: PrismaClient) {
                 passport_number: 'CAN345678',
                 notes: 'Excelente nadador. Le encanta el agua y recuperar objetos.'
             }
-        })
+        }),
+
+        prisma.pet.create({
+            data: {
+                name: 'Nina',
+                race: 'Border Collie',
+                type: 'dog',
+                owner_id: owners[0].id,
+                birth_date: new Date('2021-05-12'),
+                size: 'medium',
+                microchip_code: 'ES982000000000011',
+                sex: 'female',
+                has_passport: true,
+                country_of_origin: 'Spain',
+                passport_number: 'ESP001235',
+                notes: 'Muy inteligente y activa, le encanta correr y aprender trucos.'
+            }
+        }),
+
+        prisma.pet.create({
+            data: {
+                name: 'Simba',
+                race: 'Bengalí',
+                type: 'cat',
+                owner_id: owners[0].id,
+                birth_date: new Date('2023-02-20'),
+                size: 'medium',
+                microchip_code: 'ES982000000000012',
+                sex: 'male',
+                has_passport: false,
+                notes: 'Gato curioso y juguetón, con pelaje moteado.'
+            }
+        }),
+
+        prisma.pet.create({
+            data: {
+                name: 'Milo',
+                race: 'Hurón Albino',
+                type: 'ferret',
+                owner_id: owners[0].id,
+                birth_date: new Date('2022-09-01'),
+                size: 'small',
+                microchip_code: 'ES982000000000013',
+                sex: 'male',
+                has_passport: false,
+                notes: 'Hurón muy sociable, le gusta explorar y dormir en lugares escondidos.'
+            }
+        }),
+
+        prisma.pet.create({
+            data: {
+                name: 'Lola',
+                race: 'Shih Tzu',
+                type: 'dog',
+                owner_id: owners[0].id,
+                birth_date: new Date('2020-04-18'),
+                size: 'small',
+                microchip_code: 'ES982000000000014',
+                sex: 'female',
+                has_passport: true,
+                country_of_origin: 'Portugal',
+                passport_number: 'PT123456',
+                notes: 'Perra pequeña y cariñosa, ideal para compañía en casa.'
+            }
+        }),
     ]);
 
     return pets;
