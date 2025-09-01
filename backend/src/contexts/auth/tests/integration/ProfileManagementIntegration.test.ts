@@ -126,9 +126,9 @@ describe('Profile Management Integration Tests', () => {
       // Assert: Verify volunteer profile was created
       expect(await repository.hasVolunteerProfile(1)).toBe(true);
       
-      // Verify user type was updated
+      // Verify user type remains OWNER (users don't change type when becoming volunteers)
       const userAfterCreate = await repository.findById(1);
-      expect(userAfterCreate!.type).toBe(UserType.VOLUNTEER);
+      expect(userAfterCreate!.type).toBe(UserType.OWNER);
 
       // Act: Delete volunteer profile
       await deleteVolunteerHandler.handle(
@@ -138,7 +138,7 @@ describe('Profile Management Integration Tests', () => {
       // Assert: Verify volunteer profile was deleted
       expect(await repository.hasVolunteerProfile(1)).toBe(false);
       
-      // Verify user type was reverted
+      // Verify user type remains OWNER
       const userAfterDelete = await repository.findById(1);
       expect(userAfterDelete!.type).toBe(UserType.OWNER);
     });
@@ -192,7 +192,7 @@ describe('Profile Management Integration Tests', () => {
         new UpdateUserProfileCommand(1, 'Jane', 'Wilson', 'jane.wilson@example.com')
       );
       expect(finalUser.lastName).toBe('Wilson');
-      expect(finalUser.type).toBe(UserType.VOLUNTEER);
+      expect(finalUser.type).toBe(UserType.OWNER); // User remains OWNER even with volunteer profile
 
       // 5. Stop being a volunteer
       await deleteVolunteerHandler.handle(
@@ -200,7 +200,7 @@ describe('Profile Management Integration Tests', () => {
       );
       
       const finalUserState = await repository.findById(1);
-      expect(finalUserState!.type).toBe(UserType.OWNER);
+      expect(finalUserState!.type).toBe(UserType.OWNER); // Still OWNER
       expect(finalUserState!.lastName).toBe('Wilson');
       expect(await repository.hasVolunteerProfile(1)).toBe(false);
     });

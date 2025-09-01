@@ -20,5 +20,11 @@ export interface LoginResponse {
 }
 
 // Helper function to check if user is volunteer
-export const isVolunteer = (user: User): boolean => user.type === UserType.VOLUNTEER;
+// A user is considered a volunteer if:
+// 1. Their type is VOLUNTEER (pure volunteer), OR
+// 2. Their type is OWNER but they have a description (owner with volunteer profile)
+export const isVolunteer = (user: User): boolean => 
+  user.type === UserType.VOLUNTEER || (user.type === UserType.OWNER && !!user.description);
+
+// Helper function to check if user is owner
 export const isOwner = (user: User): boolean => user.type === UserType.OWNER;

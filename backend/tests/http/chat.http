@@ -8,7 +8,7 @@ Content-Type: application/json
 
 {
   "email": "juan@email.com",
-  "password": "password123"
+  "password": "huellas123"
 }
 
 ### 2. Login as Volunteer (ana@volunteer.com)
@@ -18,7 +18,7 @@ Content-Type: application/json
 
 {
   "email": "ana@volunteer.com",
-  "password": "password123"
+  "password": "huellas123"
 }
 
 ### 3. Create a new conversation (as Owner)
@@ -29,7 +29,7 @@ Content-Type: application/json
 
 {
   "title": "Consulta sobre mascota perdida",
-  "participantIds": [19, 22]
+  "participantIds": [24, 30]
 }
 
 ### 4. Send first message from Owner
@@ -40,7 +40,7 @@ Content-Type: application/json
 
 {
   "content": "Hola, mi perro Max se perdió ayer cerca del parque. Es un Golden Retriever de 3 años.",
-  "senderId": 19
+  "senderId": 24
 }
 
 ### 5. Send reply from Volunteer
@@ -51,7 +51,7 @@ Content-Type: application/json
 
 {
   "content": "Hola, creo que vi a tu mascota cerca del parque central. ¿Podrías enviarme más detalles?",
-  "senderId": 22
+  "senderId": 30
 }
 
 ### 6. Get conversation messages
@@ -91,7 +91,7 @@ Content-Type: application/json
 
 {
   "title": "Test invalid participant",
-  "participantIds": [19, 9999]
+  "participantIds": [24, 9999]
 }
 
 ### E2. Send message without authentication
@@ -101,7 +101,7 @@ Content-Type: application/json
 
 {
   "content": "This should fail",
-  "senderId": 19
+  "senderId": 24
 }
 
 ### E3. Send message to non-existent conversation
@@ -112,7 +112,7 @@ Content-Type: application/json
 
 {
   "content": "This should fail",
-  "senderId": 19
+  "senderId": 24
 }
 
 ### E4. Send message as non-participant
@@ -124,7 +124,7 @@ Content-Type: application/json
 
 {
   "title": "Private conversation",
-  "participantIds": [22]
+  "participantIds": [30]
 }
 
 ### Try to send message as Owner to Volunteer's private conversation
@@ -135,7 +135,7 @@ Content-Type: application/json
 
 {
   "content": "This should fail - not a participant",
-  "senderId": 19
+  "senderId": 24
 }
 
 ### E5. Get conversations without authentication
