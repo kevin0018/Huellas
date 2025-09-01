@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import NavBar from "../Components/NavBar";
-import Footer from "../Components/footer";
 import GoBackButton from "../Components/GoBackButton";
 import { useChat } from "../modules/chat/application/useChat";
 import { AuthService } from "../modules/auth/infra/AuthService";
@@ -65,25 +64,17 @@ function ConversationList({
   loading 
 }: ConversationListProps) {
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-32">
-        <div className="text-[#51344D]">Cargando conversaciones...</div>
-      </div>
-    );
+    return <div className="text-gray-500">Cargando conversaciones...</div>;
   }
 
-  if (!conversations || conversations.length === 0) {
-    return (
-      <div className="flex items-center justify-center h-32">
-        <div className="text-gray-500">No hay conversaciones</div>
-      </div>
-    );
+  if (!conversations.length) {
+    return <div className="text-gray-500">No hay conversaciones</div>;
   }
 
   return (
-    <div className="space-y-2">
-      {conversations?.map((conversation, index) => {        
-        return (
+    <div className="space-y-3">
+      {conversations.map((conversation, index) => 
+        conversation ? (
           <div
             key={conversation?.id || `conversation-${index}`}
             onClick={() => onSelectConversation(conversation)}
@@ -143,9 +134,9 @@ function ConversationList({
               {conversation.lastMessage.content}
             </p>
           )}
-        </div>
-        );
-      })}
+          </div>
+        ) : null
+      )}
     </div>
   );
 }
@@ -171,21 +162,31 @@ export default function ChatView() {
   const [newMessage, setNewMessage] = useState('');
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
   const hasTriedCreation = useRef(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const currentUser = AuthService.getUser();
   const currentUserId = currentUser?.id;
+
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   // Reset creation flag when URL params change
   useEffect(() => {
     hasTriedCreation.current = false;
   }, [postId, withUserId]);
 
-  // Handle creating conversation from URL params (when coming from volunteer posts)
+  // Auto-create conversation when needed
   useEffect(() => {
     const initConversation = async () => {
-      if (postId && withUserId && currentUserId && !hasTriedCreation.current) {
-        // Check if conversation already exists with this user
-        const existingConversation = conversations?.find(conv =>
+      if (!postId || !withUserId || !currentUserId || hasTriedCreation.current) {
+        return;
+      }
+
+      if (conversations && conversations.length >= 0) {
+        // Look for existing conversation with the specified user
+        const existingConversation = conversations.find(conv =>
           conv?.participants?.some(p => p?.id === parseInt(withUserId))
         );
 
@@ -215,8 +216,7 @@ export default function ChatView() {
               }
             }, 500); // Small delay to allow conversations to reload
             
-          } catch (err) {
-            console.error('[ChatView] ❌ Error creating conversation:', err);
+          } catch {
             hasTriedCreation.current = false; // Reset flag on error
           } finally {
             setIsCreatingConversation(false);
@@ -263,17 +263,10 @@ export default function ChatView() {
   };
 
   return (
-    <>
+    <div className="min-h-screen flex flex-col">
       <NavBar />
-      <div className="background-primary min-h-screen">
-        <div className="container mx-auto px-4 py-8">
-          <div className="mb-6">
-            <GoBackButton />
-            <h1 className="h1 font-caprasimo text-3xl text-[#51344D] mt-4">
-              Mensajes
-            </h1>
-          </div>
-
+      <div className="background-primary flex-1">
+          <div className="container mx-auto px-4 py-4 lg:py-8">
           {error && (
             <div className="mb-4 p-4 bg-red-100 border border-red-300 text-red-700 rounded-md">
               {error}
@@ -286,96 +279,113 @@ export default function ChatView() {
             </div>
           )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[70vh]">
-            {/* Conversations List */}
-            <div className="lg:col-span-1 bg-gray-50 rounded-lg p-4 overflow-y-auto">
-              <h2 className="font-caprasimo text-lg text-[#51344D] mb-4">
-                Conversaciones
-              </h2>
-              <ConversationList
-                conversations={conversations || []}
-                selectedConversation={selectedConversation?.id || null}
-                onSelectConversation={selectConversation}
-                loading={loading}
-              />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 h-[70vh]">
+            
+            <div className="flex flex-col lg:col-span-1 h-full">
+              <div className="mb-2 lg:mb-4">
+                <GoBackButton />
+              </div>
+              
+              <div className="bg-gray-50 rounded-lg p-3 lg:p-4 overflow-y-auto flex-1">
+                <h2 className="font-caprasimo text-base lg:text-lg text-[#51344D] mb-3 lg:mb-4">
+                  Conversaciones
+                </h2>
+                <ConversationList
+                  conversations={conversations || []}
+                  selectedConversation={selectedConversation?.id || null}
+                  onSelectConversation={selectConversation}
+                  loading={loading}
+                />
+              </div>
             </div>
 
-            {/* Chat Area */}
-            <div className="lg:col-span-2 bg-white rounded-lg shadow-md flex flex-col">
-              {selectedConversation ? (
-                <>
-                  {/* Chat Header */}
-                  <div className="p-4 border-b border-gray-200">
-                    <h3 className="font-normal text-[#51344D]">
-                      {selectedConversation.title}
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      {selectedConversation.participants
-                        ?.filter(p => p?.id !== currentUserId)
-                        ?.map(p => `${p?.name} ${p?.lastName}`)
-                        ?.join(', ')}
-                    </p>
-                  </div>
+            <div className="flex flex-col lg:col-span-2 h-full">
+              <div className="mb-2 lg:mb-4 text-center">
+                <h1 className="font-caprasimo text-xl lg:text-2xl text-[#51344D]">
+                  Mensajes
+                </h1>
+              </div>
+              
 
-                  {/* Messages */}
-                  <div className="flex-1 p-4 overflow-y-auto">
-                    {loading && messages.length === 0 ? (
-                      <div className="flex items-center justify-center h-full">
-                        <div className="text-gray-500">Cargando mensajes...</div>
-                      </div>
-                    ) : messages.length === 0 ? (
-                      <div className="flex items-center justify-center h-full">
-                        <div className="text-gray-500">No hay mensajes</div>
-                      </div>
-                    ) : (
-                      messages?.map((message) => (
-                        <ChatMessage
-                          key={message?.id}
-                          message={message}
-                          isCurrentUser={message.senderId === currentUserId}
-                          onMarkAsRead={handleMarkAsRead}
+              <div className="bg-white rounded-lg shadow-md flex flex-col flex-1 min-h-0">
+                {selectedConversation ? (
+                  <>
+                    {/* Chat Header */}
+                    <div className="p-3 lg:p-4 border-b border-gray-200">
+                      <h3 className="font-normal text-[#51344D] text-sm lg:text-base">
+                        {selectedConversation.title}
+                      </h3>
+                      <p className="text-xs lg:text-sm text-gray-600">
+                        {selectedConversation.participants
+                          ?.filter(p => p?.id !== currentUserId)
+                          ?.map(p => `${p?.name} ${p?.lastName}`)
+                          ?.join(', ')}
+                      </p>
+                    </div>
+
+                    {/* Messages */}
+                    <div className="flex-1 p-3 lg:p-4 overflow-y-auto min-h-0">
+                      {loading && messages.length === 0 ? (
+                        <div className="flex items-center justify-center h-full">
+                          <div className="text-gray-500">Cargando mensajes...</div>
+                        </div>
+                      ) : messages.length === 0 ? (
+                        <div className="flex items-center justify-center h-full">
+                          <div className="text-gray-500">No hay mensajes</div>
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {messages?.map((message) => (
+                            <ChatMessage
+                              key={message?.id}
+                              message={message}
+                              isCurrentUser={message.senderId === currentUserId}
+                              onMarkAsRead={handleMarkAsRead}
+                            />
+                          ))}
+                          <div ref={messagesEndRef} />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Message Input */}
+                    <form onSubmit={handleSendMessage} className="p-3 lg:p-4 border-t border-gray-200">
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={newMessage}
+                          onChange={(e) => setNewMessage(e.target.value)}
+                          placeholder="Escribe tu mensaje..."
+                          className="flex-1 px-3 py-2 text-sm lg:text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#51344D]"
+                          disabled={loading}
                         />
-                      ))
+                        <button
+                          type="submit"
+                          disabled={!newMessage.trim() || loading}
+                          className="px-3 lg:px-4 py-2 text-sm lg:text-base bg-[#51344D] text-white rounded-md hover:bg-[#6a4f66] disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Enviar
+                        </button>
+                      </div>
+                    </form>
+                  </>
+                ) : (
+                  <div className="flex items-center justify-center h-full">
+                    {isCreatingConversation ? (
+                      <div className="text-[#51344D]">Creando conversación...</div>
+                    ) : (
+                      <div className="text-gray-500">
+                        Selecciona una conversación para comenzar
+                      </div>
                     )}
                   </div>
-
-                  {/* Message Input */}
-                  <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-200">
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value={newMessage}
-                        onChange={(e) => setNewMessage(e.target.value)}
-                        placeholder="Escribe tu mensaje..."
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#51344D]"
-                        disabled={loading}
-                      />
-                      <button
-                        type="submit"
-                        disabled={!newMessage.trim() || loading}
-                        className="px-4 py-2 bg-[#51344D] text-white rounded-md hover:bg-[#6a4f66] disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        Enviar
-                      </button>
-                    </div>
-                  </form>
-                </>
-              ) : (
-                <div className="flex items-center justify-center h-full">
-                  {isCreatingConversation ? (
-                    <div className="text-[#51344D]">Creando conversación...</div>
-                  ) : (
-                    <div className="text-gray-500">
-                      Selecciona una conversación para comenzar
-                    </div>
-                  )}
-                </div>
-              )}
+                )}
+              </div>
             </div>
+            
           </div>
         </div>
       </div>
-      <Footer />
-    </>
+    </div>
   );
 }

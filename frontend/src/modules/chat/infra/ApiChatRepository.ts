@@ -29,13 +29,6 @@ export class ApiChatRepository implements ChatRepository {
     const token = AuthService.getToken();
     const url = `${this.baseUrl}${endpoint}`;
     
-    console.log('[ApiChatRepository] Making request:', {
-      url,
-      method: options.method || 'GET',
-      hasToken: !!token,
-      baseUrl: this.baseUrl
-    });
-    
     try {
       const response = await fetch(url, {
         ...options,
@@ -46,23 +39,14 @@ export class ApiChatRepository implements ChatRepository {
         },
       });
 
-      console.log('[ApiChatRepository] Response status:', response.status, response.statusText);
-
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        console.error('[ApiChatRepository] HTTP Error:', {
-          status: response.status,
-          statusText: response.statusText,
-          errorData
-        });
         throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
       }
 
       const result: ApiResponse<T> = await response.json();
-      console.log('[ApiChatRepository] API Response:', result);
       
       if (!result.success) {
-        console.error('[ApiChatRepository] API Error:', result.message);
         throw new Error(result.message || 'API request failed');
       }
 

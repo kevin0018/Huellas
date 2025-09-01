@@ -114,8 +114,6 @@ export class ChatController {
       const { content, type } = req.body;
       const senderId = req.user.userId;
       
-      console.log('[ChatController] Sending message:', { conversationId, senderId, content, type });
-      
       const message = await sendMessageHandler.handle({ conversationId, senderId, content, type });
       
       // Transform entity to DTO using getters
@@ -137,14 +135,11 @@ export class ChatController {
         if (conversation) {
           const socketService = SocketIOService.getInstance();
           socketService.emitNewMessage(conversationId, conversation.participantIds, messageDTO);
-          console.log('[ChatController] Message broadcasted via Socket.IO to participants:', conversation.participantIds);
         }
       } catch (socketError) {
         console.warn('[ChatController] Failed to broadcast via Socket.IO:', socketError);
         // Don't fail the request if socket broadcast fails
       }
-      
-      console.log('[ChatController] Message sent successfully:', messageDTO);
       
       res.status(201).json({ success: true, data: messageDTO });
     } catch (err) {

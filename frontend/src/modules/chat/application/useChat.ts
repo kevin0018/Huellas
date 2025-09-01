@@ -178,16 +178,13 @@ export function useChat() {
     // Listen for new messages
     const handleNewMessage = (message: unknown) => {
       const msg = message as Message;
-      console.log('[useChat] 📨 Received new message via socket:', msg);
       
       setMessages(prev => {
         // Avoid duplicates by checking if message already exists
         const exists = prev.some(m => m.id === msg.id);
         if (exists) {
-          console.log('[useChat] ⚠️ Message already exists, skipping duplicate');
           return prev;
         }
-        console.log('[useChat] ✅ Adding new message to state');
         return [...prev, msg];
       });
       // Refresh conversations to update last message and unread count
