@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import NavBar from "../Components/NavBar";
@@ -8,6 +8,8 @@ import GoBackButton from "../Components/GoBackButton";
 import { CreateVolunteerPostCommand } from "../modules/posts/application/commands/CreateVolunteerPostCommand";
 import { CreateVolunteerPostCommandHandler } from "../modules/posts/application/commands/CreateVolunteerPostCommandHandler";
 import type { PostCategory } from "../modules/posts/domain/types";
+import { AuthService } from "../modules/auth/infra/AuthService";
+import type { User } from "../modules/auth/domain/User";
 
 const createPostHandler = new CreateVolunteerPostCommandHandler();
 
@@ -37,6 +39,15 @@ function VolunteerBoard() {
   // Estado local para controles nuevos
   const [category, setCategory] = useState<PostCategory>("GENERAL");
   const [expiresAt, setExpiresAt] = useState<string>("");
+
+  // Estado para datos del usuario
+  const [user, setUser] = useState<User | null>(null);
+
+  // Get user data on component mount
+  useEffect(() => {
+    const currentUser = AuthService.getUser();
+    setUser(currentUser);
+  }, []);
 
   // Hoy en formato YYYY-MM-DD para limitar el datepicker (no fechas pasadas)
   const todayStr = useMemo(() => {
@@ -73,12 +84,18 @@ function VolunteerBoard() {
 
       setOk(true);
       navigate("/volunteer-board");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("[VolunteerHome] create post error:", err);
-      const msg =
-        typeof err?.message === "string" && err.message.includes("403")
-          ? "Necesitas activar tu perfil de voluntario para publicar."
-          : err?.message || "Error al crear el anuncio";
+      let msg = "Error al crear el anuncio";
+      
+      if (err instanceof Error) {
+        if (err.message.includes("403")) {
+          msg = "Necesitas activar tu perfil de voluntario para publicar.";
+        } else {
+          msg = err.message;
+        }
+      }
+      
       setError(msg);
     } finally {
       setSubmitting(false);
@@ -106,7 +123,7 @@ function VolunteerBoard() {
           </div>
 
           <h1 className="h1 font-caprasimo mb-8 text-4xl md:text-5xl text-[#51344D] drop-shadow-lg dark:text-[#FDF2DE]">
-            Hola, voluntarix
+            Hola, {user?.name || 'voluntarix'}
           </h1>
 
           <div className="bg-[#FDF2DE]/90 dark:bg-[#51344D]/90 border-[#BCAAA4] border-2 rounded-lg shadow-lg p-6 w-full mx-auto text-center themed-card-invL">
@@ -145,6 +162,8 @@ function VolunteerBoard() {
                     id="nombre"
                     className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#51344D]"
                     placeholder="Tu nombre"
+                    value={user?.name || ''}
+                    readOnly
                   />
                 </div>
 
@@ -157,6 +176,8 @@ function VolunteerBoard() {
                     id="apellidos"
                     className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#51344D]"
                     placeholder="Tus apellidos"
+                    value={user?.lastName || ''}
+                    readOnly
                   />
                 </div>
 
@@ -169,6 +190,8 @@ function VolunteerBoard() {
                     id="email"
                     className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#51344D]"
                     placeholder="tu.correo@ejemplo.com"
+                    value={user?.email || ''}
+                    readOnly
                   />
                 </div>
 
