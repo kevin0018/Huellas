@@ -80,13 +80,17 @@ useEffect(() => {
         <div className="hidden md:flex items-center space-x-6 text-[#51344D]">
           {isLoggedIn ? (
             <>
-              <Link to="/user-home" className="3xl:!text-[2rem]">{translate('home')}</Link>
+              {/* Hide "Inicio" for pure volunteer users (VOLUNTEER type) */}
+              {userType !== UserType.VOLUNTEER && (
+                <Link to="/user-home" className="3xl:!text-[2rem]">{translate('home')}</Link>
+              )}
               <Link to="/user-profile" className="3xl:!text-[2rem]">{translate('profile')}</Link>
-               {userType === UserType.VOLUNTEER && (
-      <Link to="/volunteer-home" className="3xl:!text-[2rem]">Voluntariado</Link>
-    )}
+              {(userType === UserType.VOLUNTEER || userType === UserType.OWNER) && (
+                <Link to="/volunteer-home" className="3xl:!text-[2rem]">Voluntariado</Link>
+              )}
 
               <Link to="/volunteer-board" className="3xl:!text-[2rem]">Buscar voluntarios</Link>
+              <Link to="/chat" className="3xl:!text-[2rem]">Mis Chats</Link>
               <button 
                 onClick={handleLogout}
                 className="3xl:!text-[2rem]"
@@ -131,12 +135,16 @@ useEffect(() => {
         <div className="flex flex-col items-center space-y-4 pt-4 pb-2">
           {isLoggedIn ? (
             <>
-              <Link to="/user-home" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">{translate('home')}</Link>
+              {/* Hide "Inicio" for pure volunteer users (VOLUNTEER type) */}
+              {userType !== UserType.VOLUNTEER && (
+                <Link to="/user-home" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">{translate('home')}</Link>
+              )}
               <Link to="/user-profile" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">{translate('profile')}</Link>
-               {userType === UserType.VOLUNTEER && (
-      <Link to="/volunteer-home" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">Voluntariado</Link>
-    )}
+              {(userType === UserType.VOLUNTEER || userType === UserType.OWNER) && (
+                <Link to="/volunteer-home" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">Voluntariado</Link>
+              )}
               <Link to="/volunteer-board" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">Buscar voluntarios</Link>
+              <Link to="/chat" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">Mis Chats</Link>
               <button
                 onClick={handleLogout}
                 className="hover:text-[--huellas-eggplant]"

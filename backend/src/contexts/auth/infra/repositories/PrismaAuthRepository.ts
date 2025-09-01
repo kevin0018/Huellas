@@ -119,13 +119,7 @@ export class PrismaAuthRepository implements AuthRepository {
 
   async createVolunteerProfile(userId: number, description: string): Promise<void> {
     await prisma.$transaction(async (tx) => {
-      // Update user type to volunteer
-      await tx.user.update({
-        where: { id: userId },
-        data: { type: 'volunteer' }
-      });
-
-      // Create volunteer profile
+      // Create volunteer profile (do NOT change user type - owners remain owners)
       await tx.volunteer.create({
         data: {
           id: userId,
@@ -137,15 +131,9 @@ export class PrismaAuthRepository implements AuthRepository {
 
   async deleteVolunteerProfile(userId: number): Promise<void> {
     await prisma.$transaction(async (tx) => {
-      // Delete volunteer profile
+      // Delete volunteer profile (do NOT change user type - owners remain owners)
       await tx.volunteer.delete({
         where: { id: userId }
-      });
-
-      // Update user type back to owner
-      await tx.user.update({
-        where: { id: userId },
-        data: { type: 'owner' }
       });
     });
   }

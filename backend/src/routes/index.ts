@@ -6,6 +6,7 @@ import { createPetRoutes } from './petRoutes.js';
 import { createProcedureRoutes } from './procedureRoutes.js';
 import { createCheckupRoutes } from './checkupRoutes.js';
 import {createAppointmentRoutes } from './appointmentRoutes.js';
+import chatRoutes from './chatRoutes.js';
 import postsRoutes from "./postsRoutes.js";
 
 export function createRoutes(): Router {
@@ -43,6 +44,10 @@ export function createRoutes(): Router {
   // Mount appointment routes
   console.log('Mounting appointment routes on /appointments...');
   router.use('/appointments', createAppointmentRoutes());
+
+  // Mount chat routes
+  console.log('Mounting chat routes on /chat...');
+  router.use('/chat', chatRoutes);
 
   return router;
 }

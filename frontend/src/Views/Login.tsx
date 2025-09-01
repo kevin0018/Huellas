@@ -66,8 +66,12 @@ function LoginContent() {
       // Save authentication data
       AuthService.saveAuth(response.token, response.user);
 
-      // Redirect to UserHome
-      navigate('/user-home');
+      // Redirect based on user type
+      if (response.user.type === 'volunteer') {
+        navigate('/volunteer-home');
+      } else {
+        navigate('/user-home');
+      }
 
     } catch (err) {
       if (err instanceof Error) {

@@ -5,7 +5,6 @@
 //  - Borrado: hard delete y SÓLO si author_id coincide con el userId del JWT.
 //  - Incluimos autor básico (id, name, last_name) para evitar N+1 en el front.
 
-import {  Prisma } from "@prisma/client";
 import { PrismaClient, VolunteerPost as PrismaVolunteerPost, PostStatus} from "@prisma/client";
 import { IVolunteerPostRepository } from "../../domain/repositories/IVolunteerPostRepository.js";
 import { VolunteerPost } from "../../domain/entities/VolunteerPost.js";

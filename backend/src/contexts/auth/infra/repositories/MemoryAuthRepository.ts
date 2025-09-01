@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 import { AuthRepository } from '../../domain/repositories/AuthRepository.js';
 import { UserAuth, UserType } from '../../domain/entities/UserAuth.js';
 
@@ -98,23 +98,8 @@ export class MemoryAuthRepository implements AuthRepository {
       throw new Error('User already has a volunteer profile');
     }
 
-    // Create volunteer profile
+    // Create volunteer profile (do NOT change user type - owners remain owners)
     this.volunteerProfiles.push({ userId, description });
-
-    // Update user type to volunteer
-    const userIndex = this.users.findIndex(u => u.id === userId);
-    if (userIndex !== -1) {
-      const existingUser = this.users[userIndex];
-      const updatedUser = UserAuth.create(
-        userId,
-        existingUser.name,
-        existingUser.lastName,
-        existingUser.email,
-        existingUser.password,
-        UserType.VOLUNTEER
-      );
-      this.users[userIndex] = updatedUser;
-    }
   }
 
   async deleteVolunteerProfile(userId: number): Promise<void> {
@@ -124,23 +109,8 @@ export class MemoryAuthRepository implements AuthRepository {
       throw new Error('User does not have a volunteer profile');
     }
 
-    // Remove volunteer profile
+    // Remove volunteer profile (do NOT change user type - owners remain owners)
     this.volunteerProfiles.splice(profileIndex, 1);
-
-    // Update user type back to owner
-    const userIndex = this.users.findIndex(u => u.id === userId);
-    if (userIndex !== -1) {
-      const existingUser = this.users[userIndex];
-      const updatedUser = UserAuth.create(
-        userId,
-        existingUser.name,
-        existingUser.lastName,
-        existingUser.email,
-        existingUser.password,
-        UserType.OWNER
-      );
-      this.users[userIndex] = updatedUser;
-    }
   }
 
   async hasVolunteerProfile(userId: number): Promise<boolean> {
