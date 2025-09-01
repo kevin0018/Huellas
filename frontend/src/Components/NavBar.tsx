@@ -21,7 +21,7 @@ const NavBar: React.FC = () => {
       <div className="container mx-auto flex justify-between items-center">
         {/* Logo + brand */}
         <Link to="/" className="flex items-center text-eggplant text-xl text-[#51344D]">
-          <img src="/media/logotipo.svg" alt="Logotipo-huellas" className="h-14 w-auto" />
+          <img src="/media/logotipo.svg" alt="Logotipo-huellas" className="h-16 w-auto" />
           Huellas
         </Link>
 
