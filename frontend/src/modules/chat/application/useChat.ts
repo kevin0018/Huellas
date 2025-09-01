@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import type { ConversationListItem, Message, Conversation } from '../domain/Conversation';
 import { ApiChatRepository } from '../infra/ApiChatRepository';
+import { socketService } from '../infra/SocketService';
+import { AuthService } from '../../auth/infra/AuthService';
 import { GetConversationsQueryHandler } from '../application/queries/GetConversationsQueryHandler';
 import { GetMessagesQueryHandler } from '../application/queries/GetMessagesQueryHandler';
 import { CreateConversationCommandHandler } from '../application/commands/CreateConversationCommandHandler';
@@ -86,12 +88,24 @@ export function useChat() {
   const sendMessage = async (conversationId: number, content: string, senderId: number) => {
     try {
       setError(null);
+      
+      // Send via Socket.IO for real-time delivery
+      if (socketService.isConnected()) {
+        socketService.sendMessage(conversationId, content, senderId);
+      }
+      
+      // Also send via API as fallback/persistence
       const message = await sendMessageHandler.handle(
         new SendMessageCommand(conversationId, content, senderId)
       );
       
-      // Add message to local state immediately for better UX
-      setMessages(prev => [...prev, message]);
+      // Add message to local state immediately for better UX (if not already added via socket)
+      setMessages(prev => {
+        if (prev.some(m => m.id === message.id)) {
+          return prev; // Already added via socket
+        }
+        return [...prev, message];
+      });
       
       // Refresh conversations to update last message
       await loadConversations();
@@ -119,7 +133,16 @@ export function useChat() {
   // Mark message as read
   const markAsRead = async (messageId: number) => {
     try {
+      const currentUser = AuthService.getUser();
+      
+      // Send via Socket.IO for real-time update
+      if (socketService.isConnected() && currentUser) {
+        socketService.markMessageAsRead(messageId, currentUser.id);
+      }
+      
+      // Also send via API
       await repository.markMessageAsRead(messageId);
+      
       // Update local message state
       setMessages(prev => 
         prev.map(msg => 
@@ -148,6 +171,68 @@ export function useChat() {
   useEffect(() => {
     loadConversations();
   }, [loadConversations]);
+
+  // Socket.IO integration
+  useEffect(() => {
+    // Connect to socket when component mounts
+    socketService.connect();
+
+    // Listen for new messages
+    const handleNewMessage = (message: unknown) => {
+      const msg = message as Message;
+      setMessages(prev => {
+        // Avoid duplicates
+        if (prev.some(m => m.id === msg.id)) {
+          return prev;
+        }
+        return [...prev, msg];
+      });
+      // Refresh conversations to update last message and unread count
+      loadConversations();
+    };
+
+    // Listen for message read updates
+    const handleMessageRead = (data: unknown) => {
+      const { messageId } = data as { messageId: number };
+      setMessages(prev => 
+        prev.map(msg => 
+          msg.id === messageId ? { ...msg, isRead: true } : msg
+        )
+      );
+      // Refresh conversations to update unread count
+      loadConversations();
+    };
+
+    // Listen for conversation updates
+    const handleConversationUpdated = () => {
+      loadConversations();
+    };
+
+    socketService.addEventListener('new-message', handleNewMessage);
+    socketService.addEventListener('message-read', handleMessageRead);
+    socketService.addEventListener('conversation-updated', handleConversationUpdated);
+
+    // Cleanup on unmount
+    return () => {
+      socketService.removeEventListener('new-message', handleNewMessage);
+      socketService.removeEventListener('message-read', handleMessageRead);
+      socketService.removeEventListener('conversation-updated', handleConversationUpdated);
+    };
+  }, [loadConversations]);
+
+  // Join/leave conversation rooms when selected conversation changes
+  useEffect(() => {
+    if (selectedConversation) {
+      const currentUser = AuthService.getUser();
+      if (currentUser) {
+        socketService.joinConversation(selectedConversation.id, currentUser.id);
+      }
+      
+      return () => {
+        socketService.leaveConversation(selectedConversation.id);
+      };
+    }
+  }, [selectedConversation]);
 
   return {
     // State
