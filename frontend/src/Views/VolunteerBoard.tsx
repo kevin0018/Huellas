@@ -102,13 +102,6 @@ function VolunteerBoard() {
 
     try {
       // Check if conversation already exists for this specific post
-      console.log('🔍 Searching for existing conversation...');
-      console.log('🔍 Looking for title containing:', `Consulta sobre: ${postTitle}`);
-      console.log('🔍 Available conversations:', conversations?.map(conv => ({
-        id: conv?.id,
-        title: conv?.title,
-        participants: conv?.participants?.map(p => p?.id)
-      })));
       
       const existingConversation = conversations?.find(conv =>
         conv?.participants?.some(p => p?.id === authorId) &&
@@ -118,28 +111,20 @@ function VolunteerBoard() {
 
       if (existingConversation) {
         // Conversation exists for this post, go directly to chat
-        console.log('✅ Found existing conversation for this post:', existingConversation);
         navigate(`/chat?postId=${postId}&with=${authorId}&conversationId=${existingConversation.id}`);
       } else {
         // Create new conversation specific to this post
-        console.log('🔄 Creating new conversation for post:', postTitle);
-        console.log('🔄 Title being sent:', `Consulta sobre: ${postTitle}`);
-        console.log('🔄 Participants being sent:', [currentUserId, authorId]);
         
         const newConversation = await createConversation(
           `Consulta sobre: ${postTitle}`,
           [currentUserId, authorId]
         );
         
-        console.log('✅ Conversation created:', newConversation);
-        console.log('✅ Expected title:', `Consulta sobre: ${postTitle}`);
-        console.log('✅ Actual title:', newConversation?.title);
-        
         // Navigate with the specific conversation ID
         navigate(`/chat?postId=${postId}&with=${authorId}&conversationId=${newConversation?.id || ''}`);
       }
     } catch (error) {
-      console.error("❌ Error handling chat:", error);
+      console.error("Error handling chat:", error);
       alert("Error al iniciar conversación. Inténtalo de nuevo.");
     }
   }

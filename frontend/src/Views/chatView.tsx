@@ -178,7 +178,6 @@ export default function ChatView() {
     if (conversationId) {
       const specificConversation = conversations.find(conv => conv?.id === parseInt(conversationId));
       if (specificConversation && selectedConversation?.id !== specificConversation.id) {
-        console.log('✅ Found specific conversation by ID:', specificConversation);
         selectConversation(specificConversation);
         return;
       }
@@ -198,7 +197,6 @@ export default function ChatView() {
     if (existingConversations.length > 0 && !selectedConversation) {
       // Sort by ID (most recent first) and select the newest one
       const mostRecentConversation = existingConversations.sort((a, b) => (b?.id || 0) - (a?.id || 0))[0];
-      console.log('✅ Found conversation(s), selecting most recent:', mostRecentConversation);
       selectConversation(mostRecentConversation);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -58,7 +58,7 @@ function ProceduresView() {
     setEditingProcedure(null);
   };
 
-  const onModalSubmit = async (status: string, procedureId: number, checkupId?: number, checkupDate?: string, checkupNotes?: string) => {
+  const onModalSubmit = async (_status: string, procedureId: number, checkupId?: number, checkupDate?: string, checkupNotes?: string) => {
     if (checkupId) {
       await checkupRepository.update(checkupId, { petId, date: checkupDate, notes: checkupNotes })
     } else {
