@@ -9,16 +9,9 @@ import type { ConversationListItem, Message } from "../modules/chat/domain/Conve
 interface ChatMessageProps {
   message: Message;
   isCurrentUser: boolean;
-  onMarkAsRead: (messageId: number) => void;
 }
 
-function ChatMessage({ message, isCurrentUser, onMarkAsRead }: ChatMessageProps) {
-  useEffect(() => {
-    // Mark message as read if it's not from current user and not already read
-    if (!isCurrentUser && !message.isRead) {
-      onMarkAsRead(message.id);
-    }
-  }, [message.id, isCurrentUser, message.isRead, onMarkAsRead]);
+function ChatMessage({ message, isCurrentUser }: ChatMessageProps) {
 
   return (
     <div className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'} mb-4`}>
@@ -154,13 +147,10 @@ export default function ChatView() {
     error,
     selectConversation,
     sendMessage,
-    markAsRead,
-    createConversation,
     setError
   } = useChat();
 
   const [newMessage, setNewMessage] = useState('');
-  const [isCreatingConversation, setIsCreatingConversation] = useState(false);
   const hasTriedCreation = useRef(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -177,69 +167,23 @@ export default function ChatView() {
     hasTriedCreation.current = false;
   }, [postId, withUserId]);
 
-  // Auto-create conversation when needed
   useEffect(() => {
-    const initConversation = async () => {
-      if (!postId || !withUserId || !currentUserId || hasTriedCreation.current) {
-        return;
-      }
-
-      if (conversations && conversations.length >= 0) {
-        // Look for existing conversation with the specified user
-        const existingConversation = conversations.find(conv =>
-          conv?.participants?.some(p => p?.id === parseInt(withUserId))
-        );
-
-        if (existingConversation) {
-          await selectConversation(existingConversation);
-          hasTriedCreation.current = true;
-        } else if (conversations.length >= 0) { // Wait for conversations to load
-          // Create new conversation
-          if (!withUserId || !currentUserId) return;
-
-          try {
-            setIsCreatingConversation(true);
-            hasTriedCreation.current = true; // Set flag before creating to prevent multiple attempts
-            
-            await createConversation(
-              `Consulta sobre anuncio #${postId}`,
-              [currentUserId, parseInt(withUserId)]
-            );
-            
-            setTimeout(async () => {
-              const newConversation = conversations?.find(conv => 
-                conv?.participants?.some(p => p?.id === parseInt(withUserId))
-              );
-              
-              if (newConversation) {
-                await selectConversation(newConversation);
-              }
-            }, 500); // Small delay to allow conversations to reload
-            
-          } catch {
-            hasTriedCreation.current = false; // Reset flag on error
-          } finally {
-            setIsCreatingConversation(false);
-          }
-        }
-      }
-    };
-
-    initConversation();
-  }, [postId, withUserId, currentUserId, conversations, selectConversation, createConversation]);
-
-  // Auto-select conversation after creation when conversations update
-  useEffect(() => {
-    if (postId && withUserId && hasTriedCreation.current && !selectedConversation && conversations.length > 0) {
-      const targetConversation = conversations?.find(conv =>
-        conv?.participants?.some(p => p?.id === parseInt(withUserId))
-      );
-      
-      if (targetConversation) {
-        selectConversation(targetConversation);
-      }
+    if (!postId || !withUserId || !currentUserId || !conversations) {
+      return;
     }
-  }, [conversations, postId, withUserId, selectedConversation, selectConversation]);
+
+    // Look for existing conversation with the specified user
+    const existingConversation = conversations.find(conv =>
+      conv?.participants?.some(p => p?.id === parseInt(withUserId)) &&
+      conv?.participants?.some(p => p?.id === currentUserId)
+    );
+
+    if (existingConversation && !selectedConversation) {
+      console.log('✅ Found existing conversation, selecting it');
+      selectConversation(existingConversation);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [postId, withUserId, currentUserId, conversations]); // Only select existing ones
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -251,14 +195,6 @@ export default function ChatView() {
       setNewMessage('');
     } catch (err) {
       console.error('Error sending message:', err);
-    }
-  };
-
-  const handleMarkAsRead = async (messageId: number) => {
-    try {
-      await markAsRead(messageId);
-    } catch (err) {
-      console.error('Error marking message as read:', err);
     }
   };
 
@@ -340,7 +276,6 @@ export default function ChatView() {
                               key={message?.id}
                               message={message}
                               isCurrentUser={message.senderId === currentUserId}
-                              onMarkAsRead={handleMarkAsRead}
                             />
                           ))}
                           <div ref={messagesEndRef} />
@@ -371,13 +306,9 @@ export default function ChatView() {
                   </>
                 ) : (
                   <div className="flex items-center justify-center h-full">
-                    {isCreatingConversation ? (
-                      <div className="text-[#51344D]">Creando conversación...</div>
-                    ) : (
-                      <div className="text-gray-500">
-                        Selecciona una conversación para comenzar
-                      </div>
-                    )}
+                    <div className="text-gray-500">
+                      Selecciona una conversación para comenzar
+                    </div>
                   </div>
                 )}
               </div>

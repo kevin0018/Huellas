@@ -18,8 +18,8 @@ export class MemoryMessageRepository implements MessageRepository {
       }
     }
     
-    // Sort by creation date descending (newest first)
-    conversationMessages.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    // Sort by creation date ascending (oldest first, newest last - natural chat flow)
+    conversationMessages.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
     
     // Apply pagination
     return conversationMessages.slice(offset, offset + limit);

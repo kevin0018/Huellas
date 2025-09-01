@@ -52,7 +52,7 @@ describe('GetMessagesQueryHandler', () => {
       expect(result.map(m => m.id)).toContain(msg2.id);
     });
 
-    it('should return messages sorted by creation date descending', async () => {
+    it('should return messages sorted by creation date ascending', async () => {
       // Arrange
       const conversation = await conversationRepository.create(
         Conversation.create('Test Chat', 1, [1, 2])
@@ -79,8 +79,8 @@ describe('GetMessagesQueryHandler', () => {
 
       // Assert
       expect(result).toHaveLength(2);
-      expect(result[0].id).toBe(msg2.id); // Newer message first
-      expect(result[1].id).toBe(msg1.id);
+      expect(result[0].id).toBe(msg1.id); // Older message first
+      expect(result[1].id).toBe(msg2.id); // Newer message last (natural chat flow)
     });
 
     it('should return empty array when conversation has no messages', async () => {

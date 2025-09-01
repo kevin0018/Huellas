@@ -12,6 +12,7 @@ import type { PostCategory, VolunteerPostListItem } from "../modules/posts/domai
 import { AuthService } from "../modules/auth/infra/AuthService";
 import { DeleteVolunteerPostCommand } from "../modules/posts/application/commands/DeleteVolunteerPostCommand";
 import { DeleteVolunteerPostCommandHandler } from "../modules/posts/application/commands/DeleteVolunteerPostCommandHandler";
+import { useChat } from "../modules/chat/application/useChat";
 
 const CATEGORY_LABEL: Record<PostCategory, string> = {
   GENERAL: "General",
@@ -56,6 +57,9 @@ function VolunteerBoard() {
   const [selectedCategory, setSelectedCategory] = useState<PostCategory | "ALL">("ALL");
   const [myOnly, setMyOnly] = useState<boolean>(false); // ⬅️ NUEVO
 
+  // Chat functionality
+  const { createConversation, conversations } = useChat();
+
   const {
     items,
     total,
@@ -79,9 +83,48 @@ function VolunteerBoard() {
       const handler = new DeleteVolunteerPostCommandHandler();
       await handler.execute(cmd);
       await reload();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("[VolunteerBoard] delete error:", err);
-      alert(err?.message || "No se pudo eliminar el anuncio");
+      alert((err as Error)?.message || "No se pudo eliminar el anuncio");
+    }
+  }
+
+  async function handleOpenChat(postId: number, authorId: number, postTitle: string) {
+    if (!currentUserId) {
+      alert("Debes iniciar sesión para enviar mensajes");
+      return;
+    }
+
+    if (currentUserId === authorId) {
+      alert("No puedes enviarte mensajes a ti mismo");
+      return;
+    }
+
+    try {
+      // Check if conversation already exists
+      const existingConversation = conversations?.find(conv =>
+        conv?.participants?.some(p => p?.id === authorId) &&
+        conv?.participants?.some(p => p?.id === currentUserId)
+      );
+
+      if (existingConversation) {
+        // Conversation exists, go directly to chat
+        console.log('✅ Found existing conversation, navigating to chat');
+        navigate(`/chat?postId=${postId}&with=${authorId}`);
+      } else {
+        // Create new conversation first
+        console.log('🔄 Creating new conversation for post:', postTitle);
+        await createConversation(
+          `Consulta sobre: ${postTitle}`,
+          [currentUserId, authorId]
+        );
+        
+        // Then navigate to chat
+        navigate(`/chat?postId=${postId}&with=${authorId}`);
+      }
+    } catch (error) {
+      console.error("❌ Error handling chat:", error);
+      alert("Error al iniciar conversación. Inténtalo de nuevo.");
     }
   }
 
@@ -167,7 +210,7 @@ function VolunteerBoard() {
                     author={authorName}
                     description={excerpt(post.content)}
                     category={post.category}
-                    onOpenChat={() => navigate(`/chat?postId=${post.id}&with=${post.author.id}`)}
+                    onOpenChat={() => handleOpenChat(post.id, post.author.id, post.title)}
                   />
 
                   {isAuthor && (

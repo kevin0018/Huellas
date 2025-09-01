@@ -14,7 +14,7 @@ export class PrismaMessageRepository implements MessageRepository {
   async findByConversationId(conversationId: number, limit: number = 50, offset: number = 0): Promise<Message[]> {
     const data = await this.prisma.message.findMany({
       where: { conversation_id: conversationId },
-      orderBy: { created_at: 'desc' },
+      orderBy: { created_at: 'asc' }, // Changed to 'asc' for natural chat flow (oldest first, newest last)
       take: limit,
       skip: offset,
     });

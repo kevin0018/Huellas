@@ -90,6 +90,7 @@ useEffect(() => {
               )}
 
               <Link to="/volunteer-board" className="3xl:!text-[2rem]">Buscar voluntarios</Link>
+              <Link to="/chat" className="3xl:!text-[2rem]">Mis Chats</Link>
               <button 
                 onClick={handleLogout}
                 className="3xl:!text-[2rem]"
@@ -143,6 +144,7 @@ useEffect(() => {
                 <Link to="/volunteer-home" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">Voluntariado</Link>
               )}
               <Link to="/volunteer-board" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">Buscar voluntarios</Link>
+              <Link to="/chat" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">Mis Chats</Link>
               <button
                 onClick={handleLogout}
                 className="hover:text-[--huellas-eggplant]"
