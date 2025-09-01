@@ -59,9 +59,6 @@ function ProceduresView() {
   };
 
   const onModalSubmit = async (status: string, procedureId: number, checkupId?: number, checkupDate?: string, checkupNotes?: string) => {
-    console.log("-------EN EL PROCEDURES VIEW (COMPONENTENTE PADRE)")
-    console.log(status, checkupId, checkupDate, checkupNotes);
-    
     if (checkupId) {
       await checkupRepository.update(checkupId, { petId, date: checkupDate, notes: checkupNotes })
     } else {

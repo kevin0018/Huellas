@@ -32,9 +32,9 @@ const ProcedureCard: React.FC<ProcedureCardProps> = ({ procedure, onEdit }) => {
           <strong>Descripción: </strong>{procedure.description}
         </p>
         {procedure.checkupDate && (
-            <p className="text-sm text-gray-600 dark:text-gray-200 text-left">
-              <strong>Fecha: </strong> {new Date(procedure.checkupDate).toLocaleDateString('es-ES')}
-            </p>
+          <p className="text-sm text-gray-600 dark:text-gray-200 text-left">
+            <strong>Fecha: </strong> {new Date(procedure.checkupDate).toLocaleDateString('es-ES')}
+          </p>
         )}
         {procedure.checkupNotes && (
           <p className="text-sm text-gray-600 dark:text-gray-200 text-left">

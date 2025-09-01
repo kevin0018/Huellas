@@ -4,15 +4,13 @@ import type { PetProcedureData } from '../Views/ProceduresView';
 interface ProcedureModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onModalSubmit: ( status: string, procedureId: number, checkupId?: number, checkupDate?: string, checkupNotes?: string) => void;
+  onModalSubmit: (status: string, procedureId: number, checkupId?: number, checkupDate?: string, checkupNotes?: string) => void;
   procedure: PetProcedureData;
 }
 
 const statusOptions = ['DONE', 'UPCOMING', 'MISSING'];
 
 const ProcedureModal: React.FC<ProcedureModalProps> = ({ isOpen, onClose, onModalSubmit, procedure }) => {
-  // Estado local para manejar las ediciones SOLO del procedimiento actual
-  //const [editingState, setEditingState] = useState(initialState);
 
   const [status, setStatus] = useState(procedure.status);
   const [date, setDate] = useState(procedure.checkupDate);
@@ -22,24 +20,19 @@ const ProcedureModal: React.FC<ProcedureModalProps> = ({ isOpen, onClose, onModa
   if (!isOpen) return null;
 
   const handleEditCheckupDate = (newDate: string) => {
-    console.log('NUEVA FECHA', newDate);
     setDate(newDate);
   }
 
   const handleEditCheckupNotes = (newNotes: string) => {
-    console.log('NUEVAs notes', newNotes);
     setNotes(newNotes);
   }
 
   const handleStatusChange = (newStatus: PetProcedureData['status']) => {
     setStatus(newStatus);
-    console.log('NUEVO STATUS', newStatus);
   }
 
-  console.log(status);
   const handleSubmit = () => {
     // Llama a la función onSubmit del componente padre con los datos actualizados
-    console.log("----- ENVIADOOOO ----- ")
     onModalSubmit(status, procedure.id, procedure.checkupId, date, notes);
   };
 
@@ -59,10 +52,10 @@ const ProcedureModal: React.FC<ProcedureModalProps> = ({ isOpen, onClose, onModa
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Fecha de realización</label>
               <input
-              type="date"
-              className="mt-1 block w-full sm:text-sm border-gray-300 rounded-md p-2"
-              value={date ? new Date(date).toISOString().split('T')[0] : ''}
-              onChange={(e) => handleEditCheckupDate(e.target.value)}
+                type="date"
+                className="mt-1 block w-full sm:text-sm border-gray-300 rounded-md p-2"
+                value={date ? new Date(date).toISOString().split('T')[0] : ''}
+                onChange={(e) => handleEditCheckupDate(e.target.value)}
               />
             </div>
             <div>
