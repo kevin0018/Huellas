@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import NavBar from "../Components/NavBar";
+import Footer from "../Components/footer";
 import GoBackButton from "../Components/GoBackButton";
 import { useChat } from "../modules/chat/application/useChat";
 import { AuthService } from "../modules/auth/infra/AuthService";
@@ -157,10 +158,13 @@ export default function ChatView() {
   const currentUser = AuthService.getUser();
   const currentUserId = currentUser?.id;
 
-  // Scroll to bottom when messages change
+  // Scroll to bottom when messages change or conversation changes
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    // Use setTimeout to ensure DOM has updated
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+  }, [messages, selectedConversation]);
 
   // Reset creation flag when URL params change
   useEffect(() => {
@@ -215,7 +219,7 @@ export default function ChatView() {
             </div>
           )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 h-[70vh]">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 h-[600px] max-h-[600px]">
             
             <div className="flex flex-col lg:col-span-1 h-full">
               <div className="mb-2 lg:mb-4">
@@ -260,7 +264,7 @@ export default function ChatView() {
                     </div>
 
                     {/* Messages */}
-                    <div className="flex-1 p-3 lg:p-4 overflow-y-auto min-h-0">
+                    <div className="flex-1 p-3 lg:p-4 overflow-y-auto min-h-0 max-h-[450px]">
                       {loading && messages.length === 0 ? (
                         <div className="flex items-center justify-center h-full">
                           <div className="text-gray-500">Cargando mensajes...</div>
@@ -317,6 +321,7 @@ export default function ChatView() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
