@@ -21,8 +21,6 @@ import VolunteerBoard from './Views/VolunteerBoard';
 import VolunteerHome from './Views/VolunteerHome';
 import ChatView from './Views/chatView';
 
-
-
 const App: React.FC = () => {
   return (
     <LanguageProvider>
@@ -34,7 +32,7 @@ const App: React.FC = () => {
           <Route path="/register" element={<Register />} />
           <Route path="/pet-register" element={<PetRegister />} />
           <Route path="/pets/:id/edit" element={<PetRegister />} />
-          <Route path="/procedures-view" element={<ProceduresView />} />
+          <Route path="/procedures-view/:petId" element={<ProceduresView />} />
           <Route path="/appointments" element={<AppointmentsView />} />
           <Route path="/user-home" element={<UserHome />} />
           <Route path="/pets/:id" element={<PetProfile />} />
@@ -45,7 +43,6 @@ const App: React.FC = () => {
         </Routes>
       </ThemeProvider>
     </LanguageProvider>
-
   );
 };
 

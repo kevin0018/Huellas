@@ -60,6 +60,7 @@ export class PatchCheckupController {
       }
 
       if (date) {
+        console.log("----------> AQUI LA FECHA-------->: ", date);
         editData.date = new Date(date).toISOString();
       }
 

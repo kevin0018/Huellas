@@ -51,7 +51,7 @@ export class GetPetProceduresStatusController {
           status = PetProcedureStatus.UPCOMING;
         }
 
-        return { ...procedure, status };
+        return { ...procedure, status, checkupId: checkup?.getId(), checkupDate: checkup?.getDate(), checkupNotes: checkup?.getNotes() };
       }));
 
       return res.status(201).send(proceduresWithStatus);

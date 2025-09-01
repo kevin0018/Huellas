@@ -2,6 +2,7 @@
 import type { PetRepository } from '../domain/PetRepository.js';
 import type { Pet } from '../domain/Pet.js';
 import { AuthService } from '../../auth/infra/AuthService.js';
+import type { PetProcedureData } from '../../../Views/ProceduresView.js';
 
 export class ApiPetRepository implements PetRepository {
   private readonly baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
@@ -51,7 +52,7 @@ export class ApiPetRepository implements PetRepository {
       try {
         const txt = await res.text();
         if (txt) throw new Error(txt);
-      } catch {}
+      } catch { }
     }
     throw new Error(`${fallbackMsg}: ${res.status} ${res.statusText}`);
   }
@@ -80,6 +81,16 @@ export class ApiPetRepository implements PetRepository {
     await this.ensureOk(res, 'Failed to fetch pet');
     const raw = await res.json();
     return this.fromApi(raw);
+  }
+
+  async getPetProcedures(id: number): Promise<PetProcedureData[]> {
+    const res = await fetch(`${this.baseUrl}/pets/${id}/procedures`, {
+      method: 'GET',
+      headers: this.getAuthHeaders(),
+    });
+    await this.ensureOk(res, 'Failed to fetch pet');
+    const raw = await res.json();
+    return raw;
   }
 
   // -------------------------------------------------------------------------

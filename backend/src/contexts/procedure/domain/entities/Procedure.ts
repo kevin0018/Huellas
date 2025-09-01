@@ -5,7 +5,7 @@ export class Procedure {
   private petType: PetType;
   private name: string;
   private age: number;
-  private notes: string | null;
+  private description: string | null;
 
   constructor(
     id: number,
@@ -18,7 +18,7 @@ export class Procedure {
     this.petType = petType;
     this.name = name;
     this.age = age;
-    this.notes = notes;
+    this.description = notes;
   }
 
   public getId(): number {
@@ -53,11 +53,11 @@ export class Procedure {
     this.age = age;
   }
 
-  public getNotes(): string | null {
-    return this.notes;
+  public getDescription(): string | null {
+    return this.description;
   }
 
-  public setNotes(notes: string): void {
-    this.notes = notes;
+  public setDescription(description: string): void {
+    this.description = description;
   }
 }
