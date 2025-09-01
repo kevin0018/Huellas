@@ -135,28 +135,33 @@ function RegisterForm() {
         <h1 className="h1 font-caprasimo mb-8 text-4xl md:text-5xl text-[#51344D] drop-shadow-lg dark:text-[#FDF2DE]">{translate('register') || 'Únete'}</h1>
         <form className="w-full max-w-xs sm:max-w-md md:max-w-lg p-6 sm:p-8 bg-white/90 dark:bg-[#51344D]/90 rounded-xl shadow-lg border border-[#51344D] flex flex-col gap-4" onSubmit={handleSubmit}>
           <div className="flex justify-center gap-4 mb-2">
-            <label className="inline-flex items-center">
-              <input
-                type="radio"
-                name="userType"
-                value="owner"
-                checked={userType === 'owner'}
-                onChange={handleUserTypeChange}
-                className="accent-eggplant"
-              />
-              <span className="ml-2">{translate('owner') || 'Titular'}</span>
-            </label>
-            <label className="inline-flex items-center">
-              <input
-                type="radio"
-                name="userType"
-                value="volunteer"
-                checked={userType === 'volunteer'}
-                onChange={handleUserTypeChange}
-                className="accent-eggplant"
-              />
-              <span className="ml-2">{translate('volunteer') || 'Voluntario'}</span>
-            </label>
+            <div className="flex items-center w-1/2 justify-center">
+              <label className="inline-flex items-center text-xl md:text-xl">
+                <input
+                  type="radio"
+                  name="userType"
+                  value="owner"
+                  checked={userType === 'owner'}
+                  onChange={handleUserTypeChange}
+                  className="accent-eggplant"
+                />
+                <span className="ml-2">{translate('owner') || 'Titular'}</span>
+              </label>
+            </div>
+            <div className="w-px bg-gray-300 h-6 mx-2"></div>
+            <div className="flex items-center w-1/2 justify-center">
+              <label className="inline-flex items-center text-xl md:text-xl">
+                <input
+                  type="radio"
+                  name="userType"
+                  value="volunteer"
+                  checked={userType === 'volunteer'}
+                  onChange={handleUserTypeChange}
+                  className="accent-eggplant"
+                />
+                <span className="ml-2">{translate('volunteer') || 'Voluntario'}</span>
+              </label>
+            </div>
           </div>
           <input
             type="text"

@@ -85,7 +85,7 @@ useEffect(() => {
                 <Link to="/user-home" className="3xl:!text-[2rem]">{translate('home')}</Link>
               )}
               <Link to="/user-profile" className="3xl:!text-[2rem]">{translate('profile')}</Link>
-              {(userType === UserType.VOLUNTEER || userType === UserType.OWNER) && (
+              {(userType === UserType.VOLUNTEER) && (
                 <Link to="/volunteer-home" className="3xl:!text-[2rem]">Voluntariado</Link>
               )}
 
