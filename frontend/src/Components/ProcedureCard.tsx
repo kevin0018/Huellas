@@ -1,49 +1,16 @@
-// src/components/ProcedureCard.tsx
-
-type Procedure = {
-  key: string;
-  timeframe: string;
-  nombre: string;
-  descripcion: string;
-};
-
-type ProcedureState = {
-  isCompleted: boolean;
-  notes: string;
-  date: string;
-};
+import type { PetProcedureData } from "../Views/ProceduresView";
 
 interface ProcedureCardProps {
-  procedure: Procedure;
-  procedureState: ProcedureState;
-  onEdit: (procedure: Procedure) => void;
+  procedure: PetProcedureData;
+  onEdit: (procedure: PetProcedureData) => void;
 }
 
-const ProcedureCard: React.FC<ProcedureCardProps> = ({ procedure, procedureState, onEdit }) => {
-  const { nombre, timeframe } = procedure;
-  const { isCompleted, date } = procedureState;
-
-  // --- LÓGICA MODIFICADA PARA DETERMINAR EL ESTADO ---
+const ProcedureCard: React.FC<ProcedureCardProps> = ({ procedure, onEdit }) => {
   const getStatusInfo = () => {
-    if (isCompleted) {
-      return { text: 'Realizado', className: 'bg-green-200 text-green-800' };
-    }
-    
-    // Si no está completado, pero tiene una fecha futura, es "Próxima"
-    if (date) {
-      const procedureDate = new Date(date);
-      const today = new Date();
-      // Ajustamos la fecha de hoy a medianoche para una comparación precisa
-      today.setHours(0, 0, 0, 0);
-
-      if (procedureDate >= today) {
-        return { text: 'Próxima', className: 'bg-blue-200 text-blue-800' };
-      }
-    }
-    
-    // Si no se cumplen las condiciones anteriores, es "Faltante"
+    if (procedure.status === 'DONE') return { text: 'Realizado', className: 'bg-green-200 text-green-800' };
+    if (procedure.status === 'UPCOMING') return { text: 'Próxima', className: 'bg-blue-200 text-blue-800' };
     return { text: 'Faltante', className: 'bg-red-200 text-red-800' };
-  };
+  }
 
   const status = getStatusInfo();
 
@@ -52,25 +19,33 @@ const ProcedureCard: React.FC<ProcedureCardProps> = ({ procedure, procedureState
       <div>
         <div className="flex justify-between items-start mb-2">
           <h3 className="text-xl font-bold font-nunito text-[#51344D] dark:text-[#FDF2DE]">
-            {nombre}
+            {procedure.name}
           </h3>
           <span className={`px-3 py-1 text-xs font-semibold rounded-full ${status.className}`}>
             {status.text}
           </span>
         </div>
-        <p className="text-sm text-[#51344D] dark:text-gray-300 mb-2">{timeframe}</p>
-        
-        {(isCompleted || status.text === 'Próxima') && date && (
-          <p className="text-sm text-gray-600 dark:text-gray-200">
-            <strong>Fecha:</strong> {new Date(date).toLocaleDateString()}
+        <p className="text-sm text-[#51344D] dark:text-gray-300 mb-2 text-left">
+          <strong>Edad: </strong> {procedure.age} Semanas
+        </p>
+        <p className="text-sm text-gray-600 dark:text-gray-200 text-left">
+          <strong>Descripción: </strong>{procedure.description}
+        </p>
+        {procedure.checkupDate && (
+            <p className="text-sm text-gray-600 dark:text-gray-200 text-left">
+              <strong>Fecha: </strong> {new Date(procedure.checkupDate).toLocaleDateString('es-ES')}
+            </p>
+        )}
+        {procedure.checkupNotes && (
+          <p className="text-sm text-gray-600 dark:text-gray-200 text-left">
+            <strong>Notas: </strong>{procedure.checkupNotes}
           </p>
         )}
       </div>
       <div className="mt-4 text-right">
         <button
           onClick={() => onEdit(procedure)}
-          className="bg-[#51344D] text-white hover:bg-[#9886AD] font-semibold py-2 px-4 rounded-lg shadow-sm transition-colors"
-        >
+          className="bg-[#51344D] text-white hover:bg-[#9886AD] font-semibold py-2 px-4 rounded-lg shadow-sm transition-colors">
           Actualizar
         </button>
       </div>

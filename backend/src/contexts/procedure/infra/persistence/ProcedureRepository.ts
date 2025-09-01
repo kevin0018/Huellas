@@ -8,12 +8,14 @@ export class ProcedureRepository implements IProcedureRepository {
   async findByPetType(type: PetType): Promise<Procedure[]> {
     const results = await prisma.procedureSchedule.findMany({
       where: {
-        animal_type: type
+        animal_type: type,
       },
       orderBy: {
         recommended_vaccines_age: "asc"
       }
     })
+
+    console.log(results[0]);
 
     const procedures = results.map((item) => new Procedure(
       item.id,

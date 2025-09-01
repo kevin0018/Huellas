@@ -271,7 +271,7 @@ const PetRegister: React.FC = () => {
           </div>
 
           <div className="p-10 flex justify-center">
-            <Link to="/procedures-view" className="flex items-center justify-center gap-3 pr-4 bg-[#51344D] !text-white font-semibold rounded-lg shadow-md hover:bg-[#A89B9D] transition">
+            <Link to={`/procedures-view/${id}`} className="flex items-center justify-center gap-3 pr-4 bg-[#51344D] !text-white font-semibold rounded-lg shadow-md hover:bg-[#A89B9D] transition">
               <img src="/media/agenda_icon.svg" alt="Icono de agenda" className="h-10 w-10" />
               Ir a Procedimientos
             </Link>

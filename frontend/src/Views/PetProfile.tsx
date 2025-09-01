@@ -183,7 +183,7 @@ const PetProfile: React.FC = () => {
                   Editar perfil de mascota
                 </Link>
                 <Link
-                  to="/procedures-view"
+                  to={`/procedures-view/${pet?.id}`}
                   className="flex items-center justify-center gap-3 py-3 px-6 bg-[#51344D] text-white font-semibold rounded-lg shadow-md hover:bg-[#A89B9D] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#51344D] transition-all duration-300 ease-in-out transform hover:scale-105"
                 >
                   <svg

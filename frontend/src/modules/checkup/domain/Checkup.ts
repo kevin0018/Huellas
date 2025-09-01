@@ -10,14 +10,14 @@ export class Checkup {
   readonly id?: number;
   readonly petId: number;
   readonly procedureId: number;
-  readonly date: Date;
-  readonly notes: string | null;
+  readonly date?: Date;
+  readonly notes?: string | null;
 
   private constructor(p: CheckupProps) {
     this.id = p.id;
     this.petId = p.petId;
     this.procedureId = p.procedureId;
-    this.date = p.date;
+    this.date = p.date || new Date().toISOString;
     this.notes = p.notes ?? null;
   }
 
