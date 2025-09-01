@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import NavBar from "../Components/NavBar";
-import Footer from "../Components/footer";
 import GoBackButton from "../Components/GoBackButton";
 import { useChat } from "../modules/chat/application/useChat";
 import { AuthService } from "../modules/auth/infra/AuthService";
@@ -139,6 +138,7 @@ export default function ChatView() {
   const [searchParams] = useSearchParams();
   const postId = searchParams.get('postId');
   const withUserId = searchParams.get('with');
+  const conversationId = searchParams.get('conversationId');
   
   const {
     conversations,
@@ -172,22 +172,37 @@ export default function ChatView() {
   }, [postId, withUserId]);
 
   useEffect(() => {
-    if (!postId || !withUserId || !currentUserId || !conversations) {
+    if (!conversations) return;
+
+    // If we have a specific conversationId, use it directly
+    if (conversationId) {
+      const specificConversation = conversations.find(conv => conv?.id === parseInt(conversationId));
+      if (specificConversation && selectedConversation?.id !== specificConversation.id) {
+        console.log('✅ Found specific conversation by ID:', specificConversation);
+        selectConversation(specificConversation);
+        return;
+      }
+    }
+
+    // Fallback: if no specific conversationId, use the original logic
+    if (!postId || !withUserId || !currentUserId) {
       return;
     }
 
-    // Look for existing conversation with the specified user
-    const existingConversation = conversations.find(conv =>
+    // Look for the MOST RECENT conversation with the specified user
+    const existingConversations = conversations.filter(conv =>
       conv?.participants?.some(p => p?.id === parseInt(withUserId)) &&
       conv?.participants?.some(p => p?.id === currentUserId)
     );
 
-    if (existingConversation && !selectedConversation) {
-      console.log('✅ Found existing conversation, selecting it');
-      selectConversation(existingConversation);
+    if (existingConversations.length > 0 && !selectedConversation) {
+      // Sort by ID (most recent first) and select the newest one
+      const mostRecentConversation = existingConversations.sort((a, b) => (b?.id || 0) - (a?.id || 0))[0];
+      console.log('✅ Found conversation(s), selecting most recent:', mostRecentConversation);
+      selectConversation(mostRecentConversation);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [postId, withUserId, currentUserId, conversations]); // Only select existing ones
+  }, [conversationId, postId, withUserId, currentUserId, conversations]); // Only select existing ones
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -219,7 +234,7 @@ export default function ChatView() {
             </div>
           )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 h-[600px] max-h-[600px]">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 h-[500px] md:h-[600px] max-h-[500px] md:max-h-[600px]">
             
             <div className="flex flex-col lg:col-span-1 h-full">
               <div className="mb-2 lg:mb-4">
@@ -264,7 +279,7 @@ export default function ChatView() {
                     </div>
 
                     {/* Messages */}
-                    <div className="flex-1 p-3 lg:p-4 overflow-y-auto min-h-0 max-h-[450px]">
+                    <div className="flex-1 p-3 lg:p-4 overflow-y-auto min-h-0 max-h-[350px] md:max-h-[450px]">
                       {loading && messages.length === 0 ? (
                         <div className="flex items-center justify-center h-full">
                           <div className="text-gray-500">Cargando mensajes...</div>
@@ -321,7 +336,6 @@ export default function ChatView() {
           </div>
         </div>
       </div>
-      <Footer />
     </div>
   );
 }

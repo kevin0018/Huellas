@@ -11,12 +11,13 @@ export class CreateConversationCommandHandler {
       command.participantIds.push(command.createdBy);
     }
 
-    // For direct messages (2 participants), check if conversation already exists
+    // For direct messages (2 participants), check if conversation already exists with same title
     if (command.participantIds.length === 2) {
       const existingConversations = await this.conversationRepository.findByParticipant(command.createdBy);
       const existingDirectMessage = existingConversations.find(conv => {
         return conv.participantIds.length === 2 && 
-               conv.participantIds.every(id => command.participantIds.includes(id));
+               conv.participantIds.every(id => command.participantIds.includes(id)) &&
+               conv.title === command.title; // ⬅️ TAMBIÉN VERIFICAR EL TÍTULO
       });
       
       if (existingDirectMessage) {
