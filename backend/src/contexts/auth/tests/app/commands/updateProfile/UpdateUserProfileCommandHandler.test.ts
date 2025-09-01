@@ -47,7 +47,7 @@ describe('UpdateUserProfileCommandHandler', () => {
 
     // Assert
     expect(mockRepository.findByEmail).toHaveBeenCalledWith('jane@example.com');
-    expect(mockRepository.updateProfile).toHaveBeenCalledWith(1, 'Jane', 'Smith', 'jane@example.com');
+    expect(mockRepository.updateProfile).toHaveBeenCalledWith(1, 'Jane', 'Smith', 'jane@example.com', undefined);
     expect(result).toBe(updatedUser);
   });
 
@@ -64,7 +64,7 @@ describe('UpdateUserProfileCommandHandler', () => {
 
     // Assert
     expect(mockRepository.findByEmail).toHaveBeenCalledWith('john@example.com');
-    expect(mockRepository.updateProfile).toHaveBeenCalledWith(1, 'Jane', 'Smith', 'john@example.com');
+    expect(mockRepository.updateProfile).toHaveBeenCalledWith(1, 'Jane', 'Smith', 'john@example.com', undefined);
     expect(result).toBe(updatedUser);
   });
 

@@ -1,33 +1,148 @@
-### Test Chat API Endpoints
+### Chat System API Testing
+### Prerequisites: Database seeded with users
 
-### Get conversations (requires authentication)
-GET http://localhost:13000/chat/conversations
-Authorization: Bearer YOUR_JWT_TOKEN
-
-### Create a new conversation
-POST http://localhost:13000/chat/conversations
-Authorization: Bearer YOUR_JWT_TOKEN
+### 1. Login as Owner (juan@email.com)
+# @name loginOwner
+POST http://localhost:3000/api/auth/login
 Content-Type: application/json
 
 {
-  "title": "Test Conversation",
-  "participantIds": [2, 3]
+  "email": "juan@email.com",
+  "password": "password123"
 }
 
-### Get messages from a conversation
-GET http://localhost:13000/chat/conversations/1/messages
-Authorization: Bearer YOUR_JWT_TOKEN
-
-### Send a message
-POST http://localhost:13000/chat/conversations/1/messages
-Authorization: Bearer YOUR_JWT_TOKEN
+### 2. Login as Volunteer (ana@volunteer.com)
+# @name loginVolunteer
+POST http://localhost:3000/api/auth/login
 Content-Type: application/json
 
 {
-  "content": "Hello, this is a test message!",
-  "type": "TEXT"
+  "email": "ana@volunteer.com",
+  "password": "password123"
 }
 
-### Get unread message count
-GET http://localhost:13000/chat/messages/unread/count
-Authorization: Bearer YOUR_JWT_TOKEN
+### 3. Create a new conversation (as Owner)
+# @name createConversation
+POST http://localhost:3000/api/chat/conversations
+Authorization: Bearer {{loginOwner.response.body.token}}
+Content-Type: application/json
+
+{
+  "title": "Consulta sobre mascota perdida",
+  "participantIds": [19, 22]
+}
+
+### 4. Send first message from Owner
+# @name sendMessage1
+POST http://localhost:3000/api/chat/conversations/{{createConversation.response.body.data.id}}/messages
+Authorization: Bearer {{loginOwner.response.body.token}}
+Content-Type: application/json
+
+{
+  "content": "Hola, mi perro Max se perdió ayer cerca del parque. Es un Golden Retriever de 3 años.",
+  "senderId": 19
+}
+
+### 5. Send reply from Volunteer
+# @name sendMessage2
+POST http://localhost:3000/api/chat/conversations/{{createConversation.response.body.data.id}}/messages
+Authorization: Bearer {{loginVolunteer.response.body.token}}
+Content-Type: application/json
+
+{
+  "content": "Hola, creo que vi a tu mascota cerca del parque central. ¿Podrías enviarme más detalles?",
+  "senderId": 22
+}
+
+### 6. Get conversation messages
+# @name getMessages
+GET http://localhost:3000/api/chat/conversations/{{createConversation.response.body.data.id}}/messages
+Authorization: Bearer {{loginOwner.response.body.token}}
+
+### 7. Get all conversations for Owner
+# @name getOwnerConversations
+GET http://localhost:3000/api/chat/conversations
+Authorization: Bearer {{loginOwner.response.body.token}}
+
+### 8. Get all conversations for Volunteer
+# @name getVolunteerConversations
+GET http://localhost:3000/api/chat/conversations
+Authorization: Bearer {{loginVolunteer.response.body.token}}
+
+### 9. Mark message as read
+# @name markMessageRead
+PUT http://localhost:3000/api/chat/messages/{{sendMessage2.response.body.data.id}}/read
+Authorization: Bearer {{loginOwner.response.body.token}}
+Content-Type: application/json
+
+### 10. Archive conversation
+# @name archiveConversation
+PUT http://localhost:3000/api/chat/conversations/{{createConversation.response.body.data.id}}/archive
+Authorization: Bearer {{loginOwner.response.body.token}}
+Content-Type: application/json
+
+### Error Testing Scenarios
+
+### E1. Create conversation with invalid participant
+# @name errorInvalidParticipant
+POST http://localhost:3000/api/chat/conversations
+Authorization: Bearer {{loginOwner.response.body.token}}
+Content-Type: application/json
+
+{
+  "title": "Test invalid participant",
+  "participantIds": [19, 9999]
+}
+
+### E2. Send message without authentication
+# @name errorNoAuth
+POST http://localhost:3000/api/chat/conversations/1/messages
+Content-Type: application/json
+
+{
+  "content": "This should fail",
+  "senderId": 19
+}
+
+### E3. Send message to non-existent conversation
+# @name errorNonExistentConversation
+POST http://localhost:3000/api/chat/conversations/9999/messages
+Authorization: Bearer {{loginOwner.response.body.token}}
+Content-Type: application/json
+
+{
+  "content": "This should fail",
+  "senderId": 19
+}
+
+### E4. Send message as non-participant
+# Create new conversation first
+# @name createPrivateConversation
+POST http://localhost:3000/api/chat/conversations
+Authorization: Bearer {{loginVolunteer.response.body.token}}
+Content-Type: application/json
+
+{
+  "title": "Private conversation",
+  "participantIds": [22]
+}
+
+### Try to send message as Owner to Volunteer's private conversation
+# @name errorNonParticipant
+POST http://localhost:3000/api/chat/conversations/{{createPrivateConversation.response.body.data.id}}/messages
+Authorization: Bearer {{loginOwner.response.body.token}}
+Content-Type: application/json
+
+{
+  "content": "This should fail - not a participant",
+  "senderId": 19
+}
+
+### E5. Get conversations without authentication
+# @name errorNoAuthConversations
+GET http://localhost:3000/api/chat/conversations
+
+### E6. Get messages from non-existent conversation
+# @name errorNonExistentMessages
+GET http://localhost:3000/api/chat/conversations/9999/messages
+Authorization: Bearer {{loginOwner.response.body.token}}

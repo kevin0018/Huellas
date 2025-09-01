@@ -32,7 +32,28 @@ describe('LoginCommandHandler', () => {
     
     // Create mock for GetCurrentProfileQueryHandler
     mockGetCurrentProfileHandler = {
-      execute: vi.fn()
+      handle: vi.fn().mockImplementation((query) => {
+        // Return a mock profile based on the user ID
+        if (query.userId === 1) {
+          return Promise.resolve({
+            id: 1,
+            name: 'Juan',
+            lastName: 'Pérez',
+            email: 'owner@example.com',
+            type: UserType.OWNER
+          });
+        } else if (query.userId === 2) {
+          return Promise.resolve({
+            id: 2,
+            name: 'María',
+            lastName: 'García',
+            email: 'volunteer@example.com',
+            type: UserType.VOLUNTEER,
+            description: 'Volunteer description'
+          });
+        }
+        throw new Error('User not found');
+      })
     } as any;
     
     handler = new LoginCommandHandler(authRepository, mockGetCurrentProfileHandler);
@@ -89,7 +110,8 @@ describe('LoginCommandHandler', () => {
       name: 'María',
       lastName: 'García',
       email: 'volunteer@example.com',
-      type: UserType.VOLUNTEER
+      type: UserType.VOLUNTEER,
+      description: 'Volunteer description'
     });
   });
 

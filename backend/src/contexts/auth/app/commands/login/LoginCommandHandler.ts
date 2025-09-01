@@ -1,4 +1,4 @@
-import * as jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import { AuthRepository } from '../../../domain/repositories/AuthRepository.js';
 import { UserType } from '../../../domain/entities/UserAuth.js';
 import { LoginCommand } from './LoginCommand.js';

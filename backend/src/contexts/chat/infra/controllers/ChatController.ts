@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { AuthenticatedRequest } from '../../../auth/infra/middleware/JwtMiddleware.js';
 import { PrismaClient } from '@prisma/client';
 import { PrismaConversationRepository } from '../repositories/PrismaConversationRepository.js';
