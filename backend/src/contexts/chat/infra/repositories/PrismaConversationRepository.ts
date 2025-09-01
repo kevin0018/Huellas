@@ -8,7 +8,13 @@ export class PrismaConversationRepository implements ConversationRepository {
   async findById(id: number): Promise<Conversation | null> {
     const data = await this.prisma.conversation.findUnique({
       where: { id },
-      include: { participants: true },
+      include: { 
+        participants: {
+          include: {
+            user: true
+          }
+        }
+      },
     });
     if (!data) return null;
     return Conversation.fromDatabase(data);
@@ -21,7 +27,13 @@ export class PrismaConversationRepository implements ConversationRepository {
           some: { user_id: userId },
         },
       },
-      include: { participants: true },
+      include: { 
+        participants: {
+          include: {
+            user: true
+          }
+        }
+      },
       orderBy: { updated_at: 'desc' },
     });
     return data.map(c => Conversation.fromDatabase(c));
@@ -37,7 +49,13 @@ export class PrismaConversationRepository implements ConversationRepository {
           create: conversation.participantIds.map(user_id => ({ user_id })),
         },
       },
-      include: { participants: true },
+      include: { 
+        participants: {
+          include: {
+            user: true
+          }
+        }
+      },
     });
     return Conversation.fromDatabase(data);
   }
@@ -50,7 +68,13 @@ export class PrismaConversationRepository implements ConversationRepository {
         status: conversation.status,
         updated_at: new Date(),
       },
-      include: { participants: true },
+      include: { 
+        participants: {
+          include: {
+            user: true
+          }
+        }
+      },
     });
     return Conversation.fromDatabase(data);
   }

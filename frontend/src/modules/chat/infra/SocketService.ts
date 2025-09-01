@@ -20,6 +20,7 @@ export class SocketService {
 
   connect(): void {
     if (this.socket?.connected) {
+      console.log('[SocketService] Already connected, skipping');
       return;
     }
 
@@ -30,6 +31,7 @@ export class SocketService {
     }
 
     const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:3000';
+    console.log('[SocketService] Connecting to:', socketUrl, 'with token:', !!token);
 
     this.socket = io(socketUrl, {
       auth: {
@@ -39,11 +41,12 @@ export class SocketService {
     });
 
     this.socket.on('connect', () => {
-      console.log('[SocketService] Connected to server');
+      console.log('[SocketService] ✅ Connected to server successfully');
       
       // Join user's personal room automatically
       const user = AuthService.getUser();
       if (user) {
+        console.log('[SocketService] Joining user room for user:', user.id);
         this.joinUserRoom(user.id);
       }
     });
@@ -58,16 +61,19 @@ export class SocketService {
 
     // Listen for new messages
     this.socket.on('new-message', (message: Message) => {
+      console.log('[SocketService] 📩 Received new message:', message);
       this.notifyListeners('new-message', message);
     });
 
     // Listen for message read status updates
     this.socket.on('message-read', (data: { messageId: number }) => {
+      console.log('[SocketService] 👁️ Message read update:', data);
       this.notifyListeners('message-read', data);
     });
 
     // Listen for when successfully joined a conversation
     this.socket.on('joined-conversation', (data: { conversationId: number }) => {
+      console.log('[SocketService] ✅ Joined conversation:', data);
       this.notifyListeners('joined-conversation', data);
     });
 
@@ -104,14 +110,26 @@ export class SocketService {
   }
 
   sendMessage(conversationId: number, content: string, senderId: number): void {
+    console.log('[SocketService] Sending message:', { conversationId, content, senderId, connected: this.socket?.connected });
     if (this.socket?.connected) {
-      this.socket.emit('send-message', { conversationId, content, senderId });
+      this.socket.emit('send-message', { 
+        conversationId, 
+        content, 
+        senderId 
+      });
+      console.log('[SocketService] ✅ Message sent via socket');
+    } else {
+      console.warn('[SocketService] ❌ Cannot send message - socket not connected');
     }
   }
 
   markMessageAsRead(messageId: number, userId: number): void {
+    console.log('[SocketService] Marking message as read:', { messageId, userId, connected: this.socket?.connected });
     if (this.socket?.connected) {
       this.socket.emit('mark-read', { messageId, userId });
+      console.log('[SocketService] ✅ Mark read sent via socket');
+    } else {
+      console.warn('[SocketService] ❌ Cannot mark as read - socket not connected');
     }
   }
 

@@ -1,5 +1,13 @@
 import { ConversationStatus } from '@prisma/client';
 
+interface Participant {
+  id: number;
+  name: string;
+  lastName: string;
+  email: string;
+  type: 'OWNER' | 'VOLUNTEER';
+}
+
 export class Conversation {
   private constructor(
     private readonly _id: number,
@@ -8,7 +16,8 @@ export class Conversation {
     private readonly _createdAt: Date,
     private _updatedAt: Date,
     private readonly _createdBy: number,
-    private readonly _participantIds: number[]
+    private readonly _participantIds: number[],
+    private readonly _participants: Participant[] = []
   ) {}
 
   // Factory methods
@@ -25,6 +34,14 @@ export class Conversation {
   }
 
   static fromDatabase(data: any): Conversation {
+    const participants: Participant[] = data.participants?.map((p: any) => ({
+      id: p.user.id,
+      name: p.user.name,
+      lastName: p.user.last_name,
+      email: p.user.email,
+      type: p.user.type.toUpperCase() as 'OWNER' | 'VOLUNTEER'
+    })) || [];
+
     return new Conversation(
       data.id,
       data.title,
@@ -32,7 +49,8 @@ export class Conversation {
       data.created_at,
       data.updated_at,
       data.created_by,
-      data.participants?.map((p: any) => p.user_id) || []
+      data.participants?.map((p: any) => p.user_id) || [],
+      participants
     );
   }
 
@@ -44,6 +62,7 @@ export class Conversation {
   get updatedAt(): Date { return this._updatedAt; }
   get createdBy(): number { return this._createdBy; }
   get participantIds(): number[] { return this._participantIds; }
+  get participants(): Participant[] { return this._participants; }
 
   // Business logic
   archive(): void {

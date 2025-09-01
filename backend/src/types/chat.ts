@@ -1,12 +1,2 @@
-export enum ConversationStatus {
-  ACTIVE = 'ACTIVE',
-  ARCHIVED = 'ARCHIVED',
-  CLOSED = 'CLOSED',
-}
-
-export enum MessageType {
-  TEXT = 'TEXT',
-  IMAGE = 'IMAGE',
-  FILE = 'FILE',
-  SYSTEM = 'SYSTEM',
-}
+// Using Prisma generated types instead
+// ConversationStatus and MessageType are now imported from @prisma/client

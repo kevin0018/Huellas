@@ -1,11 +1,11 @@
 export class SendMessageCommand {
   public readonly conversationId: number;
   public readonly content: string;
-  public readonly senderId: number;
+  public readonly type?: string;
 
-  constructor(conversationId: number, content: string, senderId: number) {
+  constructor(conversationId: number, content: string, type?: string) {
     this.conversationId = conversationId;
     this.content = content;
-    this.senderId = senderId;
+    this.type = type;
   }
 }

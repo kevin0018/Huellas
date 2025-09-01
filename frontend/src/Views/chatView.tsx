@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import NavBar from "../Components/NavBar";
 import Footer from "../Components/footer";
@@ -26,12 +26,21 @@ function ChatMessage({ message, isCurrentUser, onMarkAsRead }: ChatMessageProps)
       <div
         className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
           isCurrentUser
-            ? 'bg-[#51344D] text-white'
+            ? 'bg-[#51344D] !text-white'
             : 'bg-gray-200 text-gray-800'
         }`}
+        style={isCurrentUser ? { backgroundColor: '#51344D', color: 'white' } : {}}
       >
-        <p className="text-sm">{message.content}</p>
-        <p className="text-xs mt-1 opacity-70">
+        <p 
+          className={`text-sm ${isCurrentUser ? '!text-white' : ''}`}
+          style={isCurrentUser ? { color: 'white !important' } : {}}
+        >
+          {message.content}
+        </p>
+        <p 
+          className={`text-xs mt-1 opacity-70 ${isCurrentUser ? '!text-white' : ''}`}
+          style={isCurrentUser ? { color: 'rgba(255, 255, 255, 0.7) !important' } : {}}
+        >
           {new Date(message.createdAt).toLocaleTimeString('es-ES', {
             hour: '2-digit',
             minute: '2-digit'
@@ -63,7 +72,7 @@ function ConversationList({
     );
   }
 
-  if (conversations.length === 0) {
+  if (!conversations || conversations.length === 0) {
     return (
       <div className="flex items-center justify-center h-32">
         <div className="text-gray-500">No hay conversaciones</div>
@@ -73,36 +82,70 @@ function ConversationList({
 
   return (
     <div className="space-y-2">
-      {conversations.map((conversation) => (
-        <div
-          key={conversation.id}
-          onClick={() => onSelectConversation(conversation)}
-          className={`p-3 rounded-lg cursor-pointer transition-colors ${
-            selectedConversation === conversation.id
-              ? 'bg-[#51344D] text-white'
-              : 'bg-white hover:bg-gray-50 border border-gray-200'
-          }`}
-        >
-          <div className="flex justify-between items-start">
-            <h3 className="font-semibold text-sm">{conversation.title}</h3>
-            {conversation.unreadCount > 0 && (
+      {conversations?.map((conversation, index) => {        
+        return (
+          <div
+            key={conversation?.id || `conversation-${index}`}
+            onClick={() => onSelectConversation(conversation)}
+            className={`p-3 rounded-lg cursor-pointer transition-all duration-200 ${
+              selectedConversation === conversation?.id
+                ? 'bg-[#51344D] shadow-md !text-white'
+                : 'bg-white hover:bg-gray-50 border border-gray-200 text-gray-800'
+            }`}
+            style={selectedConversation === conversation?.id ? { 
+              backgroundColor: '#51344D',
+              color: 'white'
+            } : {}}
+          >
+            <div className="flex justify-between items-start">
+              <h3 
+                className={`font-normal text-sm ${
+                  selectedConversation === conversation?.id
+                    ? '!text-white'
+                    : 'text-gray-800'
+                }`}
+                style={selectedConversation === conversation?.id ? { color: 'white !important' } : {}}
+              >
+                {conversation?.title || 'Sin título'}
+              </h3>
+              {conversation?.unreadCount && conversation.unreadCount > 0 && (
               <span className="bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center">
                 {conversation.unreadCount}
               </span>
             )}
           </div>
-          <p className="text-xs opacity-70 mt-1">
+          <p 
+            className={`text-xs mt-1 ${
+              selectedConversation === conversation?.id
+                ? '!text-white'
+                : 'text-gray-600'
+            }`}
+            style={selectedConversation === conversation?.id ? { 
+              color: 'rgba(255, 255, 255, 0.8) !important' 
+            } : {}}
+          >
             {conversation.participants
-              .map(p => `${p.name} ${p.lastName}`)
-              .join(', ')}
+              ?.filter(p => p?.name && p?.lastName)
+              ?.map(p => `${p.name} ${p.lastName}`)
+              ?.join(', ') || 'Sin participantes'}
           </p>
-          {conversation.lastMessage && (
-            <p className="text-xs opacity-60 mt-2 truncate">
+          {conversation?.lastMessage && (
+            <p 
+              className={`text-xs mt-2 truncate ${
+                selectedConversation === conversation?.id
+                  ? '!text-white'
+                  : 'text-gray-500'
+              }`}
+              style={selectedConversation === conversation?.id ? { 
+                color: 'rgba(255, 255, 255, 0.7) !important' 
+              } : {}}
+            >
               {conversation.lastMessage.content}
             </p>
           )}
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -127,39 +170,54 @@ export default function ChatView() {
 
   const [newMessage, setNewMessage] = useState('');
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
+  const hasTriedCreation = useRef(false);
 
   const currentUser = AuthService.getUser();
   const currentUserId = currentUser?.id;
 
+  // Reset creation flag when URL params change
+  useEffect(() => {
+    hasTriedCreation.current = false;
+  }, [postId, withUserId]);
+
   // Handle creating conversation from URL params (when coming from volunteer posts)
   useEffect(() => {
     const initConversation = async () => {
-      if (postId && withUserId && currentUserId && conversations.length > 0) {
+      if (postId && withUserId && currentUserId && !hasTriedCreation.current) {
         // Check if conversation already exists with this user
-        const existingConversation = conversations.find(conv =>
-          conv.participants.some(p => p.id === parseInt(withUserId))
+        const existingConversation = conversations?.find(conv =>
+          conv?.participants?.some(p => p?.id === parseInt(withUserId))
         );
 
         if (existingConversation) {
           await selectConversation(existingConversation);
-        } else {
+          hasTriedCreation.current = true;
+        } else if (conversations.length >= 0) { // Wait for conversations to load
           // Create new conversation
           if (!withUserId || !currentUserId) return;
 
           try {
             setIsCreatingConversation(true);
-            const conversation = await createConversation(
+            hasTriedCreation.current = true; // Set flag before creating to prevent multiple attempts
+            
+            await createConversation(
               `Consulta sobre anuncio #${postId}`,
               [currentUserId, parseInt(withUserId)]
             );
             
-            // Find and select the new conversation
-            const newConv = conversations.find(c => c.id === conversation.id);
-            if (newConv) {
-              await selectConversation(newConv);
-            }
+            setTimeout(async () => {
+              const newConversation = conversations?.find(conv => 
+                conv?.participants?.some(p => p?.id === parseInt(withUserId))
+              );
+              
+              if (newConversation) {
+                await selectConversation(newConversation);
+              }
+            }, 500); // Small delay to allow conversations to reload
+            
           } catch (err) {
-            console.error('Error creating conversation:', err);
+            console.error('[ChatView] ❌ Error creating conversation:', err);
+            hasTriedCreation.current = false; // Reset flag on error
           } finally {
             setIsCreatingConversation(false);
           }
@@ -170,13 +228,26 @@ export default function ChatView() {
     initConversation();
   }, [postId, withUserId, currentUserId, conversations, selectConversation, createConversation]);
 
+  // Auto-select conversation after creation when conversations update
+  useEffect(() => {
+    if (postId && withUserId && hasTriedCreation.current && !selectedConversation && conversations.length > 0) {
+      const targetConversation = conversations?.find(conv =>
+        conv?.participants?.some(p => p?.id === parseInt(withUserId))
+      );
+      
+      if (targetConversation) {
+        selectConversation(targetConversation);
+      }
+    }
+  }, [conversations, postId, withUserId, selectedConversation, selectConversation]);
+
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!newMessage.trim() || !selectedConversation || !currentUserId) return;
+    if (!newMessage.trim() || !selectedConversation) return;
 
     try {
-      await sendMessage(selectedConversation.id, newMessage.trim(), currentUserId);
+      await sendMessage(selectedConversation.id, newMessage.trim());
       setNewMessage('');
     } catch (err) {
       console.error('Error sending message:', err);
@@ -222,7 +293,7 @@ export default function ChatView() {
                 Conversaciones
               </h2>
               <ConversationList
-                conversations={conversations}
+                conversations={conversations || []}
                 selectedConversation={selectedConversation?.id || null}
                 onSelectConversation={selectConversation}
                 loading={loading}
@@ -235,14 +306,14 @@ export default function ChatView() {
                 <>
                   {/* Chat Header */}
                   <div className="p-4 border-b border-gray-200">
-                    <h3 className="font-semibold text-[#51344D]">
+                    <h3 className="font-normal text-[#51344D]">
                       {selectedConversation.title}
                     </h3>
                     <p className="text-sm text-gray-600">
                       {selectedConversation.participants
-                        .filter(p => p.id !== currentUserId)
-                        .map(p => `${p.name} ${p.lastName}`)
-                        .join(', ')}
+                        ?.filter(p => p?.id !== currentUserId)
+                        ?.map(p => `${p?.name} ${p?.lastName}`)
+                        ?.join(', ')}
                     </p>
                   </div>
 
@@ -257,9 +328,9 @@ export default function ChatView() {
                         <div className="text-gray-500">No hay mensajes</div>
                       </div>
                     ) : (
-                      messages.map((message) => (
+                      messages?.map((message) => (
                         <ChatMessage
-                          key={message.id}
+                          key={message?.id}
                           message={message}
                           isCurrentUser={message.senderId === currentUserId}
                           onMarkAsRead={handleMarkAsRead}

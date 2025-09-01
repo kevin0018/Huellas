@@ -46,7 +46,9 @@ export function useChat() {
       const result = await getConversationsHandler.handle(new GetConversationsQuery());
       setConversations(result);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error loading conversations');
+      const errorMsg = err instanceof Error ? err.message : 'Error loading conversations';
+      console.error('[useChat] ❌ Failed to load conversations:', errorMsg);
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -77,6 +79,7 @@ export function useChat() {
       await loadConversations(); // Refresh conversations list
       return conversation;
     } catch (err) {
+      console.error('[useChat] ❌ Error creating conversation:', err);
       setError(err instanceof Error ? err.message : 'Error creating conversation');
       throw err;
     } finally {
@@ -85,24 +88,19 @@ export function useChat() {
   };
 
   // Send a message
-  const sendMessage = async (conversationId: number, content: string, senderId: number) => {
+  const sendMessage = async (conversationId: number, content: string) => {
     try {
       setError(null);
       
-      // Send via Socket.IO for real-time delivery
-      if (socketService.isConnected()) {
-        socketService.sendMessage(conversationId, content, senderId);
-      }
-      
-      // Also send via API as fallback/persistence
+      // Send via API only - the backend will handle Socket.IO notifications
       const message = await sendMessageHandler.handle(
-        new SendMessageCommand(conversationId, content, senderId)
+        new SendMessageCommand(conversationId, content)
       );
       
-      // Add message to local state immediately for better UX (if not already added via socket)
+      // Add message to local state immediately for better UX
       setMessages(prev => {
         if (prev.some(m => m.id === message.id)) {
-          return prev; // Already added via socket
+          return prev; // Already exists
         }
         return [...prev, message];
       });
@@ -180,11 +178,16 @@ export function useChat() {
     // Listen for new messages
     const handleNewMessage = (message: unknown) => {
       const msg = message as Message;
+      console.log('[useChat] 📨 Received new message via socket:', msg);
+      
       setMessages(prev => {
-        // Avoid duplicates
-        if (prev.some(m => m.id === msg.id)) {
+        // Avoid duplicates by checking if message already exists
+        const exists = prev.some(m => m.id === msg.id);
+        if (exists) {
+          console.log('[useChat] ⚠️ Message already exists, skipping duplicate');
           return prev;
         }
+        console.log('[useChat] ✅ Adding new message to state');
         return [...prev, msg];
       });
       // Refresh conversations to update last message and unread count

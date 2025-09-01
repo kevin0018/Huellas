@@ -35,7 +35,7 @@ export interface CreateConversationData {
 export interface SendMessageData {
   readonly conversationId: number;
   readonly content: string;
-  readonly senderId: number;
+  readonly type?: string;
 }
 
 export interface ConversationListItem {

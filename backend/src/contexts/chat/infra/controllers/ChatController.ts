@@ -10,6 +10,7 @@ import { ArchiveConversationCommandHandler } from '../../app/commands/ArchiveCon
 import { GetConversationsQueryHandler } from '../../app/queries/GetConversationsQueryHandler.js';
 import { GetMessagesQueryHandler } from '../../app/queries/GetMessagesQueryHandler.js';
 import { GetUnreadMessagesCountQueryHandler } from '../../app/queries/GetUnreadMessagesCountQueryHandler.js';
+import { SocketIOService } from '../websocket/SocketIOService.js';
 
 const prisma = new PrismaClient();
 const conversationRepo = new PrismaConversationRepository(prisma);
@@ -30,9 +31,24 @@ export class ChatController {
     try {
       const userId = req.user.userId;
       const conversations = await getConversationsHandler.handle({ userId });
-      res.json(conversations);
+      
+      // Transform entities to DTOs using getters
+      const conversationDTOs = conversations.map(conv => ({
+        id: conv.id,
+        title: conv.title,
+        status: conv.status,
+        createdAt: conv.createdAt,
+        updatedAt: conv.updatedAt,
+        createdBy: conv.createdBy,
+        participantIds: conv.participantIds,
+        participants: conv.participants,
+        isArchived: conv.status === 'ARCHIVED',
+        unreadCount: 0 // TODO: Implement unread count
+      }));
+      
+      res.json({ success: true, data: conversationDTOs });
     } catch (err) {
-      res.status(500).json({ message: 'Error al obtener conversaciones', error: err });
+      res.status(500).json({ success: false, message: 'Error al obtener conversaciones', error: err });
     }
   }
 
@@ -43,9 +59,24 @@ export class ChatController {
       const { participantIds, title } = req.body;
       const createdBy = req.user.userId;
       const conversation = await createConversationHandler.handle({ participantIds, title, createdBy });
-      res.status(201).json(conversation);
+      
+      // Transform entity to DTO using getters
+      const conversationDTO = {
+        id: conversation.id,
+        title: conversation.title,
+        status: conversation.status,
+        createdAt: conversation.createdAt,
+        updatedAt: conversation.updatedAt,
+        createdBy: conversation.createdBy,
+        participantIds: conversation.participantIds,
+        participants: conversation.participants,
+        isArchived: conversation.status === 'ARCHIVED',
+        unreadCount: 0
+      };
+      
+      res.status(201).json({ success: true, data: conversationDTO });
     } catch (err) {
-      res.status(500).json({ message: 'Error al crear conversación', error: err });
+      res.status(500).json({ success: false, message: 'Error al crear conversación', error: err });
     }
   }
 
@@ -55,9 +86,23 @@ export class ChatController {
     try {
       const conversationId = Number(req.params.id);
       const messages = await getMessagesHandler.handle({ conversationId });
-      res.json(messages);
+      
+      // Transform entities to DTOs using getters
+      const messageDTOs = messages.map(msg => ({
+        id: msg.id,
+        conversationId: msg.conversationId,
+        senderId: msg.senderId,
+        content: msg.content,
+        type: msg.type,
+        createdAt: msg.createdAt,
+        updatedAt: msg.updatedAt,
+        editedAt: msg.editedAt,
+        isRead: false // TODO: Implement proper read status
+      }));
+      
+      res.json({ success: true, data: messageDTOs });
     } catch (err) {
-      res.status(500).json({ message: 'Error al obtener mensajes', error: err });
+      res.status(500).json({ success: false, message: 'Error al obtener mensajes', error: err });
     }
   }
 
@@ -68,10 +113,43 @@ export class ChatController {
       const conversationId = Number(req.params.id);
       const { content, type } = req.body;
       const senderId = req.user.userId;
+      
+      console.log('[ChatController] Sending message:', { conversationId, senderId, content, type });
+      
       const message = await sendMessageHandler.handle({ conversationId, senderId, content, type });
-      res.status(201).json(message);
+      
+      // Transform entity to DTO using getters
+      const messageDTO = {
+        id: message.id,
+        conversationId: message.conversationId,
+        senderId: message.senderId,
+        content: message.content,
+        type: message.type,
+        createdAt: message.createdAt,
+        updatedAt: message.updatedAt,
+        editedAt: message.editedAt,
+        isRead: false // Default to false for new messages
+      };
+
+      // Notify via Socket.IO to all conversation participants
+      try {
+        const conversation = await conversationRepo.findById(conversationId);
+        if (conversation) {
+          const socketService = SocketIOService.getInstance();
+          socketService.emitNewMessage(conversationId, conversation.participantIds, messageDTO);
+          console.log('[ChatController] Message broadcasted via Socket.IO to participants:', conversation.participantIds);
+        }
+      } catch (socketError) {
+        console.warn('[ChatController] Failed to broadcast via Socket.IO:', socketError);
+        // Don't fail the request if socket broadcast fails
+      }
+      
+      console.log('[ChatController] Message sent successfully:', messageDTO);
+      
+      res.status(201).json({ success: true, data: messageDTO });
     } catch (err) {
-      res.status(500).json({ message: 'Error al enviar mensaje', error: err });
+      console.error('[ChatController] Error sending message:', err);
+      res.status(500).json({ success: false, message: 'Error al enviar mensaje', error: err instanceof Error ? err.message : 'Unknown error' });
     }
   }
 
@@ -86,7 +164,7 @@ export class ChatController {
       res.json({ success: true, message: 'Message marked as read' });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-      res.status(400).json({ message: 'Error marking message as read', error: errorMessage });
+      res.status(400).json({ success: false, message: 'Error marking message as read', error: errorMessage });
     }
   }
 
@@ -96,9 +174,9 @@ export class ChatController {
     try {
       const userId = req.user.userId;
       const unreadCount = await getUnreadCountHandler.handle({ userId });
-      res.json({ unreadCount });
+      res.json({ success: true, data: { unreadCount } });
     } catch (err) {
-      res.status(500).json({ message: 'Error al obtener cantidad de mensajes no leídos', error: err });
+      res.status(500).json({ success: false, message: 'Error al obtener cantidad de mensajes no leídos', error: err });
     }
   }
 
@@ -110,10 +188,10 @@ export class ChatController {
       const userId = req.user.userId;
       
       const conversation = await archiveConversationHandler.handle({ conversationId, userId });
-      res.json({ conversation, message: 'Conversation archived successfully' });
+      res.json({ success: true, data: { conversation, message: 'Conversation archived successfully' } });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-      res.status(400).json({ message: 'Error archiving conversation', error: errorMessage });
+      res.status(400).json({ success: false, message: 'Error archiving conversation', error: errorMessage });
     }
   }
 }

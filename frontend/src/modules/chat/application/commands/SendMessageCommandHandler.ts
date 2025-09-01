@@ -13,7 +13,7 @@ export class SendMessageCommandHandler {
     return this.chatRepository.sendMessage({
       conversationId: command.conversationId,
       content: command.content,
-      senderId: command.senderId,
+      type: command.type,
     });
   }
 }

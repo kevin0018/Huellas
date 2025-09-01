@@ -1,0 +1,61 @@
+/* Chat conversation default styles */
+.conversation-item {
+  background-color: white;
+  border: 1px solid #e5e7eb;
+}
+
+.conversation-item:hover {
+  background-color: #f9fafb;
+}
+
+.conversation-item .conversation-title {
+  color: #374151;
+  font-weight: 600;
+}
+
+.conversation-item .participant-text {
+  color: #6b7280;
+}
+
+.conversation-item .last-message-text {
+  color: #9ca3af;
+}
+
+/* Chat conversation selected styles */
+.conversation-selected {
+  background-color: #51344D !important;
+  color: white !important;
+  border: none !important;
+}
+
+.conversation-selected * {
+  color: white !important;
+}
+
+.conversation-selected h3 {
+  color: white !important;
+  font-weight: 600 !important;
+}
+
+.conversation-selected p {
+  color: white !important;
+}
+
+.conversation-selected .participant-text {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.conversation-selected .last-message-text {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.conversation-selected .conversation-title {
+  font-weight: 600;
+  color: white !important;
+}
+
+/* Ensure badge stays visible */
+.conversation-selected .bg-red-500 {
+  background-color: #ef4444 !important;
+  color: white !important;
+}
