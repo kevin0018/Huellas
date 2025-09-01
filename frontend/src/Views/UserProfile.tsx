@@ -12,7 +12,7 @@ import { UpdateProfileCommand } from '../modules/auth/application/commands/Updat
 import { ChangePasswordCommand } from '../modules/auth/application/commands/ChangePasswordCommand';
 import { ToggleVolunteerCommand } from '../modules/auth/application/commands/ToggleVolunteerCommand';
 import type { User } from '../modules/auth/domain/User';
-import { isVolunteer } from '../modules/auth/domain/User';
+import { isVolunteer, isOwner } from '../modules/auth/domain/User';
 
 export default function UserProfile() {
   const navigate = useNavigate();
@@ -307,30 +307,32 @@ export default function UserProfile() {
                   />
                 </div>
 
-                {/* Volunteer Status */}
-                <div className="md:col-span-2 flex items-center justify-between p-4 bg-gray-50 dark:bg-[#51344D] rounded-lg border-2 border-[#BCAAA4] dark:border-[#FDF2DE]">
-                  <div>
-                    <span className="text-sm font-medium">Estado de voluntario:</span>
-                    <span className={`ml-2 px-2 py-1 rounded text-xs ${isVolunteer(user) ? 'bg-green-100 text-green-800 dark:bg-green-700 dark:text-green-100' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-100'}`}>
+                {/* Volunteer Status - Only shown for OWNERS who can toggle their volunteer status */}
+                {isOwner(user) && (
+                  <div className="md:col-span-2 flex items-center justify-between p-4 bg-gray-50 dark:bg-[#51344D] rounded-lg border-2 border-[#BCAAA4] dark:border-[#FDF2DE]">
+                    <div>
+                      <span className="text-sm font-medium">Estado de voluntario:</span>
+                      <span className={`ml-2 px-2 py-1 rounded text-xs ${isVolunteer(user) ? 'bg-green-100 text-green-800 dark:bg-green-700 dark:text-green-100' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-100'}`}>
+                        {/* TODO: Add translation */}
+                        {isVolunteer(user) ? 'Voluntario' : 'Propietario'}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleVolunteerToggle}
+                      disabled={isLoading}
+                      className={`px-4 py-2 rounded-md font-medium transition-colors ${isVolunteer(user)
+                          ? 'bg-red-800 hover:bg-red-600 text-white !px-2 !py-0'
+                          : 'bg-[#51344D] hover:bg-[#A89B9D] text-white'
+                        } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    >
                       {/* TODO: Add translation */}
-                      {isVolunteer(user) ? 'Voluntario' : 'Propietario'}
-                    </span>
+                      {isLoading ? 'Procesando...' : isVolunteer(user) ? 'Dejar de ser voluntario' : 'Ser voluntario'}
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    onClick={handleVolunteerToggle}
-                    disabled={isLoading}
-                    className={`px-4 py-2 rounded-md font-medium transition-colors ${isVolunteer(user)
-                        ? 'bg-red-800 hover:bg-red-600 text-white !px-2 !py-0'
-                        : 'bg-[#51344D] hover:bg-[#A89B9D] text-white'
-                      } disabled:opacity-50 disabled:cursor-not-allowed`}
-                  >
-                    {/* TODO: Add translation */}
-                    {isLoading ? 'Procesando...' : isVolunteer(user) ? 'Dejar de ser voluntario' : 'Ser voluntario'}
-                  </button>
-                </div>
+                )}
 
-                {/* Volunteer Description - Only shown for volunteers */}
+                {/* Volunteer Description - Shown for all volunteers (OWNER volunteers can edit, VOLUNTEER users see read-only) */}
                 {isVolunteer(user) && (
                   <div className="md:col-span-2">
                     <label htmlFor="description" className="block text-sm font-medium mb-2">
@@ -345,8 +347,15 @@ export default function UserProfile() {
                       onChange={handleInputChange}
                       placeholder="Describe tu experiencia, habilidades y motivación como voluntario..."
                       className="w-full px-3 py-2 bg-white dark:bg-[#51344D] border border-gray-300 dark:border-[#FDF2DE] rounded-md shadow-sm focus:outline-none focus:ring-[#BCAAA4] focus:border-[#BCAAA4] text-[#51344D] dark:text-[#FDF2DE] placeholder-gray-400 dark:placeholder-gray-300 resize-vertical min-h-[80px]"
-                      disabled={isLoading}
+                      disabled={isLoading || !isOwner(user)}
+                      readOnly={!isOwner(user)}
                     />
+                    {!isOwner(user) && (
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        {/* TODO: Add translation */}
+                        Los voluntarios puros no pueden editar su descripción desde aquí.
+                      </p>
+                    )}
                   </div>
                 )}
 
