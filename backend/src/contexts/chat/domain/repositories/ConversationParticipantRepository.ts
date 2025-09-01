@@ -1,5 +1,4 @@
 import { ConversationParticipant } from '../entities/ConversationParticipant.js';
-
 export interface ConversationParticipantRepository {
   findById(id: number): Promise<ConversationParticipant | null>;
   findByConversation(conversationId: number): Promise<ConversationParticipant[]>;

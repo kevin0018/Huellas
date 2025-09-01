@@ -1,4 +1,4 @@
-import { ConversationStatus } from '../../../../types/chat.js';
+import { ConversationStatus } from '@prisma/client';
 
 export class Conversation {
   private constructor(

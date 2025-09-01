@@ -1,13 +1,15 @@
-import { describe, it, expect, beforeEach, beforeAll, afterAll } from 'vitest';
-import bcrypt from 'bcrypt';
+import { describe, it, expect, beforeEach, beforeAll, afterAll, vi } from 'vitest';
+import * as bcrypt from 'bcrypt';
 import { LoginCommandHandler } from '../../../../app/commands/login/LoginCommandHandler.js';
 import { LoginCommand } from '../../../../app/commands/login/LoginCommand.js';
 import { MemoryAuthRepository } from '../../../../infra/repositories/MemoryAuthRepository.js';
 import { UserAuth, UserType } from '../../../../domain/entities/UserAuth.js';
+import { GetCurrentProfileQueryHandler } from '../../../../app/queries/getCurrentProfile/GetCurrentProfileQueryHandler.js';
 
 describe('LoginCommandHandler', () => {
   let authRepository: MemoryAuthRepository;
   let handler: LoginCommandHandler;
+  let mockGetCurrentProfileHandler: GetCurrentProfileQueryHandler;
   let originalJwtSecret: string | undefined;
 
   beforeAll(() => {
@@ -27,7 +29,13 @@ describe('LoginCommandHandler', () => {
 
   beforeEach(async () => {
     authRepository = new MemoryAuthRepository();
-    handler = new LoginCommandHandler(authRepository);
+    
+    // Create mock for GetCurrentProfileQueryHandler
+    mockGetCurrentProfileHandler = {
+      execute: vi.fn()
+    } as any;
+    
+    handler = new LoginCommandHandler(authRepository, mockGetCurrentProfileHandler);
     
     // Create test users with hashed passwords using factory method
     const hashedPassword = await bcrypt.hash('correctPassword123', 12);

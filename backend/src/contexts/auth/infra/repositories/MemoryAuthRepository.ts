@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 import { AuthRepository } from '../../domain/repositories/AuthRepository.js';
 import { UserAuth, UserType } from '../../domain/entities/UserAuth.js';
 

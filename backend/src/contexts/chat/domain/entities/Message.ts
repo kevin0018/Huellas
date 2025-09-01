@@ -1,4 +1,4 @@
-import { MessageType } from '../../../../types/chat.js';
+import { MessageType } from '@prisma/client';
 
 export class Message {
   private constructor(

@@ -30,7 +30,9 @@ describe("DeletePetController", () => {
         const mockPetRepository = {
             findById: () => Promise.resolve(mockPet),
             save: () => Promise.resolve(mockPet),
-            delete: () => Promise.resolve(undefined)
+            delete: () => Promise.resolve(undefined),
+            update: () => Promise.resolve(mockPet),
+            findByOwnerId: () => Promise.resolve([mockPet])
         };
 
         // Mock Request
@@ -61,7 +63,9 @@ describe("DeletePetController", () => {
         const mockPetRepository = {
             findById: () => Promise.reject("Error"),
             save: () => Promise.resolve(mockPet),
-            delete: () => Promise.reject("Error")
+            delete: () => Promise.reject("Error"),
+            update: () => Promise.resolve(mockPet),
+            findByOwnerId: () => Promise.resolve([mockPet])
         }
 
         // Mock Request

@@ -1,4 +1,3 @@
-
 import { Conversation } from '../entities/Conversation.js';
 
 export interface ConversationRepository {
