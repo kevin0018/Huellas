@@ -59,6 +59,30 @@ export async function seedProcedureSchedules(prisma: PrismaClient) {
                 notes: 'Último refuerzo de cachorro para inmunidad completa'
             }
         }),
+        prisma.procedureSchedule.create({
+            data: {
+                animal_type: 'dog',
+                procedure_name: 'Chequeo dental',
+                recommended_vaccines_age: 24,
+                notes: 'Revisión de dientes y encías, limpieza si es necesario'
+            }
+        }),
+        prisma.procedureSchedule.create({
+            data: {
+                animal_type: 'dog',
+                procedure_name: 'Test de filaria',
+                recommended_vaccines_age: 36,
+                notes: 'Prueba anual para detectar filariosis canina'
+            }
+        }),
+        prisma.procedureSchedule.create({
+            data: {
+                animal_type: 'dog',
+                procedure_name: 'Vacuna leishmaniosis',
+                recommended_vaccines_age: 20,
+                notes: 'Vacuna preventiva contra la leishmaniosis'
+            }
+        }),
 
         // ---------------- CAT ----------------
         prisma.procedureSchedule.create({
@@ -117,6 +141,30 @@ export async function seedProcedureSchedules(prisma: PrismaClient) {
                 notes: 'Vacuna contra la rabia (obligatoria en muchas regiones)'
             }
         }),
+        prisma.procedureSchedule.create({
+            data: {
+                animal_type: 'cat',
+                procedure_name: 'Chequeo renal',
+                recommended_vaccines_age: 24,
+                notes: 'Revisión de función renal, especialmente en gatos mayores'
+            }
+        }),
+        prisma.procedureSchedule.create({
+            data: {
+                animal_type: 'cat',
+                procedure_name: 'Test de inmunodeficiencia felina (FIV)',
+                recommended_vaccines_age: 18,
+                notes: 'Prueba para detectar el virus de inmunodeficiencia felina'
+            }
+        }),
+        prisma.procedureSchedule.create({
+            data: {
+                animal_type: 'cat',
+                procedure_name: 'Test de leucemia felina (FeLV)',
+                recommended_vaccines_age: 18,
+                notes: 'Prueba para detectar el virus de la leucemia felina'
+            }
+        }),
 
         // ---------------- FERRET ----------------
         prisma.procedureSchedule.create({
@@ -158,7 +206,31 @@ export async function seedProcedureSchedules(prisma: PrismaClient) {
                 recommended_vaccines_age: 16,
                 notes: 'Última dosis de la serie inicial de moquillo'
             }
-        })
+        }),
+        prisma.procedureSchedule.create({
+            data: {
+                animal_type: 'ferret',
+                procedure_name: 'Chequeo anual completo',
+                recommended_vaccines_age: 52,
+                notes: 'Revisión general de salud, peso y estado físico'
+            }
+        }),
+        prisma.procedureSchedule.create({
+            data: {
+                animal_type: 'ferret',
+                procedure_name: 'Desparasitación externa',
+                recommended_vaccines_age: 8,
+                notes: 'Control de pulgas y garrapatas, especialmente en primavera'
+            }
+        }),
+        prisma.procedureSchedule.create({
+            data: {
+                animal_type: 'ferret',
+                procedure_name: 'Chequeo dental',
+                recommended_vaccines_age: 24,
+                notes: 'Revisión de dientes y encías'
+            }
+        }),
     ]);
 
     return procedures;
