@@ -2,22 +2,38 @@
 
 🌐 [Spanish Version](README.es.md)
 
-This application is a health management platform for pet owners, designed with individual profiles for each owner and their pets to centralize all options. We plan to integrate a volunteer system to assist users, and the platform will also allow for the linking of profiles for veterinarians and insurers to keep all information updated and accessible with minimal effort.
+**Huellas** is a health management platform for pet owners, designed with individual profiles for each owner and their pets to centralize all information.  
+Future plans include integrating a volunteer system to assist users and linking profiles for veterinarians and insurers, keeping everything updated and accessible with minimal effort.
 
-## Technologies and Tools
+---
+
+## 📹 Demo
+
+https://github.com/FerMon98/huellas/blob/main/DemoHuellas.mp4
+
+*(click to view video)*
+
+---
+
+## 🛠️ Technologies and Tools
 - React
 - TypeScript
 - Tailwind CSS
 - Node.js
 - Express
 - MySQL
+- Prisma
+- Docker & Docker Compose
+- Figma
 
-## Objectives
+---
+
+## 🎯 Objectives
 
 ### General
-- To develop a centralized platform for users to manage their pets' information.
-- To implement a system for volunteers to register and offer support services.
-- To integrate profiles for veterinary clinics and insurers to allow them to offer services directly to users.
+- Develop a centralized platform for users to manage their pets' information.
+- Implement a system for volunteers to register and offer support services.
+- Integrate profiles for veterinary clinics and insurers so they can offer services directly to users.
 
 ### Specific
 - Build a user registration system.
@@ -27,28 +43,46 @@ This application is a health management platform for pet owners, designed with i
 - Ensure the application is fully responsive and adaptable to mobile devices.
 - Guarantee application accessibility for an inclusive user experience.
 
-## Architecture and Design
+---
 
-The project is structured around a **Hexagonal Architecture (Ports and Adapters)**, a design pattern that isolates the core business logic from external dependencies. This is achieved by separating the project into the following distinct layers:
+## 🏗️ Architecture and Design
 
-* **Domain (`src/domain`):** This is the application's core, where business entities and rules are defined without any dependency on the infrastructure.
-* **Application (`src/app`):** This layer contains the "use cases" that orchestrate interactions between the domain and the outside world, using the domain's "Ports" (Interfaces).
-* **Infrastructure (`src/infra`):** This layer holds the "adapters" that implement the domain's interfaces. Its responsibility is to connect the application with external tools such as the database (MySQL) and web services.
+The project follows a **Hexagonal Architecture (Ports and Adapters)**, a design pattern that isolates the core business logic from external dependencies.  
+It’s divided into three layers:
 
-### Frontend
+* **Domain (`src/domain`):** Core entities and business rules, independent of infrastructure.  
+* **Application (`src/app`):** Use cases orchestrating interactions between the domain and outside world via ports (interfaces).  
+* **Infrastructure (`src/infra`):** Adapters implementing domain ports, connecting the app to MySQL and external services.
 
-The frontend is developed using **React** and **TypeScript**. The structure is based on reusable components and is organized into modules for each main functionality (`owners`, `pets`, `volunteers`), which facilitates scalability and code maintenance. We use **Tailwind CSS** for styling.
+---
 
-### Backend
+## 💻 Frontend
 
-The backend is built with **Node.js** and **Express**, strictly following the hexagonal architecture to ensure a clean, decoupled design. The infrastructure layer utilizes **MySQL** as the database, with adapters that manage all connection and query logic.
+Built with **React** and **TypeScript**, the frontend uses reusable components organized into modules (`owners`, `pets`, `volunteers`) to ensure scalability and maintainability.  
+Styling is handled with **Tailwind CSS**.
 
-### Development Environment
+---
 
-We have configured the development environment using **Docker** and **Docker Compose** to simplify the project setup. These files allow any new collaborator to launch the application, database, and other dependencies with a single command.
+## ⚙️ Backend
 
-### Collaborators
-- [@kevin0018](https://github.com/kevin0018)
-- [@MissAruru](https://github.com/MissAruru)
-- [@adriElias](https://github.com/adriElias)
-- [@FerMon98](https://github.com/FerMon98)
+Developed with **Node.js** and **Express**, strictly following hexagonal architecture for a clean, decoupled design.  
+**MySQL** is used as the database, with adapters managing connection and query logic.
+
+---
+
+## 🐳 Development Environment
+
+Configured with **Docker** and **Docker Compose** to simplify setup.  
+A new collaborator can run the application, database, and dependencies with a single command.
+
+---
+
+## 👥 Collaborators
+
+Although we all contributed to both backend and frontend, our main focuses were:  
+- [@kevin0018](https://github.com/kevin0018) → Architecture, testing & backend  
+- [@adriElias](https://github.com/adriElias) → Backend  
+- [@MissAruru](https://github.com/MissAruru) → Website design, logo & branding  
+- [@FerMon98](https://github.com/FerMon98) → Frontend  
+
+---
