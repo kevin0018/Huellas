@@ -9,7 +9,7 @@ Future plans include integrating a volunteer system to assist users and linking 
 
 ## 📹 Demo
 
-https://github.com/FerMon98/huellas/blob/main/DemoHuellas.mp4
+https://github.com/kevin0018/Huellas/DemoHuellas.mp4
 
 *(click to view video)*
 
