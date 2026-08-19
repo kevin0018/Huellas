@@ -3,6 +3,7 @@ import { Checkup } from "../../domain/entities/Checkup.js";
 import { ICheckupRepository } from "../../domain/repositories/ICheckupRepository.js";
 import { prisma } from '../../../../db/prisma.js';
 import { HealthEventSource, HealthEventType } from '@prisma/client';
+import { completePreventiveReminders } from '../../../reminder/ReminderService.js';
 
 function inferHealthEventType(name: string): HealthEventType {
   const normalized = name.toLocaleLowerCase('es');
@@ -90,6 +91,8 @@ export class CheckupRepository implements ICheckupRepository {
       editedCheckup.notes
     )
 
+    await completePreventiveReminders(editedCheckup.pet_id, inferHealthEventType(editedCheckup.procedure.procedure_name), editedCheckup.procedure.procedure_name, editedCheckup.date);
+
     return checkup;
   }
 
@@ -128,6 +131,8 @@ export class CheckupRepository implements ICheckupRepository {
       savedCheckup.date,
       savedCheckup.notes
     );
+
+    await completePreventiveReminders(savedCheckup.pet_id, inferHealthEventType(savedCheckup.procedure.procedure_name), savedCheckup.procedure.procedure_name, savedCheckup.date);
 
     return newCheckup;
   }

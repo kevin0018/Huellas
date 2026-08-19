@@ -10,6 +10,7 @@ import chatRoutes from './chatRoutes.js';
 import postsRoutes from "./postsRoutes.js";
 import { createHealthEventRoutes } from './healthEventRoutes.js';
 import { createHealthDocumentRoutes } from './healthDocumentRoutes.js';
+import { createReminderRoutes } from './reminderRoutes.js';
 
 export function createRoutes(): Router {
   console.log('Creating main routes...');
@@ -49,6 +50,7 @@ export function createRoutes(): Router {
 
   router.use('/health-events', createHealthEventRoutes());
   router.use('/health-documents', createHealthDocumentRoutes());
+  router.use('/reminders', createReminderRoutes());
 
   // Mount chat routes
   console.log('Mounting chat routes on /chat...');

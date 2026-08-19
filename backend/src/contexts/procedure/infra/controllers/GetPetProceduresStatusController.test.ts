@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { PetProcedureStatus } from '../../../../types/procedure.js';
-import { calculatePreventiveStatus } from './GetPetProceduresStatusController.js';
+import { calculatePreventiveStatus } from '../../app/PreventivePlanCalculator.js';
 
 const day = 24 * 60 * 60 * 1000;
 

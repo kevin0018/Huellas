@@ -65,6 +65,17 @@ enum HealthEventSource {
   APPOINTMENT
 }
 
+enum ReminderStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+}
+
+enum ReminderSource {
+  APPOINTMENT
+  PREVENTIVE_PLAN
+}
+
 enum ConversationStatus {
   ACTIVE
   ARCHIVED
@@ -126,9 +137,11 @@ model User {
 }
 
 model Owner {
-  id   Int   @id
-  user User  @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  pets Pet[]
+  id                    Int     @id
+  notifications_enabled Boolean @default(true)
+  reminder_lead_days    Int     @default(14)
+  user                  User    @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  pets                  Pet[]
 }
 
 model Volunteer {
@@ -160,6 +173,7 @@ model Pet {
   appointments Appointment[]
   health_events HealthEvent[]
   health_documents HealthDocument[]
+  reminders Reminder[]
 
   @@index([owner_id])
   @@index([type])
@@ -264,10 +278,34 @@ model ProcedureSchedule {
   notes                    String?
 
   checkups Checkup[]
+  reminders Reminder[]
 
   @@unique([animal_type, procedure_name])
   @@index([animal_type])
   @@index([procedure_name])
+}
+
+model Reminder {
+  id                      Int            @id @default(autoincrement())
+  pet_id                  Int
+  source                  ReminderSource
+  source_key              String         @unique
+  preventive_procedure_id Int?
+  title                   String
+  due_at                  DateTime
+  status                  ReminderStatus @default(PENDING)
+  snoozed_until           DateTime?
+  completed_at            DateTime?
+  cancelled_at            DateTime?
+  generated_action_at     DateTime?
+  created_at              DateTime       @default(now())
+  updated_at              DateTime       @updatedAt
+
+  pet Pet @relation(fields: [pet_id], references: [id], onDelete: Cascade, onUpdate: Restrict)
+  preventiveProcedure ProcedureSchedule? @relation(fields: [preventive_procedure_id], references: [id], onDelete: Cascade, onUpdate: Restrict)
+
+  @@index([pet_id, status, due_at])
+  @@index([preventive_procedure_id])
 }
 
 model Conversation {

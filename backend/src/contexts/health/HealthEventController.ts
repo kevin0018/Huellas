@@ -2,6 +2,7 @@ import type { Response } from 'express';
 import { HealthEventSource, HealthEventType, Prisma } from '@prisma/client';
 import { prisma } from '../../db/prisma.js';
 import type { AuthenticatedRequest } from '../auth/infra/middleware/JwtMiddleware.js';
+import { completePreventiveReminders } from '../reminder/ReminderService.js';
 
 type HealthEventInput = {
   type: HealthEventType;
@@ -161,6 +162,10 @@ export class HealthEventController {
           source_appointment_id: input.sourceAppointmentId,
         },
       });
+      await completePreventiveReminders(petId, event.type, event.title, event.occurred_at);
+      if (event.source_appointment_id) {
+        await prisma.reminder.updateMany({ where: { source_key: `appointment:${event.source_appointment_id}`, status: 'PENDING' }, data: { status: 'COMPLETED', completed_at: event.occurred_at, generated_action_at: event.occurred_at } });
+      }
       res.status(201).json(serializeHealthEvent(event));
     } catch (error) {
       res.status(400).json({ error: error instanceof Error ? error.message : 'Invalid health event' });

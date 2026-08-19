@@ -20,6 +20,7 @@ export function parseZonedDate(value: unknown): Date | null {
 }
 
 export class AppointmentController {
+  private readonly prisma: PrismaClient;
   private readonly appointmentRepository: PrismaAppointmentRepository;
   private readonly createAppointmentHandler: CreateAppointmentCommandHandler;
   private readonly updateAppointmentHandler: UpdateAppointmentCommandHandler;
@@ -28,6 +29,7 @@ export class AppointmentController {
   private readonly getAppointmentByIdHandler: GetAppointmentByIdQueryHandler;
 
   constructor(prisma: PrismaClient) {
+    this.prisma = prisma;
     this.appointmentRepository = new PrismaAppointmentRepository(prisma);
     this.createAppointmentHandler = new CreateAppointmentCommandHandler(this.appointmentRepository);
     this.updateAppointmentHandler = new UpdateAppointmentCommandHandler(this.appointmentRepository);
@@ -123,6 +125,11 @@ export class AppointmentController {
       );
 
       const appointment = await this.updateAppointmentHandler.handle(command);
+      if (appointment.status === AppointmentStatus.COMPLETED) {
+        await this.prisma.reminder.updateMany({ where: { source_key: `appointment:${appointment.id}`, status: 'PENDING' }, data: { status: 'COMPLETED', completed_at: new Date(), generated_action_at: new Date() } });
+      } else if (appointment.status === AppointmentStatus.CANCELLED || appointment.status === AppointmentStatus.NO_SHOW) {
+        await this.prisma.reminder.updateMany({ where: { source_key: `appointment:${appointment.id}`, status: 'PENDING' }, data: { status: 'CANCELLED', cancelled_at: new Date() } });
+      }
       
       res.json({
         id: appointment.id,

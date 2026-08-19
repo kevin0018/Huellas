@@ -12,6 +12,9 @@ import type { Pet } from "../modules/pet/domain/Pet";
 import { ApiPetRepository } from "../modules/pet/infra/ApiPetRepository";
 import { PetAvatarGrid } from "../Components/pet/PetAvatarGrid";
 import { useNavigate, Link } from "react-router-dom";
+import { ApiReminderRepository, type ReminderFeed } from '../modules/reminder/ApiReminderRepository.js';
+
+const reminderRepository = new ApiReminderRepository();
 
 function UserHomeContent() {
   const { translate } = useTranslation();
@@ -21,6 +24,7 @@ function UserHomeContent() {
   const [pets, setPets] = useState<Pet[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [reminderFeed, setReminderFeed] = useState<ReminderFeed | null>(null);
 
   useEffect(() => {
     if (!AuthService.isAuthenticated?.()) {
@@ -38,8 +42,8 @@ function UserHomeContent() {
       setLoading(true); setError(null);
       try {
         const repo = new ApiPetRepository();
-        const rows = await repo.getUserPets(); // GET /owners/my-pets
-        if (!cancelled) setPets(rows);
+        const [rows, feed] = await Promise.all([repo.getUserPets(), reminderRepository.list()]);
+        if (!cancelled) { setPets(rows); setReminderFeed(feed); }
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
         if (!cancelled) {
@@ -55,6 +59,14 @@ function UserHomeContent() {
 
     return () => { cancelled = true; };
   }, [user, navigate]);
+
+  const reloadReminders = async () => setReminderFeed(await reminderRepository.list());
+  const reminderAction = async (id: number, action: 'postpone' | 'complete' | 'cancel') => {
+    await reminderRepository.action(id, action, action === 'postpone' ? 7 : undefined);
+    await reloadReminders();
+  };
+  const nextByPet = reminderFeed?.reminders.reduce<typeof reminderFeed.reminders>((items, reminder) =>
+    items.some((item) => item.petId === reminder.petId) ? items : [...items, reminder], []) ?? [];
 
   if (!user) {
     return (
@@ -113,6 +125,35 @@ function UserHomeContent() {
 
               </div>
             </div>
+
+            {reminderFeed && <section className="mt-8 border-t border-[#BCAAA4] pt-6 text-left" aria-labelledby="next-actions-title">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div><h2 id="next-actions-title" className="text-2xl font-bold text-[#51344D] dark:text-[#FDF2DE]">Próximas acciones</h2><p className="text-sm dark:text-white">Una prioridad por mascota, calculada desde citas y prevención.</p></div>
+                <div className="flex flex-wrap items-center gap-4 text-sm dark:text-white">
+                  <label className="flex items-center gap-2"><input type="checkbox" checked={reminderFeed.preferences.enabled} onChange={async (event) => { await reminderRepository.preferences(event.target.checked, reminderFeed.preferences.leadDays); await reloadReminders(); }} /> Notificaciones en la aplicación</label>
+                  <label className="flex items-center gap-2">Avisar con
+                    <select className="rounded border bg-white p-1 text-[#51344D]" value={reminderFeed.preferences.leadDays} onChange={async (event) => { await reminderRepository.preferences(reminderFeed.preferences.enabled, Number(event.target.value)); await reloadReminders(); }}>
+                      {[7, 14, 30, 60].map((days) => <option key={days} value={days}>{days} días</option>)}
+                    </select>
+                  </label>
+                </div>
+              </div>
+              {reminderFeed.preferences.enabled && <div className="mt-4 grid gap-3 md:grid-cols-2">
+                {nextByPet.map((reminder) => <article key={reminder.id} className="rounded-xl bg-white p-4 text-[#51344D] shadow-sm">
+                  <p className="text-xs font-bold uppercase tracking-wider">{reminder.petName} · {reminder.source === 'APPOINTMENT' ? 'Cita' : 'Prevención'}</p>
+                  <h3 className="mt-1 font-bold">{reminder.title}</h3>
+                  <p className="text-sm">{new Date(reminder.dueAt).toLocaleDateString('es-ES')}</p>
+                  {reminder.notifyNow && <span className="mt-2 inline-block rounded-full bg-amber-100 px-2 py-1 text-xs font-semibold text-amber-800">Aviso activo</span>}
+                  <div className="mt-3 flex flex-wrap gap-3 text-sm font-semibold">
+                    <button onClick={() => void reminderAction(reminder.id, 'complete')} className="text-green-700">Completar</button>
+                    <button onClick={() => void reminderAction(reminder.id, 'postpone')} className="text-amber-700">Posponer 7 días</button>
+                    <button onClick={() => void reminderAction(reminder.id, 'cancel')} className="text-red-700">Cancelar</button>
+                    <Link to={`/pets/${reminder.petId}/health`}>Abrir cartilla</Link>
+                  </div>
+                </article>)}
+                {nextByPet.length === 0 && <p className="text-sm dark:text-white">No hay acciones pendientes.</p>}
+              </div>}
+            </section>}
           </div>
         </div>
       </div>
