@@ -17,6 +17,7 @@ async function main() {
         await prisma.conversationParticipant.deleteMany();
         await prisma.conversation.deleteMany();
         await prisma.volunteerPost.deleteMany();
+        await prisma.healthEvent.deleteMany();
         await prisma.checkup.deleteMany();
         await prisma.appointment.deleteMany();
         await prisma.pet.deleteMany();
@@ -39,6 +40,28 @@ async function main() {
 
         await seedCheckups(prisma);
         console.log('🩺 Checkups seeded');
+
+        const legacyCheckups = await prisma.checkup.findMany({ include: { procedure: true, pet: true } });
+        await prisma.healthEvent.createMany({
+            data: legacyCheckups.map((checkup) => {
+                const name = checkup.procedure.procedure_name.toLocaleLowerCase('es');
+                const type = name.includes('vacun') ? 'VACCINATION'
+                    : name.includes('test') ? 'TEST'
+                    : name.includes('chequeo') || name.includes('revisi') ? 'GENERAL_CHECKUP'
+                    : name.includes('paras') ? 'TREATMENT'
+                    : 'OTHER';
+                return {
+                    pet_id: checkup.pet_id,
+                    type,
+                    occurred_at: checkup.date,
+                    title: checkup.procedure.procedure_name,
+                    notes: checkup.notes,
+                    entered_by: checkup.pet.owner_id,
+                    source: 'LEGACY_CHECKUP' as const,
+                    legacy_checkup_id: checkup.id,
+                };
+            }),
+        });
 
         await seedAppointments(prisma);
         console.log('📅 Appointments seeded');

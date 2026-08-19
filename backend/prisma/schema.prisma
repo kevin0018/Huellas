@@ -48,6 +48,23 @@ enum AppointmentStatus {
   no_show
 }
 
+enum HealthEventType {
+  VACCINATION
+  GENERAL_CHECKUP
+  MEDICATION
+  TREATMENT
+  TEST
+  SURGERY
+  WEIGHT
+  OTHER
+}
+
+enum HealthEventSource {
+  OWNER
+  LEGACY_CHECKUP
+  APPOINTMENT
+}
+
 enum ConversationStatus {
   ACTIVE
   ARCHIVED
@@ -101,6 +118,8 @@ model User {
 
   // Volunteer post relations
   authored_posts VolunteerPost[] @relation("AuthoredPosts")
+  entered_health_events  HealthEvent[] @relation("EnteredHealthEvents")
+  verified_health_events HealthEvent[] @relation("VerifiedHealthEvents")
 
   @@index([type])
   @@index([email])
@@ -136,6 +155,7 @@ model Pet {
   owner        Owner         @relation(fields: [owner_id], references: [id], onDelete: Cascade, onUpdate: Restrict)
   checkups     Checkup[]
   appointments Appointment[]
+  health_events HealthEvent[]
 
   @@index([owner_id])
   @@index([type])
@@ -169,10 +189,42 @@ model Appointment {
   notes  String?
 
   pet Pet @relation(fields: [pet_id], references: [id], onDelete: Cascade, onUpdate: Restrict)
+  health_events HealthEvent[]
 
   @@index([pet_id])
   @@index([date])
   @@index([pet_id, date])
+}
+
+model HealthEvent {
+  id                    Int               @id @default(autoincrement())
+  pet_id                Int
+  type                  HealthEventType
+  occurred_at           DateTime
+  title                 String
+  notes                 String?           @db.Text
+  provider              String?
+  result                String?           @db.Text
+  dose                  String?
+  lot_number            String?
+  expires_at            DateTime?
+  entered_by            Int
+  verified_by           Int?
+  source                HealthEventSource @default(OWNER)
+  source_appointment_id Int?
+  legacy_checkup_id     Int?              @unique
+  created_at            DateTime          @default(now())
+  updated_at            DateTime          @updatedAt
+
+  pet                Pet          @relation(fields: [pet_id], references: [id], onDelete: Cascade, onUpdate: Restrict)
+  enteredBy          User         @relation("EnteredHealthEvents", fields: [entered_by], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  verifiedBy         User?        @relation("VerifiedHealthEvents", fields: [verified_by], references: [id], onDelete: SetNull, onUpdate: Restrict)
+  sourceAppointment Appointment? @relation(fields: [source_appointment_id], references: [id], onDelete: SetNull, onUpdate: Restrict)
+
+  @@index([pet_id, occurred_at])
+  @@index([type])
+  @@index([expires_at])
+  @@index([source_appointment_id])
 }
 
 model ProcedureSchedule {

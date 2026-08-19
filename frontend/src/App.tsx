@@ -20,6 +20,7 @@ import UserProfile from './Views/UserProfile';
 import VolunteerBoard from './Views/VolunteerBoard';
 import VolunteerHome from './Views/VolunteerHome';
 import ChatView from './Views/chatView';
+import HealthBookView from './Views/HealthBookView';
 
 const App: React.FC = () => {
   return (
@@ -36,6 +37,7 @@ const App: React.FC = () => {
           <Route path="/appointments" element={<AppointmentsView />} />
           <Route path="/user-home" element={<UserHome />} />
           <Route path="/pets/:id" element={<PetProfile />} />
+          <Route path="/pets/:petId/health" element={<HealthBookView />} />
           <Route path="/user-profile" element={<UserProfile />} />
           <Route path="/volunteer-board" element={<VolunteerBoard />} />
           <Route path="/volunteer-home" element={<VolunteerHome />} />
