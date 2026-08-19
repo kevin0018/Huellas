@@ -131,6 +131,7 @@ model User {
   authored_posts VolunteerPost[] @relation("AuthoredPosts")
   entered_health_events  HealthEvent[] @relation("EnteredHealthEvents")
   verified_health_events HealthEvent[] @relation("VerifiedHealthEvents")
+  created_health_shares  HealthShare[]
 
   @@index([type])
   @@index([email])
@@ -174,6 +175,7 @@ model Pet {
   health_events HealthEvent[]
   health_documents HealthDocument[]
   reminders Reminder[]
+  health_shares HealthShare[]
 
   @@index([owner_id])
   @@index([type])
@@ -306,6 +308,25 @@ model Reminder {
 
   @@index([pet_id, status, due_at])
   @@index([preventive_procedure_id])
+}
+
+model HealthShare {
+  id          Int      @id @default(autoincrement())
+  pet_id      Int
+  token_hash  String   @unique
+  sections    Json
+  period_from DateTime?
+  period_to   DateTime?
+  expires_at  DateTime
+  revoked_at  DateTime?
+  created_by  Int
+  created_at  DateTime @default(now())
+
+  pet     Pet  @relation(fields: [pet_id], references: [id], onDelete: Cascade, onUpdate: Restrict)
+  creator User @relation(fields: [created_by], references: [id], onDelete: Cascade, onUpdate: Restrict)
+
+  @@index([pet_id, expires_at])
+  @@index([created_by])
 }
 
 model Conversation {

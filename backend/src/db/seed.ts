@@ -19,6 +19,7 @@ async function main() {
         await prisma.volunteerPost.deleteMany();
         await prisma.healthDocument.deleteMany();
         await prisma.reminder.deleteMany();
+        await prisma.healthShare.deleteMany();
         await prisma.healthEvent.deleteMany();
         await prisma.checkup.deleteMany();
         await prisma.appointment.deleteMany();

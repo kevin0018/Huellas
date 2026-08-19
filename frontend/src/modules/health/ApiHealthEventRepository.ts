@@ -12,6 +12,9 @@ async function parseResponse<T>(response: Response): Promise<T> {
 }
 
 export class ApiHealthEventRepository {
+  private summaryBody(sections: string[], periodFrom: string, periodTo: string) {
+    return { sections, periodFrom: periodFrom || null, periodTo: periodTo ? `${periodTo}T23:59:59.999Z` : null };
+  }
   async list(petId: number): Promise<HealthEvent[]> {
     return parseResponse(await fetch(`${apiUrl}/pets/${petId}/health-events`, {
       headers: AuthService.getAuthHeaders(),
@@ -60,5 +63,21 @@ export class ApiHealthEventRepository {
   async deleteDocument(id: number): Promise<void> {
     const response = await fetch(`${apiUrl}/health-documents/${id}`, { method: 'DELETE', headers: AuthService.getAuthHeaders() });
     if (!response.ok) throw new Error('No se pudo eliminar el documento');
+  }
+
+  async exportSummary(petId: number, sections: string[], periodFrom: string, periodTo: string): Promise<void> {
+    const response = await fetch(`${apiUrl}/pets/${petId}/health-export`, { method: 'POST', headers: { ...AuthService.getAuthHeaders(), 'Content-Type': 'application/json' }, body: JSON.stringify(this.summaryBody(sections, periodFrom, periodTo)) });
+    if (!response.ok) throw new Error('No se pudo generar el resumen');
+    const url = URL.createObjectURL(await response.blob()); const anchor = window.document.createElement('a');
+    anchor.href = url; anchor.download = `cartilla-${petId}.html`; anchor.click(); URL.revokeObjectURL(url);
+  }
+
+  async createShare(petId: number, sections: string[], periodFrom: string, periodTo: string): Promise<{ id: number; token: string; expiresAt: string }> {
+    return parseResponse(await fetch(`${apiUrl}/pets/${petId}/health-shares`, { method: 'POST', headers: { ...AuthService.getAuthHeaders(), 'Content-Type': 'application/json' }, body: JSON.stringify({ ...this.summaryBody(sections, periodFrom, periodTo), expiresInHours: 24 }) }));
+  }
+
+  async revokeShare(id: number): Promise<void> {
+    const response = await fetch(`${apiUrl}/health-shares/${id}`, { method: 'DELETE', headers: AuthService.getAuthHeaders() });
+    if (!response.ok) throw new Error('No se pudo revocar el enlace');
   }
 }

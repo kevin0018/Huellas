@@ -20,6 +20,8 @@ function localTimestamp(date: string): string {
   return value.toISOString();
 }
 
+const apiUrlForShare = (token: string) => `${import.meta.env.VITE_API_URL || '/api'}/shared-health/${encodeURIComponent(token)}`;
+
 export default function HealthBookView() {
   const petId = Number(useParams<{ petId: string }>().petId);
   const [events, setEvents] = useState<HealthEvent[]>([]);
@@ -35,6 +37,10 @@ export default function HealthBookView() {
   const [dose, setDose] = useState('');
   const [lotNumber, setLotNumber] = useState('');
   const [expiresAt, setExpiresAt] = useState('');
+  const [summarySections, setSummarySections] = useState(['identity', 'critical', 'vaccinations', 'events']);
+  const [periodFrom, setPeriodFrom] = useState('');
+  const [periodTo, setPeriodTo] = useState('');
+  const [share, setShare] = useState<{ id: number; url: string; expiresAt: string } | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -101,6 +107,14 @@ export default function HealthBookView() {
     await load();
   };
 
+  const toggleSummarySection = (section: string) => setSummarySections((current) => current.includes(section) ? current.filter((item) => item !== section) : [...current, section]);
+  const createShare = async () => {
+    try {
+      const created = await repository.createShare(petId, summarySections, periodFrom, periodTo);
+      setShare({ id: created.id, url: `${window.location.origin}${apiUrlForShare(created.token)}`, expiresAt: created.expiresAt });
+    } catch (caught) { setError(caught instanceof Error ? caught.message : 'No se pudo compartir'); }
+  };
+
   return <>
     <NavBar />
     <main className="min-h-screen bg-[#FDF2DE] dark:bg-[#51344D] px-4 py-8">
@@ -115,6 +129,21 @@ export default function HealthBookView() {
             {showForm ? 'Cerrar' : 'Añadir evento'}
           </button>
         </div>
+
+        <section className="mb-8 rounded-2xl bg-white p-5 shadow-sm" aria-labelledby="summary-title">
+          <h2 id="summary-title" className="text-xl font-bold text-[#51344D]">Exportar o compartir resumen</h2>
+          <div className="mt-3 flex flex-wrap gap-4 text-sm">
+            {[['identity', 'Identidad'], ['critical', 'Datos críticos'], ['vaccinations', 'Vacunas'], ['events', 'Eventos']].map(([value, label]) => <label key={value} className="flex items-center gap-2"><input type="checkbox" checked={summarySections.includes(value)} onChange={() => toggleSummarySection(value)} />{label}</label>)}
+          </div>
+          <div className="mt-4 flex flex-wrap items-end gap-3">
+            <label className="grid text-sm">Desde<input className="rounded border p-2" type="date" value={periodFrom} onChange={(event) => setPeriodFrom(event.target.value)} /></label>
+            <label className="grid text-sm">Hasta<input className="rounded border p-2" type="date" value={periodTo} onChange={(event) => setPeriodTo(event.target.value)} /></label>
+            <button disabled={!summarySections.length} className="rounded-lg bg-[#51344D] px-4 py-2 font-semibold text-white disabled:opacity-50" onClick={() => void repository.exportSummary(petId, summarySections, periodFrom, periodTo)}>Descargar HTML</button>
+            <button disabled={!summarySections.length} className="rounded-lg border border-[#51344D] px-4 py-2 font-semibold text-[#51344D] disabled:opacity-50" onClick={() => void createShare()}>Enlace por 24 horas</button>
+          </div>
+          <p className="mt-3 text-xs text-gray-500">El resumen indica su procedencia y no sustituye una historia clínica veterinaria.</p>
+          {share && <div className="mt-4 rounded-lg bg-purple-50 p-3 text-sm"><a className="break-all font-semibold text-[#51344D]" href={share.url} target="_blank" rel="noreferrer">{share.url}</a><p>Caduca: {new Date(share.expiresAt).toLocaleString('es-ES')}</p><button className="mt-2 font-semibold text-red-700" onClick={async () => { await repository.revokeShare(share.id); setShare(null); }}>Revocar enlace</button></div>}
+        </section>
 
         {error && <p role="alert" className="mb-5 rounded-lg bg-red-100 p-4 text-red-800">{error}</p>}
         {showForm && <form onSubmit={submit} className="mb-8 grid gap-4 rounded-2xl bg-white p-6 shadow-md md:grid-cols-2">

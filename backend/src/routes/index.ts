@@ -11,6 +11,7 @@ import postsRoutes from "./postsRoutes.js";
 import { createHealthEventRoutes } from './healthEventRoutes.js';
 import { createHealthDocumentRoutes } from './healthDocumentRoutes.js';
 import { createReminderRoutes } from './reminderRoutes.js';
+import { createHealthShareRoutes, createPublicHealthShareRoutes } from './healthShareRoutes.js';
 
 export function createRoutes(): Router {
   console.log('Creating main routes...');
@@ -51,6 +52,8 @@ export function createRoutes(): Router {
   router.use('/health-events', createHealthEventRoutes());
   router.use('/health-documents', createHealthDocumentRoutes());
   router.use('/reminders', createReminderRoutes());
+  router.use('/shared-health', createPublicHealthShareRoutes());
+  router.use('/health-shares', createHealthShareRoutes());
 
   // Mount chat routes
   console.log('Mounting chat routes on /chat...');
