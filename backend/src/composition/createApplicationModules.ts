@@ -5,6 +5,7 @@ import { createHealthModule, type HealthModule } from '../contexts/health/index.
 import { createPetCareModule, type PetCareModule } from '../contexts/pet/index.js';
 import { createChatModule, type ChatModule } from '../contexts/chat/index.js';
 import { createCommunityModule, type CommunityModule } from '../contexts/Posts/index.js';
+import { ReminderService } from '../contexts/reminder/ReminderService.js';
 
 export interface ApplicationModules {
   appointments: AppointmentModule;
@@ -16,12 +17,13 @@ export interface ApplicationModules {
 }
 
 export function createApplicationModules(): ApplicationModules {
-  const health = createHealthModule(prisma);
+  const reminders = new ReminderService(prisma);
+  const health = createHealthModule(prisma, reminders);
   return {
     appointments: createAppointmentModule(prisma),
     identity: createIdentityModule(),
     health,
-    petCare: createPetCareModule(),
+    petCare: createPetCareModule(prisma, reminders),
     chat: createChatModule(prisma),
     community: createCommunityModule(prisma),
   };

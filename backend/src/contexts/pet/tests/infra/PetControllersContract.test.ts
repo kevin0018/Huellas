@@ -5,6 +5,8 @@ import type { IPetRepository } from '../../domain/repositories/IPetRepository.js
 import { Pet } from '../../domain/entities/Pet.js';
 import { PostPetController } from '../../infra/controllers/PostPetController.js';
 import { PatchPetController } from '../../infra/controllers/PatchPetController.js';
+import { CreatePetUseCase } from '../../app/CreatePetUseCase.js';
+import { UpdatePetUseCase } from '../../app/UpdatePetUseCase.js';
 
 function responseMock(): Response {
   const response = { status: vi.fn(), send: vi.fn() };
@@ -27,7 +29,7 @@ describe('pet create and update contracts', () => {
     } as AuthenticatedRequest;
     const response = responseMock();
 
-    await new PostPetController(repository).handle(request, response);
+    await new PostPetController(new CreatePetUseCase(repository)).handle(request, response);
 
     expect(repository.save).toHaveBeenCalledWith(expect.objectContaining({
       ownerId: 7,
@@ -48,7 +50,7 @@ describe('pet create and update contracts', () => {
     } as unknown as AuthenticatedRequest;
     const response = responseMock();
 
-    await new PatchPetController(repository).handle(request, response);
+    await new PatchPetController(new UpdatePetUseCase(repository)).handle(request, response);
 
     expect(repository.update).toHaveBeenCalledWith(1, expect.objectContaining({
       type: 'cat',

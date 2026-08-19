@@ -1,7 +1,6 @@
 import { Response } from "express";
 import { ICheckupRepository } from "../../domain/repositories/ICheckupRepository.js";
 import { IProcedureRepository } from "../../../procedure/domain/repositories/IProcedureRepository.js";
-import { IPetRepository } from "../../../pet/domain/repositories/IPetRepository.js";
 import { PetType } from "@prisma/client";
 import { AuthenticatedRequest } from "../../../auth/infra/middleware/JwtMiddleware.js";
 import { CheckupAccessService } from "../../app/CheckupAccessService.js";
@@ -14,12 +13,12 @@ export class PatchCheckupController {
 
   constructor(
     checkupRepository: ICheckupRepository,
-    petRepository: IPetRepository,
-    procedureRepository: IProcedureRepository
+    procedureRepository: IProcedureRepository,
+    accessService: CheckupAccessService,
   ) {
     this.checkupRepository = checkupRepository;
     this.procedureRepository = procedureRepository;
-    this.accessService = new CheckupAccessService(checkupRepository, petRepository);
+    this.accessService = accessService;
   }
 
   async handle(req: AuthenticatedRequest, res: Response) {

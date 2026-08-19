@@ -1,13 +1,12 @@
 import { Request, Response } from "express";
-import { IPetRepository } from "../../domain/repositories/IPetRepository.js";
 import { UpdatePetUseCase } from "../../app/UpdatePetUseCase.js";
 import { PetSize, PetType, Sex, Prisma } from "@prisma/client";
 
 export class PatchPetController {
   private updatePetUseCase: UpdatePetUseCase;
 
-  constructor(petRepository: IPetRepository) {
-    this.updatePetUseCase = new UpdatePetUseCase(petRepository);
+  constructor(updatePetUseCase: UpdatePetUseCase) {
+    this.updatePetUseCase = updatePetUseCase;
   }
 
   async handle(req: Request, res: Response) {

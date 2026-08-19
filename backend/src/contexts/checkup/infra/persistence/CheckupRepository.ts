@@ -1,9 +1,9 @@
 import { CreateCheckupData, EditCheckupData } from "../../../../types/checkup.js";
 import { Checkup } from "../../domain/entities/Checkup.js";
 import { ICheckupRepository } from "../../domain/repositories/ICheckupRepository.js";
-import { prisma } from '../../../../db/prisma.js';
-import { HealthEventSource, HealthEventType } from '@prisma/client';
-import { completePreventiveReminders } from '../../../reminder/ReminderService.js';
+import { HealthEventSource, HealthEventType, type PrismaClient } from '@prisma/client';
+
+type CompletePreventiveReminders = (petId: number, type: string, title: string, now?: Date) => Promise<void>;
 
 function inferHealthEventType(name: string): HealthEventType {
   const normalized = name.toLocaleLowerCase('es');
@@ -15,8 +15,13 @@ function inferHealthEventType(name: string): HealthEventType {
 }
 
 export class CheckupRepository implements ICheckupRepository {
+  constructor(
+    private readonly database: PrismaClient,
+    private readonly completePreventiveReminders: CompletePreventiveReminders,
+  ) {}
+
   async findById(id: number): Promise<Checkup | null> {
-    const checkup = await prisma.checkup.findUnique({
+    const checkup = await this.database.checkup.findUnique({
       where: { id: id },
     });
 
@@ -34,7 +39,7 @@ export class CheckupRepository implements ICheckupRepository {
   }
 
   async findByPetId(petId: number): Promise<Checkup[]> {
-    const results = await prisma.checkup.findMany({
+    const results = await this.database.checkup.findMany({
       where: {
         pet_id: petId
       },
@@ -55,7 +60,7 @@ export class CheckupRepository implements ICheckupRepository {
   }
 
   async update(id: number, data: EditCheckupData): Promise<Checkup> {
-    const editedCheckup = await prisma.$transaction(async (transaction) => {
+    const editedCheckup = await this.database.$transaction(async (transaction) => {
       const updated = await transaction.checkup.update({
         where: { id },
         data: { procedure_id: data.procedureId, date: data.date, notes: data.notes },
@@ -91,20 +96,20 @@ export class CheckupRepository implements ICheckupRepository {
       editedCheckup.notes
     )
 
-    await completePreventiveReminders(editedCheckup.pet_id, inferHealthEventType(editedCheckup.procedure.procedure_name), editedCheckup.procedure.procedure_name, editedCheckup.date);
+    await this.completePreventiveReminders(editedCheckup.pet_id, inferHealthEventType(editedCheckup.procedure.procedure_name), editedCheckup.procedure.procedure_name, editedCheckup.date);
 
     return checkup;
   }
 
   async delete(id: number): Promise<void> {
-    await prisma.$transaction([
-      prisma.healthEvent.deleteMany({ where: { legacy_checkup_id: id } }),
-      prisma.checkup.delete({ where: { id } }),
+    await this.database.$transaction([
+      this.database.healthEvent.deleteMany({ where: { legacy_checkup_id: id } }),
+      this.database.checkup.delete({ where: { id } }),
     ]);
   }
 
   async save(data: CreateCheckupData): Promise<Checkup> {
-    const savedCheckup = await prisma.$transaction(async (transaction) => {
+    const savedCheckup = await this.database.$transaction(async (transaction) => {
       const saved = await transaction.checkup.create({
         data: { pet_id: data.petId, procedure_id: data.procedureId, date: data.date, notes: data.notes },
         include: { procedure: true, pet: true },
@@ -132,13 +137,13 @@ export class CheckupRepository implements ICheckupRepository {
       savedCheckup.notes
     );
 
-    await completePreventiveReminders(savedCheckup.pet_id, inferHealthEventType(savedCheckup.procedure.procedure_name), savedCheckup.procedure.procedure_name, savedCheckup.date);
+    await this.completePreventiveReminders(savedCheckup.pet_id, inferHealthEventType(savedCheckup.procedure.procedure_name), savedCheckup.procedure.procedure_name, savedCheckup.date);
 
     return newCheckup;
   }
 
   async findByPetProcedure(petId: number, procedureId: number): Promise<Checkup | null> {
-    const checkup = await prisma.checkup.findFirst({
+    const checkup = await this.database.checkup.findFirst({
       where: {
         pet_id: petId,
         procedure_id: procedureId

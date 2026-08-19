@@ -7,8 +7,9 @@ import { RedisService } from './config/RedisService.js';
 import { config } from './config/env.js';
 import { createRateLimiter, errorHandler, notFoundHandler, securityHeaders } from './middleware/security.js';
 import { openApiDocument } from './contracts/openapi.js';
+import { createApplicationModules, type ApplicationModules } from './composition/createApplicationModules.js';
 
-export async function buildApp() {
+export async function buildApp(modules: ApplicationModules = createApplicationModules()) {
   const app = express();
   const corsMiddleware = cors({
     origin(origin, callback) {
@@ -69,7 +70,7 @@ export async function buildApp() {
     max: 300,
     message: 'Too many requests. Try again shortly.',
   }));
-  app.use('/api', createRoutes());
+  app.use('/api', createRoutes(modules));
   
   // Test routes (for development/testing)
   if (config.nodeEnv !== 'production') {

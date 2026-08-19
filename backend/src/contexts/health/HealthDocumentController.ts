@@ -1,7 +1,6 @@
 import type { Response } from 'express';
-import { prisma } from '../../db/prisma.js';
-import type { PrismaClient } from '@prisma/client';
 import type { AuthenticatedRequest } from '../auth/infra/middleware/JwtMiddleware.js';
+import type { HealthRecordService } from './app/HealthRecordService.js';
 
 const MAX_DOCUMENT_BYTES = 5 * 1024 * 1024;
 const ALLOWED_MIME_TYPES = new Set(['application/pdf', 'image/jpeg', 'image/png', 'image/webp']);
@@ -28,30 +27,21 @@ export function parseHealthDocument(body: Record<string, unknown>) {
   return { fileName, mimeType, content, healthEventId };
 }
 
-function metadata(document: { id: number; pet_id: number; health_event_id: number | null; file_name: string; mime_type: string; size_bytes: number; created_at: Date }) {
-  return { id: document.id, petId: document.pet_id, healthEventId: document.health_event_id, fileName: document.file_name, mimeType: document.mime_type, sizeBytes: document.size_bytes, createdAt: document.created_at };
-}
-
 export class HealthDocumentController {
-  constructor(private readonly database: PrismaClient = prisma) {}
+  constructor(private readonly healthRecords: HealthRecordService) {}
 
   async create(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const petId = Number(req.params.id);
       const input = parseHealthDocument(req.body as Record<string, unknown>);
-      if (input.healthEventId) {
-        const event = await this.database.healthEvent.findFirst({ where: { id: input.healthEventId, pet_id: petId, pet: { owner_id: req.user.userId } } });
-        if (!event) { res.status(400).json({ error: 'Health event is not valid for this pet' }); return; }
-      }
-      const document = await this.database.healthDocument.create({ data: { pet_id: petId, health_event_id: input.healthEventId, file_name: input.fileName, mime_type: input.mimeType, size_bytes: input.content.length, content: input.content } });
-      res.status(201).json(metadata(document));
+      res.status(201).json(await this.healthRecords.createDocument(petId, req.user.userId, input));
     } catch (error) {
       res.status(400).json({ error: error instanceof Error ? error.message : 'Invalid document' });
     }
   }
 
   async download(req: AuthenticatedRequest, res: Response): Promise<void> {
-    const document = await this.database.healthDocument.findFirst({ where: { id: Number(req.params.id), pet: { owner_id: req.user.userId } } });
+    const document = await this.healthRecords.getDocument(Number(req.params.id), req.user.userId);
     if (!document) { res.status(404).json({ error: 'Document not found' }); return; }
     const safeName = document.file_name.replace(/["\\]/g, '_');
     res.setHeader('Content-Type', document.mime_type);
@@ -62,9 +52,7 @@ export class HealthDocumentController {
   }
 
   async delete(req: AuthenticatedRequest, res: Response): Promise<void> {
-    const document = await this.database.healthDocument.findFirst({ where: { id: Number(req.params.id), pet: { owner_id: req.user.userId } } });
-    if (!document) { res.status(404).json({ error: 'Document not found' }); return; }
-    await this.database.healthDocument.delete({ where: { id: document.id } });
+    if (!await this.healthRecords.deleteDocument(Number(req.params.id), req.user.userId)) { res.status(404).json({ error: 'Document not found' }); return; }
     res.status(204).send();
   }
 }

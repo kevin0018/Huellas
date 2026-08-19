@@ -2,15 +2,16 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { buildApp } from './app.js';
 import { config } from './config/env.js';
-import { ChatSocketHandler } from './contexts/chat/infra/websocket/ChatSocketHandler.js';
 import { SocketIOService } from './contexts/chat/infra/websocket/SocketIOService.js';
 import { prisma } from './db/prisma.js';
 import { RedisService } from './config/RedisService.js';
 import { dbPool } from './db/pool.js';
+import { createApplicationModules } from './composition/createApplicationModules.js';
 
 async function startServer() {
   try {
-    const app = await buildApp();
+    const modules = createApplicationModules();
+    const app = await buildApp(modules);
     const httpServer = createServer(app);
     const io = new Server(httpServer, {
       cors: {
@@ -24,7 +25,7 @@ async function startServer() {
     socketService.setIO(io);
 
     // Initialize WebSocket handlers
-    ChatSocketHandler.handleConnection(io);
+    modules.chat.socket.handleConnection(io);
 
     httpServer.listen(config.port, () => {
       console.log(`API running on port ${config.port}`);

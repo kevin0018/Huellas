@@ -1,13 +1,12 @@
 import { Response } from "express";
-import { IPetRepository } from "../../domain/repositories/IPetRepository.js";
 import { FindPetsByOwnerUseCase } from "../../app/FindPetsByOwnerUseCase.js";
 import { AuthenticatedRequest } from "../../../auth/infra/middleware/JwtMiddleware.js";
 
 export class GetMyPetsController {
   private findPetsByOwnerUseCase: FindPetsByOwnerUseCase;
 
-  constructor(petRepository: IPetRepository) {
-    this.findPetsByOwnerUseCase = new FindPetsByOwnerUseCase(petRepository);
+  constructor(findPetsByOwnerUseCase: FindPetsByOwnerUseCase) {
+    this.findPetsByOwnerUseCase = findPetsByOwnerUseCase;
   }
 
   async handle(req: AuthenticatedRequest, res: Response) {

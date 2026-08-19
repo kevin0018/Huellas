@@ -1,7 +1,5 @@
 import { Response } from "express";
 import { CreateCheckupUseCase } from "../../app/CreateCheckupUseCase.js";
-import { ICheckupRepository } from "../../domain/repositories/ICheckupRepository.js";
-import { IPetRepository } from "../../../pet/domain/repositories/IPetRepository.js";
 import { IProcedureRepository } from "../../../procedure/domain/repositories/IProcedureRepository.js";
 import { AuthenticatedRequest } from "../../../auth/infra/middleware/JwtMiddleware.js";
 import { CheckupAccessService } from "../../app/CheckupAccessService.js";
@@ -12,13 +10,13 @@ export class PostCheckupController {
   private accessService: CheckupAccessService;
 
   constructor(
-    checkupRepository: ICheckupRepository,
-    petRepository: IPetRepository,
-    procedureRepository: IProcedureRepository
+    createCheckupUseCase: CreateCheckupUseCase,
+    procedureRepository: IProcedureRepository,
+    accessService: CheckupAccessService,
   ){
-    this.createCheckupUseCase = new CreateCheckupUseCase(checkupRepository);
+    this.createCheckupUseCase = createCheckupUseCase;
     this.procedureRepository = procedureRepository;
-    this.accessService = new CheckupAccessService(checkupRepository, petRepository);
+    this.accessService = accessService;
   }
 
   async handle(req: AuthenticatedRequest, res: Response) {

@@ -1,8 +1,7 @@
 import type { Response } from 'express';
-import { HealthEventSource, HealthEventType, Prisma, type PrismaClient } from '@prisma/client';
-import { prisma } from '../../db/prisma.js';
+import { HealthEventType } from '@prisma/client';
 import type { AuthenticatedRequest } from '../auth/infra/middleware/JwtMiddleware.js';
-import { completePreventiveReminders } from '../reminder/ReminderService.js';
+import type { HealthRecordService } from './app/HealthRecordService.js';
 
 type HealthEventInput = {
   type: HealthEventType;
@@ -86,92 +85,19 @@ export function parseHealthEventInput(body: Record<string, unknown>): HealthEven
   };
 }
 
-type EventWithAttachments = Prisma.HealthEventGetPayload<Record<string, never>> & {
-  attachments?: Array<{ id: number; pet_id: number; health_event_id: number | null; file_name: string; mime_type: string; size_bytes: number; created_at: Date }>;
-};
-
-function serializeHealthEvent(event: EventWithAttachments) {
-  return {
-    id: event.id,
-    petId: event.pet_id,
-    type: event.type,
-    occurredAt: event.occurred_at,
-    title: event.title,
-    notes: event.notes,
-    provider: event.provider,
-    result: event.result,
-    dose: event.dose,
-    lotNumber: event.lot_number,
-    expiresAt: event.expires_at,
-    enteredBy: event.entered_by,
-    verification: event.verified_by === null ? 'OWNER_REPORTED' : 'VERIFIED',
-    verifiedBy: event.verified_by,
-    source: event.source,
-    sourceAppointmentId: event.source_appointment_id,
-    createdAt: event.created_at,
-    updatedAt: event.updated_at,
-    attachments: (event.attachments || []).map((document) => ({
-      id: document.id, petId: document.pet_id, healthEventId: document.health_event_id,
-      fileName: document.file_name, mimeType: document.mime_type, sizeBytes: document.size_bytes, createdAt: document.created_at,
-    })),
-  };
-}
-
 export class HealthEventController {
-  constructor(
-    private readonly database: PrismaClient = prisma,
-    private readonly completeReminders: typeof completePreventiveReminders = completePreventiveReminders,
-  ) {}
-
-  private ownedEvent(id: number, ownerId: number) {
-    return this.database.healthEvent.findFirst({ where: { id, pet: { owner_id: ownerId } } });
-  }
+  constructor(private readonly healthRecords: HealthRecordService) {}
 
   async list(req: AuthenticatedRequest, res: Response): Promise<void> {
     const petId = Number(req.params.id);
-    const events = await this.database.healthEvent.findMany({
-      where: { pet_id: petId, pet: { owner_id: req.user.userId } },
-      orderBy: [{ occurred_at: 'desc' }, { id: 'desc' }],
-      include: { attachments: { select: { id: true, pet_id: true, health_event_id: true, file_name: true, mime_type: true, size_bytes: true, created_at: true } } },
-    });
-    res.json(events.map(serializeHealthEvent));
+    res.json(await this.healthRecords.listEvents(petId, req.user.userId));
   }
 
   async create(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const petId = Number(req.params.id);
       const input = parseHealthEventInput(req.body as Record<string, unknown>);
-      if (input.sourceAppointmentId) {
-        const appointment = await this.database.appointment.findFirst({
-          where: { id: input.sourceAppointmentId, pet_id: petId, pet: { owner_id: req.user.userId } },
-        });
-        if (!appointment) {
-          res.status(400).json({ error: 'Source appointment is not valid for this pet' });
-          return;
-        }
-      }
-      const event = await this.database.healthEvent.create({
-        data: {
-          pet_id: petId,
-          type: input.type,
-          occurred_at: input.occurredAt,
-          title: input.title,
-          notes: input.notes,
-          provider: input.provider,
-          result: input.result,
-          dose: input.dose,
-          lot_number: input.lotNumber,
-          expires_at: input.expiresAt,
-          entered_by: req.user.userId,
-          source: input.sourceAppointmentId ? HealthEventSource.APPOINTMENT : HealthEventSource.OWNER,
-          source_appointment_id: input.sourceAppointmentId,
-        },
-      });
-      await this.completeReminders(petId, event.type, event.title, event.occurred_at);
-      if (event.source_appointment_id) {
-        await this.database.reminder.updateMany({ where: { source_key: `appointment:${event.source_appointment_id}`, status: 'PENDING' }, data: { status: 'COMPLETED', completed_at: event.occurred_at, generated_action_at: event.occurred_at } });
-      }
-      res.status(201).json(serializeHealthEvent(event));
+      res.status(201).json(await this.healthRecords.createEvent(petId, req.user.userId, input));
     } catch (error) {
       res.status(400).json({ error: error instanceof Error ? error.message : 'Invalid health event' });
     }
@@ -180,26 +106,16 @@ export class HealthEventController {
   async update(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const id = Number(req.params.id);
-      if (!await this.ownedEvent(id, req.user.userId)) {
+      const event = await this.healthRecords.updateEvent(
+        id,
+        req.user.userId,
+        parseHealthEventInput(req.body as Record<string, unknown>),
+      );
+      if (!event) {
         res.status(404).json({ error: 'Health event not found' });
         return;
       }
-      const input = parseHealthEventInput(req.body as Record<string, unknown>);
-      const event = await this.database.healthEvent.update({
-        where: { id },
-        data: {
-          type: input.type,
-          occurred_at: input.occurredAt,
-          title: input.title,
-          notes: input.notes,
-          provider: input.provider,
-          result: input.result,
-          dose: input.dose,
-          lot_number: input.lotNumber,
-          expires_at: input.expiresAt,
-        },
-      });
-      res.json(serializeHealthEvent(event));
+      res.json(event);
     } catch (error) {
       res.status(400).json({ error: error instanceof Error ? error.message : 'Invalid health event' });
     }
@@ -207,11 +123,10 @@ export class HealthEventController {
 
   async delete(req: AuthenticatedRequest, res: Response): Promise<void> {
     const id = Number(req.params.id);
-    if (!await this.ownedEvent(id, req.user.userId)) {
+    if (!await this.healthRecords.deleteEvent(id, req.user.userId)) {
       res.status(404).json({ error: 'Health event not found' });
       return;
     }
-    await this.database.healthEvent.delete({ where: { id } });
     res.status(204).send();
   }
 }

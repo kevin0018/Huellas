@@ -1,12 +1,10 @@
 import type { ExtendedError, Server, Socket } from 'socket.io';
 import jwt from 'jsonwebtoken';
-import { prisma } from '../../../../db/prisma.js';
 import { JwtBlacklist } from '../../../auth/infra/services/JwtBlacklist.js';
 import type { JwtPayload } from '../../../auth/infra/middleware/JwtMiddleware.js';
-import { PrismaMessageRepository } from '../repositories/PrismaMessageRepository.js';
-import { PrismaConversationRepository } from '../repositories/PrismaConversationRepository.js';
-import { SendMessageCommandHandler } from '../../app/commands/SendMessageCommandHandler.js';
-import { MarkMessageAsReadCommandHandler } from '../../app/commands/MarkMessageAsReadCommandHandler.js';
+import type { ConversationRepository } from '../../domain/repositories/ConversationRepository.js';
+import type { SendMessageCommandHandler } from '../../app/commands/SendMessageCommandHandler.js';
+import type { MarkMessageAsReadCommandHandler } from '../../app/commands/MarkMessageAsReadCommandHandler.js';
 
 type AuthenticatedSocket = Socket & { data: { userId: number } };
 
@@ -36,23 +34,18 @@ export async function authenticateChatSocket(
 }
 
 export class ChatSocketHandler {
-  private static messageRepo = new PrismaMessageRepository(prisma);
-  private static conversationRepo = new PrismaConversationRepository(prisma);
-  private static sendMessageHandler = new SendMessageCommandHandler(
-    ChatSocketHandler.messageRepo,
-    ChatSocketHandler.conversationRepo
-  );
-  private static markMessageAsReadHandler = new MarkMessageAsReadCommandHandler(
-    ChatSocketHandler.messageRepo,
-    ChatSocketHandler.conversationRepo
-  );
+  constructor(
+    private readonly conversationRepository: ConversationRepository,
+    private readonly sendMessage: SendMessageCommandHandler,
+    private readonly markMessageAsRead: MarkMessageAsReadCommandHandler,
+  ) {}
 
-  private static async canAccessConversation(conversationId: number, userId: number): Promise<boolean> {
-    const conversation = await ChatSocketHandler.conversationRepo.findById(conversationId);
+  private async canAccessConversation(conversationId: number, userId: number): Promise<boolean> {
+    const conversation = await this.conversationRepository.findById(conversationId);
     return conversation?.isParticipant(userId) ?? false;
   }
 
-  static handleConnection(io: Server): void {
+  handleConnection(io: Server): void {
     io.use(authenticateChatSocket);
 
     io.on('connection', (rawSocket: Socket) => {
@@ -62,14 +55,14 @@ export class ChatSocketHandler {
 
       socket.on('send-message', async (data: { conversationId: number; content: string; type?: string }) => {
         try {
-          const message = await ChatSocketHandler.sendMessageHandler.handle({
+          const message = await this.sendMessage.handle({
             conversationId: data.conversationId,
             senderId: userId,
             content: data.content,
             type: data.type
           });
 
-          const conversation = await ChatSocketHandler.conversationRepo.findById(data.conversationId);
+          const conversation = await this.conversationRepository.findById(data.conversationId);
           conversation?.participantIds.forEach((participantId) => {
             io.to(`user:${participantId}`).emit('new-message', {
               id: message.id,
@@ -87,7 +80,7 @@ export class ChatSocketHandler {
 
       socket.on('mark-read', async (data: { messageId: number }) => {
         try {
-          await ChatSocketHandler.markMessageAsReadHandler.handle({ messageId: data.messageId, userId });
+          await this.markMessageAsRead.handle({ messageId: data.messageId, userId });
           socket.emit('message-read', { messageId: data.messageId });
         } catch {
           socket.emit('error', { message: 'Message operation not allowed' });
@@ -96,11 +89,11 @@ export class ChatSocketHandler {
 
       socket.on('join-conversation', async (data: { conversationId: number }) => {
         try {
-          if (!await ChatSocketHandler.canAccessConversation(data.conversationId, userId)) {
+          if (!await this.canAccessConversation(data.conversationId, userId)) {
             throw new Error('Access denied');
           }
           socket.join(`conversation:${data.conversationId}`);
-          await ChatSocketHandler.conversationRepo.updateLastReadAt(data.conversationId, userId, new Date());
+          await this.conversationRepository.updateLastReadAt(data.conversationId, userId, new Date());
           socket.emit('joined-conversation', { conversationId: data.conversationId });
         } catch {
           socket.emit('error', { message: 'Conversation not found' });
@@ -112,7 +105,7 @@ export class ChatSocketHandler {
       });
 
       socket.on('typing', async (data: { conversationId: number; isTyping: boolean }) => {
-        if (!await ChatSocketHandler.canAccessConversation(data.conversationId, userId)) return;
+        if (!await this.canAccessConversation(data.conversationId, userId)) return;
         socket.to(`conversation:${data.conversationId}`).emit('user-typing', {
           userId,
           isTyping: data.isTyping

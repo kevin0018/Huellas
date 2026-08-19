@@ -1,17 +1,15 @@
 import { Response } from "express";
 import { FindPetCheckupsUseCase } from "../../app/FindPetCheckupsUseCase.js";
-import { ICheckupRepository } from "../../domain/repositories/ICheckupRepository.js";
 import { AuthenticatedRequest } from "../../../auth/infra/middleware/JwtMiddleware.js";
-import { IPetRepository } from "../../../pet/domain/repositories/IPetRepository.js";
 import { CheckupAccessService } from "../../app/CheckupAccessService.js";
 
 export class GetPetCheckupsController {
   private findPetCheckupsUseCase: FindPetCheckupsUseCase;
   private accessService: CheckupAccessService;
 
-  constructor(checkupRepository: ICheckupRepository, petRepository: IPetRepository) {
-    this.findPetCheckupsUseCase = new FindPetCheckupsUseCase(checkupRepository)
-    this.accessService = new CheckupAccessService(checkupRepository, petRepository);
+  constructor(findPetCheckupsUseCase: FindPetCheckupsUseCase, accessService: CheckupAccessService) {
+    this.findPetCheckupsUseCase = findPetCheckupsUseCase;
+    this.accessService = accessService;
   }
 
   async handle(req: AuthenticatedRequest, res: Response) {

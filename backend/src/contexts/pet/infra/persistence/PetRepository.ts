@@ -1,11 +1,13 @@
 import { CreatePetRequest, EditPetRequest } from "../../../../types/pet.js";
 import { Pet } from "../../domain/entities/Pet.js";
 import { IPetRepository } from "../../domain/repositories/IPetRepository.js";
-import { prisma } from '../../../../db/prisma.js';
+import type { PrismaClient } from '@prisma/client';
 
 export class PetRepository implements IPetRepository {
+  constructor(private readonly database: PrismaClient) {}
+
   async findById(id: number): Promise<Pet | null> {
-    const pet = await prisma.pet.findUnique({
+    const pet = await this.database.pet.findUnique({
       where: { id: id },
     });
 
@@ -31,7 +33,7 @@ export class PetRepository implements IPetRepository {
   }
 
   async save(pet: CreatePetRequest): Promise<Pet> {
-    const savedPet = await prisma.pet.create({
+    const savedPet = await this.database.pet.create({
       data: {
         name: pet.name,
         race: pet.race ?? null,
@@ -72,7 +74,7 @@ export class PetRepository implements IPetRepository {
   }
 
   async delete(id: number): Promise<void> {
-    await prisma.pet.delete({
+    await this.database.pet.delete({
       where: {
         id: id
       }
@@ -80,7 +82,7 @@ export class PetRepository implements IPetRepository {
   }
 
   async update(id: number, data: EditPetRequest): Promise<Pet> {
-    const editedPet = await prisma.pet.update({
+    const editedPet = await this.database.pet.update({
       where: {
         id: id
       },
@@ -122,7 +124,7 @@ export class PetRepository implements IPetRepository {
   }
 
   async findByOwnerId(ownerId: number): Promise<Pet[]> {
-    const results = await prisma.pet.findMany({
+    const results = await this.database.pet.findMany({
       where: {
         owner_id: ownerId
       }

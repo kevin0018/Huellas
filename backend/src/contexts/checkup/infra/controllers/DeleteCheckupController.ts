@@ -1,6 +1,5 @@
 import { Response } from 'express';
 import { ICheckupRepository } from '../../domain/repositories/ICheckupRepository.js';
-import { IPetRepository } from '../../../pet/domain/repositories/IPetRepository.js';
 import { AuthenticatedRequest } from '../../../auth/infra/middleware/JwtMiddleware.js';
 import { CheckupAccessService } from '../../app/CheckupAccessService.js';
 
@@ -8,9 +7,9 @@ export class DeleteCheckupController {
   private checkupRepository: ICheckupRepository;
   private accessService: CheckupAccessService;
 
-  constructor(checkupRepository: ICheckupRepository, petRepository: IPetRepository,) {
+  constructor(checkupRepository: ICheckupRepository, accessService: CheckupAccessService) {
     this.checkupRepository = checkupRepository;
-    this.accessService = new CheckupAccessService(checkupRepository, petRepository);
+    this.accessService = accessService;
   }
 
   async handle(req: AuthenticatedRequest, res: Response) {

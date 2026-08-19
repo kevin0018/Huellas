@@ -1,5 +1,4 @@
 import { Response } from "express";
-import { IPetRepository } from "../../domain/repositories/IPetRepository.js";
 import { CreatePetUseCase } from "../../app/CreatePetUseCase.js";
 import { AuthenticatedRequest } from "../../../auth/infra/middleware/JwtMiddleware.js";
 import { PetSize, PetType, Sex, Prisma } from "@prisma/client";
@@ -7,8 +6,8 @@ import { PetSize, PetType, Sex, Prisma } from "@prisma/client";
 export class PostPetController {
   private createPetUseCase: CreatePetUseCase;
 
-  constructor(petRepository: IPetRepository) {
-    this.createPetUseCase = new CreatePetUseCase(petRepository);
+  constructor(createPetUseCase: CreatePetUseCase) {
+    this.createPetUseCase = createPetUseCase;
   }
 
   async handle(req: AuthenticatedRequest, res: Response) {
