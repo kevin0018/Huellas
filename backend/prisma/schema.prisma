@@ -159,6 +159,7 @@ model Pet {
   checkups     Checkup[]
   appointments Appointment[]
   health_events HealthEvent[]
+  health_documents HealthDocument[]
 
   @@index([owner_id])
   @@index([type])
@@ -223,11 +224,29 @@ model HealthEvent {
   enteredBy          User         @relation("EnteredHealthEvents", fields: [entered_by], references: [id], onDelete: Restrict, onUpdate: Restrict)
   verifiedBy         User?        @relation("VerifiedHealthEvents", fields: [verified_by], references: [id], onDelete: SetNull, onUpdate: Restrict)
   sourceAppointment Appointment? @relation(fields: [source_appointment_id], references: [id], onDelete: SetNull, onUpdate: Restrict)
+  attachments       HealthDocument[]
 
   @@index([pet_id, occurred_at])
   @@index([type])
   @@index([expires_at])
   @@index([source_appointment_id])
+}
+
+model HealthDocument {
+  id              Int      @id @default(autoincrement())
+  pet_id          Int
+  health_event_id Int?
+  file_name       String
+  mime_type       String
+  size_bytes      Int
+  content         Bytes    @db.LongBlob
+  created_at      DateTime @default(now())
+
+  pet         Pet          @relation(fields: [pet_id], references: [id], onDelete: Cascade, onUpdate: Restrict)
+  healthEvent HealthEvent? @relation(fields: [health_event_id], references: [id], onDelete: Cascade, onUpdate: Restrict)
+
+  @@index([pet_id])
+  @@index([health_event_id])
 }
 
 model ProcedureSchedule {

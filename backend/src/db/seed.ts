@@ -17,6 +17,7 @@ async function main() {
         await prisma.conversationParticipant.deleteMany();
         await prisma.conversation.deleteMany();
         await prisma.volunteerPost.deleteMany();
+        await prisma.healthDocument.deleteMany();
         await prisma.healthEvent.deleteMany();
         await prisma.checkup.deleteMany();
         await prisma.appointment.deleteMany();

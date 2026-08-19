@@ -9,6 +9,7 @@ import {createAppointmentRoutes } from './appointmentRoutes.js';
 import chatRoutes from './chatRoutes.js';
 import postsRoutes from "./postsRoutes.js";
 import { createHealthEventRoutes } from './healthEventRoutes.js';
+import { createHealthDocumentRoutes } from './healthDocumentRoutes.js';
 
 export function createRoutes(): Router {
   console.log('Creating main routes...');
@@ -47,6 +48,7 @@ export function createRoutes(): Router {
   router.use('/appointments', createAppointmentRoutes());
 
   router.use('/health-events', createHealthEventRoutes());
+  router.use('/health-documents', createHealthDocumentRoutes());
 
   // Mount chat routes
   console.log('Mounting chat routes on /chat...');

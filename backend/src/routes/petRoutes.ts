@@ -11,6 +11,7 @@ import { ProcedureRepository } from '../contexts/procedure/infra/persistence/Pro
 import { GetPetCheckupsController } from '../contexts/checkup/infra/controllers/GetPetCheckupsController.js';
 import { GetPetProceduresStatusController } from '../contexts/procedure/infra/controllers/GetPetProceduresStatusController.js';
 import { HealthEventController } from '../contexts/health/HealthEventController.js';
+import { HealthDocumentController } from '../contexts/health/HealthDocumentController.js';
 
 export function createPetRoutes(): Router {
   console.log('Creating pet routes...');
@@ -31,6 +32,7 @@ export function createPetRoutes(): Router {
   const getPetCheckupsController = new GetPetCheckupsController(checkupRepository, petRepository);
   const getPetProceduresStatusController = new GetPetProceduresStatusController(procedureRepository, petRepository);
   const healthEventController = new HealthEventController();
+  const healthDocumentController = new HealthDocumentController();
 
   // Routes
   // GET Pet Route
@@ -74,6 +76,10 @@ export function createPetRoutes(): Router {
 
   router.post('/:id/health-events', ...JwtMiddleware.requireOwnPet(), async (req: AuthenticatedRequest, res: Response) => {
     await healthEventController.create(req, res);
+  });
+
+  router.post('/:id/health-documents', ...JwtMiddleware.requireOwnPet(), async (req: AuthenticatedRequest, res: Response) => {
+    await healthDocumentController.create(req, res);
   });
 
   return router;

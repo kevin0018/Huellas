@@ -36,6 +36,17 @@ export interface HealthEvent {
   expiresAt: string | null;
   verification: 'OWNER_REPORTED' | 'VERIFIED';
   source: 'OWNER' | 'LEGACY_CHECKUP' | 'APPOINTMENT';
+  attachments: HealthDocument[];
 }
 
-export type HealthEventDraft = Omit<HealthEvent, 'id' | 'petId' | 'verification' | 'source'>;
+export interface HealthDocument {
+  id: number;
+  petId: number;
+  healthEventId: number | null;
+  fileName: string;
+  mimeType: string;
+  sizeBytes: number;
+  createdAt: string;
+}
+
+export type HealthEventDraft = Omit<HealthEvent, 'id' | 'petId' | 'verification' | 'source' | 'attachments'>;

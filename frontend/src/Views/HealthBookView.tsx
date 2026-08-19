@@ -85,6 +85,22 @@ export default function HealthBookView() {
     setEvents((current) => current.filter((event) => event.id !== id));
   };
 
+  const uploadDocument = async (healthEventId: number, file?: File) => {
+    if (!file) return;
+    try {
+      if (file.size > 5 * 1024 * 1024) throw new Error('El archivo supera el límite de 5 MB');
+      await repository.uploadDocument(petId, healthEventId, file);
+      await load();
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'No se pudo adjuntar el documento');
+    }
+  };
+
+  const deleteDocument = async (id: number) => {
+    await repository.deleteDocument(id);
+    await load();
+  };
+
   return <>
     <NavBar />
     <main className="min-h-screen bg-[#FDF2DE] dark:bg-[#51344D] px-4 py-8">
@@ -154,6 +170,20 @@ export default function HealthBookView() {
               {event.dose && <p className="mt-1"><strong>Dosis:</strong> {event.dose}</p>}
               {event.lotNumber && <p className="mt-1"><strong>Lote:</strong> {event.lotNumber}</p>}
               {event.notes && <p className="mt-3 whitespace-pre-wrap text-gray-700">{event.notes}</p>}
+              <div className="mt-4 border-t pt-4">
+                <p className="mb-2 text-sm font-semibold">Documentos privados</p>
+                <div className="flex flex-wrap gap-2">
+                  {(event.attachments || []).map((document) => <span key={document.id} className="inline-flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2 text-sm">
+                    <button className="font-semibold text-[#51344D]" onClick={() => void repository.downloadDocument(document)}>{document.fileName}</button>
+                    <button aria-label={`Eliminar ${document.fileName}`} className="text-red-700" onClick={() => void deleteDocument(document.id)}>×</button>
+                  </span>)}
+                </div>
+                <label className="mt-3 inline-block cursor-pointer rounded-lg border border-[#51344D] px-3 py-2 text-sm font-semibold text-[#51344D]">
+                  Adjuntar imagen o PDF
+                  <input className="sr-only" type="file" accept="application/pdf,image/jpeg,image/png,image/webp" onChange={(input) => { void uploadDocument(event.id, input.target.files?.[0]); input.target.value = ''; }} />
+                </label>
+                <p className="mt-1 text-xs text-gray-500">PDF, JPEG, PNG o WebP · máximo 5 MB · solo visible para el propietario.</p>
+              </div>
               <button className="mt-4 text-sm font-semibold text-red-700" onClick={() => void remove(event.id)}>Eliminar</button>
             </article>)}
           </div>

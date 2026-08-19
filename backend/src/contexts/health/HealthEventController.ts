@@ -85,7 +85,11 @@ export function parseHealthEventInput(body: Record<string, unknown>): HealthEven
   };
 }
 
-function serializeHealthEvent(event: Prisma.HealthEventGetPayload<Record<string, never>>) {
+type EventWithAttachments = Prisma.HealthEventGetPayload<Record<string, never>> & {
+  attachments?: Array<{ id: number; pet_id: number; health_event_id: number | null; file_name: string; mime_type: string; size_bytes: number; created_at: Date }>;
+};
+
+function serializeHealthEvent(event: EventWithAttachments) {
   return {
     id: event.id,
     petId: event.pet_id,
@@ -105,6 +109,10 @@ function serializeHealthEvent(event: Prisma.HealthEventGetPayload<Record<string,
     sourceAppointmentId: event.source_appointment_id,
     createdAt: event.created_at,
     updatedAt: event.updated_at,
+    attachments: (event.attachments || []).map((document) => ({
+      id: document.id, petId: document.pet_id, healthEventId: document.health_event_id,
+      fileName: document.file_name, mimeType: document.mime_type, sizeBytes: document.size_bytes, createdAt: document.created_at,
+    })),
   };
 }
 
@@ -118,6 +126,7 @@ export class HealthEventController {
     const events = await prisma.healthEvent.findMany({
       where: { pet_id: petId, pet: { owner_id: req.user.userId } },
       orderBy: [{ occurred_at: 'desc' }, { id: 'desc' }],
+      include: { attachments: { select: { id: true, pet_id: true, health_event_id: true, file_name: true, mime_type: true, size_bytes: true, created_at: true } } },
     });
     res.json(events.map(serializeHealthEvent));
   }

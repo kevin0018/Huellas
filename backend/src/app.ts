@@ -24,6 +24,9 @@ export async function buildApp() {
   app.use(securityHeaders);
   app.use(corsMiddleware);
   app.options('*', corsMiddleware);
+  // Base64 adds roughly 33% overhead to the documented 5 MB binary limit.
+  // Keep the larger parser scoped exclusively to the private upload endpoint.
+  app.use('/api/pets/:id/health-documents', express.json({ limit: '7mb' }));
   app.use(express.json({ limit: '100kb' }));
 
   // Initialize Redis connection
