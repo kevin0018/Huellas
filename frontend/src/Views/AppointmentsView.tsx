@@ -6,9 +6,10 @@ import AppointmentCard from '../Components/AppointmentCard';
 import AppointmentModal from '../Components/AppointmentModal';
 import { AppointmentStatus, type Appointment } from '../modules/appointment/domain/Appointment.js';
 import { useAppointments, type SaveAppointment } from '../features/appointments/useAppointments.js';
+import { AsyncContent } from '../shared/ui/AsyncContent.js';
 
 function AppointmentsView() {
-  const { appointments, pets, loading, actionLoading, error, clearError, reload, save, remove, petById } = useAppointments();
+  const { appointments, pets, loading, actionLoading, error, reload, save, remove, petById } = useAppointments();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAppointment, setEditingAppointment] = useState<Appointment | undefined>();
 
@@ -103,51 +104,17 @@ function AppointmentsView() {
             )}
           </div>
 
-          {/* Loading state */}
-          {loading && (
-            <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#51344D] dark:border-[#FDF2DE]"></div>
-              <span className="ml-3 text-[#51344D] dark:text-[#FDF2DE]">Cargando citas...</span> {/* TODO: Add to translation dictionary */}
-            </div>
-          )}
-
-          {/* Error state */}
-          {error && (
-            <div className="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-200 px-4 py-3 rounded-lg mb-6">
-              <div className="flex items-center">
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                {error}
-              </div>
-              <button
-                onClick={clearError}
-                className="mt-2 text-sm underline hover:no-underline"
-              >
-                Cerrar {/* TODO: Add to translation dictionary */}
-              </button>
-              <button onClick={() => void reload()} className="mt-2 ml-4 text-sm underline hover:no-underline">
-                Reintentar
-              </button>
-            </div>
-          )}
-
-          {/* Empty state */}
-          {!loading && appointments.length === 0 && !error && (
-            <div className="text-center py-12">
-              <h3 className="text-xl font-caprasimo text-[#51344D] dark:text-[#FDF2DE] mb-2">
-                No tienes citas programadas {/* TODO: Add to translation dictionary */}
-              </h3>
-              <p className="text-[#928d8e] dark:text-[#BAA9CB]">
-                {pets.length > 0 
-                  ? "Crea tu primera cita médica para tus mascotas" 
-                  : "Necesitas registrar una mascota antes de poder crear citas"} {/* TODO: Add to translation dictionary */}
-              </p>
-            </div>
-          )}
-
-          {/* Appointments grid */}
-          {!loading && appointments.length > 0 && (
+          <AsyncContent
+            loading={loading}
+            error={error}
+            empty={appointments.length === 0}
+            loadingLabel="Cargando citas..."
+            emptyTitle="No tienes citas programadas"
+            emptyDescription={pets.length > 0
+              ? 'Crea tu primera cita médica para tus mascotas'
+              : 'Necesitas registrar una mascota antes de poder crear citas'}
+            onRetry={reload}
+          >
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {sortedAppointments.map((appointment) => (
                 <AppointmentCard
@@ -159,7 +126,7 @@ function AppointmentsView() {
                 />
               ))}
             </div>
-          )}
+          </AsyncContent>
         </div>
 
         {/* Modal */}

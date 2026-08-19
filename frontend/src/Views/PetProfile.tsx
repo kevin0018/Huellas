@@ -13,6 +13,7 @@ import {
   getSexLabel,
 } from "../modules/pet/domain/Pet";
 import { AuthService } from "../modules/auth/infra/AuthService";
+import { AsyncContent } from "../shared/ui/AsyncContent";
 
 type ProfileDetailProps = {
   label: string;
@@ -43,6 +44,7 @@ const PetProfile: React.FC = () => {
   const [pet, setPet] = useState<Pet | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [reloadVersion, setReloadVersion] = useState(0);
 
   // Auth + load
   useEffect(() => {
@@ -87,7 +89,7 @@ const PetProfile: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [id, repo, navigate]);
+  }, [id, repo, navigate, reloadVersion]);
 
   return (
     <>
@@ -104,21 +106,15 @@ const PetProfile: React.FC = () => {
             Perfil de la Mascota
           </h1>
 
-          {/* Loading / Error */}
-          {loading && (
-            <div className="flex items-center gap-3 my-8 text-[#51344D]">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-current" />
-              Cargando…
-            </div>
-          )}
-          {error && (
-            <div className="my-4 p-3 bg-red-100 border border-red-300 text-red-700 rounded">
-              {error}
-            </div>
-          )}
-
-          {/* Avatar */}
-          {!loading && !error && (
+          <AsyncContent
+            loading={loading}
+            error={error}
+            empty={!pet}
+            loadingLabel="Cargando mascota…"
+            emptyTitle="No se encontró la mascota"
+            emptyDescription="Comprueba el enlace o vuelve a la lista de mascotas."
+            onRetry={() => setReloadVersion((current) => current + 1)}
+          >
             <>
               <div className="mb-8">
                 <div className="avatar-shadow mx-auto m-8">
@@ -224,7 +220,7 @@ const PetProfile: React.FC = () => {
                 </Link>
               </div>
             </>
-          )}
+          </AsyncContent>
         </div>
       </div>
       <Footer />

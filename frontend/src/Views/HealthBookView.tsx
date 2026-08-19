@@ -12,6 +12,7 @@ import {
   type HealthEventType,
 } from '../modules/health/HealthEvent.js';
 import { apiUrl } from '../shared/api/apiConfig.js';
+import { AsyncContent } from '../shared/ui/AsyncContent.js';
 
 const repository = new ApiHealthEventRepository();
 const dosageTypes = new Set<HealthEventType>(['VACCINATION', 'MEDICATION', 'TREATMENT']);
@@ -146,7 +147,6 @@ export default function HealthBookView() {
           {share && <div className="mt-4 rounded-lg bg-purple-50 p-3 text-sm"><a className="break-all font-semibold text-[#51344D]" href={share.url} target="_blank" rel="noreferrer">{share.url}</a><p>Caduca: {new Date(share.expiresAt).toLocaleString('es-ES')}</p><button className="mt-2 font-semibold text-red-700" onClick={async () => { await repository.revokeShare(share.id); setShare(null); }}>Revocar enlace</button></div>}
         </section>
 
-        {error && <p role="alert" className="mb-5 rounded-lg bg-red-100 p-4 text-red-800">{error}</p>}
         {showForm && <form onSubmit={submit} className="mb-8 grid gap-4 rounded-2xl bg-white p-6 shadow-md md:grid-cols-2">
           <label className="grid gap-1 text-sm font-semibold">Tipo
             <select className="rounded-lg border p-3" value={type} onChange={(event) => setType(event.target.value as HealthEventType)}>
@@ -180,9 +180,16 @@ export default function HealthBookView() {
           <button className="rounded-lg bg-[#51344D] px-5 py-3 font-semibold text-white md:col-span-2">Guardar evento</button>
         </form>}
 
-        {loading && <p className="text-center text-[#51344D] dark:text-white">Cargando historial…</p>}
-        {!loading && events.length === 0 && <p className="rounded-2xl bg-white p-8 text-center text-gray-600">Todavía no hay eventos sanitarios.</p>}
-        {Object.entries(groupedEvents).map(([year, yearEvents]) => <section key={year} className="mb-8">
+        <AsyncContent
+          loading={loading}
+          error={error}
+          empty={events.length === 0}
+          loadingLabel="Cargando historial…"
+          emptyTitle="Todavía no hay eventos sanitarios"
+          emptyDescription="Añade una consulta, vacuna o tratamiento para empezar la cartilla."
+          onRetry={load}
+        >
+          {Object.entries(groupedEvents).map(([year, yearEvents]) => <section key={year} className="mb-8">
           <h2 className="mb-3 text-xl font-bold text-[#51344D] dark:text-[#FDF2DE]">{year}</h2>
           <div className="grid gap-3">
             {yearEvents.map((event) => <article key={event.id} className="rounded-2xl bg-white p-5 shadow-sm">
@@ -217,7 +224,8 @@ export default function HealthBookView() {
               <button className="mt-4 text-sm font-semibold text-red-700" onClick={() => void remove(event.id)}>Eliminar</button>
             </article>)}
           </div>
-        </section>)}
+          </section>)}
+        </AsyncContent>
       </div>
     </main>
     <Footer />
