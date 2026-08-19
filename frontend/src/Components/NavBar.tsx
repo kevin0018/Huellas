@@ -11,13 +11,13 @@ import ThemeSwitcher from './theme/ThemeSwitcher';
 import LanguageSwitcher from '../i18n/LanguageSwitcher';
 import { useTranslation } from '../i18n/hooks/hook';
 import { AuthService } from '../modules/auth/infra/AuthService';
-import { UserType, type User } from '../modules/auth/domain/User';
+import { Capability, hasCapability, type User } from '../modules/auth/domain/User';
 import { authActions } from '../features/auth/authActions';
 
 export default function NavBar() {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userType, setUserType] = useState<UserType | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const { translate } = useTranslation();
   const navigate = useNavigate();
 
@@ -26,16 +26,19 @@ useEffect(() => {
     const authenticated = AuthService.isAuthenticated();
     setIsLoggedIn(authenticated);
     if (authenticated) {
-      const user: User | null = AuthService.getUser();
-      setUserType(user ? user.type : null);
+      setUser(AuthService.getUser());
     } else {
-      setUserType(null);
+      setUser(null);
     }
   };
 
   checkAuthStatus();
   window.addEventListener('storage', checkAuthStatus);
-  return () => window.removeEventListener('storage', checkAuthStatus);
+  window.addEventListener('auth-changed', checkAuthStatus);
+  return () => {
+    window.removeEventListener('storage', checkAuthStatus);
+    window.removeEventListener('auth-changed', checkAuthStatus);
+  };
 }, []);
 
   const toggleMenu = (): void => setIsOpen(!isOpen);
@@ -55,7 +58,7 @@ useEffect(() => {
       // Even if logout fails, clear local state
       AuthService.logout();
       setIsLoggedIn(false);
-      setUserType(null); 
+      setUser(null);
       navigate('/login');
       closeMenu();
     }
@@ -75,11 +78,11 @@ useEffect(() => {
           {isLoggedIn ? (
             <>
               {/* Hide "Inicio" for pure volunteer users (VOLUNTEER type) */}
-              {userType !== UserType.VOLUNTEER && (
+              {hasCapability(user, Capability.MANAGE_PETS) && (
                 <Link to="/user-home" className="3xl:!text-[2rem]">{translate('home')}</Link>
               )}
               <Link to="/user-profile" className="3xl:!text-[2rem]">{translate('profile')}</Link>
-              {(userType === UserType.VOLUNTEER) && (
+              {hasCapability(user, Capability.PUBLISH_VOLUNTEER_POSTS) && (
                 <Link to="/volunteer-home" className="3xl:!text-[2rem]">Voluntariado</Link>
               )}
 
@@ -130,11 +133,11 @@ useEffect(() => {
           {isLoggedIn ? (
             <>
               {/* Hide "Inicio" for pure volunteer users (VOLUNTEER type) */}
-              {userType !== UserType.VOLUNTEER && (
+              {hasCapability(user, Capability.MANAGE_PETS) && (
                 <Link to="/user-home" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">{translate('home')}</Link>
               )}
               <Link to="/user-profile" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">{translate('profile')}</Link>
-              {(userType === UserType.VOLUNTEER || userType === UserType.OWNER) && (
+              {hasCapability(user, Capability.PUBLISH_VOLUNTEER_POSTS) && (
                 <Link to="/volunteer-home" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">Voluntariado</Link>
               )}
               <Link to="/volunteer-board" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">Buscar voluntarios</Link>

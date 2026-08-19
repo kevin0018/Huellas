@@ -3,6 +3,7 @@ import NavBar from '../Components/NavBar';
 import { useEffect, useState } from 'react';
 import { useSearchParams, Link, useLocation, useNavigate } from 'react-router-dom';
 import { authActions } from '../features/auth/authActions';
+import { Capability, hasCapability } from '../modules/auth/domain/User';
 import type { ChangeEvent, FormEvent } from 'react';
 import GoBackButton from '../Components/GoBackButton';
 
@@ -56,7 +57,7 @@ function LoginContent() {
       const response = await authActions.login(form.email, form.password);
 
       const returnTo = (location.state as { returnTo?: unknown } | null)?.returnTo;
-      const defaultDestination = response.user.type === 'volunteer' ? '/volunteer-home' : '/user-home';
+      const defaultDestination = hasCapability(response.user, Capability.MANAGE_PETS) ? '/user-home' : '/volunteer-home';
       navigate(typeof returnTo === 'string' && returnTo.startsWith('/') ? returnTo : defaultDestination, { replace: true });
 
     } catch (err) {

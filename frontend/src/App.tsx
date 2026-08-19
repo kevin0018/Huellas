@@ -23,6 +23,8 @@ import ChatView from './Views/chatView';
 import HealthBookView from './Views/HealthBookView';
 import NotFoundView from './Views/NotFoundView';
 import ProtectedRoute from './app/routing/ProtectedRoute';
+import CapabilityRoute from './app/routing/CapabilityRoute';
+import { Capability } from './modules/auth/domain/User';
 
 const App: React.FC = () => {
   return (
@@ -34,17 +36,21 @@ const App: React.FC = () => {
           <Route path="/about" element={<AboutUs />} />
           <Route path="/register" element={<Register />} />
           <Route element={<ProtectedRoute />}>
-            <Route path="/pet-register" element={<PetRegister />} />
-            <Route path="/pets/:id/edit" element={<PetRegister />} />
-            <Route path="/procedures-view/:petId" element={<ProceduresView />} />
-            <Route path="/appointments" element={<AppointmentsView />} />
-            <Route path="/user-home" element={<UserHome />} />
-            <Route path="/pets/:id" element={<PetProfile />} />
-            <Route path="/pets/:petId/health" element={<HealthBookView />} />
             <Route path="/user-profile" element={<UserProfile />} />
             <Route path="/volunteer-board" element={<VolunteerBoard />} />
-            <Route path="/volunteer-home" element={<VolunteerHome />} />
             <Route path="/chat" element={<ChatView />} />
+            <Route element={<CapabilityRoute capability={Capability.MANAGE_PETS} />}>
+              <Route path="/pet-register" element={<PetRegister />} />
+              <Route path="/pets/:id/edit" element={<PetRegister />} />
+              <Route path="/procedures-view/:petId" element={<ProceduresView />} />
+              <Route path="/appointments" element={<AppointmentsView />} />
+              <Route path="/user-home" element={<UserHome />} />
+              <Route path="/pets/:id" element={<PetProfile />} />
+              <Route path="/pets/:petId/health" element={<HealthBookView />} />
+            </Route>
+            <Route element={<CapabilityRoute capability={Capability.PUBLISH_VOLUNTEER_POSTS} />}>
+              <Route path="/volunteer-home" element={<VolunteerHome />} />
+            </Route>
           </Route>
           <Route path="*" element={<NotFoundView />} />
         </Routes>
