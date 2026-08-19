@@ -95,7 +95,10 @@ describe('LoginCommandHandler', () => {
       name: 'Juan',
       lastName: 'Pérez',
       email: 'owner@example.com',
-      type: UserType.OWNER
+      type: UserType.OWNER,
+      description: undefined,
+      roles: ['owner'],
+      capabilities: ['use:chat', 'manage:pets', 'manage:health', 'manage:appointments'],
     });
   });
 
@@ -111,7 +114,9 @@ describe('LoginCommandHandler', () => {
       lastName: 'García',
       email: 'volunteer@example.com',
       type: UserType.VOLUNTEER,
-      description: 'Volunteer description'
+      description: 'Volunteer description',
+      roles: ['volunteer'],
+      capabilities: ['use:chat', 'publish:volunteer-posts'],
     });
   });
 

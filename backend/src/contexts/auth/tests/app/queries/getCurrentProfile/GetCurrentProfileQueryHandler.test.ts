@@ -39,7 +39,9 @@ describe('GetCurrentProfileQueryHandler', () => {
 
     vi.mocked(mockAuthRepository.getUserWithDescription).mockResolvedValue({
       user: mockUser,
-      description
+      description,
+      hasOwnerProfile: false,
+      hasVolunteerProfile: true,
     });
 
     const query = new GetCurrentProfileQuery(userId);
@@ -55,7 +57,9 @@ describe('GetCurrentProfileQueryHandler', () => {
       lastName: 'Doe',
       email: 'john@example.com',
       type: UserType.VOLUNTEER,
-      description
+      description,
+      roles: ['volunteer'],
+      capabilities: ['use:chat', 'publish:volunteer-posts'],
     });
   });
 
@@ -73,7 +77,9 @@ describe('GetCurrentProfileQueryHandler', () => {
 
     vi.mocked(mockAuthRepository.getUserWithDescription).mockResolvedValue({
       user: mockUser,
-      description: undefined
+      description: undefined,
+      hasOwnerProfile: true,
+      hasVolunteerProfile: false,
     });
 
     const query = new GetCurrentProfileQuery(userId);
@@ -89,7 +95,9 @@ describe('GetCurrentProfileQueryHandler', () => {
       lastName: 'Smith',
       email: 'jane@example.com',
       type: UserType.OWNER,
-      description: undefined
+      description: undefined,
+      roles: ['owner'],
+      capabilities: ['use:chat', 'manage:pets', 'manage:health', 'manage:appointments'],
     });
   });
 

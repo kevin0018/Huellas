@@ -40,11 +40,12 @@ export class PrismaAuthRepository implements AuthRepository {
     );
   }
 
-  async getUserWithDescription(id: number): Promise<{ user: UserAuth; description?: string } | null> {
+  async getUserWithDescription(id: number) {
     const user = await prisma.user.findUnique({
       where: { id },
       include: {
-        volunteer: true
+        volunteer: true,
+        owner: true,
       }
     });
 
@@ -63,7 +64,9 @@ export class PrismaAuthRepository implements AuthRepository {
 
     return {
       user: userAuth,
-      description: user.volunteer?.description
+      description: user.volunteer?.description,
+      hasOwnerProfile: user.owner !== null,
+      hasVolunteerProfile: user.volunteer !== null,
     };
   }
 

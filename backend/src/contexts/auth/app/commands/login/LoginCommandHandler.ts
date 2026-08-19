@@ -4,6 +4,7 @@ import { UserType } from '../../../domain/entities/UserAuth.js';
 import { LoginCommand } from './LoginCommand.js';
 import { GetCurrentProfileQueryHandler } from '../../queries/getCurrentProfile/GetCurrentProfileQueryHandler.js';
 import { GetCurrentProfileQuery } from '../../queries/getCurrentProfile/GetCurrentProfileQuery.js';
+import { accessForLegacyProfile, type Capability, type UserRole } from '../../../domain/AccessControl.js';
 
 export interface LoginResult {
   token: string;
@@ -14,6 +15,8 @@ export interface LoginResult {
     email: string;
     type: UserType;
     description?: string;
+    roles: UserRole[];
+    capabilities: Capability[];
   };
 }
 
@@ -40,6 +43,9 @@ export class LoginCommandHandler {
     // Get complete user profile including description if volunteer
     const query = new GetCurrentProfileQuery(user.id);
     const userProfile = await this.getCurrentProfileHandler.handle(query);
+    const access = userProfile?.roles && userProfile.capabilities
+      ? { roles: userProfile.roles, capabilities: userProfile.capabilities }
+      : accessForLegacyProfile(user.type, Boolean(userProfile?.description));
 
     // Generate JWT token with secure secret validation
     const jwtSecret = process.env.JWT_SECRET;
@@ -52,7 +58,8 @@ export class LoginCommandHandler {
       { 
         userId: user.id,
         email: user.email,
-        type: user.type
+        type: user.type,
+        ...access,
       },
       jwtSecret,
       { expiresIn: '24h' }
@@ -66,7 +73,8 @@ export class LoginCommandHandler {
         lastName: user.lastName,
         email: user.email,
         type: user.type,
-        description: userProfile?.description
+        description: userProfile?.description,
+        ...access,
       }
     };
   }
