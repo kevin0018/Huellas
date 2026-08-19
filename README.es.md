@@ -45,7 +45,32 @@ El backend está construido con **Node.js** y **Express**, siguiendo la arquitec
 
 ### Entorno de Desarrollo
 
-Hemos configurado un entorno de desarrollo con **Docker** y **Docker Compose** para facilitar la configuración del proyecto. Con estos archivos, cualquier colaborador puede levantar la aplicación, la base de datos y otras dependencias con un solo comando.
+El entorno completo de desarrollo funciona con **Docker Compose**. Desde la raíz
+del repositorio, ejecuta:
+
+```bash
+docker compose -f backend/docker-compose.yml up --build
+```
+
+El comando inicia:
+
+- frontend con Vite y recarga en caliente: <http://localhost:5173>;
+- API: <http://localhost:3000>;
+- MySQL en `localhost:3307`;
+- Redis en `localhost:6379`;
+- Adminer: <http://localhost:8080>.
+
+El frontend redirige `/api` y `/socket.io` a la API dentro de Docker, por lo que
+no es necesario instalar Node.js en el host. La API aplica las migraciones
+versionadas de Prisma antes de arrancar. `FRONTEND_PORT` y `PORT` permiten
+cambiar los puertos públicos del frontend y la API. Las credenciales incluidas
+en Compose son exclusivamente para desarrollo local.
+
+Para detener y eliminar los contenedores:
+
+```bash
+docker compose -f backend/docker-compose.yml down
+```
 
 ### Colaboradores
 - [@kevin0018](https://github.com/kevin0018)

@@ -72,8 +72,32 @@ Developed with **Node.js** and **Express**, strictly following hexagonal archite
 
 ## 🐳 Development Environment
 
-Configured with **Docker** and **Docker Compose** to simplify setup.  
-A new collaborator can run the application, database, and dependencies with a single command.
+The complete development stack runs with **Docker Compose**. From the repository
+root, run:
+
+```bash
+docker compose -f backend/docker-compose.yml up --build
+```
+
+The command starts:
+
+- frontend with Vite and hot reload: <http://localhost:5173>;
+- API: <http://localhost:3000>;
+- MySQL on `localhost:3307`;
+- Redis on `localhost:6379`;
+- Adminer: <http://localhost:8080>.
+
+The frontend proxies `/api` and `/socket.io` to the API inside Docker, so no
+host Node.js installation is required. The API applies the versioned Prisma
+migrations before starting. `FRONTEND_PORT` and `PORT` can override the public
+frontend and API ports. The credentials included in Compose are for local
+development only.
+
+Stop and remove the containers with:
+
+```bash
+docker compose -f backend/docker-compose.yml down
+```
 
 ---
 

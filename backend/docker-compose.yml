@@ -1,11 +1,37 @@
 services:
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile.dev
+    container_name: Huellas_frontend
+    environment:
+      API_PROXY_TARGET: http://api:3000
+      CHOKIDAR_USEPOLLING: "true"
+      VITE_API_URL: /api
+      VITE_SOCKET_URL: /
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    volumes:
+      - ../frontend:/app:cached
+      - /app/node_modules
+    depends_on:
+      - api
   api:
     build:
       context: .
       dockerfile: Dockerfile.dev
     container_name: Huellas_api
-    env_file:
-      - .env
+    environment:
+      DATABASE_URL: mysql://appuser:apppass@mysql:3306/huellas
+      DB_HOST: mysql
+      DB_NAME: huellas
+      DB_PASSWORD: apppass
+      DB_PORT: "3306"
+      DB_USER: appuser
+      JWT_SECRET: "${JWT_SECRET:-huellas-local-development-only}"
+      PORT: "3000"
+      REDIS_URL: redis://redis:6379
+      SHADOW_DATABASE_URL: mysql://root:root@mysql:3306/huellas_shadow
     ports:
       - "${PORT:-3000}:3000"
       - "5555:5555"
@@ -13,9 +39,11 @@ services:
       - .:/app:cached
       - /app/node_modules
     depends_on:
-      - mysql
-      - redis
-    command: ["npm","run","dev"]
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: ["sh", "-c", "npm run prisma:deploy && npm run dev"]
   mysql:
     image: mysql:8.4
     container_name: Huellas_db
