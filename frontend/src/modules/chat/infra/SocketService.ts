@@ -39,11 +39,7 @@ export class SocketService {
     });
 
     this.socket.on('connect', () => {
-      // Join user's personal room automatically
-      const user = AuthService.getUser();
-      if (user) {
-        this.joinUserRoom(user.id);
-      }
+      // The server derives the personal room from the authenticated token.
     });
 
     this.socket.on('disconnect', () => {
@@ -83,15 +79,9 @@ export class SocketService {
     this.listeners.clear();
   }
 
-  joinUserRoom(userId: number): void {
+  joinConversation(conversationId: number): void {
     if (this.socket?.connected) {
-      this.socket.emit('join-user-room', userId);
-    }
-  }
-
-  joinConversation(conversationId: number, userId: number): void {
-    if (this.socket?.connected) {
-      this.socket.emit('join-conversation', { conversationId, userId });
+      this.socket.emit('join-conversation', { conversationId });
     }
   }
 
@@ -101,21 +91,20 @@ export class SocketService {
     }
   }
 
-  sendMessage(conversationId: number, content: string, senderId: number): void {
+  sendMessage(conversationId: number, content: string): void {
     if (this.socket?.connected) {
       this.socket.emit('send-message', { 
         conversationId, 
-        content, 
-        senderId 
+        content
       });
     } else {
       console.warn('[SocketService] ❌ Cannot send message - socket not connected');
     }
   }
 
-  markMessageAsRead(messageId: number, userId: number): void {
+  markMessageAsRead(messageId: number): void {
     if (this.socket?.connected) {
-      this.socket.emit('mark-read', { messageId, userId });
+      this.socket.emit('mark-read', { messageId });
     } else {
       console.warn('[SocketService] ❌ Cannot mark as read - socket not connected');
     }

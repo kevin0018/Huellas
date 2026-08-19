@@ -79,30 +79,30 @@ const PetRegister: React.FC = () => {
 
     try {
       if (!form.name.trim()) throw new Error('El nombre es obligatorio.');
-      if (!form.race.trim()) throw new Error('La raza es obligatoria.');
       if (!form.birthDate) throw new Error('La fecha de nacimiento es obligatoria.');
-      if (!form.microchipCode.trim()) throw new Error('El código de microchip es obligatorio.');
 
       if (isEdit) {
         await repo.update(Number(id), {
           name: form.name,
-          race: form.race,
+          race: form.race?.trim() || null,
+          type: form.type,
           birthDate: form.birthDate, // repo.update convierte a ISO
           size: form.size,
+          microchipCode: form.microchipCode?.trim() || null,
           sex: form.sex,
           hasPassport: form.hasPassport,
-          countryOfOrigin: form.countryOfOrigin?.trim() || undefined,         // <- no null
-          passportNumber: form.hasPassport ? (form.passportNumber?.trim() || undefined) : undefined, // <- no null
-          notes: form.notes?.trim() || undefined,                              // <- no null
+          countryOfOrigin: form.countryOfOrigin?.trim() || null,
+          passportNumber: form.hasPassport ? (form.passportNumber?.trim() || null) : null,
+          notes: form.notes?.trim() || null,
         });
       } else {
         await repo.create({
           name: form.name,
-          race: form.race,
+          race: form.race?.trim() || null,
           type: form.type,
           birthDate: form.birthDate,
           size: form.size,
-          microchipCode: form.microchipCode,
+          microchipCode: form.microchipCode?.trim() || null,
           sex: form.sex,
           hasPassport: form.hasPassport,
           countryOfOrigin: form.countryOfOrigin?.trim() || undefined,         // <- no null
@@ -182,7 +182,8 @@ const PetRegister: React.FC = () => {
                 {/* Raza */}
                 <div>
                   <label htmlFor="race" className="block text-sm font-medium">Raza</label>
-                  <input id="race" required value={form.race} onChange={(e) => onChange("race", e.target.value)}
+                  <input id="race" value={form.race ?? ''} onChange={(e) => onChange("race", e.target.value)}
+                    placeholder="Desconocida"
                     className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-[#51344D]" />
                 </div>
 
@@ -195,6 +196,7 @@ const PetRegister: React.FC = () => {
                     <option value="cat">Gato</option>
                     <option value="ferret">Hurón</option>
                   </select>
+                  <p className="mt-1 text-xs text-gray-600">Actualmente se admiten perros, gatos y hurones.</p>
                 </div>
 
                 {/* Tamaño */}
@@ -211,7 +213,8 @@ const PetRegister: React.FC = () => {
                 {/* Microchip */}
                 <div>
                   <label htmlFor="microchipCode" className="block text-sm font-medium">Código Microchip</label>
-                  <input id="microchipCode" required value={form.microchipCode} onChange={(e) => onChange("microchipCode", e.target.value)}
+                  <input id="microchipCode" value={form.microchipCode ?? ''} onChange={(e) => onChange("microchipCode", e.target.value)}
+                    placeholder="Sin microchip o desconocido"
                     className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-[#51344D]" />
                 </div>
 
@@ -237,7 +240,7 @@ const PetRegister: React.FC = () => {
                 {/* Nº pasaporte (disabled if !hasPassport) */}
                 <div>
                   <label htmlFor="passportNumber" className="block text-sm font-medium">Número de Pasaporte</label>
-                  <input id="passportNumber" value={form.passportNumber}
+                  <input id="passportNumber" value={form.passportNumber ?? ''}
                     onChange={(e) => onChange("passportNumber", e.target.value)}
                     className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-[#51344D]"
                     disabled={!form.hasPassport} />
@@ -246,7 +249,7 @@ const PetRegister: React.FC = () => {
                 {/* Origen (ALWAYS enabled now) */}
                 <div>
                   <label htmlFor="countryOfOrigin" className="block text-sm font-medium">Origen</label>
-                  <input id="countryOfOrigin" value={form.countryOfOrigin}
+                  <input id="countryOfOrigin" value={form.countryOfOrigin ?? ''}
                     onChange={(e) => onChange("countryOfOrigin", e.target.value)}
                     className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-[#51344D]" />
                 </div>
@@ -254,7 +257,7 @@ const PetRegister: React.FC = () => {
                 {/* Comentarios */}
                 <div className="md:col-span-2">
                   <label htmlFor="notes" className="block text-sm font-medium">Comentarios Adicionales</label>
-                  <textarea id="notes" value={form.notes}
+                  <textarea id="notes" value={form.notes ?? ''}
                     onChange={(e) => onChange("notes", e.target.value)}
                     className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-[#51344D]" />
                 </div>

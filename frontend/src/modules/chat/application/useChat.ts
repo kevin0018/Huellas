@@ -2,7 +2,6 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import type { ConversationListItem, Message, Conversation } from '../domain/Conversation';
 import { ApiChatRepository } from '../infra/ApiChatRepository';
 import { socketService } from '../infra/SocketService';
-import { AuthService } from '../../auth/infra/AuthService';
 import { GetConversationsQueryHandler } from '../application/queries/GetConversationsQueryHandler';
 import { GetMessagesQueryHandler } from '../application/queries/GetMessagesQueryHandler';
 import { CreateConversationCommandHandler } from '../application/commands/CreateConversationCommandHandler';
@@ -131,11 +130,9 @@ export function useChat() {
   // Mark message as read
   const markAsRead = async (messageId: number) => {
     try {
-      const currentUser = AuthService.getUser();
-      
       // Send via Socket.IO for real-time update
-      if (socketService.isConnected() && currentUser) {
-        socketService.markMessageAsRead(messageId, currentUser.id);
+      if (socketService.isConnected()) {
+        socketService.markMessageAsRead(messageId);
       }
       
       // Also send via API
@@ -223,10 +220,7 @@ export function useChat() {
   // Join/leave conversation rooms when selected conversation changes
   useEffect(() => {
     if (selectedConversation) {
-      const currentUser = AuthService.getUser();
-      if (currentUser) {
-        socketService.joinConversation(selectedConversation.id, currentUser.id);
-      }
+      socketService.joinConversation(selectedConversation.id);
       
       return () => {
         socketService.leaveConversation(selectedConversation.id);

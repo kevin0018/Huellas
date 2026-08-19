@@ -3,12 +3,12 @@ import { PetSize, PetType, Sex } from "@prisma/client";
 export class Pet {
   private id: number;
   private name: string;
-  private race: string;
+  private race: string | null;
   private type: PetType;
   private ownerId: number;
   private birthDate: Date;
   private size: PetSize;
-  private microchipCode: string;
+  private microchipCode: string | null;
   private sex: Sex;
   private hasPassport: boolean;
   private countryOfOrigin: string | null;
@@ -31,11 +31,11 @@ export class Pet {
     this.name = name;
   }
 
-  public getRace(): string {
+  public getRace(): string | null {
     return this.race;
   }
 
-  public setRace(race: string): void {
+  public setRace(race: string | null): void {
     this.race = race;
   }
 
@@ -71,11 +71,11 @@ export class Pet {
     this.size = size;
   }
 
-  public getMicrochipCode(): string {
+  public getMicrochipCode(): string | null {
     return this.microchipCode;
   }
 
-  public setMicrochipCode(microchipCode: string): void {
+  public setMicrochipCode(microchipCode: string | null): void {
     this.microchipCode = microchipCode;
   }
 
@@ -122,12 +122,12 @@ export class Pet {
   constructor(
     id: number,
     name: string,
-    race: string,
+    race: string | null,
     type: PetType,
     ownerId: number,
     birthDate: Date,
     size: PetSize,
-    microchipCode: string,
+    microchipCode: string | null,
     sex: Sex,
     hasPassport: boolean,
     countryOfOrigin: string | null,

@@ -4,6 +4,9 @@ import { buildApp } from './app.js';
 import { config } from './config/env.js';
 import { ChatSocketHandler } from './contexts/chat/infra/websocket/ChatSocketHandler.js';
 import { SocketIOService } from './contexts/chat/infra/websocket/SocketIOService.js';
+import { prisma } from './db/prisma.js';
+import { RedisService } from './config/RedisService.js';
+import { dbPool } from './db/pool.js';
 
 async function startServer() {
   try {
@@ -11,7 +14,7 @@ async function startServer() {
     const httpServer = createServer(app);
     const io = new Server(httpServer, {
       cors: {
-        origin: "*",
+        origin: config.corsOrigins,
         methods: ["GET", "POST"]
       }
     });
@@ -27,6 +30,22 @@ async function startServer() {
       console.log(`API running on port ${config.port}`);
       console.log(`WebSocket server initialized`);
     });
+
+    const shutdown = async (signal: string) => {
+      console.log(`Received ${signal}; shutting down`);
+      io.close();
+      httpServer.close(async () => {
+        await Promise.allSettled([
+          prisma.$disconnect(),
+          RedisService.getInstance().disconnect(),
+          dbPool.end(),
+        ]);
+        process.exit(0);
+      });
+    };
+
+    process.once('SIGTERM', () => void shutdown('SIGTERM'));
+    process.once('SIGINT', () => void shutdown('SIGINT'));
   } catch (error) {
     console.error('Failed to start server:', error);
     process.exit(1);

@@ -1,9 +1,7 @@
 import { CreatePetRequest, EditPetRequest } from "../../../../types/pet.js";
 import { Pet } from "../../domain/entities/Pet.js";
 import { IPetRepository } from "../../domain/repositories/IPetRepository.js";
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '../../../../db/prisma.js';
 
 export class PetRepository implements IPetRepository {
   async findById(id: number): Promise<Pet | null> {
@@ -36,12 +34,12 @@ export class PetRepository implements IPetRepository {
     const savedPet = await prisma.pet.create({
       data: {
         name: pet.name,
-        race: pet.race,
+        race: pet.race ?? null,
         type: pet.type,
         owner_id: pet.ownerId,
         birth_date: pet.birthDate,
         size: pet.size,
-        microchip_code: pet.microchipCode,
+        microchip_code: pet.microchipCode ?? null,
         sex: pet.sex,
         has_passport: pet.hasPassport,
         country_of_origin: pet.countryOfOrigin,
@@ -79,32 +77,22 @@ export class PetRepository implements IPetRepository {
   }
 
   async update(id: number, data: EditPetRequest): Promise<Pet> {
-    const editData: EditPetRequest = {};
-
-    if (data.name !== undefined) editData.name = data.name;
-    if (data.race !== undefined) editData.race = data.race;
-    if (data.birthDate !== undefined) editData.birthDate = data.birthDate;
-    if (data.size !== undefined) editData.size = data.size;
-    if (data.sex !== undefined) editData.sex = data.sex;
-    if (data.hasPassport !== undefined) editData.hasPassport = data.hasPassport;
-    if (data.countryOfOrigin !== undefined) editData.countryOfOrigin = data.countryOfOrigin;
-    if (data.passportNumber !== undefined) editData.passportNumber = data.passportNumber;
-    if (data.notes !== undefined) editData.notes = data.notes;
-
     const editedPet = await prisma.pet.update({
       where: {
         id: id
       },
       data: {
-        name: data.name,
-        race: data.race,
-        birth_date: data.birthDate,
-        size: data.size,
-        sex: data.sex,
-        has_passport: data.hasPassport,
-        country_of_origin: data.countryOfOrigin,
-        passport_number: data.passportNumber,
-        notes: data.notes
+        ...(data.name !== undefined && { name: data.name }),
+        ...(data.race !== undefined && { race: data.race }),
+        ...(data.type !== undefined && { type: data.type }),
+        ...(data.birthDate !== undefined && { birth_date: data.birthDate }),
+        ...(data.size !== undefined && { size: data.size }),
+        ...(data.microchipCode !== undefined && { microchip_code: data.microchipCode }),
+        ...(data.sex !== undefined && { sex: data.sex }),
+        ...(data.hasPassport !== undefined && { has_passport: data.hasPassport }),
+        ...(data.countryOfOrigin !== undefined && { country_of_origin: data.countryOfOrigin }),
+        ...(data.passportNumber !== undefined && { passport_number: data.passportNumber }),
+        ...(data.notes !== undefined && { notes: data.notes })
       },
     })
 

@@ -27,7 +27,7 @@ export function createPetRoutes(): Router {
   const createPetController = new PostPetController(petRepository);
   const editPetController = new PatchPetController(petRepository);
   const createCheckupController = new PostCheckupController(checkupRepository, petRepository, procedureRepository);
-  const getPetCheckupsController = new GetPetCheckupsController(checkupRepository);
+  const getPetCheckupsController = new GetPetCheckupsController(checkupRepository, petRepository);
   const getPetProceduresStatusController = new GetPetProceduresStatusController(procedureRepository, petRepository, checkupRepository);
 
   // Routes
@@ -68,4 +68,3 @@ export function createPetRoutes(): Router {
 
   return router;
 }
-

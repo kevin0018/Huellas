@@ -4,7 +4,7 @@ import Footer from '../Components/footer';
 import GoBackButton from '../Components/GoBackButton.js';
 import AppointmentCard from '../Components/AppointmentCard';
 import AppointmentModal from '../Components/AppointmentModal';
-import type { Appointment, AppointmentReason } from '../modules/appointment/domain/Appointment.js';
+import { AppointmentStatus, type Appointment, type AppointmentReason, type AppointmentStatus as AppointmentStatusType } from '../modules/appointment/domain/Appointment.js';
 import type { Pet } from '../modules/pet/domain/Pet.js';
 
 // Appointment imports
@@ -59,27 +59,38 @@ function AppointmentsView() {
     loadData();
   }, []);
 
-  const handleCreateAppointment = async (appointmentData: {
+  const handleSaveAppointment = async (appointmentData: {
     petId: number;
     date: string;
     reason: AppointmentReason;
-    notes?: string;
+    status: AppointmentStatusType;
+    notes?: string | null;
   }) => {
     try {
       setActionLoading(true);
       
       const appointmentRepository = new ApiAppointmentRepository();
-      const createAppointmentHandler = new CreateAppointmentCommandHandler(appointmentRepository);
-      
-      const command = new CreateAppointmentCommand(
-        appointmentData.petId,
-        appointmentData.date,
-        appointmentData.reason,
-        appointmentData.notes
-      );
-      
-      const newAppointment = await createAppointmentHandler.execute(command);
-      setAppointments(prev => [...prev, newAppointment]);
+      if (editingAppointment) {
+        const updatedAppointment = await appointmentRepository.updateAppointment(editingAppointment.id, {
+          date: appointmentData.date,
+          reason: appointmentData.reason,
+          status: appointmentData.status,
+          notes: appointmentData.notes,
+        });
+        setAppointments((current) => current.map((appointment) =>
+          appointment.id === updatedAppointment.id ? updatedAppointment : appointment
+        ));
+      } else {
+        const createAppointmentHandler = new CreateAppointmentCommandHandler(appointmentRepository);
+        const command = new CreateAppointmentCommand(
+          appointmentData.petId,
+          appointmentData.date,
+          appointmentData.reason,
+          appointmentData.notes ?? undefined
+        );
+        const newAppointment = await createAppointmentHandler.execute(command);
+        setAppointments((current) => [...current, newAppointment]);
+      }
       setIsModalOpen(false);
       setEditingAppointment(undefined);
     } catch (err) {
@@ -120,10 +131,15 @@ function AppointmentsView() {
     return pets.find(pet => pet.id === petId);
   };
 
-  // Sort appointments by date (newest first)
-  const sortedAppointments = [...appointments].sort((a, b) => 
-    new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
+  const now = Date.now();
+  const sortedAppointments = [...appointments].sort((left, right) => {
+    const leftUpcoming = left.status === AppointmentStatus.SCHEDULED && new Date(left.date).getTime() >= now;
+    const rightUpcoming = right.status === AppointmentStatus.SCHEDULED && new Date(right.date).getTime() >= now;
+    if (leftUpcoming !== rightUpcoming) return leftUpcoming ? -1 : 1;
+    return leftUpcoming
+      ? new Date(left.date).getTime() - new Date(right.date).getTime()
+      : new Date(right.date).getTime() - new Date(left.date).getTime();
+  });
 
   return (
     <>
@@ -234,7 +250,7 @@ function AppointmentsView() {
         <AppointmentModal
           isOpen={isModalOpen}
           onClose={handleCloseModal}
-          onSubmit={handleCreateAppointment}
+          onSubmit={handleSaveAppointment}
           pets={pets}
           appointment={editingAppointment}
           loading={actionLoading}

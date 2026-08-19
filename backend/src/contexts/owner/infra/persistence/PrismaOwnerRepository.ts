@@ -1,9 +1,7 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../../../../db/prisma.js';
 import { OwnerRepository } from '../../domain/repositories/OwnerRepository.js';
 import { Owner } from '../../domain/entities/Owner.js';
 import { OwnerId } from '../../domain/value-objects/OwnerId.js';
-
-const prisma = new PrismaClient();
 
 export class PrismaOwnerRepository implements OwnerRepository {
   async findById(id: OwnerId): Promise<Owner | null> {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { Pet } from '../modules/pet/domain/Pet.js';
-import type { Appointment, AppointmentReason } from '../modules/appointment/domain/Appointment.js';
-import { AppointmentReason as AppointmentReasonEnum, getAppointmentReasonLabel } from '../modules/appointment/domain/Appointment.js';
+import type { Appointment, AppointmentReason, AppointmentStatus } from '../modules/appointment/domain/Appointment.js';
+import { AppointmentReason as AppointmentReasonEnum, AppointmentStatus as AppointmentStatusEnum, getAppointmentReasonLabel, getAppointmentStatusLabel } from '../modules/appointment/domain/Appointment.js';
 import PetSelector from './PetSelector.js';
 
 interface AppointmentModalProps {
@@ -11,7 +11,8 @@ interface AppointmentModalProps {
     petId: number;
     date: string;
     reason: AppointmentReason;
-    notes?: string;
+    status: AppointmentStatus;
+    notes?: string | null;
   }) => void;
   pets: Pet[];
   appointment?: Appointment; // For editing
@@ -30,6 +31,7 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
   const [selectedReason, setSelectedReason] = useState<AppointmentReason | ''>('');
+  const [selectedStatus, setSelectedStatus] = useState<AppointmentStatus>(AppointmentStatusEnum.SCHEDULED);
   const [notes, setNotes] = useState(appointment?.notes || '');
 
   // Reset form when modal opens/closes or appointment changes
@@ -40,12 +42,14 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
       setSelectedDate(appointmentDate.toISOString().split('T')[0]);
       setSelectedTime(appointmentDate.toTimeString().slice(0, 5));
       setSelectedReason(appointment.reason);
+      setSelectedStatus(appointment.status);
       setNotes(appointment.notes || '');
     } else {
       setSelectedPetId(undefined);
       setSelectedDate('');
       setSelectedTime('');
       setSelectedReason('');
+      setSelectedStatus(AppointmentStatusEnum.SCHEDULED);
       setNotes('');
     }
   }, [appointment, isOpen]);
@@ -64,6 +68,7 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
       petId: selectedPetId,
       date: fullDate.toISOString(),
       reason: selectedReason as AppointmentReason,
+      status: selectedStatus,
       notes: notes.trim() || undefined
     });
   };
@@ -190,6 +195,25 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
               ))}
             </select>
           </div>
+
+          {/* Notes */}
+          {appointment && (
+            <div className="space-y-3">
+              <label htmlFor="appointment-status" className="block text-sm font-medium text-[#51344D] dark:text-[#FDF2DE] font-caprasimo">
+                Estado:
+              </label>
+              <select
+                id="appointment-status"
+                value={selectedStatus}
+                onChange={(event) => setSelectedStatus(event.target.value as AppointmentStatus)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white dark:bg-[#51344D]"
+              >
+                {Object.values(AppointmentStatusEnum).map((status) => (
+                  <option key={status} value={status}>{getAppointmentStatusLabel(status)}</option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {/* Notes */}
           <div className="space-y-3">

@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Appointment } from '../modules/appointment/domain/Appointment.js';
 import type { Pet } from '../modules/pet/domain/Pet.js';
-import { getAppointmentReasonLabel, getAppointmentReasonColor } from '../modules/appointment/domain/Appointment.js';
+import { getAppointmentReasonLabel, getAppointmentReasonColor, getAppointmentStatusLabel } from '../modules/appointment/domain/Appointment.js';
 
 interface AppointmentCardProps {
   appointment: Appointment;
@@ -47,6 +47,9 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
           </div>
           <div className="text-sm text-[#928d8e] dark:text-[#BAA9CB] mb-2">
             {formatDate(appointment.date)} a las {formatTime(appointment.date)}
+          </div>
+          <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#51344D] dark:text-[#FDF2DE]">
+            {getAppointmentStatusLabel(appointment.status)}
           </div>
           {appointment.notes && (
             <p className="text-sm text-[#51344D] dark:text-[#FDF2DE] bg-[#FDF2DE]/50 dark:bg-[#51344D]/30 p-2 rounded">

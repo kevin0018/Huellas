@@ -1,9 +1,7 @@
 import { CreateCheckupData, EditCheckupData } from "../../../../types/checkup.js";
 import { Checkup } from "../../domain/entities/Checkup.js";
 import { ICheckupRepository } from "../../domain/repositories/ICheckupRepository.js";
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '../../../../db/prisma.js';
 
 export class CheckupRepository implements ICheckupRepository {
   async findById(id: number): Promise<Checkup | null> {

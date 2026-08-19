@@ -2,12 +2,12 @@ import { PetType, PetSize, Sex } from "@prisma/client";
 
 export type CreatePetRequest = {
   name: string;
-  race: string;
+  race?: string | null;
   type: PetType;
   ownerId: number;
   birthDate: string;
   size: PetSize;
-  microchipCode: string;
+  microchipCode?: string | null;
   sex: Sex;
   hasPassport: boolean;
   countryOfOrigin: string | null;
@@ -17,9 +17,11 @@ export type CreatePetRequest = {
 
 export type EditPetRequest = {
   name?: string;
-  race?: string;
+  race?: string | null;
+  type?: PetType;
   birthDate?: Date;
   size?: PetSize;
+  microchipCode?: string | null;
   sex?: Sex;
   hasPassport?: boolean;
   countryOfOrigin?: string | null;

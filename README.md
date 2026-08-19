@@ -92,7 +92,8 @@ The command starts:
 The frontend proxies `/api` and `/socket.io` to the API inside Docker, so no
 host Node.js installation is required. The API applies the versioned Prisma
 migrations before starting. `FRONTEND_PORT` and `PORT` can override the public
-frontend and API ports. The credentials included in Compose are for local
+frontend and API ports. `CORS_ORIGINS` accepts a comma-separated allowlist and
+defaults to the two local frontend origins. The credentials included in Compose are for local
 development only. Frontend and backend dependencies are installed from their
 versioned pnpm lockfiles with pnpm 10.10.0. For local execution outside Docker,
 use Node 22 (`nvm use` reads the version from `.nvmrc`), run `corepack enable`

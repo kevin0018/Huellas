@@ -65,7 +65,9 @@ El comando inicia:
 El frontend redirige `/api` y `/socket.io` a la API dentro de Docker, por lo que
 no es necesario instalar Node.js en el host. La API aplica las migraciones
 versionadas de Prisma antes de arrancar. `FRONTEND_PORT` y `PORT` permiten
-cambiar los puertos públicos del frontend y la API. Las credenciales incluidas
+cambiar los puertos públicos del frontend y la API. `CORS_ORIGINS` acepta una
+lista de orígenes permitidos separada por comas y por defecto solo incluye el
+frontend local. Las credenciales incluidas
 en Compose son exclusivamente para desarrollo local. Las dependencias de
 frontend y backend se instalan desde sus lockfiles versionados con pnpm 10.10.0.
 Para ejecutar fuera de Docker, usa Node 22 (`nvm use` lee la versión desde

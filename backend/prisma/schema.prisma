@@ -41,6 +41,13 @@ enum AppointmentReason {
   OTHERS
 }
 
+enum AppointmentStatus {
+  scheduled
+  completed
+  cancelled
+  no_show
+}
+
 enum ConversationStatus {
   ACTIVE
   ARCHIVED
@@ -114,12 +121,12 @@ model Volunteer {
 model Pet {
   id                Int      @id @default(autoincrement())
   name              String
-  race              String
+  race              String?
   type              PetType
   owner_id          Int
   birth_date        DateTime @db.Date
   size              PetSize
-  microchip_code    String   @unique
+  microchip_code    String?  @unique
   sex               Sex
   has_passport      Boolean
   country_of_origin String?
@@ -156,8 +163,9 @@ model Checkup {
 model Appointment {
   id     Int               @id @default(autoincrement())
   pet_id Int
-  date   DateTime          @db.Date
+  date   DateTime
   reason AppointmentReason
+  status AppointmentStatus @default(scheduled)
   notes  String?
 
   pet Pet @relation(fields: [pet_id], references: [id], onDelete: Cascade, onUpdate: Restrict)

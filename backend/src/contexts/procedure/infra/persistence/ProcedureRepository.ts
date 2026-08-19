@@ -1,8 +1,7 @@
-import { PetType, PrismaClient } from "@prisma/client";
+import { PetType } from "@prisma/client";
+import { prisma } from "../../../../db/prisma.js";
 import { Procedure } from "../../domain/entities/Procedure.js";
 import { IProcedureRepository } from "../../domain/repositories/IProcedureRepository.js";
-
-const prisma = new PrismaClient();
 
 export class ProcedureRepository implements IProcedureRepository {
   async findByPetType(type: PetType): Promise<Procedure[]> {

@@ -4,13 +4,13 @@ export class CreateAppointmentCommand {
   public readonly petId: number;
   public readonly date: string;
   public readonly reason: string;
-  public readonly notes?: string;
+  public readonly notes?: string | null;
 
   constructor(
     petId: number,
     date: string,
     reason: string,
-    notes?: string
+    notes?: string | null
   ) {
     this.petId = petId;
     this.date = date;

@@ -1,7 +1,7 @@
 export type EditCheckupData = {
-  procedureId: number;
-  date: string;
-  notes: string;
+  procedureId?: number;
+  date?: string;
+  notes?: string | null;
 }
 
 export type CreateCheckupData = {

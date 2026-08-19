@@ -1,9 +1,7 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../../../../db/prisma.js';
 import bcrypt from 'bcrypt';
 import { AuthRepository } from '../../domain/repositories/AuthRepository.js';
 import { UserAuth, UserType } from '../../domain/entities/UserAuth.js';
-
-const prisma = new PrismaClient();
 
 export class PrismaAuthRepository implements AuthRepository {
   async findByEmail(email: string): Promise<UserAuth | null> {

@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { UpdateAppointmentCommandHandler } from '../../../../app/commands/updateAppointment/UpdateAppointmentCommandHandler.js';
 import { UpdateAppointmentCommand } from '../../../../app/commands/updateAppointment/UpdateAppointmentCommand.js';
 import { AppointmentRepository } from '../../../../domain/repositories/AppointmentRepository.js';
-import { Appointment, AppointmentReason } from '../../../../domain/entities/Appointment.js';
+import { Appointment, AppointmentReason, AppointmentStatus } from '../../../../domain/entities/Appointment.js';
 
 describe('UpdateAppointmentCommandHandler', () => {
   let handler: UpdateAppointmentCommandHandler;
@@ -154,5 +154,32 @@ describe('UpdateAppointmentCommandHandler', () => {
     await expect(handler.handle(command)).rejects.toThrow('Database connection failed');
     expect(mockRepository.verifyOwnership).toHaveBeenCalledWith(1, 1);
     expect(mockRepository.update).toHaveBeenCalled();
+  });
+
+  it('should cancel an appointment without creating another record', async () => {
+    const command = new UpdateAppointmentCommand(
+      1,
+      1,
+      undefined,
+      undefined,
+      undefined,
+      AppointmentStatus.CANCELLED
+    );
+    const cancelled = Appointment.fromDatabase(
+      1,
+      2,
+      new Date('2025-09-15T10:00:00.000Z'),
+      AppointmentReason.VACCINATION,
+      null,
+      AppointmentStatus.CANCELLED
+    );
+    (mockRepository.verifyOwnership as any).mockResolvedValue(true);
+    (mockRepository.update as any).mockResolvedValue(cancelled);
+
+    const result = await handler.handle(command);
+
+    expect(mockRepository.update).toHaveBeenCalledWith(1, { status: AppointmentStatus.CANCELLED });
+    expect(mockRepository.create).not.toHaveBeenCalled();
+    expect(result.status).toBe(AppointmentStatus.CANCELLED);
   });
 });

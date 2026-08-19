@@ -23,12 +23,12 @@ export class ApiPetRepository implements PetRepository {
     return {
       id: pet.id as number,
       name: pet.name as string,
-      race: pet.race as string,
+      race: (pet.race as string | null) ?? null,
       type: pet.type as Pet['type'],
       ownerId: (pet.ownerId as number) ?? (pet.owner_id as number),
       birthDate: (pet.birthDate as string) ?? (pet.birth_date as string),
       size: pet.size as Pet['size'],
-      microchipCode: (pet.microchipCode as string) ?? (pet.microchip_code as string),
+      microchipCode: (pet.microchipCode as string | null) ?? (pet.microchip_code as string | null) ?? null,
       sex: pet.sex as Pet['sex'],
       hasPassport: (pet.hasPassport as boolean) ?? (pet.has_passport as boolean),
       countryOfOrigin:
@@ -116,11 +116,11 @@ export class ApiPetRepository implements PetRepository {
 
     const body: Record<string, unknown> = {
       name: data.name,
-      race: data.race,
+      race: data.race?.trim() || null,
       type: data.type,
       birthDate: birthISO, // backend accepts Date/ISO; prisma will handle it
       size: data.size,
-      microchipCode: data.microchipCode,
+      microchipCode: data.microchipCode?.trim() || null,
       sex: data.sex,
       hasPassport: data.hasPassport,
       countryOfOrigin: data.countryOfOrigin?.trim() || null,
@@ -152,8 +152,10 @@ export class ApiPetRepository implements PetRepository {
       Pet,
       | 'name'
       | 'race'
+      | 'type'
       | 'birthDate'
       | 'size'
+      | 'microchipCode'
       | 'sex'
       | 'hasPassport'
       | 'countryOfOrigin'
@@ -164,12 +166,14 @@ export class ApiPetRepository implements PetRepository {
     const body: Record<string, unknown> = {
       ...(data.name !== undefined && { name: data.name }),
       ...(data.race !== undefined && { race: data.race }),
+      ...(data.type !== undefined && { type: data.type }),
       ...(data.birthDate !== undefined && {
         birthDate: data.birthDate
           ? new Date(`${data.birthDate}T00:00:00.000Z`).toISOString()
           : null,
       }),
       ...(data.size !== undefined && { size: data.size }),
+      ...(data.microchipCode !== undefined && { microchipCode: data.microchipCode }),
       ...(data.sex !== undefined && { sex: data.sex }),
       ...(data.hasPassport !== undefined && { hasPassport: data.hasPassport }),
       ...(data.countryOfOrigin !== undefined && {

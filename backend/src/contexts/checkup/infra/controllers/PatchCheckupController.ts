@@ -1,13 +1,16 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import { ICheckupRepository } from "../../domain/repositories/ICheckupRepository.js";
 import { IProcedureRepository } from "../../../procedure/domain/repositories/IProcedureRepository.js";
 import { IPetRepository } from "../../../pet/domain/repositories/IPetRepository.js";
 import { PetType } from "@prisma/client";
+import { AuthenticatedRequest } from "../../../auth/infra/middleware/JwtMiddleware.js";
+import { CheckupAccessService } from "../../app/CheckupAccessService.js";
+import { EditCheckupData } from "../../../../types/checkup.js";
 
 export class PatchCheckupController {
   private checkupRepository: ICheckupRepository;
-  private petRepository: IPetRepository;
   private procedureRepository: IProcedureRepository;
+  private accessService: CheckupAccessService;
 
   constructor(
     checkupRepository: ICheckupRepository,
@@ -15,27 +18,23 @@ export class PatchCheckupController {
     procedureRepository: IProcedureRepository
   ) {
     this.checkupRepository = checkupRepository;
-    this.petRepository = petRepository;
     this.procedureRepository = procedureRepository;
+    this.accessService = new CheckupAccessService(checkupRepository, petRepository);
   }
 
-  async handle(req: Request, res: Response) {
+  async handle(req: AuthenticatedRequest, res: Response) {
     try {
       const { procedureId, date, notes } = req.body;
 
       // Check checkup exist
       const checkupId = parseInt(req.params.id);
 
-      const checkup = await this.checkupRepository.findById(checkupId);
-
-      if (!checkup) {
-        return res.status(404).send({ error: "Checkup not found" });
-      }
+      const { pet } = await this.accessService.requireOwnedCheckup(checkupId, req.user.userId);
 
       // Check procedure exist
       let procedure = null;
 
-      if (procedureId) {
+      if (procedureId !== undefined) {
         procedure = await this.procedureRepository.findById(procedureId);
 
         if (!procedure) {
@@ -44,27 +43,28 @@ export class PatchCheckupController {
 
         // Check Procedure and PetType is equal
         const procedurePetType = procedure?.getPetType();
-        const petId = checkup?.getPetId() as number;
-        const pet = await this.petRepository.findById(petId);
-        const petType = pet?.getType() as PetType;
+        const petType = pet.getType() as PetType;
 
         if (procedurePetType !== petType) {
           return res.status(400).send({ error: "This procedure is not valid for this pet" });
         }
       }
 
-      const editData = {} as any;
+      const editData: EditCheckupData = {};
 
-      if (notes) {
+      if (notes !== undefined) {
         editData.notes = notes;
       }
 
       if (date) {
-        console.log("----------> AQUI LA FECHA-------->: ", date);
-        editData.date = new Date(date).toISOString();
+        const parsedDate = new Date(date);
+        if (Number.isNaN(parsedDate.getTime())) {
+          return res.status(400).send({ error: "Invalid date" });
+        }
+        editData.date = parsedDate.toISOString();
       }
 
-      if (procedureId) {
+      if (procedureId !== undefined) {
         editData.procedureId = procedureId;
       }
 
@@ -73,7 +73,8 @@ export class PatchCheckupController {
 
       return res.status(200).send(updatedCheckup);
     } catch (error) {
-      return res.status(400).send({ error: (error as Error).message });
+      const message = (error as Error).message;
+      return res.status(message === 'Resource not found' ? 404 : 400).send({ error: message });
     }
   }
 }

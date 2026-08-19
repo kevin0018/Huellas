@@ -24,17 +24,17 @@ export type Sex = typeof Sex[keyof typeof Sex];
 export interface Pet {
   id: number;
   name: string;
-  race: string;
+  race?: string | null;
   type: PetType;
   ownerId: number;
   birthDate: string; // ISO date string
   size: PetSize;
-  microchipCode: string;
+  microchipCode?: string | null;
   sex: Sex;
   hasPassport: boolean;
-  countryOfOrigin?: string;
-  passportNumber?: string;
-  notes?: string;
+  countryOfOrigin?: string | null;
+  passportNumber?: string | null;
+  notes?: string | null;
 }
 
 // Helper functions

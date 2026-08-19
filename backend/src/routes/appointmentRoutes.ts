@@ -1,11 +1,10 @@
 import { Router } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../db/prisma.js';
 import { JwtMiddleware } from '../contexts/auth/infra/middleware/JwtMiddleware.js';
 import { AppointmentController } from '../contexts/appointment/infrastructure/controllers/AppointmentController.js';
 
 export function createAppointmentRoutes(): Router {
   const router = Router();
-  const prisma = new PrismaClient();
   const appointmentController = new AppointmentController(prisma);
 
   // All appointment routes require owner authentication

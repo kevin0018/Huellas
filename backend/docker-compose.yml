@@ -32,6 +32,7 @@ services:
       dockerfile: Dockerfile.dev
     container_name: Huellas_api
     environment:
+      CORS_ORIGINS: "${CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}"
       DATABASE_URL: mysql://appuser:apppass@mysql:3306/huellas
       DB_HOST: mysql
       DB_NAME: huellas
@@ -39,6 +40,7 @@ services:
       DB_PORT: "3306"
       DB_USER: appuser
       JWT_SECRET: "${JWT_SECRET:-huellas-local-development-only}"
+      NODE_ENV: development
       PORT: "3000"
       REDIS_URL: redis://redis:6379
       SHADOW_DATABASE_URL: mysql://root:root@mysql:3306/huellas_shadow

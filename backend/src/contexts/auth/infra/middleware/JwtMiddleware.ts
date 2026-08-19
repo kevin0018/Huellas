@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import { UserType } from '../../domain/entities/UserAuth.js';
 import { JwtBlacklist } from '../services/JwtBlacklist.js';
 import { PetRepository } from '../../../pet/infra/persistence/PetRepository.js';
+import { prisma } from '../../../../db/prisma.js';
 
 // Simple cache for owner profile checks to avoid repeated DB queries
 const ownerProfileCache = new Map<number, boolean>();
@@ -108,9 +109,6 @@ export class JwtMiddleware {
             }
 
             // Cache miss - check database
-            const { PrismaClient } = await import('@prisma/client');
-            const prisma = new PrismaClient();
-            
             const ownerProfile = await prisma.owner.findUnique({
               where: { id: userId }
             });

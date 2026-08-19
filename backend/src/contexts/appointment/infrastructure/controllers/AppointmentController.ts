@@ -11,7 +11,13 @@ import { GetAppointmentsByOwnerQueryHandler } from '../../app/queries/getAppoint
 import { GetAppointmentsByOwnerQuery } from '../../app/queries/getAppointmentsByOwner/GetAppointmentsByOwnerQuery.js';
 import { GetAppointmentByIdQueryHandler } from '../../app/queries/getAppointmentById/GetAppointmentByIdQueryHandler.js';
 import { GetAppointmentByIdQuery } from '../../app/queries/getAppointmentById/GetAppointmentByIdQuery.js';
-import { AppointmentReason } from '../../domain/entities/Appointment.js';
+import { AppointmentReason, AppointmentStatus } from '../../domain/entities/Appointment.js';
+
+export function parseZonedDate(value: unknown): Date | null {
+  if (typeof value !== 'string' || !/(?:Z|[+-]\d{2}:\d{2})$/.test(value)) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
 
 export class AppointmentController {
   private readonly appointmentRepository: PrismaAppointmentRepository;
@@ -31,8 +37,6 @@ export class AppointmentController {
   }
 
   async createAppointment(req: Request, res: Response): Promise<void> {
-    console.log('createAppointment req.user:', req.user);
-    console.log('createAppointment req.body:', req.body);
     try {
       const ownerId = req.user?.userId;
       if (!ownerId) {
@@ -52,10 +56,16 @@ export class AppointmentController {
         return;
       }
 
+      const appointmentDate = parseZonedDate(date);
+      if (!appointmentDate) {
+        res.status(400).json({ error: 'Date must be an ISO 8601 timestamp with timezone' });
+        return;
+      }
+
       const command = new CreateAppointmentCommand(
         ownerId,
         parseInt(petId),
-        new Date(date),
+        appointmentDate,
         reason as AppointmentReason,
         notes
       );
@@ -67,7 +77,8 @@ export class AppointmentController {
         petId: appointment.petId,
         date: appointment.date,
         reason: appointment.reason,
-        notes: appointment.notes
+        notes: appointment.notes,
+        status: appointment.status
       });
     } catch (error) {
       console.error('Error creating appointment:', error);
@@ -86,19 +97,29 @@ export class AppointmentController {
       }
 
       const appointmentId = parseInt(req.params.id);
-      const { date, reason, notes } = req.body;
+      const { date, reason, notes, status } = req.body;
 
       if (reason && !Object.values(AppointmentReason).includes(reason)) {
         res.status(400).json({ error: 'Invalid appointment reason' });
+        return;
+      }
+      if (status && !Object.values(AppointmentStatus).includes(status)) {
+        res.status(400).json({ error: 'Invalid appointment status' });
+        return;
+      }
+      const appointmentDate = date === undefined ? undefined : parseZonedDate(date);
+      if (appointmentDate === null) {
+        res.status(400).json({ error: 'Date must be an ISO 8601 timestamp with timezone' });
         return;
       }
 
       const command = new UpdateAppointmentCommand(
         appointmentId,
         ownerId,
-        date ? new Date(date) : undefined,
+        appointmentDate,
         reason as AppointmentReason | undefined,
-        notes
+        notes,
+        status as AppointmentStatus | undefined
       );
 
       const appointment = await this.updateAppointmentHandler.handle(command);
@@ -108,7 +129,8 @@ export class AppointmentController {
         petId: appointment.petId,
         date: appointment.date,
         reason: appointment.reason,
-        notes: appointment.notes
+        notes: appointment.notes,
+        status: appointment.status
       });
     } catch (error) {
       console.error('Error updating appointment:', error);
@@ -164,7 +186,8 @@ export class AppointmentController {
         petId: appointment.petId,
         date: appointment.date,
         reason: appointment.reason,
-        notes: appointment.notes
+        notes: appointment.notes,
+        status: appointment.status
       })));
     } catch (error) {
       console.error('Error getting appointments:', error);
@@ -195,7 +218,8 @@ export class AppointmentController {
         petId: appointment.petId,
         date: appointment.date,
         reason: appointment.reason,
-        notes: appointment.notes
+        notes: appointment.notes,
+        status: appointment.status
       });
     } catch (error) {
       console.error('Error getting appointment:', error);
