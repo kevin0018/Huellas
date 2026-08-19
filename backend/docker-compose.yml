@@ -1,3 +1,9 @@
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "5m"
+    max-file: "2"
+
 services:
   frontend:
     build:
@@ -16,6 +22,10 @@ services:
       - /app/node_modules
     depends_on:
       - api
+    cpus: 0.50
+    mem_limit: 512m
+    pids_limit: 150
+    logging: *default-logging
   api:
     build:
       context: .
@@ -44,6 +54,10 @@ services:
       redis:
         condition: service_healthy
     command: ["sh", "-c", "pnpm prisma:deploy && pnpm dev"]
+    cpus: 1.00
+    mem_limit: 768m
+    pids_limit: 200
+    logging: *default-logging
   mysql:
     image: mysql:8.4
     container_name: Huellas_db
@@ -59,7 +73,12 @@ services:
     healthcheck:
       test: ["CMD","mysqladmin","ping","-h","localhost","-u","root","-proot"]
       interval: 5s
+      timeout: 5s
       retries: 10
+    cpus: 1.00
+    mem_limit: 768m
+    pids_limit: 200
+    logging: *default-logging
   redis:
     image: redis:7-alpine
     container_name: Huellas_redis
@@ -70,7 +89,12 @@ services:
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
+      timeout: 3s
       retries: 10
+    cpus: 0.25
+    mem_limit: 128m
+    pids_limit: 100
+    logging: *default-logging
   adminer:
     image: adminer:latest
     container_name: huellas_adminer
@@ -78,6 +102,10 @@ services:
       - "8080:8080"
     depends_on:
       - mysql
+    cpus: 0.25
+    mem_limit: 128m
+    pids_limit: 100
+    logging: *default-logging
 volumes:
   mysql_data:
   redis_data:
