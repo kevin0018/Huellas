@@ -18,7 +18,7 @@ export function useVolunteerPosts(options: UseVolunteerPostsOptions = {}) {
   const [page, setPage] = useState<number>(1);
   const pageSize = options.pageSize ?? 12;
 
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   const api = useMemo(() => new ApiVolunteerPosts(), []);

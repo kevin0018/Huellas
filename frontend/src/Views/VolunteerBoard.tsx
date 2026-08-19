@@ -12,6 +12,7 @@ import type { PostCategory, VolunteerPostListItem } from "../modules/posts/domai
 import { AuthService } from "../modules/auth/infra/AuthService";
 import { useChat } from "../modules/chat/application/useChat";
 import { postActions } from '../features/volunteering/postActions';
+import { AsyncContent } from '../shared/ui/AsyncContent';
 
 const CATEGORY_LABEL: Record<PostCategory, string> = {
   GENERAL: "General",
@@ -185,76 +186,80 @@ function VolunteerBoard() {
             </label>
           </div>
 
-          {loading && <div className="text-center text-[#51344D] mb-6">Cargando anuncios…</div>}
-          {error && <div className="text-center text-red-600 mb-6">Error: {error}</div>}
+          <AsyncContent
+            loading={loading}
+            error={error}
+            empty={items.length === 0}
+            loadingLabel="Cargando anuncios…"
+            emptyTitle={myOnly ? "Aún no tienes anuncios publicados" : "No hay anuncios disponibles"}
+            emptyDescription={myOnly
+              ? "Publica un anuncio para que aparezca en esta sección."
+              : "Prueba con otra categoría o vuelve más tarde."}
+            onRetry={reload}
+          >
+            <>
+              {/* Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {items.map((post: VolunteerPostListItem) => {
+                  const authorName = `${post.author.name} ${post.author.last_name}`.trim();
+                  const isAuthor = currentUserId === post.author.id;
 
-          {/* Mensaje vacío cuando filtro “Mis anuncios” */}
-          {!loading && !error && items.length === 0 && myOnly && (
-            <div className="text-center text-[#51344D]/80 mb-8">
-              Aún no tienes anuncios publicados.
-            </div>
-          )}
+                  return (
+                    <div key={post.id} className="flex flex-col">
+                      <AnuncioCard
+                        title={post.title}
+                        author={authorName}
+                        description={excerpt(post.content)}
+                        category={post.category}
+                        onOpenChat={() => handleOpenChat(post.id, post.author.id, post.title)}
+                      />
 
-          {/* Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {!loading && !error && items.map((post: VolunteerPostListItem) => {
-              const authorName = `${post.author.name} ${post.author.last_name}`.trim();
-              const isAuthor = currentUserId === post.author.id;
-
-              return (
-                <div key={post.id} className="flex flex-col">
-                  <AnuncioCard
-                    title={post.title}
-                    author={authorName}
-                    description={excerpt(post.content)}
-                    category={post.category}
-                    onOpenChat={() => handleOpenChat(post.id, post.author.id, post.title)}
-                  />
-
-                  {isAuthor && (
-                    <div className="mt-3 flex justify-end">
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(post.id)}
-                        className="inline-flex items-center gap-2 rounded-lg border border-[#BCAAA4] bg-white px-3 py-2 hover:bg-[#FDF2DE] transition"
-                        title="Eliminar anuncio"
-                        aria-label="Eliminar anuncio"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-[#51344D]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 3h6m-9 4h12m-1 0-1 13a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 7m3 0V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M10 11v6M14 11v6" />
-                        </svg>
-                        <span className="text-[#51344D]">Eliminar</span>
-                      </button>
+                      {isAuthor && (
+                        <div className="mt-3 flex justify-end">
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(post.id)}
+                            className="inline-flex items-center gap-2 rounded-lg border border-[#BCAAA4] bg-white px-3 py-2 hover:bg-[#FDF2DE] transition"
+                            title="Eliminar anuncio"
+                            aria-label="Eliminar anuncio"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-[#51344D]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M9 3h6m-9 4h12m-1 0-1 13a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 7m3 0V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M10 11v6M14 11v6" />
+                            </svg>
+                            <span className="text-[#51344D]">Eliminar</span>
+                          </button>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+                  );
+                })}
+              </div>
 
-          {/* Paginación */}
-          {!loading && !error && total > pageSize && (
-            <div className="flex items-center justify-center gap-4 mt-10">
-              <button
-                className="px-4 py-2 rounded-md border border-[#BCAAA4] bg-white hover:bg-[#FDF2DE] disabled:opacity-50"
-                disabled={page <= 1}
-                onClick={() => goToPage(page - 1)}
-              >
-                ← Anterior
-              </button>
-              <span className="text-[#51344D]">
-                Página {page} de {Math.ceil(total / pageSize)}
-              </span>
-              <button
-                className="px-4 py-2 rounded-md border border-[#BCAAA4] bg-white hover:bg-[#FDF2DE] disabled:opacity-50"
-                disabled={page >= Math.ceil(total / pageSize)}
-                onClick={() => goToPage(page + 1)}
-              >
-                Siguiente →
-              </button>
-            </div>
-          )}
+              {/* Paginación */}
+              {total > pageSize && (
+                <div className="flex items-center justify-center gap-4 mt-10">
+                  <button
+                    className="px-4 py-2 rounded-md border border-[#BCAAA4] bg-white hover:bg-[#FDF2DE] disabled:opacity-50"
+                    disabled={page <= 1}
+                    onClick={() => goToPage(page - 1)}
+                  >
+                    ← Anterior
+                  </button>
+                  <span className="text-[#51344D]">
+                    Página {page} de {Math.ceil(total / pageSize)}
+                  </span>
+                  <button
+                    className="px-4 py-2 rounded-md border border-[#BCAAA4] bg-white hover:bg-[#FDF2DE] disabled:opacity-50"
+                    disabled={page >= Math.ceil(total / pageSize)}
+                    onClick={() => goToPage(page + 1)}
+                  >
+                    Siguiente →
+                  </button>
+                </div>
+              )}
+            </>
+          </AsyncContent>
         </div>
       </div>
       <Footer />

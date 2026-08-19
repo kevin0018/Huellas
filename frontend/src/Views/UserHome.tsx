@@ -10,6 +10,7 @@ import type { Pet } from "../modules/pet/domain/Pet";
 import { PetAvatarGrid } from "../Components/pet/PetAvatarGrid";
 import { useNavigate, Link } from "react-router-dom";
 import { applicationServices, type ReminderFeed } from '../composition/applicationServices.js';
+import { AsyncContent } from '../shared/ui/AsyncContent.js';
 
 const { pets: petRepository, reminders: reminderRepository } = applicationServices;
 
@@ -22,6 +23,7 @@ function UserHomeContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reminderFeed, setReminderFeed] = useState<ReminderFeed | null>(null);
+  const [reloadVersion, setReloadVersion] = useState(0);
 
   useEffect(() => {
     if (!AuthService.isAuthenticated?.()) {
@@ -54,7 +56,7 @@ function UserHomeContent() {
     })();
 
     return () => { cancelled = true; };
-  }, [user, navigate]);
+  }, [user, navigate, reloadVersion]);
 
   const reloadReminders = async () => setReminderFeed(await reminderRepository.list());
   const reminderAction = async (id: number, action: 'postpone' | 'complete' | 'cancel') => {
@@ -94,9 +96,17 @@ function UserHomeContent() {
             <div className="flex flex-col md:flex-row lg:flex-row items-center justify-center gap-4 mt-8 3xl:gap-10">
               {/* Pets */}
               <div className="w-full md:w-2/3 lg:w-2/3 flex flex-col items-center">
-                {loading && <p>{translate("loading")}</p>}
-                {error && <p className="text-red-600">{error}</p>}
-                {!loading && !error && <PetAvatarGrid pets={pets} />}
+                <AsyncContent
+                  loading={loading}
+                  error={error}
+                  empty={pets.length === 0}
+                  loadingLabel={translate("loading")}
+                  emptyTitle="Todavía no tienes mascotas"
+                  emptyDescription="Añade tu primera mascota para empezar a gestionar su cartilla."
+                  onRetry={() => setReloadVersion((current) => current + 1)}
+                >
+                  <PetAvatarGrid pets={pets} />
+                </AsyncContent>
 
                 <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4">
 

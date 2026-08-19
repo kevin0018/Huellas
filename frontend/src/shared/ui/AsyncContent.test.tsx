@@ -35,6 +35,14 @@ describe('AsyncContent', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('No se pudo cargar');
     fireEvent.click(screen.getByRole('button', { name: 'Reintentar' }));
     expect(onRetry).toHaveBeenCalledOnce();
+    expect(screen.queryByText('Contenido remoto')).not.toBeInTheDocument();
+  });
+
+  it('prioritizes an error over an empty result', () => {
+    renderState({ error: 'No se pudo cargar', empty: true });
+
+    expect(screen.getByRole('alert')).toHaveTextContent('No se pudo cargar');
+    expect(screen.queryByText('Sin resultados')).not.toBeInTheDocument();
   });
 
   it('renders the empty state or content when appropriate', () => {
