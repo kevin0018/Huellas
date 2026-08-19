@@ -19,6 +19,13 @@ export type PetProcedureData = {
   checkupId?: number;
   checkupDate?: string;
   checkupNotes?: string;
+  dueAt?: string | null;
+  lastOccurredAt?: string | null;
+  recurrenceDays?: number | null;
+  explanation: string;
+  source: string;
+  version: string;
+  region: string;
 }
 
 const checkupRepository = new ApiCheckupRepository();
@@ -58,7 +65,7 @@ function ProceduresView() {
     setEditingProcedure(null);
   };
 
-  const onModalSubmit = async (_status: string, procedureId: number, checkupId?: number, checkupDate?: string, checkupNotes?: string) => {
+  const onModalSubmit = async (procedureId: number, checkupId?: number, checkupDate?: string, checkupNotes?: string) => {
     if (checkupId) {
       await checkupRepository.update(checkupId, { petId, date: checkupDate, notes: checkupNotes })
     } else {

@@ -41,6 +41,10 @@ const ProcedureCard: React.FC<ProcedureCardProps> = ({ procedure, onEdit }) => {
             <strong>Notas: </strong>{procedure.checkupNotes}
           </p>
         )}
+        <p className="mt-3 text-sm text-gray-700">{procedure.explanation}</p>
+        <p className="mt-2 text-xs text-gray-500">
+          Fuente: {procedure.source} · versión {procedure.version} · región {procedure.region}. Orientación preventiva; consulta a tu veterinario.
+        </p>
       </div>
       <div className="mt-4 text-right">
         <button

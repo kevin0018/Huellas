@@ -232,6 +232,13 @@ model ProcedureSchedule {
   animal_type              PetType
   procedure_name           String
   recommended_vaccines_age Int
+  procedure_type           HealthEventType @default(OTHER)
+  recurrence_days          Int?
+  due_window_before_days   Int             @default(14)
+  due_window_after_days    Int             @default(14)
+  region                   String          @default("ES")
+  source                   String          @default("Huellas MVP guidance")
+  version                  String          @default("2026.1")
   notes                    String?
 
   checkups Checkup[]

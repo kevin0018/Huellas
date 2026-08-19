@@ -4,15 +4,12 @@ import type { PetProcedureData } from '../Views/ProceduresView';
 interface ProcedureModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onModalSubmit: (status: string, procedureId: number, checkupId?: number, checkupDate?: string, checkupNotes?: string) => void;
+  onModalSubmit: (procedureId: number, checkupId?: number, checkupDate?: string, checkupNotes?: string) => void;
   procedure: PetProcedureData;
 }
 
-const statusOptions = ['DONE', 'UPCOMING', 'MISSING'];
-
 const ProcedureModal: React.FC<ProcedureModalProps> = ({ isOpen, onClose, onModalSubmit, procedure }) => {
 
-  const [status, setStatus] = useState(procedure.status);
   const [date, setDate] = useState(procedure.checkupDate);
   const [notes, setNotes] = useState(procedure.checkupNotes);
 
@@ -27,13 +24,9 @@ const ProcedureModal: React.FC<ProcedureModalProps> = ({ isOpen, onClose, onModa
     setNotes(newNotes);
   }
 
-  const handleStatusChange = (newStatus: PetProcedureData['status']) => {
-    setStatus(newStatus);
-  }
-
   const handleSubmit = () => {
     // Llama a la función onSubmit del componente padre con los datos actualizados
-    onModalSubmit(status, procedure.id, procedure.checkupId, date, notes);
+    onModalSubmit(procedure.id, procedure.checkupId, date, notes);
   };
 
   return (
@@ -48,7 +41,7 @@ const ProcedureModal: React.FC<ProcedureModalProps> = ({ isOpen, onClose, onModa
         <main className="p-6">
           <p className="mb-4 text-gray-700">{procedure.description}</p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-1 gap-4 mb-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Fecha de realización</label>
               <input
@@ -57,18 +50,6 @@ const ProcedureModal: React.FC<ProcedureModalProps> = ({ isOpen, onClose, onModa
                 value={date ? new Date(date).toISOString().split('T')[0] : ''}
                 onChange={(e) => handleEditCheckupDate(e.target.value)}
               />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Estado</label>
-              <select
-                className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm sm:text-sm"
-                value={status}
-                onChange={(e) => handleStatusChange(e.target.value as PetProcedureData['status'])}
-              >
-                {statusOptions.map(option => (
-                  <option key={option} value={option}>{option}</option>
-                ))}
-              </select>
             </div>
           </div>
           <div>
