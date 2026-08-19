@@ -1,6 +1,7 @@
 import { createHash, randomBytes } from 'crypto';
 import type { Response } from 'express';
 import { prisma } from '../../db/prisma.js';
+import type { PrismaClient } from '@prisma/client';
 import type { AuthenticatedRequest } from '../auth/infra/middleware/JwtMiddleware.js';
 
 const allowedSections = new Set(['identity', 'critical', 'vaccinations', 'events']);
@@ -17,8 +18,8 @@ export function parseSummaryOptions(body: Record<string, unknown>) {
 const escapeHtml = (value: unknown) => String(value ?? '').replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character]!);
 const date = (value: Date) => value.toLocaleDateString('es-ES');
 
-async function renderSummary(petId: number, sections: string[], periodFrom: Date | null, periodTo: Date | null): Promise<string> {
-  const pet = await prisma.pet.findUniqueOrThrow({ where: { id: petId }, include: { owner: { include: { user: true } }, health_events: { where: periodFrom || periodTo ? { occurred_at: { ...(periodFrom && { gte: periodFrom }), ...(periodTo && { lte: periodTo }) } } : {}, orderBy: { occurred_at: 'desc' } } } });
+async function renderSummary(database: PrismaClient, petId: number, sections: string[], periodFrom: Date | null, periodTo: Date | null): Promise<string> {
+  const pet = await database.pet.findUniqueOrThrow({ where: { id: petId }, include: { owner: { include: { user: true } }, health_events: { where: periodFrom || periodTo ? { occurred_at: { ...(periodFrom && { gte: periodFrom }), ...(periodTo && { lte: periodTo }) } } : {}, orderBy: { occurred_at: 'desc' } } } });
   const events = pet.health_events;
   const rows = (items: typeof events) => items.map((event) => `<article><h3>${escapeHtml(event.title)}</h3><p>${date(event.occurred_at)} · ${escapeHtml(event.provider || 'Dato del propietario')} · ${event.verified_by ? 'Verificado' : 'Sin verificar'}</p>${event.dose ? `<p><b>Dosis:</b> ${escapeHtml(event.dose)}</p>` : ''}${event.result ? `<p><b>Resultado:</b> ${escapeHtml(event.result)}</p>` : ''}${event.notes ? `<p>${escapeHtml(event.notes)}</p>` : ''}</article>`).join('') || '<p>Sin registros en el periodo seleccionado.</p>';
   const generatedAt = new Date();
@@ -26,8 +27,10 @@ async function renderSummary(petId: number, sections: string[], periodFrom: Date
 }
 
 export class HealthShareController {
+  constructor(private readonly database: PrismaClient = prisma) {}
+
   async export(req: AuthenticatedRequest, res: Response): Promise<void> {
-    try { const options = parseSummaryOptions(req.body); const html = await renderSummary(Number(req.params.id), options.sections, options.periodFrom, options.periodTo); res.setHeader('Content-Type', 'text/html; charset=utf-8'); res.setHeader('Content-Disposition', `attachment; filename="cartilla-${Number(req.params.id)}.html"`); res.send(html); }
+    try { const options = parseSummaryOptions(req.body); const html = await renderSummary(this.database, Number(req.params.id), options.sections, options.periodFrom, options.periodTo); res.setHeader('Content-Type', 'text/html; charset=utf-8'); res.setHeader('Content-Disposition', `attachment; filename="cartilla-${Number(req.params.id)}.html"`); res.send(html); }
     catch (error) { res.status(400).json({ error: error instanceof Error ? error.message : 'Invalid export' }); }
   }
 
@@ -36,26 +39,26 @@ export class HealthShareController {
       const options = parseSummaryOptions(req.body); const expiresInHours = Number(req.body.expiresInHours ?? 24);
       if (!Number.isInteger(expiresInHours) || expiresInHours < 1 || expiresInHours > 168) throw new Error('Expiry must be between 1 and 168 hours');
       const token = randomBytes(32).toString('base64url'); const tokenHash = createHash('sha256').update(token).digest('hex');
-      const share = await prisma.healthShare.create({ data: { pet_id: Number(req.params.id), token_hash: tokenHash, sections: options.sections, period_from: options.periodFrom, period_to: options.periodTo, expires_at: new Date(Date.now() + expiresInHours * 3600000), created_by: req.user.userId } });
+      const share = await this.database.healthShare.create({ data: { pet_id: Number(req.params.id), token_hash: tokenHash, sections: options.sections, period_from: options.periodFrom, period_to: options.periodTo, expires_at: new Date(Date.now() + expiresInHours * 3600000), created_by: req.user.userId } });
       res.status(201).json({ id: share.id, token, expiresAt: share.expires_at });
     } catch (error) { res.status(400).json({ error: error instanceof Error ? error.message : 'Invalid share' }); }
   }
 
   async list(req: AuthenticatedRequest, res: Response): Promise<void> {
-    const shares = await prisma.healthShare.findMany({ where: { pet_id: Number(req.params.id), created_by: req.user.userId }, orderBy: { created_at: 'desc' } });
+    const shares = await this.database.healthShare.findMany({ where: { pet_id: Number(req.params.id), created_by: req.user.userId }, orderBy: { created_at: 'desc' } });
     res.json(shares.map((share) => ({ id: share.id, expiresAt: share.expires_at, revokedAt: share.revoked_at, createdAt: share.created_at })));
   }
 
   async revoke(req: AuthenticatedRequest, res: Response): Promise<void> {
-    const share = await prisma.healthShare.findFirst({ where: { id: Number(req.params.id), pet: { owner_id: req.user.userId } } });
+    const share = await this.database.healthShare.findFirst({ where: { id: Number(req.params.id), pet: { owner_id: req.user.userId } } });
     if (!share) { res.status(404).json({ error: 'Share not found' }); return; }
-    await prisma.healthShare.update({ where: { id: share.id }, data: { revoked_at: new Date() } }); res.status(204).send();
+    await this.database.healthShare.update({ where: { id: share.id }, data: { revoked_at: new Date() } }); res.status(204).send();
   }
 
   async publicView(token: string, res: Response): Promise<void> {
     const tokenHash = createHash('sha256').update(token).digest('hex');
-    const share = await prisma.healthShare.findFirst({ where: { token_hash: tokenHash, revoked_at: null, expires_at: { gt: new Date() } } });
+    const share = await this.database.healthShare.findFirst({ where: { token_hash: tokenHash, revoked_at: null, expires_at: { gt: new Date() } } });
     if (!share) { res.status(404).send('Este enlace no existe, ha caducado o fue revocado.'); return; }
-    const html = await renderSummary(share.pet_id, share.sections as string[], share.period_from, share.period_to); res.setHeader('Content-Type', 'text/html; charset=utf-8'); res.setHeader('Cache-Control', 'private, no-store'); res.send(html);
+    const html = await renderSummary(this.database, share.pet_id, share.sections as string[], share.period_from, share.period_to); res.setHeader('Content-Type', 'text/html; charset=utf-8'); res.setHeader('Cache-Control', 'private, no-store'); res.send(html);
   }
 }

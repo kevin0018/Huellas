@@ -7,15 +7,35 @@ import { GetCurrentProfileQueryHandler } from './app/queries/getCurrentProfile/G
 import { AuthController } from './infra/controllers/AuthController.js';
 import { ProfileController } from './infra/controllers/ProfileController.js';
 import { PrismaAuthRepository } from './infra/repositories/PrismaAuthRepository.js';
+import { RegisterOwnerCommandHandler } from '../owner/app/commands/registerOwner/RegisterOwnerCommandHandler.js';
+import { DeleteOwnerCommandHandler } from '../owner/app/commands/delete/DeleteOwnerCommandHandler.js';
+import { RegisterOwnerController } from '../owner/infra/controllers/RegisterOwnerController.js';
+import { DeleteOwnerController } from '../owner/infra/controllers/DeleteOwnerController.js';
+import { PrismaOwnerRepository } from '../owner/infra/persistence/PrismaOwnerRepository.js';
+import { RegisterVolunteerCommandHandler } from '../volunteer/app/commands/register/RegisterVolunteerCommandHandler.js';
+import { DeleteVolunteerCommandHandler } from '../volunteer/app/commands/delete/DeleteVolunteerCommandHandler.js';
+import { RegisterVolunteerController } from '../volunteer/infra/controllers/RegisterVolunteerController.js';
+import { DeleteVolunteerController } from '../volunteer/infra/controllers/DeleteVolunteerController.js';
+import { PrismaVolunteerRepository } from '../volunteer/infra/persistence/PrismaVolunteerRepository.js';
 
 export interface IdentityModule {
   authController: AuthController;
   profileController: ProfileController;
+  ownerAccounts: {
+    register: RegisterOwnerController;
+    delete: DeleteOwnerController;
+  };
+  volunteerAccounts: {
+    register: RegisterVolunteerController;
+    delete: DeleteVolunteerController;
+  };
 }
 
 export function createIdentityModule(): IdentityModule {
   const repository = new PrismaAuthRepository();
   const getCurrentProfile = new GetCurrentProfileQueryHandler(repository);
+  const owners = new PrismaOwnerRepository();
+  const volunteers = new PrismaVolunteerRepository();
 
   return {
     authController: new AuthController(
@@ -29,5 +49,13 @@ export function createIdentityModule(): IdentityModule {
       new DeleteVolunteerProfileCommandHandler(repository),
       getCurrentProfile,
     ),
+    ownerAccounts: {
+      register: new RegisterOwnerController(new RegisterOwnerCommandHandler(owners)),
+      delete: new DeleteOwnerController(new DeleteOwnerCommandHandler(owners)),
+    },
+    volunteerAccounts: {
+      register: new RegisterVolunteerController(new RegisterVolunteerCommandHandler(volunteers)),
+      delete: new DeleteVolunteerController(new DeleteVolunteerCommandHandler(volunteers)),
+    },
   };
 }

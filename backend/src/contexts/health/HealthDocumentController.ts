@@ -1,5 +1,6 @@
 import type { Response } from 'express';
 import { prisma } from '../../db/prisma.js';
+import type { PrismaClient } from '@prisma/client';
 import type { AuthenticatedRequest } from '../auth/infra/middleware/JwtMiddleware.js';
 
 const MAX_DOCUMENT_BYTES = 5 * 1024 * 1024;
@@ -32,15 +33,17 @@ function metadata(document: { id: number; pet_id: number; health_event_id: numbe
 }
 
 export class HealthDocumentController {
+  constructor(private readonly database: PrismaClient = prisma) {}
+
   async create(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const petId = Number(req.params.id);
       const input = parseHealthDocument(req.body as Record<string, unknown>);
       if (input.healthEventId) {
-        const event = await prisma.healthEvent.findFirst({ where: { id: input.healthEventId, pet_id: petId, pet: { owner_id: req.user.userId } } });
+        const event = await this.database.healthEvent.findFirst({ where: { id: input.healthEventId, pet_id: petId, pet: { owner_id: req.user.userId } } });
         if (!event) { res.status(400).json({ error: 'Health event is not valid for this pet' }); return; }
       }
-      const document = await prisma.healthDocument.create({ data: { pet_id: petId, health_event_id: input.healthEventId, file_name: input.fileName, mime_type: input.mimeType, size_bytes: input.content.length, content: input.content } });
+      const document = await this.database.healthDocument.create({ data: { pet_id: petId, health_event_id: input.healthEventId, file_name: input.fileName, mime_type: input.mimeType, size_bytes: input.content.length, content: input.content } });
       res.status(201).json(metadata(document));
     } catch (error) {
       res.status(400).json({ error: error instanceof Error ? error.message : 'Invalid document' });
@@ -48,7 +51,7 @@ export class HealthDocumentController {
   }
 
   async download(req: AuthenticatedRequest, res: Response): Promise<void> {
-    const document = await prisma.healthDocument.findFirst({ where: { id: Number(req.params.id), pet: { owner_id: req.user.userId } } });
+    const document = await this.database.healthDocument.findFirst({ where: { id: Number(req.params.id), pet: { owner_id: req.user.userId } } });
     if (!document) { res.status(404).json({ error: 'Document not found' }); return; }
     const safeName = document.file_name.replace(/["\\]/g, '_');
     res.setHeader('Content-Type', document.mime_type);
@@ -59,9 +62,9 @@ export class HealthDocumentController {
   }
 
   async delete(req: AuthenticatedRequest, res: Response): Promise<void> {
-    const document = await prisma.healthDocument.findFirst({ where: { id: Number(req.params.id), pet: { owner_id: req.user.userId } } });
+    const document = await this.database.healthDocument.findFirst({ where: { id: Number(req.params.id), pet: { owner_id: req.user.userId } } });
     if (!document) { res.status(404).json({ error: 'Document not found' }); return; }
-    await prisma.healthDocument.delete({ where: { id: document.id } });
+    await this.database.healthDocument.delete({ where: { id: document.id } });
     res.status(204).send();
   }
 }

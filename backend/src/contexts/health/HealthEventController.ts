@@ -1,5 +1,5 @@
 import type { Response } from 'express';
-import { HealthEventSource, HealthEventType, Prisma } from '@prisma/client';
+import { HealthEventSource, HealthEventType, Prisma, type PrismaClient } from '@prisma/client';
 import { prisma } from '../../db/prisma.js';
 import type { AuthenticatedRequest } from '../auth/infra/middleware/JwtMiddleware.js';
 import { completePreventiveReminders } from '../reminder/ReminderService.js';
@@ -117,14 +117,19 @@ function serializeHealthEvent(event: EventWithAttachments) {
   };
 }
 
-async function ownedEvent(id: number, ownerId: number) {
-  return prisma.healthEvent.findFirst({ where: { id, pet: { owner_id: ownerId } } });
-}
-
 export class HealthEventController {
+  constructor(
+    private readonly database: PrismaClient = prisma,
+    private readonly completeReminders: typeof completePreventiveReminders = completePreventiveReminders,
+  ) {}
+
+  private ownedEvent(id: number, ownerId: number) {
+    return this.database.healthEvent.findFirst({ where: { id, pet: { owner_id: ownerId } } });
+  }
+
   async list(req: AuthenticatedRequest, res: Response): Promise<void> {
     const petId = Number(req.params.id);
-    const events = await prisma.healthEvent.findMany({
+    const events = await this.database.healthEvent.findMany({
       where: { pet_id: petId, pet: { owner_id: req.user.userId } },
       orderBy: [{ occurred_at: 'desc' }, { id: 'desc' }],
       include: { attachments: { select: { id: true, pet_id: true, health_event_id: true, file_name: true, mime_type: true, size_bytes: true, created_at: true } } },
@@ -137,7 +142,7 @@ export class HealthEventController {
       const petId = Number(req.params.id);
       const input = parseHealthEventInput(req.body as Record<string, unknown>);
       if (input.sourceAppointmentId) {
-        const appointment = await prisma.appointment.findFirst({
+        const appointment = await this.database.appointment.findFirst({
           where: { id: input.sourceAppointmentId, pet_id: petId, pet: { owner_id: req.user.userId } },
         });
         if (!appointment) {
@@ -145,7 +150,7 @@ export class HealthEventController {
           return;
         }
       }
-      const event = await prisma.healthEvent.create({
+      const event = await this.database.healthEvent.create({
         data: {
           pet_id: petId,
           type: input.type,
@@ -162,9 +167,9 @@ export class HealthEventController {
           source_appointment_id: input.sourceAppointmentId,
         },
       });
-      await completePreventiveReminders(petId, event.type, event.title, event.occurred_at);
+      await this.completeReminders(petId, event.type, event.title, event.occurred_at);
       if (event.source_appointment_id) {
-        await prisma.reminder.updateMany({ where: { source_key: `appointment:${event.source_appointment_id}`, status: 'PENDING' }, data: { status: 'COMPLETED', completed_at: event.occurred_at, generated_action_at: event.occurred_at } });
+        await this.database.reminder.updateMany({ where: { source_key: `appointment:${event.source_appointment_id}`, status: 'PENDING' }, data: { status: 'COMPLETED', completed_at: event.occurred_at, generated_action_at: event.occurred_at } });
       }
       res.status(201).json(serializeHealthEvent(event));
     } catch (error) {
@@ -175,12 +180,12 @@ export class HealthEventController {
   async update(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const id = Number(req.params.id);
-      if (!await ownedEvent(id, req.user.userId)) {
+      if (!await this.ownedEvent(id, req.user.userId)) {
         res.status(404).json({ error: 'Health event not found' });
         return;
       }
       const input = parseHealthEventInput(req.body as Record<string, unknown>);
-      const event = await prisma.healthEvent.update({
+      const event = await this.database.healthEvent.update({
         where: { id },
         data: {
           type: input.type,
@@ -202,11 +207,11 @@ export class HealthEventController {
 
   async delete(req: AuthenticatedRequest, res: Response): Promise<void> {
     const id = Number(req.params.id);
-    if (!await ownedEvent(id, req.user.userId)) {
+    if (!await this.ownedEvent(id, req.user.userId)) {
       res.status(404).json({ error: 'Health event not found' });
       return;
     }
-    await prisma.healthEvent.delete({ where: { id } });
+    await this.database.healthEvent.delete({ where: { id } });
     res.status(204).send();
   }
 }

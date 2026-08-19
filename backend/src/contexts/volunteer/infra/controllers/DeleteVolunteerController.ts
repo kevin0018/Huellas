@@ -1,20 +1,18 @@
 import { Request, Response } from 'express';
 import { DeleteVolunteerCommand } from '../../app/commands/delete/DeleteVolunteerCommand.js';
 import { DeleteVolunteerCommandHandler } from '../../app/commands/delete/DeleteVolunteerCommandHandler.js';
-import { PrismaVolunteerRepository } from '../persistence/PrismaVolunteerRepository.js';
 
 export class DeleteVolunteerController {
   private commandHandler: DeleteVolunteerCommandHandler;
 
-  constructor() {
-    const volunteerRepository = new PrismaVolunteerRepository();
-    this.commandHandler = new DeleteVolunteerCommandHandler(volunteerRepository);
+  constructor(commandHandler: DeleteVolunteerCommandHandler) {
+    this.commandHandler = commandHandler;
   }
 
   async handle(req: Request, res: Response): Promise<void> {
     try {
       const volunteerId = parseInt(req.params.id);
-      const requestingUserId = (req as any).user?.id;
+      const requestingUserId = (req as any).user?.userId;
       if (!requestingUserId) {
         res.status(401).json({
           error: 'Authentication required'
