@@ -1,8 +1,5 @@
 import { Response } from 'express';
 import { AuthenticatedRequest } from '../../../auth/infra/middleware/JwtMiddleware.js';
-import { prisma } from '../../../../db/prisma.js';
-import { PrismaConversationRepository } from '../repositories/PrismaConversationRepository.js';
-import { PrismaMessageRepository } from '../repositories/PrismaMessageRepository.js';
 import { CreateConversationCommandHandler } from '../../app/commands/CreateConversationCommandHandler.js';
 import { SendMessageCommandHandler } from '../../app/commands/SendMessageCommandHandler.js';
 import { MarkMessageAsReadCommandHandler } from '../../app/commands/MarkMessageAsReadCommandHandler.js';
@@ -11,21 +8,24 @@ import { GetConversationsQueryHandler } from '../../app/queries/GetConversations
 import { GetMessagesQueryHandler } from '../../app/queries/GetMessagesQueryHandler.js';
 import { GetUnreadMessagesCountQueryHandler } from '../../app/queries/GetUnreadMessagesCountQueryHandler.js';
 import { SocketIOService } from '../websocket/SocketIOService.js';
+import type { ConversationRepository } from '../../domain/repositories/ConversationRepository.js';
 
-const conversationRepo = new PrismaConversationRepository(prisma);
-const messageRepo = new PrismaMessageRepository(prisma);
-
-const createConversationHandler = new CreateConversationCommandHandler(conversationRepo);
-const sendMessageHandler = new SendMessageCommandHandler(messageRepo, conversationRepo);
-const markAsReadHandler = new MarkMessageAsReadCommandHandler(messageRepo, conversationRepo);
-const archiveConversationHandler = new ArchiveConversationCommandHandler(conversationRepo);
-const getConversationsHandler = new GetConversationsQueryHandler(conversationRepo);
-const getMessagesHandler = new GetMessagesQueryHandler(messageRepo, conversationRepo);
-const getUnreadCountHandler = new GetUnreadMessagesCountQueryHandler(messageRepo);
+export interface ChatControllerDependencies {
+  conversationRepository: ConversationRepository;
+  createConversation: CreateConversationCommandHandler;
+  sendMessage: SendMessageCommandHandler;
+  markAsRead: MarkMessageAsReadCommandHandler;
+  archiveConversation: ArchiveConversationCommandHandler;
+  getConversations: GetConversationsQueryHandler;
+  getMessages: GetMessagesQueryHandler;
+  getUnreadCount: GetUnreadMessagesCountQueryHandler;
+}
 
 export class ChatController {
+  constructor(private readonly dependencies: ChatControllerDependencies) {}
+
   private async canAccessConversation(conversationId: number, userId: number): Promise<boolean> {
-    const conversation = await conversationRepo.findById(conversationId);
+    const conversation = await this.dependencies.conversationRepository.findById(conversationId);
     return conversation?.isParticipant(userId) ?? false;
   }
 
@@ -34,7 +34,7 @@ export class ChatController {
   async getConversations(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const userId = req.user.userId;
-      const conversations = await getConversationsHandler.handle({ userId });
+      const conversations = await this.dependencies.getConversations.handle({ userId });
       
       // Transform entities to DTOs using getters
       const conversationDTOs = conversations.map(conv => ({
@@ -71,7 +71,7 @@ export class ChatController {
         res.status(400).json({ success: false, message: 'Invalid participants' });
         return;
       }
-      const conversation = await createConversationHandler.handle({ participantIds: uniqueParticipantIds, title, createdBy });
+      const conversation = await this.dependencies.createConversation.handle({ participantIds: uniqueParticipantIds, title, createdBy });
       
       // Transform entity to DTO using getters
       const conversationDTO = {
@@ -102,7 +102,7 @@ export class ChatController {
         res.status(404).json({ success: false, message: 'Conversation not found' });
         return;
       }
-      const messages = await getMessagesHandler.handle({ conversationId, userId: req.user.userId });
+      const messages = await this.dependencies.getMessages.handle({ conversationId, userId: req.user.userId });
       
       // Transform entities to DTOs using getters
       const messageDTOs = messages.map(msg => ({
@@ -135,7 +135,7 @@ export class ChatController {
         return;
       }
       
-      const message = await sendMessageHandler.handle({ conversationId, senderId, content: content.trim(), type });
+      const message = await this.dependencies.sendMessage.handle({ conversationId, senderId, content: content.trim(), type });
       
       // Transform entity to DTO using getters
       const messageDTO = {
@@ -152,7 +152,7 @@ export class ChatController {
 
       // Notify via Socket.IO to all conversation participants
       try {
-        const conversation = await conversationRepo.findById(conversationId);
+        const conversation = await this.dependencies.conversationRepository.findById(conversationId);
         if (conversation) {
           const socketService = SocketIOService.getInstance();
           socketService.emitNewMessage(conversationId, conversation.participantIds, messageDTO);
@@ -175,7 +175,7 @@ export class ChatController {
       const messageId = Number(req.params.id);
       const userId = req.user.userId;
       
-      await markAsReadHandler.handle({ messageId, userId });
+      await this.dependencies.markAsRead.handle({ messageId, userId });
       res.json({ success: true, message: 'Message marked as read' });
     } catch {
       res.status(404).json({ success: false, message: 'Message not found' });
@@ -187,7 +187,7 @@ export class ChatController {
   async getUnreadCount(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const userId = req.user.userId;
-      const unreadCount = await getUnreadCountHandler.handle({ userId });
+      const unreadCount = await this.dependencies.getUnreadCount.handle({ userId });
       res.json({ success: true, data: { count: unreadCount } });
     } catch {
       res.status(500).json({ success: false, message: 'Error al obtener cantidad de mensajes no leídos' });
@@ -201,7 +201,7 @@ export class ChatController {
       const conversationId = Number(req.params.id);
       const userId = req.user.userId;
       
-      const conversation = await archiveConversationHandler.handle({ conversationId, userId });
+      const conversation = await this.dependencies.archiveConversation.handle({ conversationId, userId });
       res.json({ success: true, data: { conversation, message: 'Conversation archived successfully' } });
     } catch {
       res.status(404).json({ success: false, message: 'Conversation not found' });

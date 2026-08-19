@@ -1,5 +1,4 @@
 import { Response } from "express";
-import { VolunteerPostRepository } from "../persistence/VolunteerPostRepository.js";
 import { CreateVolunteerPostUseCase } from "../../app/usecases/CreateVolunteerPostUseCase.js";
 import { CreateVolunteerPostRequest } from "../../../../types/volunteerPost.js";
 import { AuthenticatedRequest } from "../../../auth/infra/middleware/JwtMiddleware.js";
@@ -15,7 +14,7 @@ function parseDateOrNull(v: any): Date | null {
 }
 
 export class PostVolunteerPostController {
-  private readonly useCase = new CreateVolunteerPostUseCase(new VolunteerPostRepository());
+  constructor(private readonly useCase: CreateVolunteerPostUseCase) {}
 
   // POST /volunteers/posts   (requireVolunteer)
   async handle(req: AuthenticatedRequest, res: Response): Promise<void> {

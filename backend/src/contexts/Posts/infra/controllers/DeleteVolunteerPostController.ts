@@ -1,10 +1,9 @@
 import { Response } from "express";
-import { VolunteerPostRepository } from "../persistence/VolunteerPostRepository.js";
 import { DeleteVolunteerPostUseCase } from "../../app/usecases/DeleteVolunteerPostUseCase.js";
 import { AuthenticatedRequest } from "../../../auth/infra/middleware/JwtMiddleware.js";
 
 export class DeleteVolunteerPostController {
-  private readonly useCase = new DeleteVolunteerPostUseCase(new VolunteerPostRepository());
+  constructor(private readonly useCase: DeleteVolunteerPostUseCase) {}
 
   // DELETE /volunteers/posts/:id   (requireVolunteer)
   async handle(req: AuthenticatedRequest, res: Response): Promise<void> {

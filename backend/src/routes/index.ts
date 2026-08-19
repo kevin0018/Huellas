@@ -6,8 +6,8 @@ import { createPetRoutes } from './petRoutes.js';
 import { createProcedureRoutes } from './procedureRoutes.js';
 import { createCheckupRoutes } from './checkupRoutes.js';
 import {createAppointmentRoutes } from './appointmentRoutes.js';
-import chatRoutes from './chatRoutes.js';
-import postsRoutes from "./postsRoutes.js";
+import { createChatRoutes } from './chatRoutes.js';
+import { createPostsRoutes } from './postsRoutes.js';
 import { createHealthEventRoutes } from './healthEventRoutes.js';
 import { createHealthDocumentRoutes } from './healthDocumentRoutes.js';
 import { createReminderRoutes } from './reminderRoutes.js';
@@ -28,7 +28,7 @@ export function createRoutes(modules: ApplicationModules = createApplicationModu
 
   // Mount posts routes
   console.log('Mounting posts routes on /posts...');
-  router.use('/volunteers', postsRoutes);
+  router.use('/volunteers', createPostsRoutes(modules.community));
 
   // Mount volunteer routes
   console.log('Mounting volunteer routes on /volunteers...');
@@ -58,7 +58,7 @@ export function createRoutes(modules: ApplicationModules = createApplicationModu
 
   // Mount chat routes
   console.log('Mounting chat routes on /chat...');
-  router.use('/chat', chatRoutes);
+  router.use('/chat', createChatRoutes(modules.chat));
 
   return router;
 }

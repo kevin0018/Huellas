@@ -1,9 +1,8 @@
 import { Request, Response } from "express";
-import { VolunteerPostRepository } from "../persistence/VolunteerPostRepository.js";
 import { GetVolunteerPostUseCase } from "../../app/usecases/GetVolunteerPostUseCase.js";
 
 export class GetVolunteerPostController {
-  private readonly useCase = new GetVolunteerPostUseCase(new VolunteerPostRepository());
+  constructor(private readonly useCase: GetVolunteerPostUseCase) {}
 
   // GET /volunteers/posts/:id
   async handle(req: Request, res: Response): Promise<void> {
