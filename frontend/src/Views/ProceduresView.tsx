@@ -8,25 +8,8 @@ import ProcedureModal from '../Components/ProceduresModal';
 import { ApiPetRepository } from '../modules/pet/infra/ApiPetRepository.js';
 import { useParams } from 'react-router-dom';
 import { ApiCheckupRepository } from '../modules/checkup/infra/ApiCheckupRepository.js';
+import type { PetProcedure } from '../modules/pet/domain/PetProcedure.js';
 
-export type PetProcedureData = {
-  id: number;
-  petType: 'cat' | 'dog' | 'ferret';
-  name: string;
-  age: number;
-  description: string | null;
-  status: 'DONE' | 'MISSING' | 'UPCOMING';
-  checkupId?: number;
-  checkupDate?: string;
-  checkupNotes?: string;
-  dueAt?: string | null;
-  lastOccurredAt?: string | null;
-  recurrenceDays?: number | null;
-  explanation: string;
-  source: string;
-  version: string;
-  region: string;
-}
 
 const checkupRepository = new ApiCheckupRepository();
 
@@ -35,9 +18,9 @@ function ProceduresView() {
   const params = useParams<{ petId: string }>();
   const petId = parseInt(params.petId as string);
 
-  const [procedures, setProcedures] = useState<PetProcedureData[]>([]);
+  const [procedures, setProcedures] = useState<PetProcedure[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingProcedure, setEditingProcedure] = useState<PetProcedureData | null>(null);
+  const [editingProcedure, setEditingProcedure] = useState<PetProcedure | null>(null);
 
   // Load initial data
   const loadData = useCallback(async () => {
@@ -55,7 +38,7 @@ function ProceduresView() {
     loadData();
   }, [loadData]);
 
-  const handleOpenEditModal = (procedure: PetProcedureData) => {
+  const handleOpenEditModal = (procedure: PetProcedure) => {
     setEditingProcedure(procedure);
     setIsModalOpen(true);
   };

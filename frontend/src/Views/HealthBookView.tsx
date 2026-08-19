@@ -11,6 +11,7 @@ import {
   type HealthEventDraft,
   type HealthEventType,
 } from '../modules/health/HealthEvent.js';
+import { apiUrl } from '../shared/api/apiConfig.js';
 
 const repository = new ApiHealthEventRepository();
 const dosageTypes = new Set<HealthEventType>(['VACCINATION', 'MEDICATION', 'TREATMENT']);
@@ -20,7 +21,7 @@ function localTimestamp(date: string): string {
   return value.toISOString();
 }
 
-const apiUrlForShare = (token: string) => `${import.meta.env.VITE_API_URL || '/api'}/shared-health/${encodeURIComponent(token)}`;
+const apiUrlForShare = (token: string) => apiUrl(`/shared-health/${encodeURIComponent(token)}`);
 
 export default function HealthBookView() {
   const petId = Number(useParams<{ petId: string }>().petId);

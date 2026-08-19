@@ -7,6 +7,7 @@ import type {
   ConversationListItem 
 } from '../domain/Conversation';
 import { AuthService } from '../../auth/infra/AuthService';
+import { API_BASE_URL } from '../../../shared/api/apiConfig';
 
 interface ApiResponse<T> {
   success: boolean;
@@ -18,8 +19,7 @@ export class ApiChatRepository implements ChatRepository {
   private readonly baseUrl: string;
 
   constructor() {
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
-    this.baseUrl = apiUrl;
+    this.baseUrl = API_BASE_URL;
   }
 
   private async makeRequest<T>(

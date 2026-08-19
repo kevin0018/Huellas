@@ -7,8 +7,7 @@ import type {
   PostCategory,
 } from "../domain/types";
 import { AuthService } from "../../auth/infra/AuthService";
-
-const API_BASE = import.meta.env.VITE_API_URL || ""; // e.g. http://localhost:3000/api
+import { API_BASE_URL } from '../../../shared/api/apiConfig';
 
 export interface ListParams {
   page?: number;
@@ -27,7 +26,7 @@ export class ApiVolunteerPosts {
 
   constructor() {
     // En el backend montamos /api/volunteers/posts
-    this.baseUrl = `${API_BASE}/volunteers/posts`;
+    this.baseUrl = `${API_BASE_URL}/volunteers/posts`;
   }
 
   private getAuthHeaders(): HeadersInit {
@@ -40,7 +39,7 @@ export class ApiVolunteerPosts {
   }
 
   async list(params: ListParams = {}): Promise<VolunteerPostListResult> {
-    const url = new URL(this.baseUrl);
+    const url = new URL(this.baseUrl, window.location.origin);
     // Defaults de paginación
     url.searchParams.set("page", String(params.page ?? 1));
     url.searchParams.set("pageSize", String(params.pageSize ?? 12));

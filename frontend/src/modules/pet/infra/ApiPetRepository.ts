@@ -2,10 +2,11 @@
 import type { PetRepository } from '../domain/PetRepository.js';
 import type { Pet } from '../domain/Pet.js';
 import { AuthService } from '../../auth/infra/AuthService.js';
-import type { PetProcedureData } from '../../../Views/ProceduresView.js';
+import type { PetProcedure } from '../domain/PetProcedure.js';
+import { API_BASE_URL } from '../../../shared/api/apiConfig.js';
 
 export class ApiPetRepository implements PetRepository {
-  private readonly baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+  private readonly baseUrl = API_BASE_URL;
 
   private getAuthHeaders(): Record<string, string> {
     const token = AuthService.getToken();
@@ -90,7 +91,7 @@ export class ApiPetRepository implements PetRepository {
     return this.fromApi(raw);
   }
 
-  async getPetProcedures(id: number): Promise<PetProcedureData[]> {
+  async getPetProcedures(id: number): Promise<PetProcedure[]> {
     const res = await fetch(`${this.baseUrl}/pets/${id}/procedures`, {
       method: 'GET',
       headers: this.getAuthHeaders(),

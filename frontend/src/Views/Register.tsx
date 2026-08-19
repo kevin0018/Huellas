@@ -7,8 +7,6 @@ import { ApiVolunteerRepository } from '../modules/volunteer/infra/ApiVolunteerR
 import { useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ThemeProvider from '../Components/theme/ThemeProvider';
-import LanguageProvider from '../i18n/LanguageProvider';
 import { useTranslation } from '../i18n/hooks/hook';
 import NavBar from '../Components/NavBar';
 import GoBackButton from '../Components/GoBackButton';
@@ -245,11 +243,9 @@ function RegisterForm() {
 
 export default function Register() {
   return (
-    <LanguageProvider>
-      <ThemeProvider>
-        <NavBar />
-        <RegisterForm />
-      </ThemeProvider>
-    </LanguageProvider>
+    <>
+      <NavBar />
+      <RegisterForm />
+    </>
   );
 }

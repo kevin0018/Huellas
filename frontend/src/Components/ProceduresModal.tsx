@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import type { PetProcedureData } from '../Views/ProceduresView';
+import type { PetProcedure } from '../modules/pet/domain/PetProcedure';
 
 interface ProcedureModalProps {
   isOpen: boolean;
   onClose: () => void;
   onModalSubmit: (procedureId: number, checkupId?: number, checkupDate?: string, checkupNotes?: string) => void;
-  procedure: PetProcedureData;
+  procedure: PetProcedure;
 }
 
 const ProcedureModal: React.FC<ProcedureModalProps> = ({ isOpen, onClose, onModalSubmit, procedure }) => {

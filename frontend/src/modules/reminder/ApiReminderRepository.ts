@@ -1,4 +1,5 @@
 import { AuthService } from '../auth/infra/AuthService.js';
+import { API_BASE_URL } from '../../shared/api/apiConfig.js';
 
 export interface Reminder {
   id: number;
@@ -16,7 +17,7 @@ export interface ReminderFeed {
   reminders: Reminder[];
 }
 
-const apiUrl = import.meta.env.VITE_API_URL || '/api';
+const apiUrl = API_BASE_URL;
 
 export class ApiReminderRepository {
   private headers() { return { ...AuthService.getAuthHeaders(), 'Content-Type': 'application/json' }; }

@@ -1,7 +1,8 @@
 import { AuthService } from '../auth/infra/AuthService.js';
 import type { HealthDocument, HealthEvent, HealthEventDraft } from './HealthEvent.js';
+import { API_BASE_URL } from '../../shared/api/apiConfig.js';
 
-const apiUrl = import.meta.env.VITE_API_URL || '/api';
+const apiUrl = API_BASE_URL;
 
 async function parseResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {

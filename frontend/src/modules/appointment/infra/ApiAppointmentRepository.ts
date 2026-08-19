@@ -1,90 +1,31 @@
 import type { AppointmentRepository } from '../domain/AppointmentRepository.js';
 import type { Appointment, CreateAppointmentRequest, UpdateAppointmentRequest } from '../domain/Appointment.js';
-import { AuthService } from '../../auth/infra/AuthService.js';
+import { ApiError, apiClient } from '../../../shared/api/apiClient.js';
 
 export class ApiAppointmentRepository implements AppointmentRepository {
-  private readonly baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
-
-  private getAuthHeaders(): Record<string, string> {
-    const token = AuthService.getToken();
-    return {
-      'Content-Type': 'application/json',
-      ...(token && { 'Authorization': `Bearer ${token}` })
-    };
-  }
-
   async getAppointments(): Promise<Appointment[]> {
-    const response = await fetch(`${this.baseUrl}/appointments`, {
-      method: 'GET',
-      headers: this.getAuthHeaders(),
-    });
-
-    if (!response.ok) {
-      if (response.status === 404) {
-        // Some backends 404 when the list is empty; treat it as no data.
-        return [];
-      }
-      throw new Error(`Failed to fetch appointments: ${response.statusText}`);
+    try {
+      return await apiClient.get<Appointment[]>('/appointments');
+    } catch (error) {
+      // Preserve compatibility with older API versions that returned 404 for an empty list.
+      if (error instanceof ApiError && error.status === 404) return [];
+      throw error;
     }
-
-    return response.json();
   }
-
 
   async getAppointment(id: number): Promise<Appointment> {
-    const response = await fetch(`${this.baseUrl}/appointments/${id}`, {
-      method: 'GET',
-      headers: this.getAuthHeaders()
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch appointment: ${response.statusText}`);
-    }
-
-    return response.json();
+    return apiClient.get<Appointment>(`/appointments/${id}`);
   }
 
   async createAppointment(request: CreateAppointmentRequest): Promise<Appointment> {
-    const response = await fetch(`${this.baseUrl}/appointments`, {
-      method: 'POST',
-      headers: this.getAuthHeaders(),
-      body: JSON.stringify(request)
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || `Failed to create appointment: ${response.statusText}`);
-    }
-
-    return response.json();
+    return apiClient.post<Appointment>('/appointments', request);
   }
 
   async updateAppointment(id: number, request: UpdateAppointmentRequest): Promise<Appointment> {
-    const response = await fetch(`${this.baseUrl}/appointments/${id}`, {
-      method: 'PUT',
-      headers: this.getAuthHeaders(),
-      body: JSON.stringify(request)
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || `Failed to update appointment: ${response.statusText}`);
-    }
-
-    return response.json();
+    return apiClient.put<Appointment>(`/appointments/${id}`, request);
   }
 
   async deleteAppointment(id: number): Promise<void> {
-    const response = await fetch(`${this.baseUrl}/appointments/${id}`, {
-      method: 'DELETE',
-      headers: this.getAuthHeaders()
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || `Failed to delete appointment: ${response.statusText}`);
-    }
+    await apiClient.delete(`/appointments/${id}`);
   }
-
-  
 }

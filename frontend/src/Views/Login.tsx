@@ -1,9 +1,7 @@
-import ThemeProvider from '../Components/theme/ThemeProvider';
-import LanguageProvider from '../i18n/LanguageProvider';
 import { useTranslation } from '../i18n/hooks/hook';
 import NavBar from '../Components/NavBar';
 import { useEffect, useState } from 'react';
-import { useSearchParams, Link, useNavigate } from 'react-router-dom';
+import { useSearchParams, Link, useLocation, useNavigate } from 'react-router-dom';
 import { LoginCommand } from '../modules/auth/application/commands/LoginCommand';
 import { LoginCommandHandler } from '../modules/auth/application/commands/LoginCommandHandler';
 import { ApiAuthRepository } from '../modules/auth/infra/ApiAuthRepository';
@@ -15,6 +13,7 @@ function LoginContent() {
   const { translate } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [form, setForm] = useState({
     email: '',
@@ -66,12 +65,9 @@ function LoginContent() {
       // Save authentication data
       AuthService.saveAuth(response.token, response.user);
 
-      // Redirect based on user type
-      if (response.user.type === 'volunteer') {
-        navigate('/volunteer-home');
-      } else {
-        navigate('/user-home');
-      }
+      const returnTo = (location.state as { returnTo?: unknown } | null)?.returnTo;
+      const defaultDestination = response.user.type === 'volunteer' ? '/volunteer-home' : '/user-home';
+      navigate(typeof returnTo === 'string' && returnTo.startsWith('/') ? returnTo : defaultDestination, { replace: true });
 
     } catch (err) {
       if (err instanceof Error) {
@@ -178,11 +174,9 @@ function LoginContent() {
 
 export default function Login() {
   return (
-    <LanguageProvider>
-      <ThemeProvider>
-        <NavBar />
-        <LoginContent />
-      </ThemeProvider>
-    </LanguageProvider>
+    <>
+      <NavBar />
+      <LoginContent />
+    </>
   );
 };

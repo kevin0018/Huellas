@@ -1,102 +1,24 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import NavBar from '../Components/NavBar';
 import Footer from '../Components/footer';
 import GoBackButton from '../Components/GoBackButton.js';
 import AppointmentCard from '../Components/AppointmentCard';
 import AppointmentModal from '../Components/AppointmentModal';
-import { AppointmentStatus, type Appointment, type AppointmentReason, type AppointmentStatus as AppointmentStatusType } from '../modules/appointment/domain/Appointment.js';
-import type { Pet } from '../modules/pet/domain/Pet.js';
-
-// Appointment imports
-import { ApiAppointmentRepository } from '../modules/appointment/infra/ApiAppointmentRepository.js';
-import { GetAppointmentsQuery } from '../modules/appointment/application/queries/GetAppointmentsQuery.js';
-import { GetAppointmentsQueryHandler } from '../modules/appointment/application/queries/GetAppointmentsQueryHandler.js';
-import { CreateAppointmentCommand } from '../modules/appointment/application/commands/CreateAppointmentCommand.js';
-import { CreateAppointmentCommandHandler } from '../modules/appointment/application/commands/CreateAppointmentCommandHandler.js';
-
-// Pet imports
-import { ApiPetRepository } from '../modules/pet/infra/ApiPetRepository.js';
-import { GetUserPetsQuery } from '../modules/pet/application/GetUserPetsQuery.js';
-import { GetUserPetsQueryHandler } from '../modules/pet/application/GetUserPetsQueryHandler.js';
+import { AppointmentStatus, type Appointment } from '../modules/appointment/domain/Appointment.js';
+import { useAppointments, type SaveAppointment } from '../features/appointments/useAppointments.js';
 
 function AppointmentsView() {
-  // State
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [pets, setPets] = useState<Pet[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { appointments, pets, loading, actionLoading, error, clearError, reload, save, remove, petById } = useAppointments();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAppointment, setEditingAppointment] = useState<Appointment | undefined>();
-  const [actionLoading, setActionLoading] = useState(false);
 
-  // Load initial data
-  const loadData = async () => {
+  const handleSaveAppointment = async (appointmentData: SaveAppointment) => {
     try {
-      setLoading(true);
-      setError(null);
-      
-      // Create handlers on demand
-      const appointmentRepository = new ApiAppointmentRepository();
-      const petRepository = new ApiPetRepository();
-      const getAppointmentsHandler = new GetAppointmentsQueryHandler(appointmentRepository);
-      const getPetsHandler = new GetUserPetsQueryHandler(petRepository);
-      
-      const [appointmentsResult, petsResult] = await Promise.all([
-        getAppointmentsHandler.execute(new GetAppointmentsQuery()),
-        getPetsHandler.execute(new GetUserPetsQuery())
-      ]);
-      
-      setAppointments(appointmentsResult);
-      setPets(petsResult);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error desconocido'); // TODO: Add to translation dictionary
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const handleSaveAppointment = async (appointmentData: {
-    petId: number;
-    date: string;
-    reason: AppointmentReason;
-    status: AppointmentStatusType;
-    notes?: string | null;
-  }) => {
-    try {
-      setActionLoading(true);
-      
-      const appointmentRepository = new ApiAppointmentRepository();
-      if (editingAppointment) {
-        const updatedAppointment = await appointmentRepository.updateAppointment(editingAppointment.id, {
-          date: appointmentData.date,
-          reason: appointmentData.reason,
-          status: appointmentData.status,
-          notes: appointmentData.notes,
-        });
-        setAppointments((current) => current.map((appointment) =>
-          appointment.id === updatedAppointment.id ? updatedAppointment : appointment
-        ));
-      } else {
-        const createAppointmentHandler = new CreateAppointmentCommandHandler(appointmentRepository);
-        const command = new CreateAppointmentCommand(
-          appointmentData.petId,
-          appointmentData.date,
-          appointmentData.reason,
-          appointmentData.notes ?? undefined
-        );
-        const newAppointment = await createAppointmentHandler.execute(command);
-        setAppointments((current) => [...current, newAppointment]);
-      }
+      await save(appointmentData, editingAppointment);
       setIsModalOpen(false);
       setEditingAppointment(undefined);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al crear la cita'); // TODO: Add to translation dictionary
-    } finally {
-      setActionLoading(false);
+    } catch {
+      // The feature hook owns and exposes the user-facing error state.
     }
   };
 
@@ -111,24 +33,15 @@ function AppointmentsView() {
     }
     
     try {
-      setActionLoading(true);
-      const appointmentRepository = new ApiAppointmentRepository();
-      await appointmentRepository.deleteAppointment(appointmentId);
-      setAppointments(prev => prev.filter(app => app.id !== appointmentId));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al eliminar la cita'); // TODO: Add to translation dictionary
-    } finally {
-      setActionLoading(false);
+      await remove(appointmentId);
+    } catch {
+      // The feature hook owns and exposes the user-facing error state.
     }
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setEditingAppointment(undefined);
-  };
-
-  const getPetById = (petId: number): Pet | undefined => {
-    return pets.find(pet => pet.id === petId);
   };
 
   const now = Date.now();
@@ -208,10 +121,13 @@ function AppointmentsView() {
                 {error}
               </div>
               <button
-                onClick={() => setError(null)}
+                onClick={clearError}
                 className="mt-2 text-sm underline hover:no-underline"
               >
                 Cerrar {/* TODO: Add to translation dictionary */}
+              </button>
+              <button onClick={() => void reload()} className="mt-2 ml-4 text-sm underline hover:no-underline">
+                Reintentar
               </button>
             </div>
           )}
@@ -237,7 +153,7 @@ function AppointmentsView() {
                 <AppointmentCard
                   key={appointment.id}
                   appointment={appointment}
-                  pet={getPetById(appointment.petId)}
+                  pet={petById(appointment.petId)}
                   onEdit={handleEditAppointment}
                   onDelete={handleDeleteAppointment}
                 />

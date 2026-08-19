@@ -1,7 +1,5 @@
 // Views/UserHome.tsx
 import { useEffect, useState } from "react";
-import ThemeProvider from "../Components/theme/ThemeProvider";
-import LanguageProvider from "../i18n/LanguageProvider";
 import { useTranslation } from "../i18n/hooks/hook";
 import NavBar from "../Components/NavBar";
 import Footer from "../Components/footer";
@@ -163,11 +161,5 @@ function UserHomeContent() {
 }
 
 export default function UserHome() {
-  return (
-    <LanguageProvider>
-      <ThemeProvider>
-        <UserHomeContent />
-      </ThemeProvider>
-    </LanguageProvider>
-  );
+  return <UserHomeContent />;
 }

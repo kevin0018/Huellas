@@ -1,5 +1,6 @@
 import type { ProcedureScheduleRepository } from '../domain/ProcedureScheduleRepository';
 import { ProcedureSchedule } from '../domain/ProcedureSchedule';
+import { API_BASE_URL } from '../../../shared/api/apiConfig';
 
 export type AuthHeaderProvider = () => HeadersInit | Promise<HeadersInit>;
 
@@ -16,8 +17,7 @@ export class ApiProcedureScheduleRepository implements ProcedureScheduleReposito
   private readonly getAuthHeaders?: AuthHeaderProvider;
 
   constructor(opts?: { getAuthHeaders?: AuthHeaderProvider }) {
-    const apiUrl = import.meta.env.VITE_API_URL || '';
-    this.baseUrl = `${apiUrl}/procedure-schedule`;
+    this.baseUrl = `${API_BASE_URL}/procedure-schedule`;
     this.getAuthHeaders = opts?.getAuthHeaders;
   }
 

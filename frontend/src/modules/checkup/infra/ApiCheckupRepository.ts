@@ -1,6 +1,7 @@
 import type { CheckupRepository } from '../domain/CheckupRepository';
 import { Checkup } from '../domain/Checkup';
 import { AuthService } from '../../auth/infra/AuthService.js';
+import { API_BASE_URL } from '../../../shared/api/apiConfig.js';
 
 export type AuthHeaderProvider = () => HeadersInit | Promise<HeadersInit>;
 
@@ -17,7 +18,7 @@ export class ApiCheckupRepository implements CheckupRepository {
   private readonly apiUrl: string;
 
   constructor() {
-    this.apiUrl = import.meta.env.VITE_API_URL || '';
+    this.apiUrl = API_BASE_URL;
     this.baseUrl = `${this.apiUrl}/checkups`;
   }
 

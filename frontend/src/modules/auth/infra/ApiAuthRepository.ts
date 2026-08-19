@@ -1,13 +1,13 @@
 import type { AuthRepository } from '../domain/AuthRepository';
 import type { LoginResponse, User } from '../domain/User';
 import { AuthService } from './AuthService';
+import { API_BASE_URL } from '../../../shared/api/apiConfig';
 
 export class ApiAuthRepository implements AuthRepository {
   private readonly baseUrl: string;
 
   constructor() {
-    const apiUrl = import.meta.env.VITE_API_URL || '';
-    this.baseUrl = `${apiUrl}/auth`;
+    this.baseUrl = `${API_BASE_URL}/auth`;
   }
 
   async login(email: string, password: string): Promise<LoginResponse> {

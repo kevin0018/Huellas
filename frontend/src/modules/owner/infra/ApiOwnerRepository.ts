@@ -1,12 +1,12 @@
 import { Owner } from '../domain/Owner';
 import type { OwnerRepository } from '../domain/OwnerRepository';
+import { API_BASE_URL } from '../../../shared/api/apiConfig';
 
 export class ApiOwnerRepository implements OwnerRepository {
 	private readonly baseUrl: string;
 
 	constructor() {
-		const apiUrl = import.meta.env.VITE_API_URL || '';
-		this.baseUrl = `${apiUrl}/owners/register`;
+		this.baseUrl = `${API_BASE_URL}/owners/register`;
 	}
 
 		async register(owner: Owner): Promise<void> {

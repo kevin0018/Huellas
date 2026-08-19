@@ -1,8 +1,8 @@
-import type { PetProcedureData } from "../Views/ProceduresView";
+import type { PetProcedure } from '../modules/pet/domain/PetProcedure';
 
 interface ProcedureCardProps {
-  procedure: PetProcedureData;
-  onEdit: (procedure: PetProcedureData) => void;
+  procedure: PetProcedure;
+  onEdit: (procedure: PetProcedure) => void;
 }
 
 const ProcedureCard: React.FC<ProcedureCardProps> = ({ procedure, onEdit }) => {
