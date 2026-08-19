@@ -33,7 +33,7 @@ export class DeleteCheckupController {
       await this.checkupRepository.delete(checkupId);
 
       return res.status(204).send();
-    } catch (error) {
+    } catch {
       return res.status(500).send({ error: 'Internal server error' });
     }
   }

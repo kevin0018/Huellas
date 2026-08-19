@@ -16,7 +16,7 @@
   --bg-dogs-userhome-mobile-url: url('/media/bg_phone_userhome.png');
   --bg-dogs-userhome-tablet-url: url('/media/bg_tablet_userhome.png');
   --bg-dogs-userhome-desktop-url: url('/media/bg_desktop_userhome.png');
-  --bg-dogs-userhome-mobile-dark-url: url('/media/bg_phone_userhome_dark.png');
+  --bg-dogs-userhome-mobile-dark-url: url('/media/bg_phone_userhome.png');
   --breakpoint-3xl: 110rem;
 }
 

@@ -45,15 +45,19 @@ export class ApiPetRepository implements PetRepository {
 
   private async ensureOk(res: Response, fallbackMsg: string): Promise<void> {
     if (res.ok) return;
-    try {
-      const json = await res.json();
-      if (json?.error) throw new Error(json.error);
-    } catch {
+
+    const responseBody = await res.text();
+    if (responseBody) {
+      let errorMessage = responseBody;
       try {
-        const txt = await res.text();
-        if (txt) throw new Error(txt);
-      } catch { }
+        const json = JSON.parse(responseBody) as { error?: unknown };
+        if (typeof json.error === 'string') errorMessage = json.error;
+      } catch {
+        // Non-JSON error responses are already useful as plain text.
+      }
+      throw new Error(errorMessage);
     }
+
     throw new Error(`${fallbackMsg}: ${res.status} ${res.statusText}`);
   }
 
@@ -103,8 +107,7 @@ export class ApiPetRepository implements PetRepository {
    * to help FK resolution in some setups.
    */
   async create(data: Omit<Pet, 'id' | 'ownerId'>): Promise<Pet> {
-    const user = AuthService.getUser?.() as any;
-    const ownerId = user?.ownerId ?? user?.owner?.id ?? undefined;
+    const ownerId = AuthService.getUser()?.id;
 
     // Normalize birthDate -> ISO (midnight) if provided as YYYY-MM-DD
     const birthISO = data.birthDate

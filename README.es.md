@@ -2,6 +2,8 @@
 
 🌐 [English Version](README.md)
 
+[![CI](https://github.com/kevin0018/Huellas/actions/workflows/ci.yml/badge.svg)](https://github.com/kevin0018/Huellas/actions/workflows/ci.yml)
+
 Esta es una aplicación de gestión de salud para dueños y sus mascotas, con perfiles individuales para cada uno desde donde se podrán gestionar todas las opciones. El sistema también incluirá la integración de voluntarios para ayudar a los usuarios, así como la posibilidad de vincular perfiles de veterinarios y aseguradoras para mantener toda la información actualizada y accesible con el mínimo esfuerzo.
 
 ## Tecnologías y herramientas
@@ -66,8 +68,14 @@ versionadas de Prisma antes de arrancar. `FRONTEND_PORT` y `PORT` permiten
 cambiar los puertos públicos del frontend y la API. Las credenciales incluidas
 en Compose son exclusivamente para desarrollo local. Las dependencias de
 frontend y backend se instalan desde sus lockfiles versionados con pnpm 10.10.0.
-Para ejecutar fuera de Docker, usa `corepack enable` una vez y después
+Para ejecutar fuera de Docker, usa Node 22 (`nvm use` lee la versión desde
+`.nvmrc`), ejecuta `corepack enable` una vez y después
 `pnpm install --frozen-lockfile` dentro de `frontend/` y `backend/`.
+
+La integración continua ejecuta lint, typecheck, tests y build de ambas
+aplicaciones. También aplica todo el historial de migraciones de Prisma sobre
+una base MySQL vacía y verifica que el seed de desarrollo pueda ejecutarse dos
+veces.
 
 Para detener y eliminar los contenedores:
 

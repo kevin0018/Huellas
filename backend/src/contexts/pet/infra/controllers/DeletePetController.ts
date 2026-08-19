@@ -15,7 +15,7 @@ export class DeletePetController {
       await this.petRepository.delete(petId);
 
       return res.status(204).send();
-    } catch (error) {
+    } catch {
       return res.status(500).send({ error: 'Internal server error' });
     }
   }

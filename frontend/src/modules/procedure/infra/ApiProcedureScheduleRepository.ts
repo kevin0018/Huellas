@@ -3,6 +3,14 @@ import { ProcedureSchedule } from '../domain/ProcedureSchedule';
 
 export type AuthHeaderProvider = () => HeadersInit | Promise<HeadersInit>;
 
+type ApiProcedureSchedule = {
+  id: number;
+  i18nKey: string;
+  i18nTextKey?: string;
+  fromWeeks: number;
+  toWeeks?: number | null;
+};
+
 export class ApiProcedureScheduleRepository implements ProcedureScheduleRepository {
   private readonly baseUrl: string;
   private readonly getAuthHeaders?: AuthHeaderProvider;
@@ -25,7 +33,7 @@ export class ApiProcedureScheduleRepository implements ProcedureScheduleReposito
   }
 
   async listAll(): Promise<ProcedureSchedule[]> {
-    const data = await this.request<any[]>(this.baseUrl, { method: 'GET' });
+    const data = await this.request<ApiProcedureSchedule[]>(this.baseUrl, { method: 'GET' });
     return data.map(d => ProcedureSchedule.create({
       id: d.id,
       i18nKey: d.i18nKey,

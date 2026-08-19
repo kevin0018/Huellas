@@ -66,10 +66,10 @@ const PetProfile: React.FC = () => {
         setError(null);
         const data = await repo.getPetById(petId);
         if (!cancelled) setPet(data);
-      } catch (e: any) {
+      } catch (e: unknown) {
         // If backend returns 401, bounce to login
         if (
-          String(e?.message || "")
+          String(e instanceof Error ? e.message : "")
             .toLowerCase()
             .includes("unauthorized")
         ) {

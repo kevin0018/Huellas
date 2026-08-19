@@ -33,8 +33,6 @@ export class GetPetProceduresStatusController {
       const timeDifference = currentDate.getTime() - petBirthdate.getTime();
 
       const petAgeInWeeks = Math.floor(timeDifference / (1000 * 60 * 60 * 24 * 7));
-      const petAgeInYears = timeDifference / (1000 * 60 * 60 * 24 * 365.25);
-
       const petProcedures = await this.procedureRepository.findByPetType(petType);
 
       const proceduresWithStatus = await Promise.all(petProcedures.map(async (procedure) => {

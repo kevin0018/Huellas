@@ -2,6 +2,8 @@
 
 🌐 [Spanish Version](README.es.md)
 
+[![CI](https://github.com/kevin0018/Huellas/actions/workflows/ci.yml/badge.svg)](https://github.com/kevin0018/Huellas/actions/workflows/ci.yml)
+
 **Huellas** is a health management platform for pet owners, designed with individual profiles for each owner and their pets to centralize all information.  
 Future plans include integrating a volunteer system to assist users and linking profiles for veterinarians and insurers, keeping everything updated and accessible with minimal effort.
 
@@ -93,8 +95,12 @@ migrations before starting. `FRONTEND_PORT` and `PORT` can override the public
 frontend and API ports. The credentials included in Compose are for local
 development only. Frontend and backend dependencies are installed from their
 versioned pnpm lockfiles with pnpm 10.10.0. For local execution outside Docker,
-run `corepack enable` once and then `pnpm install --frozen-lockfile` inside
-`frontend/` and `backend/`.
+use Node 22 (`nvm use` reads the version from `.nvmrc`), run `corepack enable`
+once and then `pnpm install --frozen-lockfile` inside `frontend/` and `backend/`.
+
+CI runs lint, typecheck, tests and builds for both applications. It also applies
+the complete Prisma migration history to an empty MySQL database and verifies
+that the development seed can be run twice.
 
 Stop and remove the containers with:
 

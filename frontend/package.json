@@ -3,10 +3,14 @@
   "private": true,
   "version": "0.0.0",
   "packageManager": "pnpm@10.10.0",
+  "engines": {
+    "node": "22.x"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "typecheck": "tsc -b",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",

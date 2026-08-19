@@ -61,7 +61,7 @@ describe('UpdateProfileCommandHandler', () => {
       email: 'jane@example.com'
     });
     expect(result).toEqual(mockUpdatedUser);
-    expect(localStorageMock.setItem).toHaveBeenCalledWith('userData', JSON.stringify(mockUpdatedUser));
+    expect(localStorageMock.setItem).toHaveBeenCalledWith('auth_user', JSON.stringify(mockUpdatedUser));
   });
 
   it('should throw error when no auth token is found', async () => {

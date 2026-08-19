@@ -33,6 +33,7 @@ describe('ApiAuthRepository', () => {
       };
       
       vi.mocked(AuthService.getUser).mockReturnValue(mockUser);
+      vi.mocked(AuthService.getToken).mockReturnValue('valid-token');
 
       // Act
       const result = await repository.getCurrentUser();
@@ -45,6 +46,7 @@ describe('ApiAuthRepository', () => {
     it('should return null when no user in AuthService', async () => {
       // Arrange
       vi.mocked(AuthService.getUser).mockReturnValue(null);
+      vi.mocked(AuthService.getToken).mockReturnValue(null);
 
       // Act
       const result = await repository.getCurrentUser();

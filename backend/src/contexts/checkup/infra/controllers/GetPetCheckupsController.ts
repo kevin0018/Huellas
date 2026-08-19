@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import { FindPetCheckupsUseCase } from "../../app/FindPetCheckupsUseCase.js";
 import { ICheckupRepository } from "../../domain/repositories/ICheckupRepository.js";
 import { AuthenticatedRequest } from "../../../auth/infra/middleware/JwtMiddleware.js";

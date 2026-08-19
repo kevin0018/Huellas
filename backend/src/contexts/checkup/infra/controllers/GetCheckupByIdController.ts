@@ -33,7 +33,7 @@ export class GetCheckupByIdController {
       }
 
       return res.send(checkup);
-    } catch (error) {
+    } catch {
       return res.status(500).send({ error: 'Internal server error' });
     }
   }

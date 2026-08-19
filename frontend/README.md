@@ -33,5 +33,6 @@ The local Vite proxy targets `http://localhost:3000` by default. Set
 pnpm dev
 pnpm build
 pnpm lint
+pnpm typecheck
 pnpm test:run
 ```

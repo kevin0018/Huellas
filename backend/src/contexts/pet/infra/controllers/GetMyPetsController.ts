@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import { IPetRepository } from "../../domain/repositories/IPetRepository.js";
 import { FindPetsByOwnerUseCase } from "../../app/FindPetsByOwnerUseCase.js";
 import { AuthenticatedRequest } from "../../../auth/infra/middleware/JwtMiddleware.js";

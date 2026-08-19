@@ -40,9 +40,9 @@ export function useVolunteerPosts(options: UseVolunteerPostsOptions = {}) {
       setItems(result.items);
       setTotal(result.total);
       setPage(result.page);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("[useVolunteerPosts] Error:", err);
-      setError(err?.message ?? "Unknown error");
+      setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
       setLoading(false);
     }

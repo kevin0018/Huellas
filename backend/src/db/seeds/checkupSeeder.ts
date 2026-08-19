@@ -24,7 +24,7 @@ export async function seedCheckups(prisma: PrismaClient) {
             // Pick a random relevant procedure
             const randomProcedure = relevantProcedures[Math.floor(Math.random() * relevantProcedures.length)];
 
-            const notes = generateCheckupNotes(pet, randomProcedure, i);
+            const notes = generateCheckupNotes(pet, randomProcedure);
 
             const checkup = await prisma.checkup.create({
                 data: {
@@ -42,7 +42,7 @@ export async function seedCheckups(prisma: PrismaClient) {
     return checkups;
 }
 
-function generateCheckupNotes(pet: any, procedure: any, checkupNumber: number): string {
+function generateCheckupNotes(pet: any, procedure: any): string {
     const notes = [
         `Procedimiento: ${procedure.procedure_name} realizado correctamente en ${pet.name}.`,
         `${pet.name} mostró buen comportamiento durante el ${procedure.procedure_name}.`,

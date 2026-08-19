@@ -10,6 +10,7 @@ export class GetConversationsQueryHandler {
   }
 
   async handle(_query: GetConversationsQuery): Promise<ConversationListItem[]> {
+    void _query;
     return this.chatRepository.getConversations();
   }
 }

@@ -4,7 +4,7 @@ import { seedProcedureSchedules } from './seeds/procedureScheduleSeeder.js';
 import { seedPets } from './seeds/petSeeder.js';
 import { seedCheckups } from './seeds/checkupSeeder.js';
 import { seedAppointments } from './seeds/appointmentSeeder.js';
-import {seedVolunteerPosts} from './seeds/postsSeeder.js';
+import { seedVolunteerPosts } from './seeds/postsSeeder.js';
 
 const prisma = new PrismaClient();
 
@@ -12,7 +12,11 @@ async function main() {
     console.log('🌱 Starting database seeding...');
 
     try {
-        // Clear existing data (in correct order to respect foreign keys)
+        // Clear existing data from children to parents so this seed can be rerun.
+        await prisma.message.deleteMany();
+        await prisma.conversationParticipant.deleteMany();
+        await prisma.conversation.deleteMany();
+        await prisma.volunteerPost.deleteMany();
         await prisma.checkup.deleteMany();
         await prisma.appointment.deleteMany();
         await prisma.pet.deleteMany();
@@ -20,7 +24,6 @@ async function main() {
         await prisma.owner.deleteMany();
         await prisma.volunteer.deleteMany();
         await prisma.user.deleteMany();
-        await prisma.volunteerPost.deleteMany();
 
         console.log('🗑️ Cleared existing data');
 

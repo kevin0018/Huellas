@@ -1,5 +1,5 @@
 // src/pages/ProceduresView.tsx
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import NavBar from '../Components/NavBar';
 import Footer from '../Components/footer';
 import GoBackButton from '../Components/GoBackButton.js';
@@ -33,7 +33,7 @@ function ProceduresView() {
   const [editingProcedure, setEditingProcedure] = useState<PetProcedureData | null>(null);
 
   // Load initial data
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       const petRepository = new ApiPetRepository();
       const proceduresData = await petRepository.getPetProcedures(petId);
@@ -42,11 +42,11 @@ function ProceduresView() {
     } catch (err) {
       console.log(err)
     };
-  }
+  }, [petId]);
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
 
   const handleOpenEditModal = (procedure: PetProcedureData) => {
     setEditingProcedure(procedure);

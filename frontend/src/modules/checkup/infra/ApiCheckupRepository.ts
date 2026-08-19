@@ -4,6 +4,14 @@ import { AuthService } from '../../auth/infra/AuthService.js';
 
 export type AuthHeaderProvider = () => HeadersInit | Promise<HeadersInit>;
 
+type ApiCheckup = {
+  id?: number;
+  petId: number;
+  procedureId: number;
+  date: string;
+  notes?: string | null;
+};
+
 export class ApiCheckupRepository implements CheckupRepository {
   private readonly baseUrl: string;
   private readonly apiUrl: string;
@@ -30,12 +38,12 @@ export class ApiCheckupRepository implements CheckupRepository {
   }
 
   async listByPet(petId: number): Promise<Checkup[]> {
-    const data = await this.request<any[]>(`${this.baseUrl}?petId=${petId}`, { method: 'GET' });
+    const data = await this.request<ApiCheckup[]>(`${this.baseUrl}?petId=${petId}`, { method: 'GET' });
     return data.map(d => Checkup.create({ ...d, date: new Date(d.date) }));
   }
 
   async findLatestByPetAndProcedure(petId: number, procedureId: number): Promise<Checkup | null> {
-    const data = await this.request<any[]>(
+    const data = await this.request<ApiCheckup[]>(
       `${this.baseUrl}?petId=${petId}&procedureId=${procedureId}&_sort=date&_order=desc&_limit=1`,
       { method: 'GET' }
     ).catch(() => null);
@@ -50,7 +58,7 @@ export class ApiCheckupRepository implements CheckupRepository {
       notes: checkupData.notes
     });
 
-    const data = await this.request<any>(`${this.apiUrl}/pets/${petId}/checkup`, { method: 'POST', body });
+    const data = await this.request<ApiCheckup>(`${this.apiUrl}/pets/${petId}/checkup`, { method: 'POST', body });
 
     return Checkup.create({ ...data, date: new Date(data.date) });
   }
@@ -63,7 +71,7 @@ export class ApiCheckupRepository implements CheckupRepository {
       notes: checkupData.notes
     });
 
-    const data = await this.request<any>(`${this.apiUrl}/checkups/${checkupId}`, { method: 'PATCH', body });
+    const data = await this.request<ApiCheckup>(`${this.apiUrl}/checkups/${checkupId}`, { method: 'PATCH', body });
 
     return Checkup.create({ ...data, date: new Date(data.date) });
 
