@@ -1,11 +1,10 @@
 import React from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import NavBar from "../Components/NavBar";
 import Footer from "../Components/footer";
 import GoBackButton from "../Components/GoBackButton";
 
-import { ApiPetRepository } from "../modules/pet/infra/ApiPetRepository";
 import type { Pet } from "../modules/pet/domain/Pet";
 import {
   getPetSizeLabel,
@@ -14,6 +13,7 @@ import {
 } from "../modules/pet/domain/Pet";
 import { AuthService } from "../modules/auth/infra/AuthService";
 import { AsyncContent } from "../shared/ui/AsyncContent";
+import { applicationServices } from "../composition/applicationServices";
 
 type ProfileDetailProps = {
   label: string;
@@ -40,7 +40,7 @@ const PetProfile: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  const repo = useMemo(() => new ApiPetRepository(), []);
+  const repo = applicationServices.pets;
   const [pet, setPet] = useState<Pet | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

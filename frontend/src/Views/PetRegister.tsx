@@ -4,15 +4,15 @@ import NavBar from "../Components/NavBar";
 import Footer from "../Components/footer";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
-import { ApiPetRepository } from "../modules/pet/infra/ApiPetRepository";
 import type { Pet, PetSize, PetType, Sex } from "../modules/pet/domain/Pet";
+import { applicationServices } from "../composition/applicationServices";
 
 const PetRegister: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const isEdit = !!id;
 
-  const repo = React.useMemo(() => new ApiPetRepository(), []);
+  const repo = applicationServices.pets;
 
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);

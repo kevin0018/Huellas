@@ -5,13 +5,11 @@ import Footer from '../Components/footer';
 import GoBackButton from '../Components/GoBackButton.js';
 import ProcedureCard from '../Components/ProcedureCard';
 import ProcedureModal from '../Components/ProceduresModal';
-import { ApiPetRepository } from '../modules/pet/infra/ApiPetRepository.js';
 import { useParams } from 'react-router-dom';
-import { ApiCheckupRepository } from '../modules/checkup/infra/ApiCheckupRepository.js';
 import type { PetProcedure } from '../modules/pet/domain/PetProcedure.js';
+import { applicationServices } from '../composition/applicationServices.js';
 
-
-const checkupRepository = new ApiCheckupRepository();
+const { checkups: checkupRepository, pets: petRepository } = applicationServices;
 
 function ProceduresView() {
   // 1. Este es el estado principal que las tarjetas leen.
@@ -25,7 +23,6 @@ function ProceduresView() {
   // Load initial data
   const loadData = useCallback(async () => {
     try {
-      const petRepository = new ApiPetRepository();
       const proceduresData = await petRepository.getPetProcedures(petId);
 
       setProcedures(proceduresData);

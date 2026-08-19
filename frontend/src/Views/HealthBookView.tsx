@@ -3,7 +3,6 @@ import { useParams } from 'react-router-dom';
 import Footer from '../Components/footer';
 import GoBackButton from '../Components/GoBackButton';
 import NavBar from '../Components/NavBar';
-import { ApiHealthEventRepository } from '../modules/health/ApiHealthEventRepository.js';
 import {
   healthEventLabels,
   healthEventTypes,
@@ -13,8 +12,9 @@ import {
 } from '../modules/health/HealthEvent.js';
 import { apiUrl } from '../shared/api/apiConfig.js';
 import { AsyncContent } from '../shared/ui/AsyncContent.js';
+import { applicationServices } from '../composition/applicationServices.js';
 
-const repository = new ApiHealthEventRepository();
+const repository = applicationServices.healthEvents;
 const dosageTypes = new Set<HealthEventType>(['VACCINATION', 'MEDICATION', 'TREATMENT']);
 
 function localTimestamp(date: string): string {

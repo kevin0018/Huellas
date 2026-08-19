@@ -7,12 +7,11 @@ import GoBackButton from "../Components/GoBackButton";
 import { AuthService } from "../modules/auth/infra/AuthService";
 import type { User } from "../modules/auth/domain/User";
 import type { Pet } from "../modules/pet/domain/Pet";
-import { ApiPetRepository } from "../modules/pet/infra/ApiPetRepository";
 import { PetAvatarGrid } from "../Components/pet/PetAvatarGrid";
 import { useNavigate, Link } from "react-router-dom";
-import { ApiReminderRepository, type ReminderFeed } from '../modules/reminder/ApiReminderRepository.js';
+import { applicationServices, type ReminderFeed } from '../composition/applicationServices.js';
 
-const reminderRepository = new ApiReminderRepository();
+const { pets: petRepository, reminders: reminderRepository } = applicationServices;
 
 function UserHomeContent() {
   const { translate } = useTranslation();
@@ -39,8 +38,7 @@ function UserHomeContent() {
     (async () => {
       setLoading(true); setError(null);
       try {
-        const repo = new ApiPetRepository();
-        const [rows, feed] = await Promise.all([repo.getUserPets(), reminderRepository.list()]);
+        const [rows, feed] = await Promise.all([petRepository.getUserPets(), reminderRepository.list()]);
         if (!cancelled) { setPets(rows); setReminderFeed(feed); }
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
