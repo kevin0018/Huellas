@@ -1,9 +1,4 @@
-import { RegisterOwnerCommand } from '../modules/owner/application/commands/RegisterOwnerCommand';
-import { RegisterOwnerCommandHandler } from '../modules/owner/application/commands/RegisterOwnerCommandHandler';
-import { ApiOwnerRepository } from '../modules/owner/infra/ApiOwnerRepository';
-import { RegisterVolunteerCommand } from '../modules/volunteer/application/commands/RegisterVolunteerCommand';
-import { RegisterVolunteerCommandHandler } from '../modules/volunteer/application/commands/RegisterVolunteerCommandHandler';
-import { ApiVolunteerRepository } from '../modules/volunteer/infra/ApiVolunteerRepository';
+import { registerUser } from '../features/registration/registerUser';
 import { useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -83,34 +78,8 @@ function RegisterForm() {
     setLoading(true);
     setError(null);
     try {
-      if (userType === 'owner') {
-        const repo = new ApiOwnerRepository();
-        const handler = new RegisterOwnerCommandHandler(repo);
-        const command = new RegisterOwnerCommand(
-          form.name,
-          form.lastName,
-          form.email,
-          form.password
-        );
-        await handler.execute(command);
-
-        navigate('/login?registered=true');
-      } else if (userType === 'volunteer') {
-        const repo = new ApiVolunteerRepository();
-        const handler = new RegisterVolunteerCommandHandler(repo);
-        const command = new RegisterVolunteerCommand(
-          form.name,
-          form.lastName,
-          form.email,
-          form.password,
-          form.description
-        );
-        await handler.execute(command);
-
-        navigate('/login?registered=true');
-      } else {
-        setError(translate('registrationError'));
-      }
+      await registerUser(userType, form);
+      navigate('/login?registered=true');
     } catch (err) {
       if (err instanceof Error) {
         setError(getErrorMessage(err.message));

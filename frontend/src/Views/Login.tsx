@@ -2,10 +2,7 @@ import { useTranslation } from '../i18n/hooks/hook';
 import NavBar from '../Components/NavBar';
 import { useEffect, useState } from 'react';
 import { useSearchParams, Link, useLocation, useNavigate } from 'react-router-dom';
-import { LoginCommand } from '../modules/auth/application/commands/LoginCommand';
-import { LoginCommandHandler } from '../modules/auth/application/commands/LoginCommandHandler';
-import { ApiAuthRepository } from '../modules/auth/infra/ApiAuthRepository';
-import { AuthService } from '../modules/auth/infra/AuthService';
+import { authActions } from '../features/auth/authActions';
 import type { ChangeEvent, FormEvent } from 'react';
 import GoBackButton from '../Components/GoBackButton';
 
@@ -56,14 +53,7 @@ function LoginContent() {
     setError(null);
 
     try {
-      const repo = new ApiAuthRepository();
-      const handler = new LoginCommandHandler(repo);
-      const command = new LoginCommand(form.email, form.password);
-
-      const response = await handler.execute(command);
-
-      // Save authentication data
-      AuthService.saveAuth(response.token, response.user);
+      const response = await authActions.login(form.email, form.password);
 
       const returnTo = (location.state as { returnTo?: unknown } | null)?.returnTo;
       const defaultDestination = response.user.type === 'volunteer' ? '/volunteer-home' : '/user-home';

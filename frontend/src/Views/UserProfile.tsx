@@ -1,16 +1,10 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import NavBar from "../Components/NavBar";
 import Footer from "../Components/footer";
 import GoBackButton from "../Components/GoBackButton";
 import VolunteerModal from "../Components/VolunteerModal";
-import { ApiAuthRepository } from '../modules/auth/infra/ApiAuthRepository';
-import { UpdateProfileCommandHandler } from '../modules/auth/application/commands/UpdateProfileCommandHandler';
-import { ChangePasswordCommandHandler } from '../modules/auth/application/commands/ChangePasswordCommandHandler';
-import { ToggleVolunteerCommandHandler } from '../modules/auth/application/commands/ToggleVolunteerCommandHandler';
-import { UpdateProfileCommand } from '../modules/auth/application/commands/UpdateProfileCommand';
-import { ChangePasswordCommand } from '../modules/auth/application/commands/ChangePasswordCommand';
-import { ToggleVolunteerCommand } from '../modules/auth/application/commands/ToggleVolunteerCommand';
+import { authActions } from '../features/auth/authActions';
 import type { User } from '../modules/auth/domain/User';
 import { isVolunteer, isOwner } from '../modules/auth/domain/User';
 
@@ -33,16 +27,10 @@ export default function UserProfile() {
     confirmPassword: ''
   });
 
-  // Initialize command handlers with useMemo to avoid recreation on every render
-  const authRepository = useMemo(() => new ApiAuthRepository(), []);
-  const updateProfileHandler = useMemo(() => new UpdateProfileCommandHandler(authRepository), [authRepository]);
-  const changePasswordHandler = useMemo(() => new ChangePasswordCommandHandler(authRepository), [authRepository]);
-  const toggleVolunteerHandler = useMemo(() => new ToggleVolunteerCommandHandler(authRepository), [authRepository]);
-
   useEffect(() => {
     const loadUserProfile = async () => {
       try {
-        const userSession = await authRepository.getCurrentUser();
+        const userSession = await authActions.currentUser();
         if (userSession) {
           setUser(userSession);
           setFormData({
@@ -65,7 +53,7 @@ export default function UserProfile() {
     };
 
     loadUserProfile();
-  }, [navigate, authRepository]);
+  }, [navigate]);
 
   // Helper function to show toast message
   const showToastMessage = () => {
@@ -92,14 +80,7 @@ export default function UserProfile() {
     setError('');
 
     try {
-      const command = new UpdateProfileCommand(
-        formData.name,
-        formData.lastName,
-        formData.email,
-        formData.description
-      );
-
-      const updatedUser = await updateProfileHandler.handle(command);
+      const updatedUser = await authActions.updateProfile(formData);
 
       // Update local user state with the complete user data from backend
       setUser(updatedUser);
@@ -140,12 +121,7 @@ export default function UserProfile() {
     setError('');
 
     try {
-      const command = new ChangePasswordCommand(
-        formData.currentPassword,
-        formData.newPassword
-      );
-
-      await changePasswordHandler.handle(command);
+      await authActions.changePassword(formData.currentPassword, formData.newPassword);
 
       // Clear password fields
       setFormData(prev => ({
@@ -182,8 +158,7 @@ export default function UserProfile() {
     setError('');
 
     try {
-      const command = new ToggleVolunteerCommand(becomesVolunteer, description);
-      const updatedUser = await toggleVolunteerHandler.handle(command);
+      const updatedUser = await authActions.toggleVolunteer(becomesVolunteer, description);
 
       // Update local user state with the complete user data from backend
       setUser(updatedUser);

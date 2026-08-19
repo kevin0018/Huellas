@@ -11,10 +11,8 @@ import ThemeSwitcher from './theme/ThemeSwitcher';
 import LanguageSwitcher from '../i18n/LanguageSwitcher';
 import { useTranslation } from '../i18n/hooks/hook';
 import { AuthService } from '../modules/auth/infra/AuthService';
-import { LogoutCommand } from '../modules/auth/application/commands/LogoutCommand';
-import { LogoutCommandHandler } from '../modules/auth/application/commands/LogoutCommandHandler';
-import { ApiAuthRepository } from '../modules/auth/infra/ApiAuthRepository';
 import { UserType, type User } from '../modules/auth/domain/User';
+import { authActions } from '../features/auth/authActions';
 
 export default function NavBar() {
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -48,11 +46,7 @@ useEffect(() => {
 
   const handleLogout = async () => {
     try {
-      const authRepository = new ApiAuthRepository();
-      const logoutHandler = new LogoutCommandHandler(authRepository);
-      const logoutCommand = new LogoutCommand();
-      
-      await logoutHandler.handle(logoutCommand);
+      await authActions.logout();
       setIsLoggedIn(false);
       navigate('/login');
       closeMenu();

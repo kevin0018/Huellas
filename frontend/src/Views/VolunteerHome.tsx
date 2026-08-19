@@ -5,13 +5,10 @@ import NavBar from "../Components/NavBar";
 import Footer from "../Components/footer";
 import GoBackButton from "../Components/GoBackButton";
 
-import { CreateVolunteerPostCommand } from "../modules/posts/application/commands/CreateVolunteerPostCommand";
-import { CreateVolunteerPostCommandHandler } from "../modules/posts/application/commands/CreateVolunteerPostCommandHandler";
 import type { PostCategory } from "../modules/posts/domain/types";
 import { AuthService } from "../modules/auth/infra/AuthService";
 import type { User } from "../modules/auth/domain/User";
-
-const createPostHandler = new CreateVolunteerPostCommandHandler();
+import { postActions } from '../features/volunteering/postActions';
 
 // Opciones de categoría para el select
 const CATEGORY_LABEL: Record<PostCategory, string> = {
@@ -79,8 +76,7 @@ function VolunteerBoard() {
 
       const expiresIso = expiresAt ? new Date(expiresAt).toISOString() : null;
 
-      const cmd = new CreateVolunteerPostCommand(title, content, category, expiresIso);
-      await createPostHandler.execute(cmd);
+      await postActions.create(title, content, category, expiresIso);
 
       setOk(true);
       navigate("/volunteer-board");

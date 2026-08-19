@@ -10,9 +10,8 @@ import { useVolunteerPosts } from "../modules/posts/application/useVolunteerPost
 import type { PostCategory, VolunteerPostListItem } from "../modules/posts/domain/types";
 
 import { AuthService } from "../modules/auth/infra/AuthService";
-import { DeleteVolunteerPostCommand } from "../modules/posts/application/commands/DeleteVolunteerPostCommand";
-import { DeleteVolunteerPostCommandHandler } from "../modules/posts/application/commands/DeleteVolunteerPostCommandHandler";
 import { useChat } from "../modules/chat/application/useChat";
+import { postActions } from '../features/volunteering/postActions';
 
 const CATEGORY_LABEL: Record<PostCategory, string> = {
   GENERAL: "General",
@@ -79,9 +78,7 @@ function VolunteerBoard() {
     const ok = window.confirm("¿Seguro que quieres eliminar este anuncio?");
     if (!ok) return;
     try {
-      const cmd = new DeleteVolunteerPostCommand(postId);
-      const handler = new DeleteVolunteerPostCommandHandler();
-      await handler.execute(cmd);
+      await postActions.remove(postId);
       await reload();
     } catch (err: unknown) {
       console.error("[VolunteerBoard] delete error:", err);
