@@ -31,19 +31,37 @@ Esta es una aplicación de gestión de salud para dueños y sus mascotas, con pe
 
 ## Arquitectura y Diseño
 
-El proyecto está diseñado siguiendo una **arquitectura hexagonal (Ports and Adapters)**, un patrón que nos permite aislar la lógica de negocio principal de las dependencias externas. Esto se logra separando el proyecto en las siguientes capas:
+Huellas es un **monolito modular** que se está ordenando de forma incremental,
+no una implementación hexagonal estricta de manual. Las capacidades del backend
+viven en `backend/src/contexts/` (identidad, mascotas, salud, citas, comunidad y
+chat). Cada contexto utiliza dominio, aplicación e infraestructura cuando hay
+reglas de negocio o adaptadores sustituibles; el código sencillo se mantiene
+sencillo.
 
-* **Dominio (`src/domain`):** El núcleo de la aplicación, donde se definen las entidades y las reglas de negocio, sin ninguna dependencia de la infraestructura.
-* **Aplicación (`src/app`):** Esta capa contiene los "casos de uso" (use cases) que orquestan las interacciones entre el dominio y el mundo exterior, utilizando las "Interfaces" (Ports) del dominio.
-* **Infraestructura (`src/infra`):** Aquí se encuentran los "adaptadores" que implementan las interfaces del dominio para conectar la aplicación con la base de datos (MySQL), los servicios web y otras herramientas.
+`backend/src/composition/createApplicationModules.ts` es la raíz de composición:
+crea repositorios, servicios de aplicación, controladores HTTP y el manejador
+WebSocket de chat. Los controladores se limitan a traducir HTTP y reciben sus
+dependencias desde el límite del módulo. Prisma queda como detalle de
+infraestructura. La superficie HTTP principal se publica como OpenAPI en
+`/api/openapi.json` y está protegida por tests de contrato.
 
 ### Frontend
 
-La parte del frontend está desarrollada con **React** y **TypeScript**. La estructura se basa en componentes reutilizables, y se organiza en módulos para cada una de las funcionalidades principales (`owners`, `pets`, `volunteers`), lo que facilita la escalabilidad y el mantenimiento del código. Para el estilado, usamos **Tailwind CSS**.
+La parte del frontend está desarrollada con **React** y **TypeScript** y se migra
+de forma incremental alrededor de `app/`, `features/`, `modules/` y `shared/`.
+Las vistas consumen servicios de aplicación compuestos centralmente y hooks por
+funcionalidad, en lugar de construir repositorios HTTP. El router valida la
+sesión remota antes de mostrar contenido privado, y tanto la navegación como las
+rutas usan las capacidades devueltas por la API. Para el estilado usamos
+**Tailwind CSS**.
 
 ### Backend
 
-El backend está construido con **Node.js** y **Express**, siguiendo la arquitectura hexagonal para asegurar un diseño limpio y desacoplado. La capa de infraestructura utiliza **MySQL** como base de datos, con adaptadores que gestionan la conexión y las consultas.
+El backend está construido con **Node.js**, **Express**, **Prisma** y **MySQL**.
+La API es un monolito modular con factories explícitas, roles y capacidades
+acumulables, soporte de sesión con Redis y chat mediante Socket.IO. Se usan
+puertos de dominio cuando aportan sustitución real o valor en tests; el proyecto
+no afirma que todos los archivos pertenezcan a una capa arquitectónica formal.
 
 ### Entorno de Desarrollo
 

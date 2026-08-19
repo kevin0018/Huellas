@@ -49,26 +49,39 @@ Future plans include integrating a volunteer system to assist users and linking 
 
 ## 🏗️ Architecture and Design
 
-The project follows a **Hexagonal Architecture (Ports and Adapters)**, a design pattern that isolates the core business logic from external dependencies.  
-It’s divided into three layers:
+Huellas is an incremental **modular monolith**, rather than a strict textbook
+hexagonal implementation. Backend capabilities live under
+`backend/src/contexts/` (identity, pets, health, appointments, community and
+chat). A context may use domain, application and infrastructure layers when it
+has business rules or replaceable adapters; simpler code is kept simple.
 
-* **Domain (`src/domain`):** Core entities and business rules, independent of infrastructure.  
-* **Application (`src/app`):** Use cases orchestrating interactions between the domain and outside world via ports (interfaces).  
-* **Infrastructure (`src/infra`):** Adapters implementing domain ports, connecting the app to MySQL and external services.
+`backend/src/composition/createApplicationModules.ts` is the composition root:
+it creates repositories, application services, HTTP controllers and the chat
+WebSocket handler. Controllers translate HTTP only and receive their
+dependencies from the module boundary. Prisma remains an infrastructure detail.
+The core HTTP surface is published as OpenAPI at `/api/openapi.json` and is
+protected by contract tests.
 
 ---
 
 ## 💻 Frontend
 
-Built with **React** and **TypeScript**, the frontend uses reusable components organized into modules (`owners`, `pets`, `volunteers`) to ensure scalability and maintainability.  
-Styling is handled with **Tailwind CSS**.
+Built with **React** and **TypeScript**, the frontend is migrated incrementally
+around `app/`, `features/`, `modules/` and `shared/`. Views consume centrally
+composed application services and feature hooks instead of constructing HTTP
+repositories. Routing validates the remote session before rendering private
+content, and both navigation and routes use the capabilities returned by the
+API. Styling is handled with **Tailwind CSS**.
 
 ---
 
 ## ⚙️ Backend
 
-Developed with **Node.js** and **Express**, strictly following hexagonal architecture for a clean, decoupled design.  
-**MySQL** is used as the database, with adapters managing connection and query logic.
+Developed with **Node.js**, **Express**, **Prisma** and **MySQL**. The API is a
+modular monolith with explicit module factories, accumulated roles/capabilities,
+Redis-backed session support and Socket.IO chat. Domain ports are used where
+they provide real substitution or test value; the project does not claim that
+every file belongs to a formal architecture layer.
 
 ---
 
