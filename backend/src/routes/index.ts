@@ -20,7 +20,7 @@ export function createRoutes(modules: ApplicationModules = createApplicationModu
 
   // Mount auth routes
   console.log('Mounting auth routes on /auth...');
-  router.use('/auth', createAuthRoutes());
+  router.use('/auth', createAuthRoutes(modules.identity));
 
   // Mount owner routes
   console.log('Mounting owner routes on /owners...');
