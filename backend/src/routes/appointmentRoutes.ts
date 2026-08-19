@@ -1,12 +1,13 @@
 import { Router } from 'express';
 import { JwtMiddleware } from '../contexts/auth/infra/middleware/JwtMiddleware.js';
 import type { AppointmentModule } from '../contexts/appointment/index.js';
+import { Capability } from '../contexts/auth/domain/AccessControl.js';
 
 export function createAppointmentRoutes({ controller }: AppointmentModule): Router {
   const router = Router();
 
   // All appointment routes require owner authentication
-  router.use(JwtMiddleware.requireOwner());
+  router.use(JwtMiddleware.requireCapability(Capability.MANAGE_APPOINTMENTS));
 
   // GET /appointments - list owner appointments
   router.get('/', async (req, res) => {

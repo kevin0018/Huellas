@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { AuthenticatedRequest, JwtMiddleware } from '../contexts/auth/infra/middleware/JwtMiddleware.js';
 import type { PetCareModule } from '../contexts/pet/index.js';
 import type { IdentityModule } from '../contexts/auth/index.js';
+import { Capability } from '../contexts/auth/domain/AccessControl.js';
 
 export function createOwnerRoutes({ pets }: PetCareModule, { ownerAccounts }: IdentityModule): Router {
   console.log('Creating owner routes...');
@@ -15,13 +16,13 @@ export function createOwnerRoutes({ pets }: PetCareModule, { ownerAccounts }: Id
   });
 
   console.log('Registering DELETE /:id route...');
-  router.delete('/:id', ...JwtMiddleware.requireOwner(), async (req, res) => {
+  router.delete('/:id', ...JwtMiddleware.requireCapability(Capability.MANAGE_PETS), async (req, res) => {
     console.log('DELETE /:id endpoint');
     await ownerAccounts.delete.handle(req, res);
   });
 
   //GET My Pets Route
-  router.get('/my-pets', ...JwtMiddleware.requireOwner(), async (req: AuthenticatedRequest, res) => {
+  router.get('/my-pets', ...JwtMiddleware.requireCapability(Capability.MANAGE_PETS), async (req: AuthenticatedRequest, res) => {
     await pets.listMine.handle(req, res);
   });
 
