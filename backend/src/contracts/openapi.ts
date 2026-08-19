@@ -62,6 +62,32 @@ export const openApiDocument = {
         },
       },
     },
+    '/owners/register': {
+      post: {
+        tags: ['Identity'], summary: 'Register an owner account', operationId: 'registerOwner',
+        requestBody: jsonBody(ref('RegisterOwnerRequest')),
+        responses: { '201': jsonResponse('Owner registered', ref('RegistrationResponse')), '400': jsonResponse('Invalid registration', ref('ApiError')), '409': jsonResponse('Email already exists', ref('ApiError')) },
+      },
+    },
+    '/volunteers/register': {
+      post: {
+        tags: ['Identity'], summary: 'Register a volunteer account', operationId: 'registerVolunteer',
+        requestBody: jsonBody(ref('RegisterVolunteerRequest')),
+        responses: { '201': jsonResponse('Volunteer registered', ref('VolunteerRegistrationResponse')), '400': jsonResponse('Invalid registration', ref('ApiError')) },
+      },
+    },
+    '/owners/my-pets': {
+      get: {
+        tags: ['Pets'], summary: 'List pets owned by the current user', operationId: 'listOwnedPets', security: bearerSecurity,
+        responses: { '200': jsonResponse('Owned pets', arrayOf('Pet')), '401': jsonResponse('Unauthenticated', ref('ApiError')), '403': jsonResponse('Owner capability required', ref('ApiError')) },
+      },
+    },
+    '/auth/logout': {
+      post: {
+        tags: ['Identity'], summary: 'Revoke the current token', operationId: 'logout', security: bearerSecurity,
+        responses: { '200': jsonResponse('Session closed', ref('MessageResponse')), '401': jsonResponse('Unauthenticated', ref('ApiError')) },
+      },
+    },
     '/auth/profile': {
       get: {
         tags: ['Identity'], summary: 'Get the current profile', operationId: 'getProfile', security: bearerSecurity,
@@ -73,10 +99,28 @@ export const openApiDocument = {
         responses: { '200': jsonResponse('Updated profile', ref('ProfileResponse')), '400': jsonResponse('Invalid profile', ref('ApiError')), '409': jsonResponse('Email already exists', ref('ApiError')) },
       },
     },
+    '/auth/password': {
+      put: {
+        tags: ['Identity'], summary: 'Change the current password', operationId: 'changePassword', security: bearerSecurity,
+        requestBody: jsonBody(ref('ChangePasswordRequest')),
+        responses: { '200': jsonResponse('Password changed', ref('MessageResponse')), '400': jsonResponse('Invalid password', ref('ApiError')), '401': jsonResponse('Current password is incorrect', ref('ApiError')) },
+      },
+    },
+    '/auth/volunteer': {
+      post: {
+        tags: ['Identity'], summary: 'Add a volunteer profile to the current identity', operationId: 'createVolunteerProfile', security: bearerSecurity,
+        requestBody: jsonBody(ref('CreateVolunteerProfileRequest')),
+        responses: { '201': jsonResponse('Volunteer profile created', ref('ProfileResponse')), '400': jsonResponse('Invalid profile', ref('ApiError')), '409': jsonResponse('Volunteer profile already exists', ref('ApiError')) },
+      },
+      delete: {
+        tags: ['Identity'], summary: 'Remove the current volunteer profile', operationId: 'deleteVolunteerProfile', security: bearerSecurity,
+        responses: { '200': jsonResponse('Volunteer profile removed', ref('ProfileResponse')), '404': jsonResponse('Volunteer profile not found', ref('ApiError')) },
+      },
+    },
     '/pets': {
       post: {
         tags: ['Pets'], summary: 'Register a pet', operationId: 'createPet', security: bearerSecurity,
-        requestBody: jsonBody(ref('PetInput')),
+        requestBody: jsonBody(ref('CreatePetRequest')),
         responses: { '201': jsonResponse('Pet registered', ref('Pet')), '400': jsonResponse('Invalid pet', ref('ApiError')), '403': jsonResponse('Owner capability required', ref('ApiError')) },
       },
     },
@@ -96,6 +140,33 @@ export const openApiDocument = {
         responses: { '204': jsonResponse('Pet deleted'), '404': jsonResponse('Pet not found', ref('ApiError')) },
       },
     },
+    '/pets/{petId}/procedures': {
+      parameters: [idParameter('petId')],
+      get: {
+        tags: ['Health'], summary: 'Get the preventive plan for an owned pet', operationId: 'getPetProcedures', security: bearerSecurity,
+        responses: { '200': jsonResponse('Preventive plan', arrayOf('PetProcedure')), '400': jsonResponse('Plan could not be calculated', ref('ApiError')), '404': jsonResponse('Pet not found', ref('ApiError')) },
+      },
+    },
+    '/pets/{petId}/checkup': {
+      parameters: [idParameter('petId')],
+      post: {
+        tags: ['Health'], summary: 'Record a legacy preventive checkup', operationId: 'createCheckup', security: bearerSecurity,
+        requestBody: jsonBody(ref('CreateCheckupRequest')),
+        responses: { '201': jsonResponse('Checkup created', ref('Checkup')), '400': jsonResponse('Invalid checkup', ref('ApiError')), '404': jsonResponse('Pet or procedure not found', ref('ApiError')) },
+      },
+    },
+    '/checkups/{checkupId}': {
+      parameters: [idParameter('checkupId')],
+      patch: {
+        tags: ['Health'], summary: 'Update an owned legacy checkup', operationId: 'updateCheckup', security: bearerSecurity,
+        requestBody: jsonBody(ref('UpdateCheckupRequest')),
+        responses: { '200': jsonResponse('Checkup updated', ref('Checkup')), '400': jsonResponse('Invalid checkup', ref('ApiError')), '404': jsonResponse('Checkup or procedure not found', ref('ApiError')) },
+      },
+      delete: {
+        tags: ['Health'], summary: 'Delete an owned legacy checkup', operationId: 'deleteCheckup', security: bearerSecurity,
+        responses: { '204': jsonResponse('Checkup deleted'), '404': jsonResponse('Checkup not found', ref('ApiError')) },
+      },
+    },
     '/appointments': {
       get: {
         tags: ['Appointments'], summary: 'List the owner appointments', operationId: 'listAppointments', security: bearerSecurity,
@@ -103,7 +174,7 @@ export const openApiDocument = {
       },
       post: {
         tags: ['Appointments'], summary: 'Schedule an appointment', operationId: 'createAppointment', security: bearerSecurity,
-        requestBody: jsonBody(ref('AppointmentInput')),
+        requestBody: jsonBody(ref('CreateAppointmentRequest')),
         responses: { '201': jsonResponse('Appointment created', ref('Appointment')), '400': jsonResponse('Invalid appointment', ref('ApiError')) },
       },
     },
@@ -131,7 +202,7 @@ export const openApiDocument = {
       },
       post: {
         tags: ['Health'], summary: 'Add a health event', operationId: 'createHealthEvent', security: bearerSecurity,
-        requestBody: jsonBody(ref('HealthEventInput')),
+        requestBody: jsonBody(ref('CreateHealthEventRequest')),
         responses: { '201': jsonResponse('Health event created', ref('HealthEvent')), '400': jsonResponse('Invalid health event', ref('ApiError')) },
       },
     },
@@ -139,7 +210,7 @@ export const openApiDocument = {
       parameters: [idParameter('eventId')],
       put: {
         tags: ['Health'], summary: 'Replace a health event', operationId: 'updateHealthEvent', security: bearerSecurity,
-        requestBody: jsonBody(ref('HealthEventInput')),
+        requestBody: jsonBody(ref('UpdateHealthEventRequest')),
         responses: { '200': jsonResponse('Updated event', ref('HealthEvent')), '400': jsonResponse('Invalid event', ref('ApiError')), '404': jsonResponse('Event not found', ref('ApiError')) },
       },
       delete: {
@@ -159,7 +230,7 @@ export const openApiDocument = {
       parameters: [idParameter('documentId')],
       get: {
         tags: ['Health'], summary: 'Download a private health document', operationId: 'downloadHealthDocument', security: bearerSecurity,
-        responses: { '200': { description: 'Original document bytes', content: { 'application/octet-stream': { schema: { type: 'string', format: 'binary' } } } }, '404': jsonResponse('Document not found', ref('ApiError')) },
+        responses: { '200': { description: 'Original document bytes', content: { 'application/pdf': { schema: { type: 'string', format: 'binary' } }, 'image/jpeg': { schema: { type: 'string', format: 'binary' } }, 'image/png': { schema: { type: 'string', format: 'binary' } }, 'image/webp': { schema: { type: 'string', format: 'binary' } } } }, '404': jsonResponse('Document not found', ref('ApiError')) },
       },
       delete: {
         tags: ['Health'], summary: 'Delete a health document', operationId: 'deleteHealthDocument', security: bearerSecurity,
@@ -231,6 +302,7 @@ export const openApiDocument = {
     },
     schemas: {
       ApiError: { type: 'object', required: ['error'], properties: { error: { type: 'string' } } },
+      MessageResponse: { type: 'object', additionalProperties: false, required: ['message'], properties: { message: { type: 'string' } } },
       LoginRequest: { type: 'object', additionalProperties: false, required: ['email', 'password'], properties: { email: { type: 'string', format: 'email' }, password: { type: 'string', format: 'password' } } },
       AuthSession: { type: 'object', required: ['token', 'user'], properties: { token: { type: 'string' }, user: ref('UserProfile') } },
       ProfileResponse: { type: 'object', required: ['user'], properties: { message: { type: 'string' }, user: ref('UserProfile') } },
@@ -238,26 +310,38 @@ export const openApiDocument = {
         type: 'object', required: ['id', 'name', 'lastName', 'email', 'type', 'roles', 'capabilities'],
         properties: {
           id: { type: 'integer' }, name: { type: 'string' }, lastName: { type: 'string' }, email: { type: 'string', format: 'email' }, type: { type: 'string', enum: ['owner', 'volunteer'], description: 'Legacy primary profile; use roles and capabilities for authorization.' }, description: { type: 'string', nullable: true },
-          roles: { type: 'array', items: { type: 'string', enum: ['owner', 'volunteer'] } },
-          capabilities: { type: 'array', items: { type: 'string' } },
+          roles: { type: 'array', uniqueItems: true, items: { type: 'string', enum: ['owner', 'volunteer'] } },
+          capabilities: { type: 'array', uniqueItems: true, items: { type: 'string', enum: ['manage:pets', 'manage:health', 'manage:appointments', 'publish:volunteer-posts', 'use:chat'] } },
         },
       },
+      RegisterOwnerRequest: { type: 'object', additionalProperties: false, required: ['name', 'lastName', 'email', 'password'], properties: { name: { type: 'string', minLength: 1 }, lastName: { type: 'string', minLength: 1 }, email: { type: 'string', format: 'email' }, password: { type: 'string', format: 'password' } } },
+      RegistrationResponse: { type: 'object', additionalProperties: false, required: ['message', 'data'], properties: { message: { type: 'string' }, data: { type: 'object', additionalProperties: false, required: ['id', 'name', 'lastName', 'email'], properties: { id: { type: 'integer' }, name: { type: 'string' }, lastName: { type: 'string' }, email: { type: 'string', format: 'email' } } } } },
+      RegisterVolunteerRequest: { type: 'object', additionalProperties: false, required: ['name', 'lastName', 'email', 'password', 'description'], properties: { name: { type: 'string', minLength: 1 }, lastName: { type: 'string', minLength: 1 }, email: { type: 'string', format: 'email' }, password: { type: 'string', format: 'password' }, description: { type: 'string', minLength: 1 } } },
+      VolunteerRegistrationResponse: { type: 'object', additionalProperties: false, required: ['success', 'data'], properties: { success: { type: 'boolean', enum: [true] }, data: { type: 'object', additionalProperties: false, required: ['id', 'message'], properties: { id: { type: 'integer' }, message: { type: 'string' } } } } },
       UpdateProfileRequest: { type: 'object', additionalProperties: false, required: ['name', 'lastName', 'email'], properties: { name: { type: 'string' }, lastName: { type: 'string' }, email: { type: 'string', format: 'email' }, description: { type: 'string', nullable: true } } },
-      PetInput: {
+      ChangePasswordRequest: { type: 'object', additionalProperties: false, required: ['currentPassword', 'newPassword'], properties: { currentPassword: { type: 'string', format: 'password' }, newPassword: { type: 'string', format: 'password', minLength: 8 } } },
+      CreateVolunteerProfileRequest: { type: 'object', additionalProperties: false, required: ['description'], properties: { description: { type: 'string', minLength: 1 } } },
+      CreatePetRequest: {
         type: 'object', required: ['name', 'type', 'birthDate', 'size', 'sex', 'hasPassport'],
         properties: {
-          name: { type: 'string' }, race: { type: 'string', nullable: true }, type: { type: 'string', enum: ['dog', 'cat', 'ferret'] }, birthDate: { type: 'string', format: 'date' }, size: { type: 'string', enum: ['small', 'medium', 'large'] }, sex: { type: 'string', enum: ['male', 'female'] }, hasPassport: { type: 'boolean' }, microchipCode: { type: 'string', nullable: true }, passportNumber: { type: 'string', nullable: true }, countryOfOrigin: { type: 'string', nullable: true }, notes: { type: 'string', nullable: true }, allergies: { type: 'string', nullable: true }, activeMedications: { type: 'string', nullable: true }, medicalConditions: { type: 'string', nullable: true },
+          name: { type: 'string', minLength: 1 }, race: { type: 'string', nullable: true }, type: { type: 'string', enum: ['dog', 'cat', 'ferret'] }, birthDate: { type: 'string', format: 'date-time' }, size: { type: 'string', enum: ['small', 'medium', 'large'] }, sex: { type: 'string', enum: ['male', 'female'] }, hasPassport: { type: 'boolean' }, ownerId: { type: 'integer', minimum: 1, description: 'Accepted for backwards compatibility but ignored; ownership is derived from the bearer token.' }, microchipCode: { type: 'string', nullable: true }, passportNumber: { type: 'string', nullable: true }, countryOfOrigin: { type: 'string', nullable: true }, notes: { type: 'string', nullable: true }, allergies: { type: 'string', nullable: true }, activeMedications: { type: 'string', nullable: true }, medicalConditions: { type: 'string', nullable: true },
         },
       },
-      Pet: { allOf: [{ type: 'object', required: ['id'], properties: { id: { type: 'integer' } } }, ref('PetInput')] },
-      PetUpdateInput: { type: 'object', minProperties: 1, properties: { name: { type: 'string' }, race: { type: 'string', nullable: true }, type: { type: 'string', enum: ['dog', 'cat', 'ferret'] }, birthDate: { type: 'string', format: 'date' }, size: { type: 'string', enum: ['small', 'medium', 'large'] }, sex: { type: 'string', enum: ['male', 'female'] }, hasPassport: { type: 'boolean' }, microchipCode: { type: 'string', nullable: true }, passportNumber: { type: 'string', nullable: true }, countryOfOrigin: { type: 'string', nullable: true }, notes: { type: 'string', nullable: true }, allergies: { type: 'string', nullable: true }, activeMedications: { type: 'string', nullable: true }, medicalConditions: { type: 'string', nullable: true } } },
-      AppointmentInput: { type: 'object', required: ['petId', 'date', 'reason'], properties: { petId: { type: 'integer', minimum: 1 }, date: { type: 'string', format: 'date-time' }, reason: { type: 'string', enum: ['VACCINATION', 'GENERAL_CHECKUP', 'ANTI_PARASITIC_PRESCRIPTION', 'OPERATION', 'OTHERS'] }, status: { type: 'string', enum: ['scheduled', 'completed', 'cancelled', 'no_show'] }, notes: { type: 'string', nullable: true } } },
-      Appointment: { allOf: [{ type: 'object', required: ['id'], properties: { id: { type: 'integer' } } }, ref('AppointmentInput')] },
+      Pet: { allOf: [{ type: 'object', required: ['id', 'ownerId'], properties: { id: { type: 'integer' }, ownerId: { type: 'integer', minimum: 1 } } }, ref('CreatePetRequest')] },
+      PetUpdateInput: { type: 'object', minProperties: 1, properties: { name: { type: 'string', minLength: 1 }, race: { type: 'string', nullable: true }, type: { type: 'string', enum: ['dog', 'cat', 'ferret'] }, birthDate: { type: 'string', format: 'date-time' }, size: { type: 'string', enum: ['small', 'medium', 'large'] }, sex: { type: 'string', enum: ['male', 'female'] }, hasPassport: { type: 'boolean' }, microchipCode: { type: 'string', nullable: true }, passportNumber: { type: 'string', nullable: true }, countryOfOrigin: { type: 'string', nullable: true }, notes: { type: 'string', nullable: true }, allergies: { type: 'string', nullable: true }, activeMedications: { type: 'string', nullable: true }, medicalConditions: { type: 'string', nullable: true } } },
+      PetProcedure: { type: 'object', required: ['id', 'petType', 'name', 'age', 'description', 'status', 'dueAt', 'lastOccurredAt', 'recurrenceDays', 'explanation', 'source', 'version', 'region'], properties: { id: { type: 'integer' }, petType: { type: 'string', enum: ['dog', 'cat', 'ferret'] }, name: { type: 'string' }, age: { type: 'integer' }, description: { type: 'string', nullable: true }, status: { type: 'string', enum: ['DONE', 'MISSING', 'UPCOMING'] }, dueAt: { type: 'string', format: 'date-time', nullable: true }, lastOccurredAt: { type: 'string', format: 'date-time', nullable: true }, recurrenceDays: { type: 'integer', nullable: true }, explanation: { type: 'string' }, source: { type: 'string' }, version: { type: 'string' }, region: { type: 'string' } } },
+      CreateCheckupRequest: { type: 'object', required: ['procedureId', 'date'], properties: { procedureId: { type: 'integer', minimum: 1 }, date: { type: 'string', format: 'date' }, notes: { type: 'string', nullable: true } } },
+      UpdateCheckupRequest: { type: 'object', minProperties: 1, properties: { procedureId: { type: 'integer', minimum: 1 }, date: { type: 'string', format: 'date' }, notes: { type: 'string', nullable: true }, petId: { type: 'integer', minimum: 1, description: 'Legacy client field; authorization uses the checkup resource.' }, checkupId: { type: 'integer', minimum: 1, description: 'Legacy client field; the path parameter is authoritative.' } } },
+      Checkup: { type: 'object', required: ['id', 'petId', 'procedureId', 'date', 'notes'], properties: { id: { type: 'integer' }, petId: { type: 'integer' }, procedureId: { type: 'integer' }, date: { type: 'string', format: 'date-time' }, notes: { type: 'string', nullable: true } } },
+      CreateAppointmentRequest: { type: 'object', additionalProperties: false, required: ['petId', 'date', 'reason'], properties: { petId: { type: 'integer', minimum: 1 }, date: { type: 'string', format: 'date-time' }, reason: { type: 'string', enum: ['VACCINATION', 'GENERAL_CHECKUP', 'ANTI_PARASITIC_PRESCRIPTION', 'OPERATION', 'OTHERS'] }, notes: { type: 'string', nullable: true } } },
+      Appointment: { type: 'object', additionalProperties: false, required: ['id', 'petId', 'date', 'reason', 'status', 'notes'], properties: { id: { type: 'integer' }, petId: { type: 'integer', minimum: 1 }, date: { type: 'string', format: 'date-time' }, reason: { type: 'string', enum: ['VACCINATION', 'GENERAL_CHECKUP', 'ANTI_PARASITIC_PRESCRIPTION', 'OPERATION', 'OTHERS'] }, status: { type: 'string', enum: ['scheduled', 'completed', 'cancelled', 'no_show'] }, notes: { type: 'string', nullable: true } } },
       AppointmentUpdateInput: { type: 'object', minProperties: 1, properties: { date: { type: 'string', format: 'date-time' }, reason: { type: 'string', enum: ['VACCINATION', 'GENERAL_CHECKUP', 'ANTI_PARASITIC_PRESCRIPTION', 'OPERATION', 'OTHERS'] }, status: { type: 'string', enum: ['scheduled', 'completed', 'cancelled', 'no_show'] }, notes: { type: 'string', nullable: true } } },
       HealthDocument: { type: 'object', required: ['id', 'petId', 'fileName', 'mimeType', 'sizeBytes', 'createdAt'], properties: { id: { type: 'integer' }, petId: { type: 'integer' }, healthEventId: { type: 'integer', nullable: true }, fileName: { type: 'string' }, mimeType: { type: 'string' }, sizeBytes: { type: 'integer' }, createdAt: { type: 'string', format: 'date-time' } } },
-      HealthDocumentInput: { type: 'object', additionalProperties: false, required: ['fileName', 'mimeType', 'contentBase64'], properties: { healthEventId: { type: 'integer', nullable: true }, fileName: { type: 'string' }, mimeType: { type: 'string' }, contentBase64: { type: 'string', format: 'byte', description: 'Base64 content; decoded file size is limited to 5 MB.' } } },
-      HealthEventInput: { type: 'object', required: ['type', 'occurredAt', 'title'], properties: { type: { type: 'string', enum: ['VACCINATION', 'GENERAL_CHECKUP', 'MEDICATION', 'TREATMENT', 'TEST', 'SURGERY', 'WEIGHT', 'OTHER'] }, occurredAt: { type: 'string', format: 'date-time' }, title: { type: 'string', maxLength: 120 }, notes: { type: 'string', nullable: true, maxLength: 5000 }, provider: { type: 'string', nullable: true }, result: { type: 'string', nullable: true }, dose: { type: 'string', nullable: true }, lotNumber: { type: 'string', nullable: true }, expiresAt: { type: 'string', format: 'date-time', nullable: true }, sourceAppointmentId: { type: 'integer', nullable: true } } },
-      HealthEvent: { allOf: [{ type: 'object', required: ['id', 'petId', 'source', 'verification', 'attachments'], properties: { id: { type: 'integer' }, petId: { type: 'integer' }, source: { type: 'string', enum: ['OWNER', 'LEGACY_CHECKUP', 'APPOINTMENT'] }, verification: { type: 'string', enum: ['OWNER_REPORTED', 'VERIFIED'] }, attachments: arrayOf('HealthDocument'), createdAt: { type: 'string', format: 'date-time' }, updatedAt: { type: 'string', format: 'date-time' } } }, ref('HealthEventInput')] },
+      HealthDocumentInput: { type: 'object', additionalProperties: false, required: ['fileName', 'mimeType', 'contentBase64'], properties: { healthEventId: { type: 'integer', minimum: 1, nullable: true }, fileName: { type: 'string', minLength: 1, maxLength: 191, pattern: '^[^\\r\\n]+$' }, mimeType: { type: 'string', enum: ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'] }, contentBase64: { type: 'string', format: 'byte', minLength: 4, maxLength: 6990508, description: 'Base64 content; decoded file size is limited to 5 MB and its signature must match mimeType.' } } },
+      HealthEventFields: { type: 'object', required: ['type', 'occurredAt', 'title'], properties: { type: { type: 'string', enum: ['VACCINATION', 'GENERAL_CHECKUP', 'MEDICATION', 'TREATMENT', 'TEST', 'SURGERY', 'WEIGHT', 'OTHER'] }, occurredAt: { type: 'string', format: 'date-time' }, title: { type: 'string', minLength: 1, maxLength: 120 }, notes: { type: 'string', nullable: true, maxLength: 5000 }, provider: { type: 'string', nullable: true, maxLength: 191 }, result: { type: 'string', nullable: true, maxLength: 5000 }, dose: { type: 'string', nullable: true, maxLength: 120 }, lotNumber: { type: 'string', nullable: true, maxLength: 120 }, expiresAt: { type: 'string', format: 'date-time', nullable: true } } },
+      CreateHealthEventRequest: { allOf: [ref('HealthEventFields'), { type: 'object', properties: { sourceAppointmentId: { type: 'integer', minimum: 1, nullable: true } } }] },
+      UpdateHealthEventRequest: { allOf: [ref('HealthEventFields'), { not: { required: ['sourceAppointmentId'] } }] },
+      HealthEvent: { allOf: [{ type: 'object', required: ['id', 'petId', 'enteredBy', 'source', 'verification', 'attachments', 'createdAt', 'updatedAt'], properties: { id: { type: 'integer' }, petId: { type: 'integer' }, enteredBy: { type: 'integer' }, verifiedBy: { type: 'integer', nullable: true }, source: { type: 'string', enum: ['OWNER', 'LEGACY_CHECKUP', 'APPOINTMENT'] }, verification: { type: 'string', enum: ['OWNER_REPORTED', 'VERIFIED'] }, sourceAppointmentId: { type: 'integer', nullable: true }, attachments: arrayOf('HealthDocument'), createdAt: { type: 'string', format: 'date-time' }, updatedAt: { type: 'string', format: 'date-time' } } }, ref('HealthEventFields')] },
       HealthSummaryOptions: { type: 'object', properties: { sections: { type: 'array', minItems: 1, uniqueItems: true, items: { type: 'string', enum: ['identity', 'critical', 'vaccinations', 'events'] } }, periodFrom: { type: 'string', format: 'date-time', nullable: true }, periodTo: { type: 'string', format: 'date-time', nullable: true } } },
       CreateHealthShareRequest: { allOf: [ref('HealthSummaryOptions'), { type: 'object', properties: { expiresInHours: { type: 'integer', minimum: 1, maximum: 168, default: 24 } } }] },
       HealthShare: { type: 'object', required: ['id', 'expiresAt', 'createdAt'], properties: { id: { type: 'integer' }, expiresAt: { type: 'string', format: 'date-time' }, revokedAt: { type: 'string', format: 'date-time', nullable: true }, createdAt: { type: 'string', format: 'date-time' } } },
