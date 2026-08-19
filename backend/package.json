@@ -2,6 +2,7 @@
   "name": "huellas-api",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.10.0",
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
@@ -17,8 +18,8 @@
     "prisma:studio": "prisma studio",
     "prisma:status": "prisma migrate status",
     "db:seed": "tsx src/db/seed.ts",
-    "db:reset": "prisma db push --force-reset && npm run db:seed",
-    "db:migrate:dev": "prisma migrate dev && npm run db:seed"
+    "db:reset": "prisma db push --force-reset && pnpm db:seed",
+    "db:migrate:dev": "prisma migrate dev && pnpm db:seed"
   },
   "prisma": {
     "seed": "tsx src/db/seed.ts"
@@ -54,5 +55,14 @@
     "tsx": "^4.20.3",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@prisma/client",
+      "@prisma/engines",
+      "bcrypt",
+      "esbuild",
+      "prisma"
+    ]
   }
 }

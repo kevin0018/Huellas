@@ -16,9 +16,12 @@ container.
 
 ## Run only the frontend locally
 
+Enable Corepack once so it can select the pnpm version declared by the project:
+
 ```bash
-npm ci
-npm run dev
+corepack enable
+pnpm install --frozen-lockfile
+pnpm dev
 ```
 
 The local Vite proxy targets `http://localhost:3000` by default. Set
@@ -27,8 +30,8 @@ The local Vite proxy targets `http://localhost:3000` by default. Set
 ## Commands
 
 ```bash
-npm run dev
-npm run build
-npm run lint
-npm run test:run
+pnpm dev
+pnpm build
+pnpm lint
+pnpm test:run
 ```

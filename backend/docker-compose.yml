@@ -43,7 +43,7 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    command: ["sh", "-c", "npm run prisma:deploy && npm run dev"]
+    command: ["sh", "-c", "pnpm prisma:deploy && pnpm dev"]
   mysql:
     image: mysql:8.4
     container_name: Huellas_db

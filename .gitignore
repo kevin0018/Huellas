@@ -7,3 +7,8 @@
 /docs/roadmap*.md
 /docs/TODO*.md
 /docs/todo*.md
+
+# pnpm is the only supported package manager
+package-lock.json
+npm-shrinkwrap.json
+yarn.lock
