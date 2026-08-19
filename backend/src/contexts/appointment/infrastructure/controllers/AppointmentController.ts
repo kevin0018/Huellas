@@ -1,6 +1,4 @@
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
-import { PrismaAppointmentRepository } from '../persistence/PrismaAppointmentRepository.js';
 import { CreateAppointmentCommandHandler } from '../../app/commands/createAppointment/CreateAppointmentCommandHandler.js';
 import { CreateAppointmentCommand } from '../../app/commands/createAppointment/CreateAppointmentCommand.js';
 import { UpdateAppointmentCommandHandler } from '../../app/commands/updateAppointment/UpdateAppointmentCommandHandler.js';
@@ -19,24 +17,17 @@ export function parseZonedDate(value: unknown): Date | null {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
-export class AppointmentController {
-  private readonly prisma: PrismaClient;
-  private readonly appointmentRepository: PrismaAppointmentRepository;
-  private readonly createAppointmentHandler: CreateAppointmentCommandHandler;
-  private readonly updateAppointmentHandler: UpdateAppointmentCommandHandler;
-  private readonly deleteAppointmentHandler: DeleteAppointmentCommandHandler;
-  private readonly getAppointmentsByOwnerHandler: GetAppointmentsByOwnerQueryHandler;
-  private readonly getAppointmentByIdHandler: GetAppointmentByIdQueryHandler;
+export interface AppointmentControllerDependencies {
+  createAppointment: CreateAppointmentCommandHandler;
+  updateAppointment: UpdateAppointmentCommandHandler;
+  deleteAppointment: DeleteAppointmentCommandHandler;
+  getAppointmentsByOwner: GetAppointmentsByOwnerQueryHandler;
+  getAppointmentById: GetAppointmentByIdQueryHandler;
+  synchronizeReminder: (appointmentId: number, status: AppointmentStatus) => Promise<void>;
+}
 
-  constructor(prisma: PrismaClient) {
-    this.prisma = prisma;
-    this.appointmentRepository = new PrismaAppointmentRepository(prisma);
-    this.createAppointmentHandler = new CreateAppointmentCommandHandler(this.appointmentRepository);
-    this.updateAppointmentHandler = new UpdateAppointmentCommandHandler(this.appointmentRepository);
-    this.deleteAppointmentHandler = new DeleteAppointmentCommandHandler(this.appointmentRepository);
-    this.getAppointmentsByOwnerHandler = new GetAppointmentsByOwnerQueryHandler(this.appointmentRepository);
-    this.getAppointmentByIdHandler = new GetAppointmentByIdQueryHandler(this.appointmentRepository);
-  }
+export class AppointmentController {
+  constructor(private readonly dependencies: AppointmentControllerDependencies) {}
 
   async createAppointment(req: Request, res: Response): Promise<void> {
     try {
@@ -72,7 +63,7 @@ export class AppointmentController {
         notes
       );
 
-      const appointment = await this.createAppointmentHandler.handle(command);
+      const appointment = await this.dependencies.createAppointment.handle(command);
       
       res.status(201).json({
         id: appointment.id,
@@ -124,12 +115,8 @@ export class AppointmentController {
         status as AppointmentStatus | undefined
       );
 
-      const appointment = await this.updateAppointmentHandler.handle(command);
-      if (appointment.status === AppointmentStatus.COMPLETED) {
-        await this.prisma.reminder.updateMany({ where: { source_key: `appointment:${appointment.id}`, status: 'PENDING' }, data: { status: 'COMPLETED', completed_at: new Date(), generated_action_at: new Date() } });
-      } else if (appointment.status === AppointmentStatus.CANCELLED || appointment.status === AppointmentStatus.NO_SHOW) {
-        await this.prisma.reminder.updateMany({ where: { source_key: `appointment:${appointment.id}`, status: 'PENDING' }, data: { status: 'CANCELLED', cancelled_at: new Date() } });
-      }
+      const appointment = await this.dependencies.updateAppointment.handle(command);
+      await this.dependencies.synchronizeReminder(appointment.id!, appointment.status);
       
       res.json({
         id: appointment.id,
@@ -162,7 +149,7 @@ export class AppointmentController {
       const appointmentId = parseInt(req.params.id);
 
       const command = new DeleteAppointmentCommand(appointmentId, ownerId);
-      await this.deleteAppointmentHandler.handle(command);
+      await this.dependencies.deleteAppointment.handle(command);
       
       res.status(204).send();
     } catch (error) {
@@ -186,7 +173,7 @@ export class AppointmentController {
       }
 
       const query = new GetAppointmentsByOwnerQuery(ownerId);
-      const appointments = await this.getAppointmentsByOwnerHandler.handle(query);
+      const appointments = await this.dependencies.getAppointmentsByOwner.handle(query);
       
       res.json(appointments.map((appointment) => ({
         id: appointment.id,
@@ -213,7 +200,7 @@ export class AppointmentController {
       const appointmentId = parseInt(req.params.id);
 
       const query = new GetAppointmentByIdQuery(appointmentId, ownerId);
-      const appointment = await this.getAppointmentByIdHandler.handle(query);
+      const appointment = await this.dependencies.getAppointmentById.handle(query);
       
       if (!appointment) {
         res.status(404).json({ error: 'Appointment not found' });

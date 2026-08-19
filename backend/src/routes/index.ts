@@ -12,8 +12,9 @@ import { createHealthEventRoutes } from './healthEventRoutes.js';
 import { createHealthDocumentRoutes } from './healthDocumentRoutes.js';
 import { createReminderRoutes } from './reminderRoutes.js';
 import { createHealthShareRoutes, createPublicHealthShareRoutes } from './healthShareRoutes.js';
+import { createApplicationModules, type ApplicationModules } from '../composition/createApplicationModules.js';
 
-export function createRoutes(): Router {
+export function createRoutes(modules: ApplicationModules = createApplicationModules()): Router {
   console.log('Creating main routes...');
   const router = Router();
 
@@ -47,7 +48,7 @@ export function createRoutes(): Router {
 
   // Mount appointment routes
   console.log('Mounting appointment routes on /appointments...');
-  router.use('/appointments', createAppointmentRoutes());
+  router.use('/appointments', createAppointmentRoutes(modules.appointments));
 
   router.use('/health-events', createHealthEventRoutes());
   router.use('/health-documents', createHealthDocumentRoutes());
