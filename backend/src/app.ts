@@ -6,6 +6,7 @@ import { testRoutes } from './test-routes.js';
 import { RedisService } from './config/RedisService.js';
 import { config } from './config/env.js';
 import { createRateLimiter, errorHandler, notFoundHandler, securityHeaders } from './middleware/security.js';
+import { openApiDocument } from './contracts/openapi.js';
 
 export async function buildApp() {
   const app = express();
@@ -55,6 +56,9 @@ export async function buildApp() {
 
   // API routes
   console.log('Setting up API routes...');
+  app.get('/api/openapi.json', (_req, res) => {
+    res.json(openApiDocument);
+  });
   app.use('/api/auth/login', createRateLimiter({
     windowMs: 15 * 60 * 1000,
     max: 10,
