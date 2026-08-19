@@ -13,6 +13,9 @@ export type CreatePetRequest = {
   countryOfOrigin: string | null;
   passportNumber: string | null;
   notes: string | null;
+  allergies?: string | null;
+  activeMedications?: string | null;
+  medicalConditions?: string | null;
 };
 
 export type EditPetRequest = {
@@ -27,4 +30,7 @@ export type EditPetRequest = {
   countryOfOrigin?: string | null;
   passportNumber?: string | null;
   notes?: string | null;
+  allergies?: string | null;
+  activeMedications?: string | null;
+  medicalConditions?: string | null;
 };

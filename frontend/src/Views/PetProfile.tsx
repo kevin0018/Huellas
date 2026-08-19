@@ -128,6 +128,20 @@ const PetProfile: React.FC = () => {
                 </div>
               </div>
 
+              {(pet?.allergies || pet?.activeMedications || pet?.medicalConditions) && (
+                <section className="mb-6 grid w-full gap-4 md:grid-cols-3" aria-label="Información sanitaria crítica">
+                  <div className="rounded-xl border-2 border-red-300 bg-red-50 p-5 text-red-950">
+                    <h3 className="font-bold">Alergias</h3><p className="mt-2 whitespace-pre-wrap">{pet.allergies || 'Ninguna registrada'}</p>
+                  </div>
+                  <div className="rounded-xl border-2 border-amber-300 bg-amber-50 p-5 text-amber-950">
+                    <h3 className="font-bold">Medicación activa</h3><p className="mt-2 whitespace-pre-wrap">{pet.activeMedications || 'Ninguna registrada'}</p>
+                  </div>
+                  <div className="rounded-xl border-2 border-purple-300 bg-purple-50 p-5 text-purple-950">
+                    <h3 className="font-bold">Condiciones relevantes</h3><p className="mt-2 whitespace-pre-wrap">{pet.medicalConditions || 'Ninguna registrada'}</p>
+                  </div>
+                </section>
+              )}
+
               {/* Details */}
               <div className="themed-card themed-card-invL p-8 w-full 3xl:max-w-[90%] rounded-xl bg-[#FDF2DE] dark:bg-[#51344D]">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-6 text-center">

@@ -40,6 +40,9 @@ export class ApiPetRepository implements PetRepository {
         (pet.passport_number as string) ??
         undefined,
       notes: (pet.notes as string) ?? undefined,
+      allergies: (pet.allergies as string) ?? undefined,
+      activeMedications: ((pet.activeMedications as string) ?? (pet.active_medications as string)) || undefined,
+      medicalConditions: ((pet.medicalConditions as string) ?? (pet.medical_conditions as string)) || undefined,
     };
   }
 
@@ -126,6 +129,9 @@ export class ApiPetRepository implements PetRepository {
       countryOfOrigin: data.countryOfOrigin?.trim() || null,
       passportNumber: data.passportNumber?.trim() || null,
       notes: data.notes?.trim() || null,
+      allergies: data.allergies?.trim() || null,
+      activeMedications: data.activeMedications?.trim() || null,
+      medicalConditions: data.medicalConditions?.trim() || null,
     };
 
     if (ownerId) body.ownerId = ownerId;
@@ -161,6 +167,9 @@ export class ApiPetRepository implements PetRepository {
       | 'countryOfOrigin'
       | 'passportNumber'
       | 'notes'
+      | 'allergies'
+      | 'activeMedications'
+      | 'medicalConditions'
     >>
   ): Promise<Pet> {
     const body: Record<string, unknown> = {
@@ -183,6 +192,9 @@ export class ApiPetRepository implements PetRepository {
         passportNumber: data.passportNumber?.trim() || null,
       }),
       ...(data.notes !== undefined && { notes: data.notes?.trim() || null }),
+      ...(data.allergies !== undefined && { allergies: data.allergies?.trim() || null }),
+      ...(data.activeMedications !== undefined && { activeMedications: data.activeMedications?.trim() || null }),
+      ...(data.medicalConditions !== undefined && { medicalConditions: data.medicalConditions?.trim() || null }),
     };
 
     const res = await fetch(`${this.baseUrl}/pets/${id}`, {

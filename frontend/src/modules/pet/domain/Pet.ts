@@ -35,6 +35,9 @@ export interface Pet {
   countryOfOrigin?: string | null;
   passportNumber?: string | null;
   notes?: string | null;
+  allergies?: string | null;
+  activeMedications?: string | null;
+  medicalConditions?: string | null;
 }
 
 // Helper functions
@@ -89,6 +92,9 @@ export const clone = (pet: Pet): Pet => {
     hasPassport: pet.hasPassport,
     countryOfOrigin: pet.countryOfOrigin,
     passportNumber: pet.passportNumber,
-    notes: pet.notes
+    notes: pet.notes,
+    allergies: pet.allergies,
+    activeMedications: pet.activeMedications,
+    medicalConditions: pet.medicalConditions
   };
 };

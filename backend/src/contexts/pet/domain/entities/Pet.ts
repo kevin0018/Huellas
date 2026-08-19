@@ -14,6 +14,9 @@ export class Pet {
   private countryOfOrigin: string | null;
   private passportNumber: string | null;
   private notes: string | null;
+  private allergies: string | null;
+  private activeMedications: string | null;
+  private medicalConditions: string | null;
 
   public getId(): number {
     return this.id;
@@ -119,6 +122,10 @@ export class Pet {
     this.notes = notes;
   }
 
+  public getAllergies(): string | null { return this.allergies; }
+  public getActiveMedications(): string | null { return this.activeMedications; }
+  public getMedicalConditions(): string | null { return this.medicalConditions; }
+
   constructor(
     id: number,
     name: string,
@@ -132,7 +139,10 @@ export class Pet {
     hasPassport: boolean,
     countryOfOrigin: string | null,
     passportNumber: string | null,
-    notes: string | null
+    notes: string | null,
+    allergies: string | null = null,
+    activeMedications: string | null = null,
+    medicalConditions: string | null = null
   ) {
     this.id = id;
     this.name = name;
@@ -147,5 +157,8 @@ export class Pet {
     this.countryOfOrigin = countryOfOrigin;
     this.passportNumber = passportNumber;
     this.notes = notes;
+    this.allergies = allergies;
+    this.activeMedications = activeMedications;
+    this.medicalConditions = medicalConditions;
   }
 }

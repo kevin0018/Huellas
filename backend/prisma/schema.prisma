@@ -151,6 +151,9 @@ model Pet {
   country_of_origin String?
   passport_number   String?
   notes             String?
+  allergies         String?  @db.Text
+  active_medications String? @db.Text
+  medical_conditions String? @db.Text
 
   owner        Owner         @relation(fields: [owner_id], references: [id], onDelete: Cascade, onUpdate: Restrict)
   checkups     Checkup[]

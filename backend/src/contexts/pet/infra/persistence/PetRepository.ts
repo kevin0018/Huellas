@@ -26,7 +26,7 @@ export class PetRepository implements IPetRepository {
       pet.has_passport,
       pet.country_of_origin,
       pet.passport_number,
-      pet.notes
+      pet.notes, pet.allergies, pet.active_medications, pet.medical_conditions
     );
   }
 
@@ -44,7 +44,10 @@ export class PetRepository implements IPetRepository {
         has_passport: pet.hasPassport,
         country_of_origin: pet.countryOfOrigin,
         passport_number: pet.passportNumber,
-        notes: pet.notes
+        notes: pet.notes,
+        allergies: pet.allergies,
+        active_medications: pet.activeMedications,
+        medical_conditions: pet.medicalConditions
 
       }
     })
@@ -62,7 +65,7 @@ export class PetRepository implements IPetRepository {
       savedPet.has_passport,
       savedPet.country_of_origin,
       savedPet.passport_number,
-      savedPet.notes
+      savedPet.notes, savedPet.allergies, savedPet.active_medications, savedPet.medical_conditions
     );
 
     return newPet;
@@ -92,7 +95,10 @@ export class PetRepository implements IPetRepository {
         ...(data.hasPassport !== undefined && { has_passport: data.hasPassport }),
         ...(data.countryOfOrigin !== undefined && { country_of_origin: data.countryOfOrigin }),
         ...(data.passportNumber !== undefined && { passport_number: data.passportNumber }),
-        ...(data.notes !== undefined && { notes: data.notes })
+        ...(data.notes !== undefined && { notes: data.notes }),
+        ...(data.allergies !== undefined && { allergies: data.allergies }),
+        ...(data.activeMedications !== undefined && { active_medications: data.activeMedications }),
+        ...(data.medicalConditions !== undefined && { medical_conditions: data.medicalConditions })
       },
     })
 
@@ -109,7 +115,7 @@ export class PetRepository implements IPetRepository {
       editedPet.has_passport,
       editedPet.country_of_origin,
       editedPet.passport_number,
-      editedPet.notes
+      editedPet.notes, editedPet.allergies, editedPet.active_medications, editedPet.medical_conditions
     )
 
     return pet;
@@ -135,7 +141,7 @@ export class PetRepository implements IPetRepository {
       item.has_passport,
       item.country_of_origin,
       item.passport_number,
-      item.notes
+      item.notes, item.allergies, item.active_medications, item.medical_conditions
     ))
 
     return pets;

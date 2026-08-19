@@ -30,6 +30,9 @@ const PetRegister: React.FC = () => {
     countryOfOrigin: "",      // always enabled
     passportNumber: "",       // disabled when hasPassport = false
     notes: "",
+    allergies: "",
+    activeMedications: "",
+    medicalConditions: "",
   });
 
   function onChange<K extends keyof Omit<Pet, "id" | "ownerId">>(
@@ -64,6 +67,9 @@ const PetRegister: React.FC = () => {
           // Keep passport number disabled when hasPassport = false
           passportNumber: pet.passportNumber || "",
           notes: pet.notes || "",
+          allergies: pet.allergies || "",
+          activeMedications: pet.activeMedications || "",
+          medicalConditions: pet.medicalConditions || "",
         });
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e));
@@ -94,6 +100,9 @@ const PetRegister: React.FC = () => {
           countryOfOrigin: form.countryOfOrigin?.trim() || null,
           passportNumber: form.hasPassport ? (form.passportNumber?.trim() || null) : null,
           notes: form.notes?.trim() || null,
+          allergies: form.allergies?.trim() || null,
+          activeMedications: form.activeMedications?.trim() || null,
+          medicalConditions: form.medicalConditions?.trim() || null,
         });
       } else {
         await repo.create({
@@ -108,6 +117,9 @@ const PetRegister: React.FC = () => {
           countryOfOrigin: form.countryOfOrigin?.trim() || undefined,         // <- no null
           passportNumber: form.hasPassport ? (form.passportNumber?.trim() || undefined) : undefined, // <- no null
           notes: form.notes?.trim() || undefined,                              // <- no null
+          allergies: form.allergies?.trim() || undefined,
+          activeMedications: form.activeMedications?.trim() || undefined,
+          medicalConditions: form.medicalConditions?.trim() || undefined,
         });
       }
 
@@ -255,6 +267,15 @@ const PetRegister: React.FC = () => {
                 </div>
 
                 {/* Comentarios */}
+                {(['allergies', 'activeMedications', 'medicalConditions'] as const).map((field) => (
+                  <div className="md:col-span-2" key={field}>
+                    <label htmlFor={field} className="block text-sm font-medium">
+                      {field === 'allergies' ? 'Alergias' : field === 'activeMedications' ? 'Medicación activa' : 'Condiciones relevantes'}
+                    </label>
+                    <textarea id={field} value={form[field] ?? ''} onChange={(event) => onChange(field, event.target.value)}
+                      className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm" />
+                  </div>
+                ))}
                 <div className="md:col-span-2">
                   <label htmlFor="notes" className="block text-sm font-medium">Comentarios Adicionales</label>
                   <textarea id="notes" value={form.notes ?? ''}

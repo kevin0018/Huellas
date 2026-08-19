@@ -12,7 +12,7 @@ export class PatchPetController {
 
   async handle(req: Request, res: Response) {
     try {
-      const { name, race, type, size, microchipCode, sex, hasPassport, countryOfOrigin, passportNumber, notes } = req.body;
+      const { name, race, type, size, microchipCode, sex, hasPassport, countryOfOrigin, passportNumber, notes, allergies, activeMedications, medicalConditions } = req.body;
       const birthDate = req.body.birthDate ? new Date(req.body.birthDate) : undefined;
 
       const id = parseInt(req.params.id);
@@ -41,7 +41,10 @@ export class PatchPetController {
         hasPassport,
         countryOfOrigin,
         passportNumber,
-        notes
+        notes,
+        allergies: allergies === undefined ? undefined : (typeof allergies === 'string' && allergies.trim() ? allergies.trim() : null),
+        activeMedications: activeMedications === undefined ? undefined : (typeof activeMedications === 'string' && activeMedications.trim() ? activeMedications.trim() : null),
+        medicalConditions: medicalConditions === undefined ? undefined : (typeof medicalConditions === 'string' && medicalConditions.trim() ? medicalConditions.trim() : null)
       });
 
       return res.status(200).send(pet);

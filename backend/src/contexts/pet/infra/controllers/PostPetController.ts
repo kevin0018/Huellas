@@ -15,7 +15,7 @@ export class PostPetController {
     try {
       const {
         name, race, type, birthDate, size, microchipCode,
-        sex, hasPassport, countryOfOrigin, passportNumber, notes,
+        sex, hasPassport, countryOfOrigin, passportNumber, notes, allergies, activeMedications, medicalConditions,
       } = req.body;
 
       const currentDate = new Date();
@@ -46,6 +46,9 @@ export class PostPetController {
         countryOfOrigin,
         passportNumber,
         notes,
+        allergies: typeof allergies === 'string' && allergies.trim() ? allergies.trim() : null,
+        activeMedications: typeof activeMedications === 'string' && activeMedications.trim() ? activeMedications.trim() : null,
+        medicalConditions: typeof medicalConditions === 'string' && medicalConditions.trim() ? medicalConditions.trim() : null,
       });
 
       return res.status(201).send(pet);
