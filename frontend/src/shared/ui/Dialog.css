@@ -1,0 +1,168 @@
+/* Hallmark · component: dialog-and-form · genre: playful · theme: Huellas
+ * states: default · hover · focus · active · disabled · loading · error · success
+ * critique: P5 H5 E5 S5 R5 V4
+ * contrast: pass (40–41)
+ */
+
+.dialog {
+  position: fixed;
+  inset: 0;
+  width: min(calc(100% - var(--space-8)), 34rem);
+  max-width: none;
+  max-height: min(88dvh, 44rem);
+  margin: auto;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  background: transparent;
+  color: var(--color-ink);
+}
+
+.dialog[data-size="large"] { width: min(calc(100% - var(--space-8)), 44rem); }
+.dialog:not([open]) { display: none; }
+
+.dialog::backdrop {
+  background: var(--color-backdrop);
+  backdrop-filter: blur(2px);
+}
+
+.dialog__surface {
+  display: flex;
+  max-height: min(88dvh, 44rem);
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--color-rule-strong);
+  border-radius: var(--radius-card);
+  background: var(--color-surface-raised);
+  box-shadow: var(--shadow-dialog);
+  color: var(--color-ink);
+}
+
+.dialog__header {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-5) var(--space-4);
+  border-block-end: 1px solid var(--color-rule);
+}
+
+.dialog__heading { min-width: 0; }
+.dialog__title { font-size: var(--text-md); }
+.dialog__description { margin-block-start: var(--space-1); color: var(--color-muted); font-size: var(--text-sm); }
+
+.dialog__close {
+  display: inline-grid;
+  width: 2.75rem;
+  min-width: 2.75rem;
+  height: 2.75rem;
+  place-items: center;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--color-muted);
+  transition: color var(--duration-short) var(--ease-out), background-color var(--duration-short) var(--ease-out), transform var(--duration-instant) var(--ease-out);
+}
+
+.dialog__close svg { width: 1.35rem; height: 1.35rem; }
+.dialog__close:active { transform: translateY(1px); background: var(--color-paper-3); }
+.dialog__body { min-height: 0; overflow-y: auto; padding: var(--space-5); overscroll-behavior: contain; }
+
+.modal-form { display: grid; gap: var(--space-5); }
+.modal-form__grid { display: grid; gap: var(--space-4); }
+.modal-form__actions { display: flex; flex-wrap: wrap-reverse; justify-content: flex-end; gap: var(--space-3); padding-block-start: var(--space-4); border-block-start: 1px solid var(--color-rule); }
+.modal-form__actions > * { flex: 1 1 9rem; }
+
+.form-field { display: grid; min-width: 0; gap: var(--space-1); }
+.form-label { color: var(--color-ink); font-size: var(--text-sm); font-weight: 700; }
+.form-label__optional { color: var(--color-muted); font-weight: 400; }
+
+.form-control {
+  width: 100%;
+  min-height: 2.75rem;
+  border: 1px solid var(--color-rule-strong);
+  border-radius: var(--radius-control);
+  outline: 2px solid transparent;
+  outline-offset: 1px;
+  background: var(--color-surface-raised);
+  color: var(--color-ink);
+  padding: var(--space-2) var(--space-3);
+  transition: background-color var(--duration-short) var(--ease-out), border-color var(--duration-short) var(--ease-out);
+}
+
+textarea.form-control { min-height: 6rem; resize: vertical; }
+.form-control::placeholder { color: var(--color-neutral); }
+.form-control:focus-visible { border-color: var(--color-ink-soft); outline-color: var(--color-focus); }
+.form-control[aria-invalid="true"], .form-control[data-state="error"] { border-color: var(--color-error); }
+.form-control[data-state="success"] { border-color: var(--color-success); }
+.form-control[aria-busy="true"] { cursor: progress; }
+
+.form-help,
+.form-error { min-height: 1lh; color: var(--color-muted); font-size: var(--text-sm); line-height: 1.4; }
+.form-error { color: var(--color-error); }
+
+.form-alert {
+  padding: var(--space-3);
+  border: 1px solid var(--color-error);
+  border-radius: var(--radius-control);
+  background: var(--color-error-soft);
+  color: var(--color-error);
+  font-size: var(--text-sm);
+}
+
+.ui-button {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-control);
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  transition: background-color var(--duration-short) var(--ease-out), color var(--duration-short) var(--ease-out), transform var(--duration-instant) var(--ease-out);
+}
+
+.ui-button--secondary { border-color: var(--color-rule-strong); background: var(--color-surface-raised); color: var(--color-ink); }
+.ui-button--danger { border-color: var(--color-error); background: var(--color-error); color: var(--color-error-ink); }
+.ui-button:active { transform: translateY(1px); }
+.ui-button[aria-busy="true"] { cursor: progress; }
+.ui-button[data-state="error"] { border-color: var(--color-error); }
+.ui-button[data-state="success"] { border-color: var(--color-success); background: var(--color-success); color: var(--color-success-ink); }
+
+.ui-spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid currentColor;
+  border-inline-end-color: transparent;
+  border-radius: var(--radius-pill);
+  animation: ui-spin var(--duration-medium) linear infinite;
+}
+
+@keyframes ui-spin { to { transform: rotate(360deg); } }
+
+@media (hover: hover) and (pointer: fine) {
+  .dialog__close:hover { background: var(--color-paper-2); color: var(--color-ink); }
+  .form-control:hover:not(:disabled) { background: var(--color-paper-2); }
+  .ui-button:hover:not(:disabled) { background: var(--color-accent-hover); color: var(--color-accent-ink); }
+  .ui-button--secondary:hover:not(:disabled) { background: var(--color-paper-2); color: var(--color-ink); }
+  .ui-button--danger:hover:not(:disabled) { background: var(--color-error-hover); color: var(--color-error-ink); }
+}
+
+@media (min-width: 40rem) {
+  .modal-form__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .modal-form__actions > * { flex: 0 0 auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialog__close,
+  .form-control,
+  .ui-button { transition-duration: 0.01ms; }
+  .ui-spinner { animation-duration: 1ms; animation-iteration-count: 1; }
+}

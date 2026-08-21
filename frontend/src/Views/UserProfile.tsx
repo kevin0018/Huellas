@@ -172,17 +172,19 @@ export default function UserProfile() {
       showToastMessage();
     } catch (error) {
       // TODO: Add translation
-      setError(error instanceof Error ? error.message : 'Error al actualizar el estado de voluntario');
+      const message = error instanceof Error ? error.message : 'Error al actualizar el estado de voluntario';
+      setError(message);
+      throw error instanceof Error ? error : new Error(message);
     } finally {
       setIsLoading(false);
-      setPendingVolunteerChange(null);
     }
   };
 
   const handleVolunteerModalSubmit = async (description?: string) => {
-    setIsVolunteerModalOpen(false);
     if (pendingVolunteerChange !== null) {
       await executeVolunteerToggle(pendingVolunteerChange, description);
+      setIsVolunteerModalOpen(false);
+      setPendingVolunteerChange(null);
     }
   };
 

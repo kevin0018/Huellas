@@ -52,7 +52,6 @@ function ProceduresView() {
       await checkupRepository.create(petId, { procedureId, notes: checkupNotes, date: checkupDate })
     }
 
-    handleCloseModal();
     await loadData();
   };
 
@@ -89,10 +88,8 @@ function ProceduresView() {
           <ProcedureModal
             isOpen={isModalOpen}
             onClose={handleCloseModal}
-            // 4. Se pasa la función de guardado al modal.
             onModalSubmit={onModalSubmit}
             procedure={editingProcedure}
-          //initialState={procedures[editingProcedure.id]}
           />
         )}
 

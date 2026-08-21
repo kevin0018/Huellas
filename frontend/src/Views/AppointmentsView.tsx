@@ -9,7 +9,7 @@ import { useAppointments, type SaveAppointment } from '../features/appointments/
 import { AsyncContent } from '../shared/ui/AsyncContent.js';
 
 function AppointmentsView() {
-  const { appointments, pets, loading, actionLoading, error, reload, save, remove, petById } = useAppointments();
+  const { appointments, pets, loading, actionLoading, error, clearError, reload, save, remove, petById } = useAppointments();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAppointment, setEditingAppointment] = useState<Appointment | undefined>();
 
@@ -24,6 +24,7 @@ function AppointmentsView() {
   };
 
   const handleEditAppointment = (appointment: Appointment) => {
+    clearError();
     setEditingAppointment(appointment);
     setIsModalOpen(true);
   };
@@ -41,8 +42,16 @@ function AppointmentsView() {
   };
 
   const handleCloseModal = () => {
+    if (actionLoading) return;
+    clearError();
     setIsModalOpen(false);
     setEditingAppointment(undefined);
+  };
+
+  const handleOpenModal = () => {
+    clearError();
+    setEditingAppointment(undefined);
+    setIsModalOpen(true);
   };
 
   const now = Date.now();
@@ -78,7 +87,7 @@ function AppointmentsView() {
             
             {/* Create appointment button */}
             <button
-              onClick={() => setIsModalOpen(true)}
+              onClick={handleOpenModal}
               disabled={pets.length === 0 || actionLoading}
               className="
                 inline-flex items-center gap-3 px-6 py-3
@@ -137,6 +146,7 @@ function AppointmentsView() {
           pets={pets}
           appointment={editingAppointment}
           loading={actionLoading}
+          error={error ?? undefined}
         />
       </div>
       <Footer />

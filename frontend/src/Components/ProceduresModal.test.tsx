@@ -1,0 +1,99 @@
+// @vitest-environment jsdom
+
+import '@testing-library/jest-dom/vitest';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
+import type { PetProcedure } from '../modules/pet/domain/PetProcedure';
+import ProcedureModal from './ProceduresModal';
+
+beforeAll(() => {
+  Object.defineProperty(HTMLDialogElement.prototype, 'showModal', {
+    configurable: true,
+    value(this: HTMLDialogElement) {
+      this.setAttribute('open', '');
+    },
+  });
+  Object.defineProperty(HTMLDialogElement.prototype, 'close', {
+    configurable: true,
+    value(this: HTMLDialogElement) {
+      this.removeAttribute('open');
+    },
+  });
+});
+
+afterEach(cleanup);
+
+const procedure: PetProcedure = {
+  id: 7,
+  petType: 'dog',
+  name: 'Vacuna anual',
+  age: 2,
+  description: 'Protección anual recomendada.',
+  status: 'UPCOMING',
+  checkupId: 12,
+  checkupDate: '2026-09-18T23:00:00.000Z',
+  checkupNotes: 'Primera nota',
+  dueAt: null,
+  lastOccurredAt: null,
+  recurrenceDays: 365,
+  explanation: 'Calendario veterinario',
+  source: 'Huellas',
+  version: '1',
+  region: 'ES',
+};
+
+const deferred = () => {
+  let resolve!: () => void;
+  const promise = new Promise<void>((resolvePromise) => {
+    resolve = resolvePromise;
+  });
+  return { promise, resolve };
+};
+
+describe('ProcedureModal', () => {
+  it('submits normalized controlled values and blocks closing while saving', async () => {
+    const user = userEvent.setup();
+    const saving = deferred();
+    const onClose = vi.fn();
+    const onModalSubmit = vi.fn(() => saving.promise);
+
+    render(
+      <ProcedureModal isOpen onClose={onClose} onModalSubmit={onModalSubmit} procedure={procedure} />,
+    );
+
+    expect(screen.getByRole('dialog', { name: 'Vacuna anual' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Fecha de realización')).toHaveValue('2026-09-18');
+    expect(screen.getByLabelText(/Notas/)).toHaveValue('Primera nota');
+
+    await user.clear(screen.getByLabelText(/Notas/));
+    await user.type(screen.getByLabelText(/Notas/), '  Revisión completada  ');
+    await user.click(screen.getByRole('button', { name: 'Guardar cambios' }));
+
+    expect(onModalSubmit).toHaveBeenCalledWith(7, 12, '2026-09-18', 'Revisión completada');
+    expect(screen.getByRole('dialog')).toHaveAttribute('aria-busy', 'true');
+    expect(screen.getByRole('button', { name: 'Cancelar' })).toBeDisabled();
+
+    fireEvent(screen.getByRole('dialog'), new Event('cancel', { bubbles: false, cancelable: true }));
+    expect(onClose).not.toHaveBeenCalled();
+
+    saving.resolve();
+    await vi.waitFor(() => expect(onClose).toHaveBeenCalledOnce());
+  });
+
+  it('stays open and announces repository errors', async () => {
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+    const onModalSubmit = vi.fn().mockRejectedValue(new Error('No se pudo actualizar'));
+
+    render(
+      <ProcedureModal isOpen onClose={onClose} onModalSubmit={onModalSubmit} procedure={procedure} />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Guardar cambios' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('No se pudo actualizar');
+    expect(onClose).not.toHaveBeenCalled();
+    expect(screen.getByRole('button', { name: 'Guardar cambios' })).toBeEnabled();
+  });
+});

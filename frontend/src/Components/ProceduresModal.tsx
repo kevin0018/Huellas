@@ -1,73 +1,108 @@
-import React, { useState } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import type { PetProcedure } from '../modules/pet/domain/PetProcedure';
+import { Dialog } from '../shared/ui/Dialog';
 
 interface ProcedureModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onModalSubmit: (procedureId: number, checkupId?: number, checkupDate?: string, checkupNotes?: string) => void;
+  onModalSubmit: (
+    procedureId: number,
+    checkupId?: number,
+    checkupDate?: string,
+    checkupNotes?: string,
+  ) => Promise<void>;
   procedure: PetProcedure;
 }
 
-const ProcedureModal: React.FC<ProcedureModalProps> = ({ isOpen, onClose, onModalSubmit, procedure }) => {
+const inputDate = (value?: string) => value?.slice(0, 10) ?? '';
 
-  const [date, setDate] = useState(procedure.checkupDate);
-  const [notes, setNotes] = useState(procedure.checkupNotes);
+const ProcedureModal = ({ isOpen, onClose, onModalSubmit, procedure }: ProcedureModalProps) => {
+  const [date, setDate] = useState(() => inputDate(procedure.checkupDate));
+  const [notes, setNotes] = useState(procedure.checkupNotes ?? '');
+  const [isSaving, setIsSaving] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
-  // No renderiza nada si el modal no está abierto
-  if (!isOpen) return null;
+  useEffect(() => {
+    if (!isOpen) return;
 
-  const handleEditCheckupDate = (newDate: string) => {
-    setDate(newDate);
-  }
+    setDate(inputDate(procedure.checkupDate));
+    setNotes(procedure.checkupNotes ?? '');
+    setIsSaving(false);
+    setSubmitError('');
+  }, [isOpen, procedure]);
 
-  const handleEditCheckupNotes = (newNotes: string) => {
-    setNotes(newNotes);
-  }
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsSaving(true);
+    setSubmitError('');
 
-  const handleSubmit = () => {
-    // Llama a la función onSubmit del componente padre con los datos actualizados
-    onModalSubmit(procedure.id, procedure.checkupId, date, notes);
+    try {
+      await onModalSubmit(
+        procedure.id,
+        procedure.checkupId,
+        date || undefined,
+        notes.trim() || undefined,
+      );
+      onClose();
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : 'No se pudieron guardar los cambios. Inténtalo de nuevo.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
-    <div className="fixed inset-0 flex justify-center items-center z-50 p-4" onClick={onClose}>
-      <div className="bg-gray-50 rounded-xl shadow-2xl w-full max-w-lg" onClick={(e) => e.stopPropagation()}>
-        <header className="flex justify-between items-center p-4 border-b">
-          <h2 className="text-2xl text-gray-800">{procedure.name}</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-800">
-            <svg xmlns="http://www.w.org/2000/svg" fill="none" viewBox="0 0 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+    <Dialog
+      closeLabel="Cerrar edición del procedimiento"
+      description={procedure.description ?? undefined}
+      isOpen={isOpen}
+      onClose={onClose}
+      preventClose={isSaving}
+      title={procedure.name}
+    >
+      <form className="modal-form" onSubmit={handleSubmit}>
+        <div className="modal-form__grid">
+          <div className="form-field">
+            <label className="form-label" htmlFor="procedure-date">Fecha de realización</label>
+            <input
+              className="form-control"
+              disabled={isSaving}
+              id="procedure-date"
+              onChange={(event) => setDate(event.target.value)}
+              type="date"
+              value={date}
+            />
+          </div>
+
+          <div className="form-field">
+            <label className="form-label" htmlFor="procedure-notes">
+              Notas <span className="form-label__optional">(opcional)</span>
+            </label>
+            <textarea
+              className="form-control"
+              disabled={isSaving}
+              id="procedure-notes"
+              onChange={(event) => setNotes(event.target.value)}
+              placeholder="Añadir notas…"
+              rows={3}
+              value={notes}
+            />
+          </div>
+        </div>
+
+        {submitError && <p className="form-alert" role="alert">{submitError}</p>}
+
+        <div className="modal-form__actions">
+          <button className="ui-button ui-button--secondary" disabled={isSaving} onClick={onClose} type="button">
+            Cancelar
           </button>
-        </header>
-        <main className="p-6">
-          <p className="mb-4 text-gray-700">{procedure.description}</p>
-
-          <div className="grid grid-cols-1 gap-4 mb-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Fecha de realización</label>
-              <input
-                type="date"
-                className="mt-1 block w-full sm:text-sm border-gray-300 rounded-md p-2"
-                value={date ? new Date(date).toISOString().split('T')[0] : ''}
-                onChange={(e) => handleEditCheckupDate(e.target.value)}
-              />
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Notas</label>
-            <textarea rows={3} className="mt-1 block w-full sm:text-sm border-gray-300 rounded-md p-2" placeholder="Añadir notas..." value={notes} onChange={(e) => handleEditCheckupNotes(e.target.value)}></textarea>
-          </div>
-
-          <div className="flex justify-end pt-4 mt-4 border-t">
-            <button onClick={onClose} className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg mr-2">
-              Cancelar
-            </button>
-            <button onClick={handleSubmit} className="bg-[#51344D] hover:bg-[#A89B9D] transition text-white font-bold py-2 px-4 rounded-lg">
-              Guardar Cambios
-            </button>
-          </div>
-        </main>
-      </div>
-    </div>
+          <button aria-busy={isSaving || undefined} className="ui-button" disabled={isSaving} type="submit">
+            {isSaving && <span aria-hidden="true" className="ui-spinner" />}
+            {isSaving ? 'Guardando…' : 'Guardar cambios'}
+          </button>
+        </div>
+      </form>
+    </Dialog>
   );
 };
 

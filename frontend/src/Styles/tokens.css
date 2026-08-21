@@ -30,6 +30,11 @@
   --color-success: oklch(42% 0.105 151);
   --color-warning: oklch(43% 0.105 67);
   --color-error: oklch(45% 0.16 25);
+  --color-error-hover: oklch(39% 0.15 25);
+  --color-error-soft: oklch(94% 0.035 25);
+  --color-error-ink: oklch(97% 0.018 82);
+  --color-success-ink: oklch(97% 0.018 82);
+  --color-backdrop: oklch(16% 0.04 326 / 0.7);
 
   --space-1: 0.25rem;
   --space-2: 0.5rem;
@@ -51,6 +56,7 @@
   --shadow-card-hover: 0 0.75rem 2rem -0.75rem oklch(28% 0.07 326 / 0.34);
   --shadow-nav: 0 0.5rem 1.5rem -1rem oklch(28% 0.07 326 / 0.42);
   --shadow-avatar: drop-shadow(0 0.75rem 1rem oklch(28% 0.07 326 / 0.24));
+  --shadow-dialog: 0 1.25rem 3.5rem -1.5rem oklch(16% 0.04 326 / 0.62);
 
   --duration-instant: 100ms;
   --duration-short: 180ms;
@@ -87,6 +93,10 @@
   --color-success: oklch(76% 0.1 151);
   --color-warning: oklch(79% 0.11 75);
   --color-error: oklch(76% 0.12 25);
+  --color-error-hover: oklch(82% 0.1 25);
+  --color-error-soft: oklch(25% 0.055 25);
+  --color-error-ink: oklch(19% 0.045 326);
+  --color-success-ink: oklch(19% 0.045 326);
 }
 
 .font-caprasimo { font-family: var(--font-display); }
