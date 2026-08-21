@@ -8,6 +8,9 @@
 /docs/TODO*.md
 /docs/todo*.md
 
+# Local design audit artifacts
+/.hallmark/
+
 # pnpm is the only supported package manager
 package-lock.json
 npm-shrinkwrap.json

@@ -1,30 +1,93 @@
-/**
- * Design tokens for Huellas (colors, fonts, radii, spacing).
- * Adjust in one place to update the whole app.
-*/
+/* Hallmark · genre: playful · macrostructure: Workbench · theme: Huellas · enrichment: typography-only · nav: N1b */
+@import url("https://fonts.googleapis.com/css2?family=Caprasimo&family=Geist:wght@400;600;700&display=swap");
 
-/* Typography */
-@import url('https://fonts.googleapis.com/css2?family=Caprasimo&family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
-.font-caprasimo { font-family: 'Caprasimo', serif; }
-
-.font-nunito { font-family: 'Nunito', sans-serif; }
-
-h1 h2 h3 h4 h5 h6 {
-  font-family: 'Caprasimo', serif;
-}
-
-
-
-/* Brand palette */
 :root {
-  --huellas-eggplant: #51344D;
-  --huellas-lavender-1: #9886AD;
-  --huellas-lavender-2: #BAA9CB;
-  --huellas-rose-quartz: #c7b9bb;
-  --huellas-ice: #C6E2EF;
-  --huellas-cream: #FDF2DE;
-  --huellas-gray: #928d8e;
+  --font-display: "Caprasimo", ui-serif, Georgia, serif;
+  --font-body: "Geist", ui-sans-serif, sans-serif;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-md: 1.25rem;
+  --text-lg: 1.5625rem;
+  --text-xl: 1.953rem;
+  --text-2xl: 2.441rem;
+  --text-display: clamp(2.25rem, 5vw + 0.5rem, 4.25rem);
+
+  --color-paper: oklch(97% 0.018 82);
+  --color-paper-2: oklch(94% 0.021 82);
+  --color-paper-3: oklch(91% 0.022 326);
+  --color-surface: oklch(98.5% 0.011 82);
+  --color-surface-raised: oklch(99% 0.008 82);
+  --color-rule: oklch(82% 0.025 326);
+  --color-rule-strong: oklch(68% 0.035 326);
+  --color-neutral: oklch(48% 0.025 326);
+  --color-muted: oklch(39% 0.028 326);
+  --color-ink: oklch(28% 0.07 326);
+  --color-ink-soft: oklch(36% 0.055 326);
+  --color-accent: oklch(39% 0.095 326);
+  --color-accent-hover: oklch(34% 0.09 326);
+  --color-accent-ink: oklch(97% 0.018 82);
+  --color-focus: oklch(65% 0.08 326);
+  --color-success: oklch(42% 0.105 151);
+  --color-warning: oklch(43% 0.105 67);
+  --color-error: oklch(45% 0.16 25);
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  --radius-control: 0.5rem;
+  --radius-card: 0.75rem;
+  --radius-pill: 9999px;
+  --page-gutter: clamp(1rem, 4vw, 2rem);
+  --page-max: 76rem;
+  --shadow-card: 0 0.5rem 1.5rem -0.75rem oklch(28% 0.07 326 / 0.28);
+  --shadow-card-hover: 0 0.75rem 2rem -0.75rem oklch(28% 0.07 326 / 0.34);
+  --shadow-nav: 0 0.5rem 1.5rem -1rem oklch(28% 0.07 326 / 0.42);
+  --shadow-avatar: drop-shadow(0 0.75rem 1rem oklch(28% 0.07 326 / 0.24));
+
+  --duration-instant: 100ms;
+  --duration-short: 180ms;
+  --duration-medium: 280ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --huellas-eggplant: var(--color-accent);
+  --huellas-lavender-1: oklch(65% 0.06 306);
+  --huellas-lavender-2: oklch(75% 0.045 306);
+  --huellas-rose-quartz: var(--color-paper-3);
+  --huellas-ice: oklch(88% 0.04 226);
+  --huellas-cream: var(--color-paper);
+  --huellas-gray: var(--color-neutral);
 }
 
-/* Radii */
-:root { --radius-pill: 9999px; }
+.dark {
+  --color-paper: oklch(18% 0.04 326);
+  --color-paper-2: oklch(21% 0.045 326);
+  --color-paper-3: oklch(25% 0.05 326);
+  --color-surface: oklch(23% 0.042 326);
+  --color-surface-raised: oklch(27% 0.045 326);
+  --color-rule: oklch(38% 0.035 326);
+  --color-rule-strong: oklch(52% 0.035 326);
+  --color-neutral: oklch(72% 0.025 326);
+  --color-muted: oklch(80% 0.022 326);
+  --color-ink: oklch(95% 0.012 82);
+  --color-ink-soft: oklch(88% 0.018 82);
+  --color-accent: oklch(80% 0.075 326);
+  --color-accent-hover: oklch(86% 0.06 326);
+  --color-accent-ink: oklch(19% 0.045 326);
+  --color-focus: oklch(51% 0.06 326);
+  --color-success: oklch(76% 0.1 151);
+  --color-warning: oklch(79% 0.11 75);
+  --color-error: oklch(76% 0.12 25);
+}
+
+.font-caprasimo { font-family: var(--font-display); }
+.font-nunito { font-family: var(--font-body); }

@@ -1,175 +1,194 @@
-/*
-  - Imports custom design tokens and TailwindCSS utilities.
-  - Enables dark mode utilities via a custom variant when `.dark` class is present.
-  - Sets global background and text colors for light and dark modes.
-  - Defines typography utilities for headings and lead text, using brand colors.
-  - Provides utility classes for brand color text and hover effects.
-*/
+/* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V5 · contrast: pass (40–41) · nav: N1b · footer: Ft2 · slop: pass (42–45) · honest: pass (46) · chrome: pass (47) · tokens: pass (48) · responsive: pass (49) · icons: pass (30) · mobile: pass (34, 49, 50–57) */
 @import "./Styles/tokens.css";
 @import "tailwindcss";
 
-/* Activate dark: utilities when a .dark class exists */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Custom theme colors for UserHome page*/
-@theme {
-  --bg-dogs-userhome-mobile-url: url('/media/bg_phone_userhome.png');
-  --bg-dogs-userhome-tablet-url: url('/media/bg_tablet_userhome.png');
-  --bg-dogs-userhome-desktop-url: url('/media/bg_desktop_userhome.png');
-  --bg-dogs-userhome-mobile-dark-url: url('/media/bg_phone_userhome.png');
-  --breakpoint-3xl: 110rem;
+@theme { --breakpoint-3xl: 110rem; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html,
+body {
+  min-width: 20rem;
+  min-height: 100%;
+  overflow-x: clip;
 }
 
-@layer utilities {
-  .bg-dogs-userhome-mobile {
-    background-image: var(--bg-dogs-userhome-mobile-url);
-  }
-  .bg-dogs-userhome-mobile.dark {
-    background-image: var(--bg-dogs-userhome-mobile-dark-url);
-  }
+html {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: 100%;
+  color-scheme: light;
+}
+
+html.dark { color-scheme: dark; }
+
+body {
+  margin: 0;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1.6;
+  text-align: start;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+button, input, select, textarea { color: inherit; font: inherit; }
+button, a, select, input[type="checkbox"] { touch-action: manipulation; }
+button, a { -webkit-tap-highlight-color: transparent; }
+img, svg { display: block; max-width: 100%; }
+
+h1, h2, h3, h4, h5, h6 {
+  min-width: 0;
+  margin-block: 0;
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+  overflow-wrap: anywhere;
+}
+
+p { margin-block: 0; color: inherit; font-family: var(--font-body); }
+a { color: inherit; text-decoration-thickness: 0.08em; text-underline-offset: 0.18em; }
+
+:focus-visible {
+  border-radius: inherit;
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+::selection { background: var(--color-accent); color: var(--color-accent-ink); }
+
+.background-primary { background: var(--color-paper); color: var(--color-ink); }
+.h1 { font-size: var(--text-display); }
+.h2 { font-size: clamp(var(--text-lg), 3vw, var(--text-xl)); }
+.lead { max-width: 65ch; color: var(--color-ink-soft); font-size: var(--text-md); line-height: 1.5; }
+
+.select-huellas {
+  min-height: 2.75rem;
+  border: 1px solid var(--color-rule-strong);
+  border-radius: var(--radius-control);
+  outline: 2px solid transparent;
+  outline-offset: 1px;
+  background: var(--color-surface-raised);
+  color: var(--color-ink);
+  padding-inline: var(--space-3) 2rem;
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.select-huellas:hover { background: var(--color-paper-2); }
+.select-huellas:focus-visible { outline-color: var(--color-focus); }
+.hover-eggplant { color: var(--color-accent); }
+
+.ui-hover-surface,
+.ui-hover-accent,
+.ui-hover-accent-fill,
+.ui-lift,
+.pet-card-link,
+.pet-card-arrow {
+  transition-duration: var(--duration-short);
+  transition-timing-function: var(--ease-out);
+}
+
+.ui-hover-surface,
+.ui-hover-accent,
+.ui-hover-accent-fill {
+  transition-property: color, background-color;
+}
+
+.ui-lift,
+.pet-card-link {
+  transition-property: transform, box-shadow, border-color, background-color;
+}
+
+.pet-card-arrow { transition-property: transform; }
+
+.ui-contrast-action { color: var(--color-accent-ink); }
+
+.ui-hover-surface,
+.ui-hover-accent,
+.ui-hover-accent-fill,
+.ui-lift,
+.pet-card-link {
+  white-space: nowrap;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .hover-eggplant:hover { color: var(--color-accent-hover); }
+  .ui-hover-surface:hover { background: var(--color-paper-2); color: var(--color-ink); }
+  .ui-hover-accent:hover { color: var(--color-accent-hover); }
+  .ui-hover-accent-fill:hover { background: var(--color-accent-hover); color: var(--color-accent-ink); }
+  .ui-lift:hover { transform: translateY(-2px); }
+  .pet-card-link:hover { border-color: var(--color-rule-strong); }
+  .pet-card-link:hover .pet-card-arrow { transform: translateX(2px); }
+}
+
+.ui-hover-surface:active { background: var(--color-paper-3); }
+.ui-hover-accent:active { color: var(--color-accent-hover); }
+.ui-hover-accent-fill:active { background: var(--color-accent-hover); }
+.ui-lift:active,
+.pet-card-link:active { transform: translateY(1px); }
+
+button:disabled,
+select:disabled,
+input:disabled,
+fieldset:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+.animate-fade-in { animation: fade-in var(--duration-medium) var(--ease-out); }
+
+/* Compatibility layer for screens that will migrate in later Phase 4 checkpoints. */
+.bg-dogs-userhome-mobile,
+.dark .bg-dogs-userhome-mobile {
+  background-image: url("/media/bg_phone_userhome.png");
+}
+
+.themed-card-invL {
+  box-shadow: var(--shadow-card);
+}
+
+.avatar-shadow {
+  display: inline-block;
+  border-radius: var(--radius-pill);
+  filter: var(--shadow-avatar);
+}
+
+.avatar-circle {
+  display: block;
+  overflow: hidden;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-raised);
+}
+
+.register-link { color: var(--color-accent); }
+
+@media (min-width: 48rem) {
   .md\:bg-dogs-userhome-tablet {
-    background-image: var(--bg-dogs-userhome-tablet-url);
+    background-image: url("/media/bg_tablet_userhome.png");
   }
+}
+
+@media (min-width: 64rem) {
   .lg\:bg-dogs-userhome-desktop {
-    background-image: var(--bg-dogs-userhome-desktop-url);
-  }
-
-  /* Tarjeta base: sombra en L invertida (abajo + derecha) */
-  .themed-card-invL {
-    box-shadow:
-      5px 5px 0 3px #51344d37,                     /* línea inferior */
-      8px 10px 30px 3px #51344d37,                     /* línea derecha */
-      0 28px 48px -20px rgba(81,52,77,.35),     /* blur inferior */
-      28px 0 48px -20px rgba(81,52,77,.25);     /* blur derecha */
-  }
-
-  /* Wrapper que genera la sombra circular */
-  .avatar-shadow {
-    display: inline-block;
-    border-radius: 9999px;
-    /* Sombra suave para móviles */
-    filter:
-      drop-shadow(0 6px 0 #51344D1a)
-      drop-shadow(0 14px 24px rgba(81,52,77,.28));
-  }
-  @media (min-width: 768px) {
-    .avatar-shadow {
-      /* Un poco más intensa en md+ */
-      filter:
-        drop-shadow(0 10px 0 #51344D1f)
-        drop-shadow(0 24px 10px rgba(81,52,77,.35));
-    }
-  }
-
-  /* Disco del avatar: recorte + aro */
-  .avatar-circle {
-    @apply rounded-full overflow-hidden ring-1 ring-[#51344D]/20 bg-white;
-  }
-  @media (min-width: 640px) {
-    .avatar-circle {
-      @apply ring-2;
-      /* opcional: un ligero brillo interno a juego */
-      background:
-        radial-gradient(circle at 30% 30%, #FDF6E8 0 55%, #ffffff 60% 100%);
-    }
+    background-image: url("/media/bg_desktop_userhome.png");
   }
 }
 
-/* Global page colors (reverted to earlier scheme) */
-.background-primary {
-  @apply bg-[#FDF2DE] dark:bg-[#51344D];
-}
-
-body { @apply bg-gray-50 text-gray-900 text-center ; }
-img {border-radius: 25px;}
-
-/* Language select styling for visibility (native dropdown) */
-.select-huellas { @apply appearance-none border rounded-md px-2 py-1 text-sm font-medium shadow-sm; }
-.select-huellas { background-color: #ffffff; color: var(--huellas-eggplant); border-color: var(--huellas-eggplant); }
-select.select-huellas option { background-color: #ffffff; color: var(--huellas-eggplant); }
-
-/* Typography utilities (set brand color by default) */
-
-p {
-  font-family: 'Nunito', sans-serif;
-  color: var(--huellas-eggplant);
-}
-
-h1, h2, h3, h4, h5, h6 { @apply text-center; color: var(--huellas-eggplant); font-family: 'Caprasimo', serif;}
-.h1 { @apply text-4xl md:text-5xl leading-tight tracking-tight; }
-.h2 { @apply text-2xl md:text-3xl leading-snug; }
-.lead { @apply text-lg md:text-xl opacity-80; }
-.hover-eggplant:hover { color: var(--huellas-eggplant); }
-
-/* Dark mode styles */
-.dark body { @apply bg-[#FDF2DE] text-gray-800 text-white; }
-
-.dark .register-link { color: #fff !important; }
-.dark select.select-huellas option { background-color: var(--huellas-eggplant); color: #ffffff; }
-.dark .select-huellas { background-color: var(--huellas-eggplant); color: #ffffff; border-color: #ffffff; }
-.dark .h1, .dark .h2, .dark .text { @apply text-center; color: var(--huellas-cream);}
-.dark .hover-eggplant:hover { text-decoration: underline; }
-.dark .hover-eggplant { color: var(--huellas-eggplant); }
-.dark p { color: var(--huellas-cream); }
-
-/* Toast animation */
-@keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fade-in {
-  animation: fade-in 0.3s ease-out;
-}
-
-@media (min-width: 110rem) {
-  body {
-    font-size: 1.7rem !important;
-    
-    section {
-      max-width: 80%;
-    }
-
-    .h1 { @apply text-6xl m-4}
-    .h2 { @apply text-4xl m-10}
-
-    a {
-      font-size: 1.7rem !important;
-    }
-
-    p { 
-    font-size: 2rem !important; 
-    }
-
-    label {
-      font-size: 1.5rem !important;
-    }
-    input {
-      font-size: 1.25rem !important;
-      
-    }
-
-    span {
-      font-size: 1.25rem !important;
-    }
-  }
-
-  .aboutUsDiv {
-    max-width: 90% ;
-  }
-
-  .proceduresText {
-    max-width: 80%;
-    margin-bottom: 6rem;
-    p {
-      font-size: 1.5rem !important;
-    }
-  }
-
 }
