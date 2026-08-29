@@ -1,52 +1,73 @@
-import React from "react";
-import { useEffect, useState } from "react";
+/* Hallmark · pre-emit critique: P5 H5 E4 S5 R5 V5 · genre: playful · macrostructure: Split Studio · theme: Huellas · enrichment: existing pet avatar · nav/footer: preserved · contrast: pass (40–41) · slop: pass (42–57) */
+import { useEffect, useState, type ReactNode } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import NavBar from "../Components/NavBar";
 import Footer from "../Components/footer";
 import GoBackButton from "../Components/GoBackButton";
-
-import type { Pet } from "../modules/pet/domain/Pet";
+import NavBar from "../Components/NavBar";
+import { applicationServices } from "../composition/applicationServices";
+import { AuthService } from "../modules/auth/infra/AuthService";
 import {
   getPetSizeLabel,
   getPetTypeLabel,
   getSexLabel,
+  type Pet,
 } from "../modules/pet/domain/Pet";
-import { AuthService } from "../modules/auth/infra/AuthService";
 import { AsyncContent } from "../shared/ui/AsyncContent";
-import { applicationServices } from "../composition/applicationServices";
 
 type ProfileDetailProps = {
   label: string;
-  value: React.ReactNode;
+  value: ReactNode;
 };
 
-const ProfileDetail: React.FC<ProfileDetailProps> = ({ label, value }) => (
-  <div className="text-center md:text-left">
-    <h3 className="block font-caprasimo text-[#51344D] uppercase tracking-wider">
-      {label}
-    </h3>
-    <p className="mt-1 text-center">{value}</p>
-  </div>
-);
+function ProfileDetail({ label, value }: ProfileDetailProps) {
+  return (
+    <div className="grid gap-1 border-b border-[var(--color-rule)] py-4 last:border-b-0 sm:grid-cols-[minmax(8rem,0.8fr)_minmax(0,1.2fr)] sm:items-baseline sm:gap-5">
+      <dt className="text-sm font-bold text-[var(--color-muted)]">{label}</dt>
+      <dd className="min-w-0 break-words text-[var(--color-ink)] sm:text-right">{value}</dd>
+    </div>
+  );
+}
+
+type CriticalDetailProps = {
+  label: string;
+  value?: string | null;
+  signalClassName: string;
+};
+
+function CriticalDetail({ label, value, signalClassName }: CriticalDetailProps) {
+  return (
+    <div className="min-w-0 py-4 md:px-5 md:first:pl-0 md:last:pr-0 md:not-first:border-l md:not-first:border-[var(--color-rule)]">
+      <h3 className="flex items-center gap-2 font-nunito text-sm font-bold tracking-normal text-[var(--color-ink)]">
+        <span aria-hidden="true" className={`size-2 shrink-0 rounded-full ${signalClassName}`} />
+        {label}
+      </h3>
+      <p className={`mt-2 whitespace-pre-wrap text-sm ${value ? "text-[var(--color-ink-soft)]" : "text-[var(--color-muted)]"}`}>
+        {value || "Sin registrar"}
+      </p>
+    </div>
+  );
+}
 
 function formatDate(iso?: string | null) {
   if (!iso) return "—";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "—";
-  return d.toLocaleDateString("es-ES"); // dd/mm/aaaa
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "—";
+  return date.toLocaleDateString("es-ES", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 }
 
-const PetProfile: React.FC = () => {
+function PetProfile() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-
-  const repo = applicationServices.pets;
+  const repository = applicationServices.pets;
   const [pet, setPet] = useState<Pet | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reloadVersion, setReloadVersion] = useState(0);
 
-  // Auth + load
   useEffect(() => {
     if (!AuthService.isAuthenticated()) {
       navigate("/login");
@@ -66,21 +87,16 @@ const PetProfile: React.FC = () => {
       try {
         setLoading(true);
         setError(null);
-        const data = await repo.getPetById(petId);
+        const data = await repository.getPetById(petId);
         if (!cancelled) setPet(data);
-      } catch (e: unknown) {
-        // If backend returns 401, bounce to login
-        if (
-          String(e instanceof Error ? e.message : "")
-            .toLowerCase()
-            .includes("unauthorized")
-        ) {
+      } catch (caught) {
+        if (String(caught instanceof Error ? caught.message : "").toLowerCase().includes("unauthorized")) {
           navigate("/login");
           return;
         }
-        setError(
-          e instanceof Error ? e.message : "No se pudo cargar la mascota"
-        );
+        if (!cancelled) {
+          setError(caught instanceof Error ? caught.message : "No se pudo cargar la mascota");
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -89,143 +105,131 @@ const PetProfile: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [id, repo, navigate, reloadVersion]);
+  }, [id, navigate, reloadVersion, repository]);
+
+  const passport = pet?.hasPassport
+    ? pet.passportNumber || "Sí, sin número registrado"
+    : "No";
 
   return (
     <>
       <NavBar />
-      <div className="bg-dogs-userhome-mobile md:bg-dogs-userhome-tablet lg:bg-dogs-userhome-desktop bg-cover bg-center flex flex-col items-center justify-center dark:bg-dogs-userhome-mobile">
-        <div className="flex flex-col items-center justify-center text-center w-full max-w-6xl xl:max-w-7xl 3xl:max-w-[1600px] mx-auto ">
+      <main className="relative min-h-[calc(100dvh-var(--nav-height))] bg-[var(--color-paper)] px-[var(--page-gutter)] py-8 text-[var(--color-ink)] sm:py-12">
+        <div aria-hidden="true" className="bg-dogs-userhome-mobile pointer-events-none fixed inset-0 bg-repeat opacity-45 md:bg-dogs-userhome-tablet lg:bg-dogs-userhome-desktop" />
 
-          {/* Go back */}
-          <div className="w-full text-left mx-auto mt-4">
-            <GoBackButton variant="outline" hideIfNoHistory className="bg-white" />
-          </div>
+        <div className="relative z-10 mx-auto w-full max-w-[var(--page-max)]">
+          <header className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] items-start gap-3 border-b border-[var(--color-rule-strong)] pb-6 sm:gap-5">
+            <GoBackButton
+              className="mt-1 min-h-11 border-[var(--color-rule-strong)] bg-[var(--color-surface-raised)] text-[var(--color-ink)] [&>span]:hidden sm:[&>span]:inline"
+              hideIfNoHistory
+              variant="outline"
+            />
 
-          <h1 className="text-4xl md:text-5xl font-caprasimo mb-6 text-[#51344D]">
-            Perfil de la Mascota
-          </h1>
-
-          <AsyncContent
-            loading={loading}
-            error={error}
-            empty={!pet}
-            loadingLabel="Cargando mascota…"
-            emptyTitle="No se encontró la mascota"
-            emptyDescription="Comprueba el enlace o vuelve a la lista de mascotas."
-            onRetry={() => setReloadVersion((current) => current + 1)}
-          >
-            <>
-              <div className="mb-8">
-                <div className="avatar-shadow mx-auto m-8">
-                  <div className="avatar-circle size-24 sm:size-28 md:size-42">
-                    <img src="/media/pfp_sample.svg" alt="Perfil" className="size-full object-contain" />
-                  </div>
-                </div>
+            <div className="flex min-w-0 items-end justify-between gap-4">
+              <div className="min-w-0">
+                <h1 className="font-caprasimo text-[clamp(2.25rem,7vw,4.25rem)] text-[var(--color-ink)]">
+                  {pet?.name || "Perfil de mascota"}
+                </h1>
+                <p className="mt-2 max-w-[65ch] text-[var(--color-ink-soft)]">
+                  {pet
+                    ? `${getPetTypeLabel(pet.type)} · ${pet.race || "Raza sin registrar"} · ${getSexLabel(pet.sex)}`
+                    : "Consulta su identidad, información importante y accesos de salud."}
+                </p>
               </div>
 
-              {(pet?.allergies || pet?.activeMedications || pet?.medicalConditions) && (
-                <section className="mb-6 grid w-full gap-4 md:grid-cols-3" aria-label="Información sanitaria crítica">
-                  <div className="rounded-xl border-2 border-red-300 bg-red-50 p-5 text-red-950">
-                    <h3 className="font-bold">Alergias</h3><p className="mt-2 whitespace-pre-wrap">{pet.allergies || 'Ninguna registrada'}</p>
-                  </div>
-                  <div className="rounded-xl border-2 border-amber-300 bg-amber-50 p-5 text-amber-950">
-                    <h3 className="font-bold">Medicación activa</h3><p className="mt-2 whitespace-pre-wrap">{pet.activeMedications || 'Ninguna registrada'}</p>
-                  </div>
-                  <div className="rounded-xl border-2 border-purple-300 bg-purple-50 p-5 text-purple-950">
-                    <h3 className="font-bold">Condiciones relevantes</h3><p className="mt-2 whitespace-pre-wrap">{pet.medicalConditions || 'Ninguna registrada'}</p>
-                  </div>
-                </section>
+              {pet && (
+                <span aria-hidden="true" className="avatar-circle size-16 shrink-0 bg-[var(--color-surface-raised)] sm:size-24">
+                  <img alt="" className="size-full object-contain" height="96" src="/media/pfp_sample.svg" width="96" />
+                </span>
               )}
+            </div>
+          </header>
 
-              {/* Details */}
-              <div className="themed-card themed-card-invL p-8 w-full 3xl:max-w-[90%] rounded-xl bg-[#FDF2DE] dark:bg-[#51344D]">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-6 text-center">
-                  <ProfileDetail label="Nombre" value={pet?.name ?? "—"} />
-                  <ProfileDetail
-                    label="Sexo"
-                    value={pet ? getSexLabel(pet.sex) : "—"}
-                  />
-                  <ProfileDetail
-                    label="Fecha de Nacimiento"
-                    value={formatDate(pet?.birthDate)}
-                  />
-                  <ProfileDetail label="Raza" value={pet?.race || "—"} />
-                  <ProfileDetail
-                    label="Tipo"
-                    value={pet ? getPetTypeLabel(pet.type) : "—"}
-                  />
-                  <ProfileDetail
-                    label="Tamaño"
-                    value={pet ? getPetSizeLabel(pet.size) : "—"}
-                  />
-                  <ProfileDetail
-                    label="Código Microchip"
-                    value={pet?.microchipCode || "—"}
-                  />
-                  <ProfileDetail
-                    label="Pasaporte"
-                    value={
-                      pet?.hasPassport ? pet?.passportNumber || "Sí" : "No"
-                    }
-                  />
-                  <ProfileDetail
-                    label="Origen"
-                    value={pet?.countryOfOrigin || "—"}
-                  />
+          <div className="mt-8">
+            <AsyncContent
+              empty={!pet}
+              emptyDescription="Comprueba el enlace o vuelve a la lista de mascotas."
+              emptyTitle="No se encontró la mascota"
+              error={error}
+              loading={loading}
+              loadingLabel="Cargando mascota…"
+              onRetry={() => setReloadVersion((current) => current + 1)}
+            >
+              {pet && (
+                <div className="grid gap-10">
+                  <section aria-labelledby="critical-information-title" className="border-y border-[var(--color-rule-strong)]">
+                    <div className="pt-5">
+                      <h2 className="font-nunito text-xl font-bold tracking-normal" id="critical-information-title">
+                        Información importante
+                      </h2>
+                      <p className="mt-1 max-w-[65ch] text-sm text-[var(--color-ink-soft)]">
+                        Datos que conviene revisar antes de una consulta o tratamiento.
+                      </p>
+                    </div>
+
+                    <div className="mt-2 divide-y divide-[var(--color-rule)] md:grid md:grid-cols-3 md:divide-y-0">
+                      <CriticalDetail label="Alergias" signalClassName="bg-[var(--color-error)]" value={pet.allergies} />
+                      <CriticalDetail label="Medicación activa" signalClassName="bg-[var(--color-warning)]" value={pet.activeMedications} />
+                      <CriticalDetail label="Condiciones relevantes" signalClassName="bg-[var(--color-accent)]" value={pet.medicalConditions} />
+                    </div>
+                  </section>
+
+                  <div className="grid min-w-0 gap-10 lg:grid-cols-[minmax(0,7fr)_minmax(18rem,5fr)] lg:items-start">
+                    <section aria-labelledby="pet-details-title" className="min-w-0">
+                      <h2 className="font-nunito text-2xl font-bold tracking-normal" id="pet-details-title">Ficha de identidad</h2>
+                      <p className="mt-1 max-w-[65ch] text-sm text-[var(--color-ink-soft)]">
+                        La información básica que identifica a {pet.name}.
+                      </p>
+
+                      <dl className="mt-5 border-t border-[var(--color-rule-strong)]">
+                        <ProfileDetail label="Tipo" value={getPetTypeLabel(pet.type)} />
+                        <ProfileDetail label="Raza" value={pet.race || "Sin registrar"} />
+                        <ProfileDetail label="Sexo" value={getSexLabel(pet.sex)} />
+                        <ProfileDetail label="Fecha de nacimiento" value={formatDate(pet.birthDate)} />
+                        <ProfileDetail label="Tamaño" value={getPetSizeLabel(pet.size)} />
+                        <ProfileDetail label="Microchip" value={pet.microchipCode || "Sin registrar"} />
+                        <ProfileDetail label="Pasaporte" value={passport} />
+                        <ProfileDetail label="País de origen" value={pet.countryOfOrigin || "Sin registrar"} />
+                      </dl>
+                    </section>
+
+                    <aside className="grid gap-8" aria-label="Acciones y notas de la mascota">
+                      <section className="rounded-[var(--radius-card)] border border-[var(--color-rule-strong)] bg-[var(--color-surface-raised)] p-5 shadow-[var(--shadow-card)] sm:p-6" aria-labelledby="pet-actions-title">
+                        <h2 className="font-nunito text-xl font-bold tracking-normal" id="pet-actions-title">Qué quieres consultar</h2>
+                        <p className="mt-2 text-sm text-[var(--color-ink-soft)]">
+                          La cartilla reúne su historial sanitario, documentos y próximas acciones.
+                        </p>
+
+                        <div className="mt-5 grid gap-3">
+                          <Link className="ui-button no-underline" to={`/pets/${pet.id}/health`}>
+                            Abrir cartilla
+                          </Link>
+                          <Link className="ui-button ui-button--secondary no-underline" to={`/procedures-view/${pet.id}`}>
+                            Ver procedimientos
+                          </Link>
+                          <Link className="ui-button ui-button--secondary no-underline" to={`/pets/${pet.id}/edit`}>
+                            Editar datos
+                          </Link>
+                        </div>
+                      </section>
+
+                      <section className="border-t border-[var(--color-rule-strong)] pt-5" aria-labelledby="pet-notes-title">
+                        <h2 className="font-nunito text-xl font-bold tracking-normal" id="pet-notes-title">Notas</h2>
+                        <p className={`mt-3 whitespace-pre-wrap ${pet.notes ? "text-[var(--color-ink-soft)]" : "text-[var(--color-muted)]"}`}>
+                          {pet.notes || "Sin notas adicionales."}
+                        </p>
+                      </section>
+                    </aside>
+                  </div>
                 </div>
-
-                <div className="text-center border-t pt-6 mt-6">
-                  <h3 className="block text-[#51344D] uppercase tracking-wider">
-                    Comentarios Adicionales
-                  </h3>
-                  <p className="mt-2 text-base text-gray-700 max-w-2xl mx-auto">
-                    {pet?.notes || "—"}
-                  </p>
-                </div>
-              </div>
-
-              <div className="p-10 flex justify-center gap-6">
-                <Link to={`/pets/${pet?.id}/edit`} className="flex items-center justify-center gap-3 py-3 px-6 bg-[#51344D] text-white font-semibold rounded-lg shadow-md hover:bg-[#A89B9D] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#51344D] transition-all duration-300 ease-in-out transform hover:scale-105" >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z" />
-                  </svg>
-                  Editar perfil de mascota
-                </Link>
-                <Link
-                  to={`/pets/${pet?.id}/health`}
-                  className="flex items-center justify-center gap-3 py-3 px-6 bg-[#51344D] text-white font-semibold rounded-lg shadow-md hover:bg-[#A89B9D] transition"
-                >
-                  Cartilla sanitaria
-                </Link>
-                <Link
-                  to={`/procedures-view/${pet?.id}`}
-                  className="flex items-center justify-center gap-3 py-3 px-6 bg-[#51344D] text-white font-semibold rounded-lg shadow-md hover:bg-[#A89B9D] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#51344D] transition-all duration-300 ease-in-out transform hover:scale-105"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
-                    />
-                  </svg>
-                  Mis procedimientos
-                </Link>
-              </div>
-            </>
-          </AsyncContent>
+              )}
+            </AsyncContent>
+          </div>
         </div>
-      </div>
+      </main>
       <Footer />
     </>
   );
-};
+}
 
 export default PetProfile;
