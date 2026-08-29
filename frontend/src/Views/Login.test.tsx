@@ -36,6 +36,7 @@ describe('Login', () => {
   it('associates each label and exposes the expected autocomplete purpose', async () => {
     const { container } = renderLogin();
 
+    expect(container.querySelector('.form-page__content')).toHaveClass('form-page__content--compact');
     expect(screen.getByRole('heading', { name: 'Iniciar Sesión' })).toBeInTheDocument();
     expect(screen.getByLabelText('Correo Electrónico')).toHaveAttribute('autocomplete', 'email');
     expect(screen.getByLabelText('Contraseña')).toHaveAttribute('autocomplete', 'current-password');

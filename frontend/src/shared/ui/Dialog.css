@@ -89,6 +89,7 @@
 }
 
 .form-page__content { display: grid; width: min(100%, 40rem); gap: var(--space-5); }
+.form-page__content--compact { width: min(100%, 30rem); }
 .form-page__content--wide { width: min(100%, 58rem); }
 .form-page__header { display: grid; gap: var(--space-2); text-align: start; }
 .form-page__title { font-size: clamp(var(--text-xl), 6vw, var(--text-2xl)); }

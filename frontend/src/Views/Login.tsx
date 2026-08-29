@@ -89,7 +89,7 @@ function LoginContent() {
         aria-hidden="true"
       />
 
-      <div className="form-page__content relative z-10">
+      <div className="form-page__content form-page__content--compact relative z-10">
         <div>
           <GoBackButton variant="outline" hideIfNoHistory className="ui-button ui-button--secondary" />
         </div>
