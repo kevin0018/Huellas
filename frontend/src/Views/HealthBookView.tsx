@@ -20,6 +20,10 @@ function localTimestamp(date: string) { return new Date(`${date}T12:00:00`).toIS
 function formatDate(date: string) {
   return new Date(date).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
 }
+function openDatePicker(event: React.MouseEvent<HTMLInputElement>) {
+  try { event.currentTarget.showPicker?.(); }
+  catch { event.currentTarget.focus(); }
+}
 const apiUrlForShare = (token: string) => apiUrl(`/shared-health/${encodeURIComponent(token)}`);
 
 export default function HealthBookView() {
@@ -150,13 +154,13 @@ export default function HealthBookView() {
           <div><h2 className="font-nunito text-xl font-bold tracking-normal">Nuevo evento sanitario</h2><p className="mt-1 max-w-[65ch] text-sm text-[var(--color-muted)]">Registra lo esencial ahora; podrás adjuntar documentos cuando el evento esté guardado.</p></div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="form-field"><label className="form-label" htmlFor="health-event-type">Tipo</label><select className="form-control" id="health-event-type" value={type} onChange={(event) => setType(event.target.value as HealthEventType)}>{healthEventTypes.map((value) => <option key={value} value={value}>{healthEventLabels[value]}</option>)}</select></div>
-            <div className="form-field"><label className="form-label" htmlFor="health-event-date">Fecha</label><input className="form-control" id="health-event-date" required type="date" value={date} onChange={(event) => setDate(event.target.value)} /></div>
+            <div className="form-field"><label className="form-label" htmlFor="health-event-date">Fecha</label><input className="form-control" id="health-event-date" required type="date" value={date} onChange={(event) => setDate(event.target.value)} onClick={openDatePicker} /></div>
             <div className="form-field sm:col-span-2"><label className="form-label" htmlFor="health-event-title">Título</label><input className="form-control" id="health-event-title" maxLength={120} placeholder="Ej. Revisión anual" required value={title} onChange={(event) => setTitle(event.target.value)} /></div>
             <div className="form-field"><label className="form-label" htmlFor="health-event-provider">Centro o profesional <span className="form-label__optional">(opcional)</span></label><input className="form-control" id="health-event-provider" value={provider} onChange={(event) => setProvider(event.target.value)} /></div>
             <div className="form-field"><label className="form-label" htmlFor="health-event-result">Resultado <span className="form-label__optional">(opcional)</span></label><input className="form-control" id="health-event-result" value={result} onChange={(event) => setResult(event.target.value)} /></div>
             {dosageTypes.has(type) && <div className="form-field"><label className="form-label" htmlFor="health-event-dose">Dosis <span className="form-label__optional">(opcional)</span></label><input className="form-control" id="health-event-dose" value={dose} onChange={(event) => setDose(event.target.value)} /></div>}
             {type === 'VACCINATION' && <div className="form-field"><label className="form-label" htmlFor="health-event-lot">Lote <span className="form-label__optional">(opcional)</span></label><input className="form-control" id="health-event-lot" value={lotNumber} onChange={(event) => setLotNumber(event.target.value)} /></div>}
-            {dosageTypes.has(type) && <div className="form-field"><label className="form-label" htmlFor="health-event-expiry">Caducidad o fin <span className="form-label__optional">(opcional)</span></label><input className="form-control" id="health-event-expiry" type="date" value={expiresAt} onChange={(event) => setExpiresAt(event.target.value)} /></div>}
+            {dosageTypes.has(type) && <div className="form-field"><label className="form-label" htmlFor="health-event-expiry">Caducidad o fin <span className="form-label__optional">(opcional)</span></label><input className="form-control" id="health-event-expiry" type="date" value={expiresAt} onChange={(event) => setExpiresAt(event.target.value)} onClick={openDatePicker} /></div>}
             <div className="form-field sm:col-span-2"><label className="form-label" htmlFor="health-event-notes">Notas <span className="form-label__optional">(opcional)</span></label><textarea className="form-control" id="health-event-notes" maxLength={5000} rows={3} value={notes} onChange={(event) => setNotes(event.target.value)} /></div>
           </div>
           <div className="flex flex-wrap-reverse justify-end gap-3 border-t border-[var(--color-rule)] pt-5">
@@ -213,8 +217,8 @@ export default function HealthBookView() {
               {summaryOptions.map(([value, label]) => <label className="form-choice" key={value}><input checked={summarySections.includes(value)} onChange={() => toggleSummarySection(value)} type="checkbox" />{label}</label>)}
             </div></fieldset>
             <div className="mt-5 grid gap-4">
-              <div className="form-field"><label className="form-label" htmlFor="summary-from">Desde <span className="form-label__optional">(opcional)</span></label><input className="form-control" id="summary-from" type="date" value={periodFrom} onChange={(event) => setPeriodFrom(event.target.value)} /></div>
-              <div className="form-field"><label className="form-label" htmlFor="summary-to">Hasta <span className="form-label__optional">(opcional)</span></label><input className="form-control" id="summary-to" type="date" value={periodTo} onChange={(event) => setPeriodTo(event.target.value)} /></div>
+              <div className="form-field"><label className="form-label" htmlFor="summary-from">Desde <span className="form-label__optional">(opcional)</span></label><input className="form-control" id="summary-from" type="date" value={periodFrom} onChange={(event) => setPeriodFrom(event.target.value)} onClick={openDatePicker} /></div>
+              <div className="form-field"><label className="form-label" htmlFor="summary-to">Hasta <span className="form-label__optional">(opcional)</span></label><input className="form-control" id="summary-to" type="date" value={periodTo} onChange={(event) => setPeriodTo(event.target.value)} onClick={openDatePicker} /></div>
             </div>
             <div className="mt-5 grid gap-2"><button className="ui-button" disabled={!summarySections.length} onClick={() => void repository.exportSummary(petId, summarySections, periodFrom, periodTo)} type="button">Descargar HTML</button><button aria-busy={sharing || undefined} className="ui-button ui-button--secondary" disabled={!summarySections.length || sharing} onClick={() => void createShare()} type="button">{sharing ? 'Creando enlace…' : 'Enlace por 24 horas'}</button></div>
             <p className="mt-4 text-xs leading-5 text-[var(--color-muted)]">El resumen indica su procedencia y no sustituye una historia clínica veterinaria.</p>

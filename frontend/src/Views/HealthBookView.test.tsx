@@ -124,6 +124,12 @@ describe('HealthBookView', () => {
     expect(screen.getByRole('heading', { name: 'Nuevo evento sanitario' })).toBeInTheDocument();
     expect(toggle).toHaveAttribute('aria-expanded', 'true');
 
+    const periodFrom = screen.getByLabelText(/Desde/);
+    const showDatePicker = vi.fn();
+    Object.defineProperty(periodFrom, 'showPicker', { value: showDatePicker });
+    fireEvent.click(periodFrom);
+    expect(showDatePicker).toHaveBeenCalledOnce();
+
     await waitFor(async () => expectNoCriticalAccessibilityViolations(container));
   });
 });
