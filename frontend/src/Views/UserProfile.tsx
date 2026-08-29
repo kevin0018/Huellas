@@ -194,128 +194,123 @@ export default function UserProfile() {
   };
 
   if (!user) {
-    return <div className="flex justify-center items-center min-h-screen">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--color-accent)]"></div>
-    </div>;
+    return (
+      <main className="workspace-page grid place-items-center" aria-live="polite">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--color-accent)]" aria-hidden="true" />
+        <span className="sr-only">Cargando perfil…</span>
+      </main>
+    );
   }
 
   return (
     <>
       <NavBar />
-      <div className="flex flex-col items-center justify-center background-primary px-2 sm:px-0 overflow-hidden" style={{ minHeight: 'calc(100vh - 80px)' }}>
-        {/* Responsive background with dogs */}
-        <div className="fixed inset-0 z-0 w-full h-full bg-repeat bg-[url('/media/bg_phone_userhome.png')] md:bg-[url('/media/bg_tablet_userhome.png')] lg:bg-[url('/media/bg_desktop_userhome.png')] opacity-60 pointer-events-none select-none" aria-hidden="true" />
-
-        {/* Content overlay */}
-        <div className="relative z-10 w-full flex flex-col items-center max-w-6xl py-4 ">
-          <div className="w-full text-left mt-20 max-w-6xl xl:max-w-7xl 3xl:max-w-[1600px] 3xl:mt-0">
-            <GoBackButton variant="outline" hideIfNoHistory />
-          </div>
-          <h1 className="h1 font-caprasimo mb-4 text-4xl md:text-5xl text-[var(--color-ink)] drop-shadow-lg">Mi Perfil</h1>
-
-          <div className="avatar-shadow mx-auto m-8">
-            <div className="avatar-circle size-24 sm:size-28 md:size-36">
-              <img src="/media/pfp_sample.svg" alt="Perfil" className="size-full object-contain" />
+      <main className="workspace-page">
+        <div className="workspace-shell">
+          <header className="workspace-header">
+            <GoBackButton hideIfNoHistory />
+            <div className="workspace-header__copy">
+              <h1 className="workspace-header__title">Tu perfil</h1>
+              <p className="workspace-header__description">
+                Mantén tus datos al día y decide cómo quieres participar en la comunidad.
+              </p>
             </div>
-          </div>
+          </header>
 
-          {/* Error and Success Messages */}
-          {error && (
-            <div className="ui-status--error mb-4 p-3 border border-[var(--color-error)] rounded">
-              {error}
-            </div>
-          )}
+          <div className="workspace-layout">
+            <aside className="workspace-rail" aria-label="Identidad y participación">
+              <div className="workspace-rail__group profile-identity">
+                <div className="profile-identity__avatar">
+                  <img src="/media/pfp_sample.svg" alt="Avatar del perfil" />
+                </div>
+                <div>
+                  <p className="profile-identity__name">{user.name} {user.lastName}</p>
+                  <p className="profile-identity__email">{user.email}</p>
+                </div>
+              </div>
 
-          {/* Profile Update Form */}
-          <div className="flex items-center justify-center mb-6 w-full 3xl:max-w-[90%] 3xl:!text-[1rem]">
-            <div className="ui-panel p-8 w-full max-w-6xl">
-              <form onSubmit={handleUpdateProfile} className="grid grid-cols-1 md:grid-cols-2 gap-6 justify-center text-left text-[var(--color-ink)]">
-                <div className="md:col-span-1">
-                  <label htmlFor="name" className="block text-sm font-medium">
-                    {/* TODO: Add translation */}
-                    Nombre
-                  </label>
+              <div className="workspace-rail__group profile-role">
+                <p className="workspace-rail__label">Participación</p>
+                <span className={`ui-status w-fit ${isVolunteer(user) ? 'ui-status--success' : 'ui-status--neutral'}`}>
+                  {isVolunteer(user) ? 'Perfil voluntario' : 'Perfil propietario'}
+                </span>
+                {isOwner(user) && (
+                  <button
+                    type="button"
+                    onClick={handleVolunteerToggle}
+                    disabled={isLoading}
+                    className={`ui-action px-4 py-2 ${isVolunteer(user) ? 'ui-action--danger' : 'ui-action--primary'}`}
+                  >
+                    {isLoading ? 'Procesando…' : isVolunteer(user) ? 'Dejar el voluntariado' : 'Activar voluntariado'}
+                  </button>
+                )}
+              </div>
+            </aside>
+
+            <div className="workspace-main">
+              {error && (
+                <div className="workspace-alert ui-status--error" role="alert">
+                  {error}
+                </div>
+              )}
+
+              <section className="workspace-section" aria-labelledby="profile-data-title">
+                <header className="workspace-section__header">
+                  <div>
+                    <h2 id="profile-data-title" className="workspace-section__title">Datos personales</h2>
+                    <p className="workspace-section__description">Esta información identifica tu cuenta en Huellas.</p>
+                  </div>
+                </header>
+
+                <form onSubmit={handleUpdateProfile} className="workspace-form-grid">
+                  <div className="workspace-field">
+                  <label htmlFor="name" className="workspace-field__label">Nombre</label>
                   <input
                     type="text"
                     name="name"
                     id="name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    className="ui-control mt-1 block w-full px-3 py-2 shadow-sm"
+                    className="ui-control"
                     required
                     placeholder="Nombre"
                     disabled={isLoading}
                   />
-                </div>
+                  </div>
 
-                <div className="md:col-span-1">
-                  <label htmlFor="lastName" className="block text-sm font-medium">
-                    {/* TODO: Add translation */}
-                    Apellidos
-                  </label>
+                  <div className="workspace-field">
+                  <label htmlFor="lastName" className="workspace-field__label">Apellidos</label>
                   <input
                     type="text"
                     name="lastName"
                     id="lastName"
                     value={formData.lastName}
                     onChange={handleInputChange}
-                    className="ui-control mt-1 block w-full px-3 py-2 shadow-sm"
+                    className="ui-control"
                     required
                     placeholder="Apellidos"
                     disabled={isLoading}
                   />
-                </div>
+                  </div>
 
-                <div className="md:col-span-2">
-                  <label htmlFor="email" className="block text-sm font-medium">
-                    {/* TODO: Add translation */}
-                    Correo electrónico
-                  </label>
+                  <div className="workspace-field workspace-field--full">
+                  <label htmlFor="email" className="workspace-field__label">Correo electrónico</label>
                   <input
                     type="email"
                     name="email"
                     id="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="ui-control mt-1 block w-full px-3 py-2 shadow-sm"
+                    className="ui-control"
                     required
                     placeholder="correo@ejemplo.com"
                     disabled={isLoading}
                   />
-                </div>
-
-                {/* Volunteer Status - Only shown for OWNERS who can toggle their volunteer status */}
-                {isOwner(user) && (
-                  <div className="ui-panel-muted md:col-span-2 flex items-center justify-between p-4">
-                    <div>
-                      <span className="text-sm font-medium">Estado de voluntario:</span>
-                      <span className={`ui-status ml-2 text-xs ${isVolunteer(user) ? 'ui-status--success' : 'ui-status--neutral'}`}>
-                        {/* TODO: Add translation */}
-                        {isVolunteer(user) ? 'Voluntario' : 'Propietario'}
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={handleVolunteerToggle}
-                      disabled={isLoading}
-                      className={`ui-action px-4 py-2 ${isVolunteer(user)
-                          ? 'ui-action--danger !px-2 !py-0'
-                          : 'ui-action--primary'
-                        }`}
-                    >
-                      {/* TODO: Add translation */}
-                      {isLoading ? 'Procesando...' : isVolunteer(user) ? 'Dejar de ser voluntario' : 'Ser voluntario'}
-                    </button>
                   </div>
-                )}
 
-                {/* Volunteer Description - Shown for all volunteers (OWNER volunteers can edit, VOLUNTEER users see read-only) */}
-                {isVolunteer(user) && (
-                  <div className="md:col-span-2">
-                    <label htmlFor="description" className="block text-sm font-medium mb-2">
-                      {/* TODO: Add translation */}
-                      Descripción del voluntario
-                    </label>
+                  {isVolunteer(user) && (
+                  <div className="workspace-field workspace-field--full">
+                    <label htmlFor="description" className="workspace-field__label">Descripción del voluntariado</label>
                     <textarea
                       id="description"
                       name="description"
@@ -323,107 +318,94 @@ export default function UserProfile() {
                       value={formData.description}
                       onChange={handleInputChange}
                       placeholder="Describe tu experiencia, habilidades y motivación como voluntario..."
-                      className="ui-control w-full px-3 py-2 shadow-sm resize-vertical min-h-[80px]"
+                      className="ui-control"
                       disabled={isLoading || !isOwner(user)}
                       readOnly={!isOwner(user)}
                     />
                     {!isOwner(user) && (
-                      <p className="ui-text-muted text-xs mt-1">
-                        {/* TODO: Add translation */}
-                        Los voluntarios puros no pueden editar su descripción desde aquí.
-                      </p>
+                      <p className="ui-text-muted text-xs">Este perfil solo permite consultar la descripción.</p>
                     )}
                   </div>
-                )}
+                  )}
 
-                <div className="md:col-span-2 flex justify-end">
+                  <div className="workspace-form-actions">
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="ui-action ui-action--primary py-2 px-4 mx-auto shadow-md"
+                    className="ui-action ui-action--primary px-5 py-3"
                   >
-                    {/* TODO: Add translation */}
-                    {isLoading ? 'Guardando...' : 'Guardar cambios'}
+                    {isLoading ? 'Guardando…' : 'Guardar cambios'}
                   </button>
-                </div>
-              </form>
-            </div>
-          </div>
+                  </div>
+                </form>
+              </section>
 
-          {/* Password Change Form */}
-          <div className="flex items-center justify-center mb-6 w-full 3xl:max-w-[70%] 3xl:!text-[1rem]">
-            <div className="ui-panel p-8 w-full max-w-6xl">
-              <h3 className="text-lg font-semibold mb-4 text-[var(--color-ink)] 3xl:!text-[1.7rem]">
-                {/* TODO: Add translation */}
-                Cambiar contraseña
-              </h3>
-              <form onSubmit={handleChangePassword} className="grid grid-cols-1 md:grid-cols-2 gap-6 justify-center text-left text-[var(--color-ink)]">
-                <div className="md:col-span-2">
-                  <label htmlFor="currentPassword" className="block text-sm font-medium 3xl:!text-[1.3rem]">
-                    {/* TODO: Add translation */}
-                    Contraseña actual
-                  </label>
+              <section className="workspace-section" aria-labelledby="profile-security-title">
+                <header className="workspace-section__header">
+                  <div>
+                    <h2 id="profile-security-title" className="workspace-section__title">Seguridad</h2>
+                    <p className="workspace-section__description">Cambia tu contraseña sin modificar el resto del perfil.</p>
+                  </div>
+                </header>
+
+                <form onSubmit={handleChangePassword} className="workspace-form-grid">
+                  <div className="workspace-field workspace-field--full">
+                  <label htmlFor="currentPassword" className="workspace-field__label">Contraseña actual</label>
                   <input
                     type="password"
                     name="currentPassword"
                     id="currentPassword"
                     value={formData.currentPassword}
                     onChange={handleInputChange}
-                    className="ui-control mt-1 block w-full px-3 py-2 shadow-sm"
+                    className="ui-control"
                     placeholder="Introduce tu contraseña actual"
                     disabled={isLoading}
                   />
-                </div>
+                  </div>
 
-                <div className="md:col-span-1">
-                  <label htmlFor="newPassword" className="block text-sm font-medium 3xl:!text-[1.3rem]">
-                    {/* TODO: Add translation */}
-                    Nueva contraseña
-                  </label>
+                  <div className="workspace-field">
+                  <label htmlFor="newPassword" className="workspace-field__label">Nueva contraseña</label>
                   <input
                     type="password"
                     name="newPassword"
                     id="newPassword"
                     value={formData.newPassword}
                     onChange={handleInputChange}
-                    className="ui-control mt-1 block w-full px-3 py-2 shadow-sm"
+                    className="ui-control"
                     placeholder="Introduce nueva contraseña"
                     disabled={isLoading}
                   />
-                </div>
+                  </div>
 
-                <div className="md:col-span-1">
-                  <label htmlFor="confirmPassword" className="block text-sm font-medium 3xl:!text-[1.3rem]">
-                    {/* TODO: Add translation */}
-                    Confirmar nueva contraseña
-                  </label>
+                  <div className="workspace-field">
+                  <label htmlFor="confirmPassword" className="workspace-field__label">Confirmar contraseña</label>
                   <input
                     type="password"
                     name="confirmPassword"
                     id="confirmPassword"
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
-                    className="ui-control mt-1 block w-full px-3 py-2 shadow-sm"
+                    className="ui-control"
                     placeholder="Confirma la nueva contraseña"
                     disabled={isLoading}
                   />
-                </div>
+                  </div>
 
-                <div className="md:col-span-2 flex justify-end">
+                  <div className="workspace-form-actions">
                   <button
                     type="submit"
                     disabled={isLoading || !formData.currentPassword || !formData.newPassword}
-                    className="ui-action ui-action--primary py-2 px-4 mx-auto shadow-md"
+                    className="ui-action ui-action--primary px-5 py-3"
                   >
-                    {/* TODO: Add translation */}
-                    {isLoading ? 'Cambiando...' : 'Cambiar contraseña'}
+                    {isLoading ? 'Cambiando…' : 'Cambiar contraseña'}
                   </button>
-                </div>
-              </form>
+                  </div>
+                </form>
+              </section>
             </div>
           </div>
         </div>
-      </div>
+      </main>
 
       {/* Volunteer Modal */}
       <VolunteerModal
@@ -434,14 +416,12 @@ export default function UserProfile() {
         isLoading={isLoading}
       />
 
-      {/* Success Toast */}
       {showSuccessToast && (
-        <div className="ui-toast--success fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-fade-in">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="ui-toast--success fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-fade-in" role="status">
+          <svg aria-hidden="true" className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
-          {/* TODO: Add translation */}
-          <span className="font-medium">Acción completada correctamente</span>
+          <span className="font-medium">Cambios guardados</span>
         </div>
       )}
 

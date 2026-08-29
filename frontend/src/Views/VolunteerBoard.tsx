@@ -130,138 +130,119 @@ function VolunteerBoard() {
   return (
     <>
       <NavBar />
-      <div
-        className="flex flex-col items-center justify-center background-primary px-4 py-8"
-        style={{ minHeight: "calc(100vh - 180px)" }}
-      >
-        <div
-          className="fixed inset-0 z-0 w-full h-full bg-repeat bg-[url('/media/bg_phone_userhome.png')] opacity-60 pointer-events-none"
-          aria-hidden="true"
-        />
-
-        <div className="relative z-10 w-full max-w-6xl">
-          <div className="w-full text-left mx-auto mt-8">
-            <GoBackButton variant="outline" hideIfNoHistory />
-          </div>
-
-          <h1 className="h1 font-caprasimo mb-2 text-5xl text-[var(--color-ink)] drop-shadow-lg text-center">
-            Tablón de anuncios
-          </h1>
-          <p className="ui-text-muted text-center text-lg mb-6">
-            Aquí puedes buscar entre los voluntarios más cercanos a ti en Barcelona.
-          </p>
-
-          {/* Filtros compactos: categoría + “Mis anuncios” */}
-          <div className="mb-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <div className="w-full sm:w-auto max-w-sm relative">
-              <label htmlFor="category" className="sr-only">Filtrar por categoría</label>
-              <select
-                id="category"
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value as PostCategory | "ALL")}
-                className="ui-control block w-full appearance-none py-2 pl-3 pr-10 shadow-sm"
+      <main className="workspace-page">
+        <div className="workspace-shell">
+          <header className="workspace-header">
+            <GoBackButton hideIfNoHistory />
+            <div className="workspace-header__copy">
+              <h1 className="workspace-header__title">Tablón de ayuda</h1>
+              <p className="workspace-header__description">
+                Encuentra personas de la comunidad disponibles para echar una mano en Barcelona.
+              </p>
+            </div>
+            <div className="workspace-header__actions">
+              <button
+                type="button"
+                className="ui-action ui-action--primary px-4 py-3"
+                onClick={() => navigate('/volunteer-home')}
               >
-                {CATEGORY_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                <svg className="h-5 w-5 ui-text-muted" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.188l3.71-3.957a.75.75 0 011.08 1.04l-4.24 4.53a.75.75 0 01-1.08 0l-4.24-4.53a.75.75 0 01.02-1.06z" clipRule="evenodd" /></svg>
+                Publicar anuncio
+              </button>
+            </div>
+          </header>
+
+          <section aria-label="Anuncios de voluntariado">
+            <div className="board-toolbar">
+              <div className="workspace-field">
+                <label htmlFor="category" className="workspace-field__label">Categoría</label>
+                <select
+                  id="category"
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value as PostCategory | "ALL")}
+                  className="ui-control"
+                >
+                  {CATEGORY_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
               </div>
+
+              <label className="inline-flex items-center gap-2 select-none">
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 rounded border-[var(--color-rule-strong)] text-[var(--color-accent)] focus:ring-[var(--color-focus)]"
+                  checked={myOnly}
+                  onChange={(e) => setMyOnly(e.target.checked)}
+                  disabled={!currentUserId}
+                />
+                <span className={`text-sm ${currentUserId ? "text-[var(--color-ink)]" : "ui-text-muted"}`}>
+                  Mis anuncios
+                </span>
+              </label>
+              <p className="board-toolbar__count" aria-live="polite">
+                {total} {total === 1 ? 'anuncio' : 'anuncios'}
+              </p>
             </div>
 
-            <label className="inline-flex items-center gap-2 select-none">
-              <input
-                type="checkbox"
-                className="h-4 w-4 rounded border-[var(--color-rule-strong)] text-[var(--color-accent)] focus:ring-[var(--color-focus)]"
-                checked={myOnly}
-                onChange={(e) => setMyOnly(e.target.checked)}
-                disabled={!currentUserId}
-              />
-              <span className={`text-sm ${currentUserId ? "text-[var(--color-ink)]" : "ui-text-muted"}`}>
-                Mis anuncios
-              </span>
-            </label>
-          </div>
+            <AsyncContent
+              loading={loading}
+              error={error}
+              empty={items.length === 0}
+              loadingLabel="Cargando anuncios…"
+              emptyTitle={myOnly ? "Aún no tienes anuncios publicados" : "No hay anuncios disponibles"}
+              emptyDescription={myOnly
+                ? "Publica un anuncio para que aparezca en esta sección."
+                : "Prueba con otra categoría o vuelve más tarde."}
+              onRetry={reload}
+            >
+              <>
+                <div className="board-grid">
+                  {items.map((post: VolunteerPostListItem) => {
+                    const authorName = `${post.author.name} ${post.author.last_name}`.trim();
+                    const isAuthor = currentUserId === post.author.id;
 
-          <AsyncContent
-            loading={loading}
-            error={error}
-            empty={items.length === 0}
-            loadingLabel="Cargando anuncios…"
-            emptyTitle={myOnly ? "Aún no tienes anuncios publicados" : "No hay anuncios disponibles"}
-            emptyDescription={myOnly
-              ? "Publica un anuncio para que aparezca en esta sección."
-              : "Prueba con otra categoría o vuelve más tarde."}
-            onRetry={reload}
-          >
-            <>
-              {/* Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {items.map((post: VolunteerPostListItem) => {
-                  const authorName = `${post.author.name} ${post.author.last_name}`.trim();
-                  const isAuthor = currentUserId === post.author.id;
-
-                  return (
-                    <div key={post.id} className="flex flex-col">
+                    return (
                       <AnuncioCard
+                        key={post.id}
                         title={post.title}
                         author={authorName}
                         description={excerpt(post.content)}
                         category={post.category}
                         onOpenChat={() => handleOpenChat(post.id, post.author.id, post.title)}
+                        onDelete={isAuthor ? () => handleDelete(post.id) : undefined}
                       />
-
-                      {isAuthor && (
-                        <div className="mt-3 flex justify-end">
-                          <button
-                            type="button"
-                            onClick={() => handleDelete(post.id)}
-                            className="ui-action ui-action--secondary gap-2 px-3 py-2"
-                            title="Eliminar anuncio"
-                            aria-label="Eliminar anuncio"
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 ui-text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M9 3h6m-9 4h12m-1 0-1 13a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 7m3 0V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M10 11v6M14 11v6" />
-                            </svg>
-                            <span>Eliminar</span>
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Paginación */}
-              {total > pageSize && (
-                <div className="flex items-center justify-center gap-4 mt-10">
-                  <button
-                    className="ui-action ui-action--secondary px-4 py-2"
-                    disabled={page <= 1}
-                    onClick={() => goToPage(page - 1)}
-                  >
-                    ← Anterior
-                  </button>
-                  <span className="text-[var(--color-ink)]">
-                    Página {page} de {Math.ceil(total / pageSize)}
-                  </span>
-                  <button
-                    className="ui-action ui-action--secondary px-4 py-2"
-                    disabled={page >= Math.ceil(total / pageSize)}
-                    onClick={() => goToPage(page + 1)}
-                  >
-                    Siguiente →
-                  </button>
+                    );
+                  })}
                 </div>
-              )}
-            </>
-          </AsyncContent>
+
+                {total > pageSize && (
+                  <nav className="board-pagination" aria-label="Paginación de anuncios">
+                    <button
+                      className="ui-action ui-action--secondary px-4 py-2"
+                      disabled={page <= 1}
+                      onClick={() => goToPage(page - 1)}
+                    >
+                      ← Anterior
+                    </button>
+                    <span className="board-pagination__status">
+                      Página {page} de {Math.ceil(total / pageSize)}
+                    </span>
+                    <button
+                      className="ui-action ui-action--secondary px-4 py-2"
+                      disabled={page >= Math.ceil(total / pageSize)}
+                      onClick={() => goToPage(page + 1)}
+                    >
+                      Siguiente →
+                    </button>
+                  </nav>
+                )}
+              </>
+            </AsyncContent>
+          </section>
         </div>
-      </div>
+      </main>
       <Footer />
     </>
   );

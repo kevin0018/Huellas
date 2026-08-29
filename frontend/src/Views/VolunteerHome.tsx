@@ -25,7 +25,7 @@ const CATEGORY_LABEL: Record<PostCategory, string> = {
   LOST_AND_FOUND: "Mascotas perdidas",
 };
 
-function VolunteerBoard() {
+function VolunteerHome() {
   const navigate = useNavigate();
 
   // Estado de envío/mensajes
@@ -101,116 +101,87 @@ function VolunteerBoard() {
   return (
     <>
       <NavBar />
-      <div
-        className="flex flex-col items-center justify-center background-primary px-2 sm:px-0 overflow-hidden"
-        style={{ minHeight: "calc(100vh - 180px)" }}
-      >
-        {/* Responsive background with dogs */}
-        <div
-          className="fixed inset-0 z-0 w-full h-full bg-repeat bg-[url('/media/bg_phone_userhome.png')] md:bg-[url('/media/bg_tablet_userhome.png')] lg:bg-[url('/media/bg_desktop_userhome.png')] opacity-60 pointer-events-none select-none"
-          aria-hidden="true"
-        />
+      <main className="workspace-page">
+        <div className="workspace-shell">
+          <header className="workspace-header">
+            <GoBackButton hideIfNoHistory fallback="/volunteer-board" />
+            <div className="workspace-header__copy">
+              <h1 className="workspace-header__title">Publicar una ayuda</h1>
+              <p className="workspace-header__description">
+                Explica qué necesitas o qué puedes ofrecer para que la persona adecuada lo encuentre rápido.
+              </p>
+            </div>
+            <div className="workspace-header__actions">
+              <button
+                type="button"
+                className="ui-action ui-action--secondary px-4 py-3"
+                onClick={() => navigate('/volunteer-board')}
+              >
+                Ver tablón
+              </button>
+            </div>
+          </header>
 
-        {/* Content overlay */}
-        <div className="relative z-10 w-full flex flex-col items-center max-w-4xl py-4 3xl:max-w-[50%] ">
-          {/* Go back */}
-          <div className="w-full text-left mx-auto mt-8">
-            <GoBackButton variant="outline" hideIfNoHistory />
-          </div>
+          <div className="workspace-layout">
+            <aside className="workspace-rail" aria-label="Resumen de publicación">
+              <div className="workspace-rail__group composer-summary">
+                <div className="composer-summary__person">
+                  <span className="composer-summary__avatar" aria-hidden="true">
+                    {(user?.name?.[0] || 'H').toUpperCase()}
+                  </span>
+                  <div>
+                    <p className="composer-summary__name">
+                      {[user?.name, user?.lastName].filter(Boolean).join(' ') || 'Perfil de Huellas'}
+                    </p>
+                    <p className="composer-summary__email">{user?.email || 'Sin correo disponible'}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="workspace-rail__group">
+                <p className="workspace-rail__label">Categoría seleccionada</p>
+                <p className="workspace-rail__value">{CATEGORY_LABEL[category]}</p>
+              </div>
+              <div className="workspace-rail__group">
+                <p className="workspace-rail__label">Visibilidad</p>
+                <p className="workspace-rail__value">
+                  {expiresAt ? `Hasta ${new Date(`${expiresAt}T00:00:00`).toLocaleDateString('es-ES')}` : 'Sin fecha de caducidad'}
+                </p>
+              </div>
+            </aside>
 
-          <h1 className="h1 font-caprasimo mb-8 text-4xl md:text-5xl text-[var(--color-ink)] drop-shadow-lg">
-            Hola, {user?.name || 'voluntarix'}
-          </h1>
+            <section className="workspace-main workspace-section" aria-labelledby="publish-form-title">
+              <header className="workspace-section__header">
+                <div>
+                  <h2 id="publish-form-title" className="workspace-section__title">Datos del anuncio</h2>
+                  <p className="workspace-section__description">
+                    El título debe permitir entender la necesidad antes de abrir el anuncio.
+                  </p>
+                </div>
+              </header>
 
-          <div className="ui-panel p-6 w-full mx-auto text-center">
-            <p className="lead text-center mb-8 px-4 mx-auto">
-              Aquí tienes todo lo que necesitas para empezar a ayudar.
-            </p>
+              {error && <div className="workspace-alert ui-status--error" role="alert">{error}</div>}
+              {ok && <div className="workspace-alert ui-status--success" role="status">¡Anuncio creado!</div>}
 
-            {/* Mensajes de estado */}
-            {error && <div className="ui-status--error mb-4 rounded-md p-3 font-semibold">{error}</div>}
-            {ok && <div className="ui-status--success mb-4 rounded-md p-3 font-semibold">¡Anuncio creado!</div>}
-
-            <div className="flex flex-col md:flex-row lg:flex-row items-center justify-center gap-4 mt-8 3xl:gap-10">
-              {/* Formulario simplificado con layout de grid */}
-              <form className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left text-[var(--color-ink)]" onSubmit={onSubmit}>
-                {/* Título */}
-                <div className="md:col-span-2">
-                  <label htmlFor="title" className="block text-sm font-medium">
-                    Título del anuncio
-                  </label>
+              <form className="workspace-form-grid" onSubmit={onSubmit}>
+                <div className="workspace-field workspace-field--full">
+                  <label htmlFor="title" className="workspace-field__label">Título</label>
                   <input
                     type="text"
                     name="title"
                     id="title"
-                    className="ui-control mt-1 block w-full px-3 py-2 shadow-sm"
+                    className="ui-control"
                     required
-                    placeholder="Título del anuncio"
+                    placeholder="Ej. Necesito ayuda para llevar a Luna al veterinario"
                   />
                 </div>
 
-                {/* Nombre (UI informativa; no se envía) */}
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium">Nombre</label>
-                  <input
-                    type="text"
-                    name="nombre"
-                    id="nombre"
-                    className="ui-control mt-1 block w-full px-3 py-2 shadow-sm"
-                    placeholder="Tu nombre"
-                    value={user?.name || ''}
-                    readOnly
-                  />
-                </div>
-
-                {/* Apellidos (UI informativa; no se envía) */}
-                <div>
-                  <label htmlFor="apellidos" className="block text-sm font-medium">Apellidos</label>
-                  <input
-                    type="text"
-                    name="apellidos"
-                    id="apellidos"
-                    className="ui-control mt-1 block w-full px-3 py-2 shadow-sm"
-                    placeholder="Tus apellidos"
-                    value={user?.lastName || ''}
-                    readOnly
-                  />
-                </div>
-
-                {/* Email (UI informativa; no se envía) */}
-                <div className="md:col-span-2">
-                  <label htmlFor="email" className="block text-sm font-medium">Correo electrónico</label>
-                  <input
-                    type="email"
-                    name="email"
-                    id="email"
-                    className="ui-control mt-1 block w-full px-3 py-2 shadow-sm"
-                    placeholder="tu.correo@ejemplo.com"
-                    value={user?.email || ''}
-                    readOnly
-                  />
-                </div>
-
-                {/* Teléfono (UI informativa; no se envía) */}
-                <div className="md:col-span-2">
-                  <label htmlFor="number" className="block text-sm font-medium">Número de teléfono</label>
-                  <input
-                    type="number"
-                    name="number"
-                    id="number"
-                    className="ui-control mt-1 block w-full px-3 py-2 shadow-sm"
-                    placeholder="Tu número de teléfono"
-                  />
-                </div>
-
-                {/* Categoría (nuevo) */}
-                <div className="md:col-span-2">
-                  <label htmlFor="category" className="block text-sm font-medium">Categoría</label>
+                <div className="workspace-field">
+                  <label htmlFor="category" className="workspace-field__label">Categoría</label>
                   <select
                     id="category"
                     value={category}
                     onChange={(e) => setCategory(e.target.value as PostCategory)}
-                    className="ui-control mt-1 block w-full px-3 py-2 shadow-sm"
+                    className="ui-control"
                   >
                     {Object.keys(CATEGORY_LABEL).map((key) => {
                       const k = key as PostCategory;
@@ -223,61 +194,46 @@ function VolunteerBoard() {
                   </select>
                 </div>
 
-                {/* Expiración (opcional) */}
-                <div className="md:col-span-2">
-                  <label htmlFor="expires" className="block text-sm font-medium">Expira (opcional)</label>
+                <div className="workspace-field">
+                  <label htmlFor="expires" className="workspace-field__label">Fecha límite <span className="ui-text-muted">(opcional)</span></label>
                   <input
                     id="expires"
                     type="date"
                     min={todayStr}
                     value={expiresAt}
                     onChange={(e) => setExpiresAt(e.target.value)}
-                    className="ui-control mt-1 block w-full px-3 py-2 shadow-sm"
+                    className="ui-control"
                   />
                 </div>
 
-                {/* Comentarios → content */}
-                <div className="md:col-span-2">
-                  <label htmlFor="comentarios" className="block text-sm font-medium">Comentarios</label>
+                <div className="workspace-field workspace-field--full">
+                  <label htmlFor="comentarios" className="workspace-field__label">Descripción</label>
                   <textarea
                     id="comentarios"
                     name="comentarios"
                     required
-                    className="ui-control mt-1 block w-full px-3 py-2 shadow-sm"
-                    placeholder="Escribe aquí tu mensaje..."
+                    className="ui-control"
+                    placeholder="Incluye la zona, el horario y cualquier detalle importante para poder ayudarte."
                   ></textarea>
                 </div>
 
-                {/* Botón enviar */}
-                <div className="md:col-span-2">
+                <div className="workspace-form-actions">
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="ui-action ui-action--primary w-full gap-3 p-3 shadow-md"
+                    className="ui-action ui-action--primary px-5 py-3"
                   >
-                    {submitting ? "Enviando..." : "Enviar"}
+                    {submitting ? "Publicando…" : "Publicar anuncio"}
                   </button>
                 </div>
               </form>
-
-              {/* CTA lateral */}
-              <div className="flex flex-col gap-4 p-4">
-                <button
-                  type="button"
-                  className="ui-action ui-action--primary gap-3 p-4 shadow-md cursor-pointer"
-                  onClick={() => navigate("/volunteer-board")}
-                >
-                  <img src="media/paw_icon.svg" alt="Icono de añadir mascota" className="h-7 w-7" />
-                  Mis anuncios publicados
-                </button>
-              </div>
-            </div>
+            </section>
           </div>
         </div>
-      </div>
+      </main>
       <Footer />
     </>
   );
 }
 
-export default VolunteerBoard;
+export default VolunteerHome;

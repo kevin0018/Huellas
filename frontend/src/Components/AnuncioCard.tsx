@@ -82,7 +82,22 @@ export interface AnuncioCardProps {
   category: PostCategory;
   /** Botón de chat (opcional). Si no se pasa, no se muestra */
   onOpenChat?: () => void | Promise<void>;
+  onDelete?: () => void | Promise<void>;
 }
+
+const CATEGORY_LABEL: Record<PostCategory, string> = {
+  GENERAL: "General",
+  PET_SITTING: "Cuidado en casa",
+  WALKING_EXERCISE: "Paseos y ejercicio",
+  VET_TRANSPORT: "Transporte veterinario",
+  FOSTER_CARE: "Casa de acogida",
+  TRAINING_BEHAVIOR: "Conducta",
+  SHELTER_SUPPORT: "Protectoras",
+  GROOMING_HYGIENE: "Higiene",
+  MEDICAL_SUPPORT: "Soporte médico",
+  ADOPTION_REHOMING: "Adopción",
+  LOST_AND_FOUND: "Mascotas perdidas",
+};
 
 const AnuncioCard: FC<AnuncioCardProps> = ({
   title,
@@ -90,45 +105,57 @@ const AnuncioCard: FC<AnuncioCardProps> = ({
   description,
   category,
   onOpenChat,
+  onDelete,
 }) => {
   return (
-    <article className="ui-panel p-4 flex flex-col">
-      {/* Cabecera con icono y título */}
-      <div className="flex items-center gap-3 bg-[var(--color-paper-3)] p-2 rounded-lg">
-        <div className="bg-[var(--color-surface-raised)] rounded-full p-1 flex items-center justify-center w-10 h-10">
+    <article className="post-card">
+      <div className="post-card__category">
+        <span className="post-card__category-icon" aria-hidden="true">
           {categoryIcon(category)}
-        </div>
-        <h3 className="text-[var(--color-ink)] text-lg">{title}</h3>
+        </span>
+        <span>{CATEGORY_LABEL[category]}</span>
       </div>
 
-      {/* Línea de autor + botón de chat (a la derecha) */}
-      <div className="mt-4 flex items-center justify-between gap-3">
-        <p className="text-left font-semibold text-[var(--color-ink)] truncate">{author}</p>
+      <header>
+        <h2 className="post-card__title">{title}</h2>
+        <p className="post-card__author">Publicado por {author}</p>
+      </header>
 
-        {onOpenChat && (
+      <p className="post-card__description">{description}</p>
+
+      {(onOpenChat || onDelete) && (
+        <footer className="post-card__actions">
+          {onOpenChat ? (
+            <button
+              type="button"
+              onClick={onOpenChat}
+              className="ui-action ui-action--primary gap-2 px-3 py-2"
+            >
+              <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" strokeWidth="1.6"
+                className="h-5 w-5">
+                <path strokeLinecap="round" strokeLinejoin="round"
+                  d="M7 8h10M7 12h6M21 12a9 9 0 10-3.1 6.8L21 21l-1.2-3.4A8.97 8.97 0 0021 12z" />
+              </svg>
+              Contactar
+            </button>
+          ) : <span />}
+
+          {onDelete && (
           <button
             type="button"
-            onClick={onOpenChat}
-            className="ui-action ui-action--secondary p-2"
-            aria-label="Abrir chat"
-            title="Abrir chat"
+            onClick={onDelete}
+            className="ui-action ui-action--secondary gap-2 px-3 py-2"
           >
-            {/* Burbuja de chat (solo icono para que quepa en la misma línea) */}
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-              fill="none" stroke="currentColor" strokeWidth="1.6"
-              className="w-5 h-5 ui-text-accent">
-              <path strokeLinecap="round" strokeLinejoin="round"
-                d="M7 8h10M7 12h6M21 12a9 9 0 10-3.1 6.8L21 21l-1.2-3.4A8.97 8.97 0 0021 12z" />
+            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 3h6m-9 4h12m-1 0-1 13a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 7m3 0V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10 11v6M14 11v6" />
             </svg>
-            <span className="sr-only">Abrir chat</span>
+            Eliminar
           </button>
-        )}
-      </div>
-
-      {/* Descripción */}
-      <div className="mt-2 p-3 w-full h-40 bg-[var(--color-surface-raised)] border border-[var(--color-rule)] rounded-lg overflow-y-auto">
-        <p className="ui-text-muted text-left">{description}</p>
-      </div>
+          )}
+        </footer>
+      )}
     </article>
   );
 };

@@ -39,7 +39,7 @@ function ChatMessage({ message, isCurrentUser }: ChatMessageProps) {
 interface ConversationListProps {
   conversations: ConversationListItem[];
   selectedConversation: number | null;
-  onSelectConversation: (conversation: ConversationListItem) => void;
+  onSelectConversation: (conversation: ConversationListItem) => void | Promise<void>;
   loading: boolean;
 }
 
@@ -65,6 +65,7 @@ function ConversationList({
             type="button"
             key={conversation?.id || `conversation-${index}`}
             onClick={() => onSelectConversation(conversation)}
+            aria-pressed={selectedConversation === conversation?.id}
             className={`ui-conversation w-full p-3 rounded-lg cursor-pointer text-left ${
               selectedConversation === conversation?.id
                 ? 'ui-conversation--selected shadow-md'
@@ -123,6 +124,7 @@ export default function ChatView() {
   } = useChat();
 
   const [newMessage, setNewMessage] = useState('');
+  const [mobilePanel, setMobilePanel] = useState<'list' | 'thread'>('list');
   const hasTriedCreation = useRef(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -136,6 +138,10 @@ export default function ChatView() {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, 100);
   }, [messages, selectedConversation]);
+
+  useEffect(() => {
+    if (selectedConversation) setMobilePanel('thread');
+  }, [selectedConversation]);
 
   // Reset creation flag when URL params change
   useEffect(() => {
@@ -186,125 +192,129 @@ export default function ChatView() {
     }
   };
 
+  const handleConversationSelect = async (conversation: ConversationListItem) => {
+    setMobilePanel('thread');
+    await selectConversation(conversation);
+  };
+
   return (
-    <div className="min-h-screen flex flex-col">
+    <>
       <NavBar />
-      <div className="background-primary flex-1">
-          <div className="container mx-auto px-4 py-4 lg:py-8">
+      <main className="workspace-page">
+        <div className="workspace-shell">
+          <header className="workspace-header">
+            <GoBackButton hideIfNoHistory />
+            <div className="workspace-header__copy">
+              <h1 className="workspace-header__title">Mensajes</h1>
+              <p className="workspace-header__description">
+                Organiza las conversaciones nacidas en el tablón y concreta la ayuda desde aquí.
+              </p>
+            </div>
+          </header>
+
           {error && (
-            <div className="mb-4 p-4 ui-status--error border border-[var(--color-error)] rounded-md">
+            <div className="workspace-alert ui-status--error mt-6" role="alert">
               {error}
-              <button 
+              <button
+                type="button"
                 onClick={() => setError(null)}
-                className="ml-2 ui-hover-accent"
+                className="ui-action ml-2 px-2 py-1"
+                aria-label="Cerrar error"
               >
                 ✕
               </button>
             </div>
           )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 h-[500px] md:h-[600px] max-h-[500px] md:max-h-[600px]">
-            
-            <div className="flex flex-col lg:col-span-1 h-full">
-              <div className="mb-2 lg:mb-4">
-                <GoBackButton />
-              </div>
-              
-              <div className="ui-panel-muted p-3 lg:p-4 overflow-y-auto flex-1">
-                <h2 className="font-caprasimo text-base lg:text-lg text-[var(--color-ink)] mb-3 lg:mb-4">
-                  Conversaciones
-                </h2>
+          <div className="chat-workspace mt-8">
+            <aside className="chat-sidebar" aria-label="Conversaciones" data-mobile-hidden={mobilePanel === 'thread'}>
+              <header className="chat-sidebar__header">
+                <h2 className="chat-sidebar__title">Conversaciones</h2>
+                <span className="chat-sidebar__count">{conversations.length}</span>
+              </header>
+              <div className="chat-conversation-list">
                 <ConversationList
                   conversations={conversations || []}
                   selectedConversation={selectedConversation?.id || null}
-                  onSelectConversation={selectConversation}
+                  onSelectConversation={handleConversationSelect}
                   loading={loading}
                 />
               </div>
-            </div>
+            </aside>
 
-            <div className="flex flex-col lg:col-span-2 h-full">
-              <div className="mb-2 lg:mb-4 text-center">
-                <h1 className="font-caprasimo text-xl lg:text-2xl text-[var(--color-ink)]">
-                  Mensajes
-                </h1>
-              </div>
-              
-
-              <div className="ui-panel flex flex-col flex-1 min-h-0 overflow-hidden">
-                {selectedConversation ? (
-                  <>
-                    {/* Chat Header */}
-                    <div className="p-3 lg:p-4 border-b border-[var(--color-rule)]">
-                      <h3 className="font-semibold text-[var(--color-ink)] text-sm lg:text-base">
+            <section className="chat-thread" aria-label="Conversación activa" data-mobile-hidden={mobilePanel === 'list'}>
+              {selectedConversation ? (
+                <>
+                  <header className="chat-thread__header">
+                    <button
+                      type="button"
+                      className="chat-mobile-back ui-action ui-action--secondary px-3 py-2"
+                      onClick={() => setMobilePanel('list')}
+                    >
+                      Conversaciones
+                    </button>
+                    <div className="chat-thread__identity">
+                      <h2 className="chat-thread__title">
                         {selectedConversation.title}
-                      </h3>
-                      <p className="text-xs lg:text-sm ui-text-muted">
+                      </h2>
+                      <p className="chat-thread__participants">
                         {selectedConversation.participants
                           ?.filter(p => p?.id !== currentUserId)
                           ?.map(p => `${p?.name} ${p?.lastName}`)
                           ?.join(', ')}
                       </p>
                     </div>
+                  </header>
 
-                    {/* Messages */}
-                    <div className="flex-1 p-3 lg:p-4 overflow-y-auto min-h-0 max-h-[350px] md:max-h-[450px]">
-                      {loading && messages.length === 0 ? (
-                        <div className="flex items-center justify-center h-full">
-                          <div className="ui-text-muted">Cargando mensajes...</div>
-                        </div>
-                      ) : messages.length === 0 ? (
-                        <div className="flex items-center justify-center h-full">
-                          <div className="ui-text-muted">No hay mensajes</div>
-                        </div>
-                      ) : (
-                        <div className="space-y-4">
-                          {messages?.map((message) => (
-                            <ChatMessage
-                              key={message?.id}
-                              message={message}
-                              isCurrentUser={message.senderId === currentUserId}
-                            />
-                          ))}
-                          <div ref={messagesEndRef} />
-                        </div>
-                      )}
-                    </div>
+                  <div className="chat-thread__messages" aria-live="polite">
+                    {loading && messages.length === 0 ? (
+                      <div className="chat-empty">Cargando mensajes…</div>
+                    ) : messages.length === 0 ? (
+                      <div className="chat-empty">Todavía no hay mensajes. Empieza la conversación.</div>
+                    ) : (
+                      <div>
+                        {messages.map((message) => (
+                          <ChatMessage
+                            key={message.id}
+                            message={message}
+                            isCurrentUser={message.senderId === currentUserId}
+                          />
+                        ))}
+                        <div ref={messagesEndRef} />
+                      </div>
+                    )}
+                  </div>
 
-                    {/* Message Input */}
-                    <form onSubmit={handleSendMessage} className="p-3 lg:p-4 border-t border-[var(--color-rule)]">
-                      <div className="flex gap-2">
+                  <form onSubmit={handleSendMessage} className="chat-thread__composer">
+                    <div className="chat-thread__composer-row">
                         <input
                           type="text"
                           value={newMessage}
                           onChange={(e) => setNewMessage(e.target.value)}
-                          placeholder="Escribe tu mensaje..."
-                          className="ui-control flex-1 px-3 py-2 text-sm lg:text-base"
+                        placeholder="Escribe un mensaje…"
+                        aria-label="Mensaje"
+                        className="ui-control px-3 py-2"
                           disabled={loading}
                         />
                         <button
                           type="submit"
                           disabled={!newMessage.trim() || loading}
-                          className="ui-action ui-action--primary px-3 lg:px-4 py-2 text-sm lg:text-base"
+                        className="ui-action ui-action--primary px-5 py-2"
                         >
                           Enviar
                         </button>
                       </div>
-                    </form>
-                  </>
-                ) : (
-                  <div className="flex items-center justify-center h-full">
-                    <div className="ui-text-muted">
-                      Selecciona una conversación para comenzar
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-            
+                  </form>
+                </>
+              ) : (
+                <div className="chat-empty">
+                  Selecciona una conversación para ver los mensajes.
+                </div>
+              )}
+            </section>
           </div>
         </div>
-      </div>
-    </div>
+      </main>
+    </>
   );
 }

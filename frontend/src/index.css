@@ -1,6 +1,7 @@
 /* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V5 · contrast: pass (40–41) · nav: N1b · footer: Ft2 · slop: pass (42–45) · honest: pass (46) · chrome: pass (47) · tokens: pass (48) · responsive: pass (49) · icons: pass (30) · mobile: pass (34, 49, 50–57) */
 @import "./Styles/tokens.css";
 @import "./shared/ui/Dialog.css";
+@import "./Styles/workspaces.css";
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -201,6 +202,9 @@ a { color: inherit; text-decoration-thickness: 0.08em; text-underline-offset: 0.
   transition-property: color, background-color, border-color, box-shadow;
   transition-timing-function: var(--ease-out);
 }
+
+.ui-conversation:not(.ui-conversation--selected):active { background: var(--color-paper-3); }
+.ui-conversation--selected:active { background: var(--color-accent-hover); color: var(--color-accent-ink); }
 
 @media (hover: hover) and (pointer: fine) {
   .ui-action--primary:hover { background: var(--color-accent-hover); color: var(--color-accent-ink); }
