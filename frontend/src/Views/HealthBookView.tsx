@@ -165,16 +165,16 @@ export default function HealthBookView() {
           </div>
         </form>}
 
-        <div className="mt-10 grid min-w-0 gap-10 lg:grid-cols-[minmax(0,1fr)_19rem] lg:items-start">
-          <section aria-labelledby="timeline-title" className="min-w-0">
+        <div className="mt-10 grid min-w-0 gap-10 md:grid-cols-[15rem_minmax(0,1fr)] md:items-start md:gap-6 lg:grid-cols-[18rem_minmax(0,1fr)] lg:gap-10">
+          <section aria-labelledby="timeline-title" className="min-w-0 md:col-start-2 md:row-start-1">
             <div className="mb-6 flex flex-wrap items-end justify-between gap-3 border-b border-[var(--color-rule-strong)] pb-4">
               <div><h2 className="font-caprasimo text-[var(--text-xl)] leading-tight" id="timeline-title">Historial</h2><p className="mt-1 text-sm text-[var(--color-muted)]">Del evento más reciente al más antiguo.</p></div>
               {!loading && !error && <p className="text-sm font-semibold tabular-nums text-[var(--color-ink-soft)]">{events.length} {events.length === 1 ? 'evento' : 'eventos'} · {documentCount} {documentCount === 1 ? 'documento' : 'documentos'}</p>}
             </div>
             <AsyncContent empty={events.length === 0} emptyDescription="Añade una consulta, vacuna o tratamiento para empezar la cartilla." emptyTitle="Todavía no hay eventos sanitarios" error={error} loading={loading} loadingLabel="Cargando historial…" onRetry={load}>
               <div className="grid gap-10">
-                {groupedEvents.map(([year, yearEvents]) => <section aria-labelledby={`health-year-${year}`} className="grid min-w-0 gap-4 sm:grid-cols-[4.5rem_minmax(0,1fr)] sm:gap-6" key={year}>
-                  <h3 className="font-caprasimo text-2xl text-[var(--color-accent)] sm:sticky sm:top-24 sm:h-fit" id={`health-year-${year}`}>{year}</h3>
+                {groupedEvents.map(([year, yearEvents]) => <section aria-labelledby={`health-year-${year}`} className="grid min-w-0 gap-4 sm:grid-cols-[5rem_minmax(0,1fr)] sm:gap-6" key={year}>
+                  <h3 className="whitespace-nowrap font-caprasimo text-2xl text-[var(--color-accent)] sm:sticky sm:top-24 sm:h-fit" id={`health-year-${year}`}>{year}</h3>
                   <div className="relative grid min-w-0 gap-5 border-l border-[var(--color-rule-strong)] pl-5 sm:pl-7">
                     {yearEvents.map((healthEvent) => <article className="relative min-w-0 rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-surface-raised)] p-5 shadow-[var(--shadow-card)] sm:p-6" key={healthEvent.id}>
                       <span aria-hidden="true" className="absolute -left-[1.625rem] top-7 size-3 rounded-full border-2 border-[var(--color-paper)] bg-[var(--color-accent)] sm:-left-[2.125rem]" />
@@ -206,7 +206,7 @@ export default function HealthBookView() {
             </AsyncContent>
           </section>
 
-          <aside aria-labelledby="summary-title" className="rounded-[var(--radius-card)] border border-[var(--color-rule-strong)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-card)] lg:sticky lg:top-24">
+          <aside aria-labelledby="summary-title" className="rounded-[var(--radius-card)] border border-[var(--color-rule-strong)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-card)] md:col-start-1 md:row-start-1 md:sticky md:top-24">
             <h2 className="font-nunito text-xl font-bold tracking-normal" id="summary-title">Preparar resumen</h2>
             <p className="mt-1 text-sm leading-5 text-[var(--color-muted)]">Elige qué información incluir antes de una consulta o viaje.</p>
             <fieldset className="form-choice-set mt-5"><legend className="form-legend">Secciones</legend><div className="grid gap-2">
