@@ -23,6 +23,10 @@
   border-bottom: var(--rule-hairline) solid var(--color-rule);
 }
 
+.workspace-header--primary {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
 .workspace-header__copy {
   min-width: 0;
 }
@@ -506,6 +510,14 @@
     grid-template-columns: auto minmax(0, 1fr);
     align-items: start;
     padding-block-end: var(--space-6);
+  }
+
+  .workspace-header--primary {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .workspace-header--primary .workspace-header__actions {
+    grid-column: auto;
   }
 
   .workspace-header__actions {

@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 
 import NavBar from "../Components/NavBar";
 import Footer from "../Components/footer";
-import GoBackButton from "../Components/GoBackButton";
 
 import type { PostCategory } from "../modules/posts/domain/types";
 import { AuthService } from "../modules/auth/infra/AuthService";
@@ -103,8 +102,7 @@ function VolunteerHome() {
       <NavBar />
       <main className="workspace-page">
         <div className="workspace-shell">
-          <header className="workspace-header">
-            <GoBackButton hideIfNoHistory fallback="/volunteer-board" />
+          <header className="workspace-header workspace-header--primary">
             <div className="workspace-header__copy">
               <h1 className="workspace-header__title">Publicar una ayuda</h1>
               <p className="workspace-header__description">
