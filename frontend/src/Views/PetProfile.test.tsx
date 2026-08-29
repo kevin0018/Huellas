@@ -20,7 +20,9 @@ vi.mock("../modules/auth/infra/AuthService", () => ({
 }));
 vi.mock("../Components/NavBar", () => ({ default: () => null }));
 vi.mock("../Components/footer", () => ({ default: () => null }));
-vi.mock("../Components/GoBackButton", () => ({ default: () => <button type="button">Atrás</button> }));
+vi.mock("../Components/GoBackButton", () => ({
+  ArrowLeftIcon: () => <svg aria-hidden="true" />,
+}));
 
 const pet: Pet = {
   id: 9,
@@ -65,6 +67,7 @@ describe("PetProfile", () => {
     expect(screen.getByRole("link", { name: "Abrir cartilla" })).toHaveAttribute("href", "/pets/9/health");
     expect(screen.getByRole("link", { name: "Ver procedimientos" })).toHaveAttribute("href", "/procedures-view/9");
     expect(screen.getByRole("link", { name: "Editar datos" })).toHaveAttribute("href", "/pets/9/edit");
+    expect(screen.getByRole("link", { name: "Tus mascotas" })).toHaveAttribute("href", "/user-home");
     expect(container.querySelector('img[src="/pets/cat3.jpg"]')).toBeInTheDocument();
     await expectNoCriticalAccessibilityViolations(container);
   });

@@ -2,7 +2,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import Footer from "../Components/footer";
-import GoBackButton from "../Components/GoBackButton";
+import { ArrowLeftIcon } from "../Components/GoBackButton";
 import NavBar from "../Components/NavBar";
 import { getPetImageUrl } from "../Components/pet/petImage";
 import { applicationServices } from "../composition/applicationServices";
@@ -121,7 +121,17 @@ function PetProfile() {
         <div className="relative z-10 mx-auto w-full max-w-[var(--page-max)]">
           <header className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-[var(--color-rule-strong)] pb-6 sm:gap-5">
             <div className="min-w-0">
-              <h1 className="font-caprasimo text-[clamp(2.25rem,7vw,4.25rem)] text-[var(--color-ink)]">
+              <nav aria-label="Ruta de navegación">
+                <Link
+                  className="inline-flex min-h-11 items-center gap-2 rounded-[var(--radius-control)] pr-3 text-sm font-bold text-[var(--color-accent)] no-underline transition-colors hover:text-[var(--color-accent-hover)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus)]"
+                  to="/user-home"
+                >
+                  <ArrowLeftIcon className="size-4" />
+                  Tus mascotas
+                </Link>
+              </nav>
+
+              <h1 className="mt-1 font-caprasimo text-[clamp(2.25rem,7vw,4.25rem)] text-[var(--color-ink)]">
                 {pet?.name || "Perfil de mascota"}
               </h1>
               <p className="mt-2 max-w-[65ch] text-[var(--color-ink-soft)]">
@@ -131,19 +141,11 @@ function PetProfile() {
               </p>
             </div>
 
-            <div className="flex items-center gap-2 sm:gap-3">
-              {pet && (
-                <span aria-hidden="true" className="avatar-circle size-14 shrink-0 bg-[var(--color-surface-raised)] sm:size-24">
-                  <img alt="" className="size-full object-cover" height="96" src={getPetImageUrl(pet)} width="96" />
-                </span>
-              )}
-
-              <GoBackButton
-                className="min-h-11 border-[var(--color-rule-strong)] bg-[var(--color-surface-raised)] text-[var(--color-ink)] [&>span]:hidden sm:[&>span]:inline"
-                hideIfNoHistory
-                variant="outline"
-              />
-            </div>
+            {pet && (
+              <span aria-hidden="true" className="avatar-circle size-20 shrink-0 bg-[var(--color-surface-raised)] shadow-[var(--shadow-card)] sm:size-28 lg:size-32">
+                <img alt="" className="size-full object-cover" height="128" src={getPetImageUrl(pet)} width="128" />
+              </span>
+            )}
           </header>
 
           <div className="mt-8">
