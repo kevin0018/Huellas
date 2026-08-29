@@ -50,12 +50,17 @@ describe('PetRegister', () => {
     const user = userEvent.setup();
     const { container } = renderCreate();
 
+    expect(screen.getByRole('heading', { name: 'Datos básicos' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Identificación y viaje' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Información de salud' })).toBeInTheDocument();
     expect(screen.getByRole('group', { name: 'Sexo *' })).toBeInTheDocument();
     expect(screen.getByRole('group', { name: '¿Tiene pasaporte?' })).toBeInTheDocument();
-    expect(screen.getByLabelText('Tipo *')).toHaveAccessibleDescription(
-      'Actualmente se admiten perros, gatos y hurones.',
-    );
+    expect(screen.getByLabelText('Tipo *')).toHaveAccessibleDescription('Perro, gato o hurón.');
+    expect(screen.queryByLabelText('Número de pasaporte')).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'Ir a procedimientos' })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('radio', { name: 'Sí' }));
+    expect(screen.getByLabelText('Número de pasaporte')).toBeEnabled();
 
     await user.click(screen.getByRole('button', { name: 'Crear mascota' }));
 
