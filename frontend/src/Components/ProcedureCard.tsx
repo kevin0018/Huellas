@@ -1,59 +1,75 @@
 import type { PetProcedure } from '../modules/pet/domain/PetProcedure';
 
 interface ProcedureCardProps {
+  compact?: boolean;
+  emphasis?: boolean;
   procedure: PetProcedure;
   onEdit: (procedure: PetProcedure) => void;
 }
 
-const ProcedureCard: React.FC<ProcedureCardProps> = ({ procedure, onEdit }) => {
-  const getStatusInfo = () => {
-    if (procedure.status === 'DONE') return { text: 'Realizado', className: 'bg-green-200 text-green-800' };
-    if (procedure.status === 'UPCOMING') return { text: 'Próxima', className: 'bg-blue-200 text-blue-800' };
-    return { text: 'Faltante', className: 'bg-red-200 text-red-800' };
-  }
+const statusInfo = {
+  DONE: { className: 'border-[var(--color-success)] text-[var(--color-success)]', label: 'Al día' },
+  MISSING: { className: 'border-[var(--color-error)] text-[var(--color-error)]', label: 'Vencido' },
+  UPCOMING: { className: 'border-[var(--color-warning)] text-[var(--color-warning)]', label: 'Próximo' },
+} as const;
 
-  const status = getStatusInfo();
+function formatDate(value?: string | null) {
+  if (!value) return null;
+  return new Date(value).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+function recurrenceLabel(days?: number | null) {
+  if (!days) return 'Sin recurrencia definida';
+  if (days === 365) return 'Cada año';
+  if (days === 30) return 'Cada mes';
+  if (days % 365 === 0) return `Cada ${days / 365} años`;
+  if (days % 7 === 0) return `Cada ${days / 7} semanas`;
+  return `Cada ${days} días`;
+}
+
+const ProcedureCard = ({ compact = false, emphasis = false, procedure, onEdit }: ProcedureCardProps) => {
+  const status = statusInfo[procedure.status];
+  const dueAt = formatDate(procedure.dueAt);
+  const lastOccurredAt = formatDate(procedure.lastOccurredAt ?? procedure.checkupDate);
+  const action = procedure.status === 'DONE' ? 'Editar registro' : 'Registrar realización';
 
   return (
-    <div className="bg-[#FFFFFF] dark:bg-[#A89B9D] border border-[#BCAAA4] dark:border-[#51344D] rounded-lg shadow-md p-4 flex flex-col justify-between transition-transform transform hover:scale-105">
-      <div>
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="text-xl font-bold font-nunito text-[#51344D] dark:text-[#FDF2DE]">
-            {procedure.name}
-          </h3>
-          <span className={`px-3 py-1 text-xs font-semibold rounded-full ${status.className}`}>
-            {status.text}
+    <article className={`grid min-w-0 gap-5 border-b border-[var(--color-rule)] py-6 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start ${compact ? 'sm:py-5' : 'sm:py-7'}`}>
+      <div className="min-w-0">
+        <div className="flex min-w-0 flex-wrap items-center gap-3">
+          <span className={`inline-flex min-h-8 shrink-0 items-center rounded-[var(--radius-pill)] border px-3 text-xs font-bold ${status.className}`}>
+            {status.label}
           </span>
+          <h3 className="min-w-0 break-words font-nunito text-xl font-bold tracking-normal">{procedure.name}</h3>
         </div>
-        <p className="text-sm text-[#51344D] dark:text-gray-300 mb-2 text-left">
-          <strong>Edad: </strong> {procedure.age} Semanas
-        </p>
-        <p className="text-sm text-gray-600 dark:text-gray-200 text-left">
-          <strong>Descripción: </strong>{procedure.description}
-        </p>
-        {procedure.checkupDate && (
-          <p className="text-sm text-gray-600 dark:text-gray-200 text-left">
-            <strong>Fecha: </strong> {new Date(procedure.checkupDate).toLocaleDateString('es-ES')}
-          </p>
-        )}
-        {procedure.checkupNotes && (
-          <p className="text-sm text-gray-600 dark:text-gray-200 text-left">
-            <strong>Notas: </strong>{procedure.checkupNotes}
-          </p>
-        )}
-        <p className="mt-3 text-sm text-gray-700">{procedure.explanation}</p>
-        <p className="mt-2 text-xs text-gray-500">
-          Fuente: {procedure.source} · versión {procedure.version} · región {procedure.region}. Orientación preventiva; consulta a tu veterinario.
-        </p>
+
+        <p className="mt-3 max-w-[65ch] text-sm leading-6 text-[var(--color-ink-soft)]">{procedure.explanation}</p>
+        {!compact && procedure.description && <p className="mt-2 max-w-[65ch] text-sm leading-6 text-[var(--color-muted)]">{procedure.description}</p>}
+
+        <dl className="mt-5 grid gap-x-7 gap-y-3 text-sm sm:grid-cols-3">
+          {dueAt && <div><dt className="font-bold text-[var(--color-muted)]">Fecha orientativa</dt><dd className="mt-1 tabular-nums"><time dateTime={procedure.dueAt ?? undefined}>{dueAt}</time></dd></div>}
+          {lastOccurredAt && <div><dt className="font-bold text-[var(--color-muted)]">Último registro</dt><dd className="mt-1 tabular-nums"><time dateTime={procedure.lastOccurredAt ?? procedure.checkupDate}>{lastOccurredAt}</time></dd></div>}
+          <div><dt className="font-bold text-[var(--color-muted)]">Pauta</dt><dd className="mt-1">{recurrenceLabel(procedure.recurrenceDays)}</dd></div>
+          {!dueAt && !lastOccurredAt && procedure.age > 0 && <div><dt className="font-bold text-[var(--color-muted)]">Edad orientativa</dt><dd className="mt-1">Desde las {procedure.age} semanas</dd></div>}
+        </dl>
+
+        {procedure.checkupNotes && <p className="mt-4 max-w-[65ch] whitespace-pre-wrap break-words text-sm leading-6"><strong>Notas:</strong> {procedure.checkupNotes}</p>}
+
+        <details className="mt-4 max-w-[65ch] text-sm leading-5 text-[var(--color-muted)]">
+          <summary className="min-h-11 cursor-pointer select-none py-3 font-bold text-[var(--color-accent)] focus-visible:rounded-[var(--radius-control)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus)]">Cómo se calcula</summary>
+          <p className="pb-1">Fuente: {procedure.source} · versión {procedure.version} · región {procedure.region}. Esta orientación no sustituye la pauta de tu veterinario.</p>
+        </details>
       </div>
-      <div className="mt-4 text-right">
-        <button
-          onClick={() => onEdit(procedure)}
-          className="bg-[#51344D] text-white hover:bg-[#9886AD] font-semibold py-2 px-4 rounded-lg shadow-sm transition-colors">
-          Actualizar
-        </button>
-      </div>
-    </div>
+
+      <button
+        aria-label={`${action} de ${procedure.name}`}
+        className={`ui-button w-full whitespace-nowrap sm:w-auto ${emphasis ? '' : 'ui-button--secondary'}`}
+        onClick={() => onEdit(procedure)}
+        type="button"
+      >
+        {action}
+      </button>
+    </article>
   );
 };
 

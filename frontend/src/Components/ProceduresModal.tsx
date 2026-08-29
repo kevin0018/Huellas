@@ -16,6 +16,11 @@ interface ProcedureModalProps {
 
 const inputDate = (value?: string) => value?.slice(0, 10) ?? '';
 
+function openDatePicker(event: React.MouseEvent<HTMLInputElement>) {
+  try { event.currentTarget.showPicker?.(); }
+  catch { event.currentTarget.focus(); }
+}
+
 const ProcedureModal = ({ isOpen, onClose, onModalSubmit, procedure }: ProcedureModalProps) => {
   const [date, setDate] = useState(() => inputDate(procedure.checkupDate));
   const [notes, setNotes] = useState(procedure.checkupNotes ?? '');
@@ -69,6 +74,7 @@ const ProcedureModal = ({ isOpen, onClose, onModalSubmit, procedure }: Procedure
               disabled={isSaving}
               id="procedure-date"
               onChange={(event) => setDate(event.target.value)}
+              onClick={openDatePicker}
               type="date"
               value={date}
             />

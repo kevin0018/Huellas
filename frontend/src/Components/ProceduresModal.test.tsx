@@ -96,4 +96,18 @@ describe('ProcedureModal', () => {
     expect(onClose).not.toHaveBeenCalled();
     expect(screen.getByRole('button', { name: 'Guardar cambios' })).toBeEnabled();
   });
+
+  it('opens the native date picker from the whole date field', () => {
+    render(
+      <ProcedureModal isOpen onClose={vi.fn()} onModalSubmit={vi.fn()} procedure={procedure} />,
+    );
+
+    const dateInput = screen.getByLabelText('Fecha de realización');
+    const showPicker = vi.fn();
+    Object.defineProperty(dateInput, 'showPicker', { value: showPicker });
+
+    fireEvent.click(dateInput);
+
+    expect(showPicker).toHaveBeenCalledOnce();
+  });
 });
