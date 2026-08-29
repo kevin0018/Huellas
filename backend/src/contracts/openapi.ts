@@ -209,9 +209,9 @@ export const openApiDocument = {
     '/health-events/{eventId}': {
       parameters: [idParameter('eventId')],
       put: {
-        tags: ['Health'], summary: 'Replace a health event', operationId: 'updateHealthEvent', security: bearerSecurity,
+        tags: ['Health'], summary: 'Replace an owner-reported health event', operationId: 'updateHealthEvent', security: bearerSecurity,
         requestBody: jsonBody(ref('UpdateHealthEventRequest')),
-        responses: { '200': jsonResponse('Updated event', ref('HealthEvent')), '400': jsonResponse('Invalid event', ref('ApiError')), '404': jsonResponse('Event not found', ref('ApiError')) },
+        responses: { '200': jsonResponse('Updated event', ref('HealthEvent')), '400': jsonResponse('Invalid or read-only event', ref('ApiError')), '404': jsonResponse('Event not found', ref('ApiError')) },
       },
       delete: {
         tags: ['Health'], summary: 'Delete a health event', operationId: 'deleteHealthEvent', security: bearerSecurity,

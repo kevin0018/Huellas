@@ -123,7 +123,11 @@ export class HealthRecordService {
   }
 
   async updateEvent(id: number, ownerId: number, input: HealthEventData) {
-    if (!await this.ownedEvent(id, ownerId)) return null;
+    const existing = await this.ownedEvent(id, ownerId);
+    if (!existing) return null;
+    if (existing.source !== HealthEventSource.OWNER || existing.verified_by !== null) {
+      throw new Error('Only owner-reported health events can be edited');
+    }
     const event = await this.database.healthEvent.update({
       where: { id },
       data: {

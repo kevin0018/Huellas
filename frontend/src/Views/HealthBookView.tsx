@@ -1,5 +1,5 @@
 /* Hallmark · pre-emit critique: P5 H5 E4 S5 R5 V5 · genre: playful · macrostructure: Narrative Workflow · theme: Huellas · enrichment: existing pet avatar · nav/footer: preserved · contrast: pass (40–41) · slop: 58/58 pass · mobile: pass (34, 49, 50–57) */
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Footer from '../Components/footer';
 import { ArrowLeftIcon } from '../Components/GoBackButton';
@@ -26,6 +26,13 @@ function openDatePicker(event: React.MouseEvent<HTMLInputElement>) {
 }
 const apiUrlForShare = (token: string) => apiUrl(`/shared-health/${encodeURIComponent(token)}`);
 
+function editRestriction(event: HealthEvent): string | null {
+  if (event.verification === 'VERIFIED') return 'Evento verificado';
+  if (event.source === 'APPOINTMENT') return 'Vinculado a una cita';
+  if (event.source === 'LEGACY_CHECKUP') return 'Registro importado';
+  return null;
+}
+
 export default function HealthBookView() {
   const petId = Number(useParams<{ petId: string }>().petId);
   const [pet, setPet] = useState<Pet | null>(null);
@@ -33,6 +40,7 @@ export default function HealthBookView() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false);
+  const [editingEventId, setEditingEventId] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
   const [sharing, setSharing] = useState(false);
   const [type, setType] = useState<HealthEventType>('GENERAL_CHECKUP');
@@ -48,6 +56,7 @@ export default function HealthBookView() {
   const [periodFrom, setPeriodFrom] = useState('');
   const [periodTo, setPeriodTo] = useState('');
   const [share, setShare] = useState<{ id: number; url: string; expiresAt: string } | null>(null);
+  const eventFormRef = useRef<HTMLFormElement>(null);
 
   const load = useCallback(async () => {
     if (!Number.isInteger(petId) || petId <= 0) {
@@ -67,6 +76,9 @@ export default function HealthBookView() {
   }, [petId]);
 
   useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+    if (showForm && editingEventId !== null) eventFormRef.current?.scrollIntoView?.({ block: 'start' });
+  }, [editingEventId, showForm]);
 
   const groupedEvents = useMemo(() => Array.from([...events]
     .sort((a, b) => new Date(b.occurredAt).getTime() - new Date(a.occurredAt).getTime())
@@ -76,6 +88,38 @@ export default function HealthBookView() {
       return groups;
     }, new Map())), [events]);
   const documentCount = useMemo(() => events.reduce((total, event) => total + (event.attachments?.length || 0), 0), [events]);
+
+  const clearEventFields = () => {
+    setType('GENERAL_CHECKUP');
+    setDate(new Date().toISOString().slice(0, 10));
+    setTitle(''); setNotes(''); setProvider(''); setResult(''); setDose(''); setLotNumber(''); setExpiresAt('');
+  };
+
+  const closeEventForm = () => {
+    setShowForm(false);
+    setEditingEventId(null);
+    clearEventFields();
+  };
+
+  const startCreating = () => {
+    clearEventFields();
+    setEditingEventId(null);
+    setShowForm(true);
+  };
+
+  const startEditing = (healthEvent: HealthEvent) => {
+    setType(healthEvent.type);
+    setDate(healthEvent.occurredAt.slice(0, 10));
+    setTitle(healthEvent.title);
+    setNotes(healthEvent.notes || '');
+    setProvider(healthEvent.provider || '');
+    setResult(healthEvent.result || '');
+    setDose(healthEvent.dose || '');
+    setLotNumber(healthEvent.lotNumber || '');
+    setExpiresAt(healthEvent.expiresAt?.slice(0, 10) || '');
+    setEditingEventId(healthEvent.id);
+    setShowForm(true);
+  };
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -87,9 +131,9 @@ export default function HealthBookView() {
     };
     try {
       setSaving(true); setError('');
-      await repository.create(petId, draft);
-      setTitle(''); setNotes(''); setProvider(''); setResult(''); setDose(''); setLotNumber(''); setExpiresAt('');
-      setShowForm(false);
+      if (editingEventId === null) await repository.create(petId, draft);
+      else await repository.update(editingEventId, draft);
+      closeEventForm();
       await load();
     } catch (caught) { setError(caught instanceof Error ? caught.message : 'No se pudo guardar el evento'); }
     finally { setSaving(false); }
@@ -141,8 +185,8 @@ export default function HealthBookView() {
             <p className="mt-2 max-w-[65ch] text-[var(--color-ink-soft)]">
               {pet ? `Consultas, vacunas y tratamientos de ${pet.name}, ordenados para entender su evolución.` : 'Consultas, vacunas y tratamientos ordenados para entender su evolución.'}
             </p>
-            <button aria-controls="health-event-form" aria-expanded={showForm} className="ui-button mt-5" onClick={() => setShowForm((value) => !value)} type="button">
-              <span aria-hidden="true">{showForm ? '×' : '+'}</span>{showForm ? 'Cerrar formulario' : 'Añadir evento'}
+            <button aria-controls="health-event-form" aria-expanded={showForm} className="ui-button mt-5" onClick={showForm ? closeEventForm : startCreating} type="button">
+              <span aria-hidden="true">{showForm ? '×' : '+'}</span>{showForm ? (editingEventId === null ? 'Cerrar formulario' : 'Cancelar edición') : 'Añadir evento'}
             </button>
           </div>
           {pet && <span aria-hidden="true" className="avatar-circle size-20 shrink-0 bg-[var(--color-surface-raised)] shadow-[var(--shadow-card)] sm:size-28 lg:size-32">
@@ -150,8 +194,8 @@ export default function HealthBookView() {
           </span>}
         </header>
 
-        {showForm && <form className="mt-8 grid gap-5 rounded-[var(--radius-card)] border border-[var(--color-rule-strong)] bg-[var(--color-surface-raised)] p-5 shadow-[var(--shadow-card)] sm:p-6" id="health-event-form" onSubmit={submit}>
-          <div><h2 className="font-nunito text-xl font-bold tracking-normal">Nuevo evento sanitario</h2><p className="mt-1 max-w-[65ch] text-sm text-[var(--color-muted)]">Registra lo esencial ahora; podrás adjuntar documentos cuando el evento esté guardado.</p></div>
+        {showForm && <form className="mt-8 grid scroll-mt-24 gap-5 rounded-[var(--radius-card)] border border-[var(--color-rule-strong)] bg-[var(--color-surface-raised)] p-5 shadow-[var(--shadow-card)] sm:p-6" id="health-event-form" onSubmit={submit} ref={eventFormRef}>
+          <div><h2 className="font-nunito text-xl font-bold tracking-normal">{editingEventId === null ? 'Nuevo evento sanitario' : 'Editar evento sanitario'}</h2><p className="mt-1 max-w-[65ch] text-sm text-[var(--color-muted)]">{editingEventId === null ? 'Registra lo esencial ahora; podrás adjuntar documentos cuando el evento esté guardado.' : 'Corrige los datos introducidos por el propietario sin perder sus documentos.'}</p></div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="form-field"><label className="form-label" htmlFor="health-event-type">Tipo</label><select className="form-control" id="health-event-type" value={type} onChange={(event) => setType(event.target.value as HealthEventType)}>{healthEventTypes.map((value) => <option key={value} value={value}>{healthEventLabels[value]}</option>)}</select></div>
             <div className="form-field"><label className="form-label" htmlFor="health-event-date">Fecha</label><input className="form-control" id="health-event-date" required type="date" value={date} onChange={(event) => setDate(event.target.value)} onClick={openDatePicker} /></div>
@@ -164,8 +208,8 @@ export default function HealthBookView() {
             <div className="form-field sm:col-span-2"><label className="form-label" htmlFor="health-event-notes">Notas <span className="form-label__optional">(opcional)</span></label><textarea className="form-control" id="health-event-notes" maxLength={5000} rows={3} value={notes} onChange={(event) => setNotes(event.target.value)} /></div>
           </div>
           <div className="flex flex-wrap-reverse justify-end gap-3 border-t border-[var(--color-rule)] pt-5">
-            <button className="ui-button ui-button--secondary" disabled={saving} onClick={() => setShowForm(false)} type="button">Cancelar</button>
-            <button aria-busy={saving || undefined} className="ui-button" disabled={saving} type="submit">{saving && <span aria-hidden="true" className="ui-spinner" />}{saving ? 'Guardando…' : 'Guardar evento'}</button>
+            <button className="ui-button ui-button--secondary" disabled={saving} onClick={closeEventForm} type="button">Cancelar</button>
+            <button aria-busy={saving || undefined} className="ui-button" disabled={saving} type="submit">{saving && <span aria-hidden="true" className="ui-spinner" />}{saving ? 'Guardando…' : (editingEventId === null ? 'Guardar evento' : 'Guardar cambios')}</button>
           </div>
         </form>}
 
@@ -202,7 +246,12 @@ export default function HealthBookView() {
                         <label className="ui-button ui-button--secondary mt-3 cursor-pointer">Adjuntar imagen o PDF<input accept="application/pdf,image/jpeg,image/png,image/webp" className="sr-only" onChange={(input) => { void uploadDocument(healthEvent.id, input.target.files?.[0]); input.target.value = ''; }} type="file" /></label>
                         <p className="mt-2 text-xs leading-5 text-[var(--color-muted)]">PDF, JPEG, PNG o WebP · máximo 5 MB · solo visible para el propietario.</p>
                       </div>
-                      <button className="mt-4 min-h-11 rounded-[var(--radius-control)] px-2 text-sm font-bold text-[var(--color-error)] hover:bg-[var(--color-error-soft)] active:bg-[var(--color-error-soft)]" onClick={() => void remove(healthEvent.id)} type="button">Eliminar evento</button>
+                      <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                        {editRestriction(healthEvent)
+                          ? <p className="text-xs font-semibold text-[var(--color-muted)]">Solo lectura · {editRestriction(healthEvent)}</p>
+                          : <button aria-label={`Editar ${healthEvent.title}`} className="ui-button ui-button--secondary" onClick={() => startEditing(healthEvent)} type="button">Editar evento</button>}
+                        <button className="min-h-11 rounded-[var(--radius-control)] px-2 text-sm font-bold text-[var(--color-error)] hover:bg-[var(--color-error-soft)] active:bg-[var(--color-error-soft)]" onClick={() => void remove(healthEvent.id)} type="button">Eliminar evento</button>
+                      </div>
                     </article>)}
                   </div>
                 </section>)}

@@ -19,6 +19,7 @@ const services = vi.hoisted(() => ({
     exportSummary: vi.fn(),
     list: vi.fn(),
     revokeShare: vi.fn(),
+    update: vi.fn(),
     uploadDocument: vi.fn(),
   },
   pets: { getPetById: vi.fn() },
@@ -102,6 +103,7 @@ afterEach(cleanup);
 beforeEach(() => {
   vi.clearAllMocks();
   services.healthEvents.list.mockResolvedValue(events);
+  services.healthEvents.update.mockResolvedValue(events[0]);
   services.pets.getPetById.mockResolvedValue(pet);
 });
 
@@ -131,5 +133,30 @@ describe('HealthBookView', () => {
     expect(showDatePicker).toHaveBeenCalledOnce();
 
     await waitFor(async () => expectNoCriticalAccessibilityViolations(container));
+  });
+
+  it('edits owner-reported events while keeping verified sources read-only', async () => {
+    renderView();
+
+    expect(await screen.findByText(/tratamientos de Miso/i)).toBeInTheDocument();
+    const timeline = screen.getByRole('region', { name: 'Historial' });
+    const entries = within(timeline).getAllByRole('article');
+
+    expect(entries[0]).toHaveTextContent('Solo lectura · Evento verificado');
+    expect(within(entries[0]).queryByRole('button', { name: /editar/i })).not.toBeInTheDocument();
+
+    fireEvent.click(within(entries[1]).getByRole('button', { name: /editar revisión anual/i }));
+    expect(screen.getByRole('heading', { name: 'Editar evento sanitario' })).toBeInTheDocument();
+    const titleInput = screen.getByLabelText('Título');
+    expect(titleInput).toHaveValue('Revisión anual');
+
+    fireEvent.change(titleInput, { target: { value: 'Revisión anual corregida' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Guardar cambios' }));
+
+    await waitFor(() => expect(services.healthEvents.update).toHaveBeenCalledWith(1, expect.objectContaining({
+      title: 'Revisión anual corregida',
+      type: 'GENERAL_CHECKUP',
+    })));
+    expect(services.healthEvents.create).not.toHaveBeenCalled();
   });
 });

@@ -30,6 +30,14 @@ export class ApiHealthEventRepository {
     }));
   }
 
+  async update(id: number, draft: HealthEventDraft): Promise<HealthEvent> {
+    return parseResponse(await fetch(`${apiUrl}/health-events/${id}`, {
+      method: 'PUT',
+      headers: { ...AuthService.getAuthHeaders(), 'Content-Type': 'application/json' },
+      body: JSON.stringify(draft),
+    }));
+  }
+
   async delete(id: number): Promise<void> {
     const response = await fetch(`${apiUrl}/health-events/${id}`, {
       method: 'DELETE',

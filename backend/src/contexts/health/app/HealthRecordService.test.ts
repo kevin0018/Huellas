@@ -65,4 +65,34 @@ describe('HealthRecordService', () => {
       .rejects.toThrow('Source appointment is not valid for this pet');
     expect(create).not.toHaveBeenCalled();
   });
+
+  it('updates an owner-reported event without changing its provenance', async () => {
+    const findFirst = vi.fn().mockResolvedValue(eventRow());
+    const update = vi.fn().mockResolvedValue({ ...eventRow(), title: 'Rabia anual' });
+    const database = { healthEvent: { findFirst, update } } as unknown as PrismaClient;
+    const reminders = {} as ReminderService;
+
+    const result = await new HealthRecordService(database, reminders).updateEvent(12, 7, { ...input, title: 'Rabia anual' });
+
+    expect(update).toHaveBeenCalledWith({
+      where: { id: 12 },
+      data: expect.objectContaining({ title: 'Rabia anual' }),
+    });
+    expect(result).toMatchObject({ id: 12, source: HealthEventSource.OWNER, title: 'Rabia anual' });
+  });
+
+  it.each([
+    ['verified', { ...eventRow(), verified_by: 9 }],
+    ['appointment-linked', { ...eventRow(), source: HealthEventSource.APPOINTMENT, source_appointment_id: 22 }],
+    ['legacy', { ...eventRow(), source: HealthEventSource.LEGACY_CHECKUP, legacy_checkup_id: 31 }],
+  ])('keeps %s events read-only', async (_label, existing) => {
+    const findFirst = vi.fn().mockResolvedValue(existing);
+    const update = vi.fn();
+    const database = { healthEvent: { findFirst, update } } as unknown as PrismaClient;
+    const reminders = {} as ReminderService;
+
+    await expect(new HealthRecordService(database, reminders).updateEvent(12, 7, input))
+      .rejects.toThrow('Only owner-reported health events can be edited');
+    expect(update).not.toHaveBeenCalled();
+  });
 });
