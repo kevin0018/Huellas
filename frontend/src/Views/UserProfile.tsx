@@ -195,7 +195,7 @@ export default function UserProfile() {
 
   if (!user) {
     return <div className="flex justify-center items-center min-h-screen">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--color-accent)]"></div>
     </div>;
   }
 
@@ -209,9 +209,9 @@ export default function UserProfile() {
         {/* Content overlay */}
         <div className="relative z-10 w-full flex flex-col items-center max-w-6xl py-4 ">
           <div className="w-full text-left mt-20 max-w-6xl xl:max-w-7xl 3xl:max-w-[1600px] 3xl:mt-0">
-            <GoBackButton variant="outline" hideIfNoHistory className="bg-white" />
+            <GoBackButton variant="outline" hideIfNoHistory />
           </div>
-          <h1 className="h1 font-caprasimo mb-4 text-4xl md:text-5xl text-[#51344D] drop-shadow-lg dark:text-[#FDF2DE]">Mi Perfil</h1>
+          <h1 className="h1 font-caprasimo mb-4 text-4xl md:text-5xl text-[var(--color-ink)] drop-shadow-lg">Mi Perfil</h1>
 
           <div className="avatar-shadow mx-auto m-8">
             <div className="avatar-circle size-24 sm:size-28 md:size-36">
@@ -221,15 +221,15 @@ export default function UserProfile() {
 
           {/* Error and Success Messages */}
           {error && (
-            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+            <div className="ui-status--error mb-4 p-3 border border-[var(--color-error)] rounded">
               {error}
             </div>
           )}
 
           {/* Profile Update Form */}
-          <div className="bg-gray-100 dark:bg-[#51344D] flex items-center justify-center mb-6 3xl:max-w-[90%] 3xl:!text-[1rem] ">
-            <div className="bg-[#FFFAF0]/90 dark:bg-[#51344D]/90 p-8 rounded-lg shadow-lg w-full max-w-6xl themed-card-invL">
-              <form onSubmit={handleUpdateProfile} className="grid grid-cols-1 md:grid-cols-2 gap-6 justify-center text-left text-[#51344D] dark:text-[#FDF2DE]">
+          <div className="flex items-center justify-center mb-6 w-full 3xl:max-w-[90%] 3xl:!text-[1rem]">
+            <div className="ui-panel p-8 w-full max-w-6xl">
+              <form onSubmit={handleUpdateProfile} className="grid grid-cols-1 md:grid-cols-2 gap-6 justify-center text-left text-[var(--color-ink)]">
                 <div className="md:col-span-1">
                   <label htmlFor="name" className="block text-sm font-medium">
                     {/* TODO: Add translation */}
@@ -241,7 +241,7 @@ export default function UserProfile() {
                     id="name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full px-3 py-2 bg-white dark:bg-[#51344D] dark:text-[#FDF2DE] border border-gray-300 dark:border-[#FDF2DE] rounded-md shadow-sm placeholder-gray-400 dark:placeholder-[#FDF2DE] focus:outline-none focus:ring-indigo-500 focus:border-[#51344D] dark:focus:border-[#FDF2DE]"
+                    className="ui-control mt-1 block w-full px-3 py-2 shadow-sm"
                     required
                     placeholder="Nombre"
                     disabled={isLoading}
@@ -259,7 +259,7 @@ export default function UserProfile() {
                     id="lastName"
                     value={formData.lastName}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full px-3 py-2 bg-white dark:bg-[#51344D] dark:text-[#FDF2DE] border border-gray-300 dark:border-[#FDF2DE] rounded-md shadow-sm placeholder-gray-400 dark:placeholder-[#FDF2DE] focus:outline-none focus:ring-indigo-500 focus:border-[#51344D] dark:focus:border-[#FDF2DE]"
+                    className="ui-control mt-1 block w-full px-3 py-2 shadow-sm"
                     required
                     placeholder="Apellidos"
                     disabled={isLoading}
@@ -277,7 +277,7 @@ export default function UserProfile() {
                     id="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full px-3 py-2 bg-white dark:bg-[#51344D] dark:text-[#FDF2DE] border border-gray-300 dark:border-[#FDF2DE] rounded-md shadow-sm placeholder-gray-400 dark:placeholder-[#FDF2DE] focus:outline-none focus:ring-indigo-500 focus:border-[#51344D] dark:focus:border-[#FDF2DE]"
+                    className="ui-control mt-1 block w-full px-3 py-2 shadow-sm"
                     required
                     placeholder="correo@ejemplo.com"
                     disabled={isLoading}
@@ -286,10 +286,10 @@ export default function UserProfile() {
 
                 {/* Volunteer Status - Only shown for OWNERS who can toggle their volunteer status */}
                 {isOwner(user) && (
-                  <div className="md:col-span-2 flex items-center justify-between p-4 bg-gray-50 dark:bg-[#51344D] rounded-lg border-2 border-[#BCAAA4] dark:border-[#FDF2DE]">
+                  <div className="ui-panel-muted md:col-span-2 flex items-center justify-between p-4">
                     <div>
                       <span className="text-sm font-medium">Estado de voluntario:</span>
-                      <span className={`ml-2 px-2 py-1 rounded text-xs ${isVolunteer(user) ? 'bg-green-100 text-green-800 dark:bg-green-700 dark:text-green-100' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-100'}`}>
+                      <span className={`ui-status ml-2 text-xs ${isVolunteer(user) ? 'ui-status--success' : 'ui-status--neutral'}`}>
                         {/* TODO: Add translation */}
                         {isVolunteer(user) ? 'Voluntario' : 'Propietario'}
                       </span>
@@ -298,10 +298,10 @@ export default function UserProfile() {
                       type="button"
                       onClick={handleVolunteerToggle}
                       disabled={isLoading}
-                      className={`px-4 py-2 rounded-md font-medium transition-colors ${isVolunteer(user)
-                          ? 'bg-red-800 hover:bg-red-600 text-white !px-2 !py-0'
-                          : 'bg-[#51344D] hover:bg-[#A89B9D] text-white'
-                        } disabled:opacity-50 disabled:cursor-not-allowed`}
+                      className={`ui-action px-4 py-2 ${isVolunteer(user)
+                          ? 'ui-action--danger !px-2 !py-0'
+                          : 'ui-action--primary'
+                        }`}
                     >
                       {/* TODO: Add translation */}
                       {isLoading ? 'Procesando...' : isVolunteer(user) ? 'Dejar de ser voluntario' : 'Ser voluntario'}
@@ -323,12 +323,12 @@ export default function UserProfile() {
                       value={formData.description}
                       onChange={handleInputChange}
                       placeholder="Describe tu experiencia, habilidades y motivación como voluntario..."
-                      className="w-full px-3 py-2 bg-white dark:bg-[#51344D] border border-gray-300 dark:border-[#FDF2DE] rounded-md shadow-sm focus:outline-none focus:ring-[#BCAAA4] focus:border-[#BCAAA4] text-[#51344D] dark:text-[#FDF2DE] placeholder-gray-400 dark:placeholder-gray-300 resize-vertical min-h-[80px]"
+                      className="ui-control w-full px-3 py-2 shadow-sm resize-vertical min-h-[80px]"
                       disabled={isLoading || !isOwner(user)}
                       readOnly={!isOwner(user)}
                     />
                     {!isOwner(user) && (
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      <p className="ui-text-muted text-xs mt-1">
                         {/* TODO: Add translation */}
                         Los voluntarios puros no pueden editar su descripción desde aquí.
                       </p>
@@ -340,7 +340,7 @@ export default function UserProfile() {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="py-2 px-4 bg-[#51344D] hover:bg-[#A89B9D] mx-auto text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="ui-action ui-action--primary py-2 px-4 mx-auto shadow-md"
                   >
                     {/* TODO: Add translation */}
                     {isLoading ? 'Guardando...' : 'Guardar cambios'}
@@ -351,13 +351,13 @@ export default function UserProfile() {
           </div>
 
           {/* Password Change Form */}
-          <div className="bg-gray-100 dark:bg-[#51344D] flex items-center justify-center mb-6 3xl:max-w-[70%] 3xl:!text-[1rem] themed-card-invL rounded-xl">
-            <div className="bg-[#FFFAF0]/90 dark:bg-[#51344D]/90 p-8 rounded-lg shadow-lg w-full max-w-6xl">
-              <h3 className="text-lg font-semibold mb-4 text-[#51344D] dark:text-[#FDF2DE] 3xl:!text-[1.7rem]">
+          <div className="flex items-center justify-center mb-6 w-full 3xl:max-w-[70%] 3xl:!text-[1rem]">
+            <div className="ui-panel p-8 w-full max-w-6xl">
+              <h3 className="text-lg font-semibold mb-4 text-[var(--color-ink)] 3xl:!text-[1.7rem]">
                 {/* TODO: Add translation */}
                 Cambiar contraseña
               </h3>
-              <form onSubmit={handleChangePassword} className="grid grid-cols-1 md:grid-cols-2 gap-6 justify-center text-left text-[#51344D] dark:text-[#FDF2DE]">
+              <form onSubmit={handleChangePassword} className="grid grid-cols-1 md:grid-cols-2 gap-6 justify-center text-left text-[var(--color-ink)]">
                 <div className="md:col-span-2">
                   <label htmlFor="currentPassword" className="block text-sm font-medium 3xl:!text-[1.3rem]">
                     {/* TODO: Add translation */}
@@ -369,7 +369,7 @@ export default function UserProfile() {
                     id="currentPassword"
                     value={formData.currentPassword}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full px-3 py-2 bg-white dark:bg-[#51344D] dark:text-[#FDF2DE] border border-gray-300 dark:border-[#FDF2DE] rounded-md shadow-sm placeholder-gray-400 dark:placeholder-[#FDF2DE] focus:outline-none focus:ring-indigo-500 focus:border-[#51344D] dark:focus:border-[#FDF2DE]"
+                    className="ui-control mt-1 block w-full px-3 py-2 shadow-sm"
                     placeholder="Introduce tu contraseña actual"
                     disabled={isLoading}
                   />
@@ -386,7 +386,7 @@ export default function UserProfile() {
                     id="newPassword"
                     value={formData.newPassword}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full px-3 py-2 bg-white dark:bg-[#51344D] dark:text-[#FDF2DE] border border-gray-300 dark:border-[#FDF2DE] rounded-md shadow-sm placeholder-gray-400 dark:placeholder-[#FDF2DE] focus:outline-none focus:ring-indigo-500 focus:border-[#51344D] dark:focus:border-[#FDF2DE]"
+                    className="ui-control mt-1 block w-full px-3 py-2 shadow-sm"
                     placeholder="Introduce nueva contraseña"
                     disabled={isLoading}
                   />
@@ -403,7 +403,7 @@ export default function UserProfile() {
                     id="confirmPassword"
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full px-3 py-2 bg-white dark:bg-[#51344D] dark:text-[#FDF2DE] border border-gray-300 dark:border-[#FDF2DE] rounded-md shadow-sm placeholder-gray-400 dark:placeholder-[#FDF2DE] focus:outline-none focus:ring-indigo-500 focus:border-[#51344D] dark:focus:border-[#FDF2DE]"
+                    className="ui-control mt-1 block w-full px-3 py-2 shadow-sm"
                     placeholder="Confirma la nueva contraseña"
                     disabled={isLoading}
                   />
@@ -413,7 +413,7 @@ export default function UserProfile() {
                   <button
                     type="submit"
                     disabled={isLoading || !formData.currentPassword || !formData.newPassword}
-                    className="py-2 px-4 bg-[#51344D] hover:bg-[#A89B9D] mx-auto text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="ui-action ui-action--primary py-2 px-4 mx-auto shadow-md"
                   >
                     {/* TODO: Add translation */}
                     {isLoading ? 'Cambiando...' : 'Cambiar contraseña'}
@@ -436,7 +436,7 @@ export default function UserProfile() {
 
       {/* Success Toast */}
       {showSuccessToast && (
-        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-fade-in">
+        <div className="ui-toast--success fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-fade-in">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>

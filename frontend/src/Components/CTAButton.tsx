@@ -15,16 +15,14 @@ type Props = {
 
 const CTAButton: FC<Props> = ({ label, href, onClick, className }) => {
   const base =
-    "inline-flex items-center justify-center rounded-full px-8 py-6 text-base md:text-lg font-semibold shadow-md transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 z-10" +
+    "ui-action ui-action--primary rounded-full px-8 py-6 text-base md:text-lg shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 z-10" +
     " mt-8 mx-auto";
-  const colors =
-    'bg-[#BCAAA4] hover:bg-[#51344D] text-white hover:!text-white focus-visible:ring-[--huellas-eggplant] ring-1 ring-black/10 dark:ring-white/20'; 
   if (href) {
     return (
       <a
         href={href}
         onClick={onClick}
-        className={`${base} ${colors} ${className ?? ""}`}
+        className={`${base} ${className ?? ""}`}
       >
           {label} {" "}
       </a>
@@ -34,7 +32,7 @@ const CTAButton: FC<Props> = ({ label, href, onClick, className }) => {
     <button
       type="button"
       onClick={onClick}
-      className={`${base} ${colors} ${className ?? ""}`}
+      className={`${base} ${className ?? ""}`}
     >
        {label} {" "}
     </button>

@@ -5,11 +5,11 @@ export default function NotFoundView() {
   return (
     <>
       <NavBar />
-      <main className="min-h-screen grid place-items-center bg-[#FDF2DE] dark:bg-[#51344D] px-4 text-center">
+      <main className="ui-page min-h-screen grid place-items-center px-4 text-center">
         <div>
-          <p className="font-caprasimo text-7xl text-[#9886AD]">404</p>
-          <h1 className="mt-3 font-caprasimo text-3xl text-[#51344D] dark:text-[#FDF2DE]">Esta página no existe</h1>
-          <Link className="mt-6 inline-block rounded-lg bg-[#51344D] px-5 py-3 font-semibold text-white" to="/">
+          <p className="font-caprasimo text-7xl text-[var(--huellas-lavender-1)]">404</p>
+          <h1 className="mt-3 font-caprasimo text-3xl text-[var(--color-ink)]">Esta página no existe</h1>
+          <Link className="ui-action ui-action--primary mt-6 px-5 py-3" to="/">
             Volver al inicio
           </Link>
         </div>

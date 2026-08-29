@@ -141,13 +141,13 @@ function VolunteerBoard() {
 
         <div className="relative z-10 w-full max-w-6xl">
           <div className="w-full text-left mx-auto mt-8">
-            <GoBackButton variant="outline" hideIfNoHistory className="bg-white" />
+            <GoBackButton variant="outline" hideIfNoHistory />
           </div>
 
-          <h1 className="h1 font-caprasimo mb-2 text-5xl text-[#51344D] drop-shadow-lg text-center">
+          <h1 className="h1 font-caprasimo mb-2 text-5xl text-[var(--color-ink)] drop-shadow-lg text-center">
             Tablón de anuncios
           </h1>
-          <p className="text-center text-lg text-[#51344D]/80 mb-6">
+          <p className="ui-text-muted text-center text-lg mb-6">
             Aquí puedes buscar entre los voluntarios más cercanos a ti en Barcelona.
           </p>
 
@@ -159,7 +159,7 @@ function VolunteerBoard() {
                 id="category"
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value as PostCategory | "ALL")}
-                className="block w-full appearance-none rounded-md border border-[#BCAAA4] bg-white py-2 pl-3 pr-10 text-[#51344D] shadow-sm focus:outline-none focus:ring-2 focus:ring-[#51344D]"
+                className="ui-control block w-full appearance-none py-2 pl-3 pr-10 shadow-sm"
               >
                 {CATEGORY_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -168,19 +168,19 @@ function VolunteerBoard() {
                 ))}
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                <svg className="h-5 w-5 text-[#51344D]/70" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.188l3.71-3.957a.75.75 0 011.08 1.04l-4.24 4.53a.75.75 0 01-1.08 0l-4.24-4.53a.75.75 0 01.02-1.06z" clipRule="evenodd" /></svg>
+                <svg className="h-5 w-5 ui-text-muted" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.188l3.71-3.957a.75.75 0 011.08 1.04l-4.24 4.53a.75.75 0 01-1.08 0l-4.24-4.53a.75.75 0 01.02-1.06z" clipRule="evenodd" /></svg>
               </div>
             </div>
 
             <label className="inline-flex items-center gap-2 select-none">
               <input
                 type="checkbox"
-                className="h-4 w-4 rounded border-[#BCAAA4] text-[#51344D] focus:ring-[#51344D]"
+                className="h-4 w-4 rounded border-[var(--color-rule-strong)] text-[var(--color-accent)] focus:ring-[var(--color-focus)]"
                 checked={myOnly}
                 onChange={(e) => setMyOnly(e.target.checked)}
                 disabled={!currentUserId}
               />
-              <span className={`text-sm ${currentUserId ? "text-[#51344D]" : "text-[#51344D]/50"}`}>
+              <span className={`text-sm ${currentUserId ? "text-[var(--color-ink)]" : "ui-text-muted"}`}>
                 Mis anuncios
               </span>
             </label>
@@ -219,15 +219,15 @@ function VolunteerBoard() {
                           <button
                             type="button"
                             onClick={() => handleDelete(post.id)}
-                            className="inline-flex items-center gap-2 rounded-lg border border-[#BCAAA4] bg-white px-3 py-2 hover:bg-[#FDF2DE] transition"
+                            className="ui-action ui-action--secondary gap-2 px-3 py-2"
                             title="Eliminar anuncio"
                             aria-label="Eliminar anuncio"
                           >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-[#51344D]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 ui-text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
                               <path strokeLinecap="round" strokeLinejoin="round" d="M9 3h6m-9 4h12m-1 0-1 13a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 7m3 0V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                               <path strokeLinecap="round" strokeLinejoin="round" d="M10 11v6M14 11v6" />
                             </svg>
-                            <span className="text-[#51344D]">Eliminar</span>
+                            <span>Eliminar</span>
                           </button>
                         </div>
                       )}
@@ -240,17 +240,17 @@ function VolunteerBoard() {
               {total > pageSize && (
                 <div className="flex items-center justify-center gap-4 mt-10">
                   <button
-                    className="px-4 py-2 rounded-md border border-[#BCAAA4] bg-white hover:bg-[#FDF2DE] disabled:opacity-50"
+                    className="ui-action ui-action--secondary px-4 py-2"
                     disabled={page <= 1}
                     onClick={() => goToPage(page - 1)}
                   >
                     ← Anterior
                   </button>
-                  <span className="text-[#51344D]">
+                  <span className="text-[var(--color-ink)]">
                     Página {page} de {Math.ceil(total / pageSize)}
                   </span>
                   <button
-                    className="px-4 py-2 rounded-md border border-[#BCAAA4] bg-white hover:bg-[#FDF2DE] disabled:opacity-50"
+                    className="ui-action ui-action--secondary px-4 py-2"
                     disabled={page >= Math.ceil(total / pageSize)}
                     onClick={() => goToPage(page + 1)}
                   >

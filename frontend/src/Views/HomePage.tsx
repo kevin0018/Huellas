@@ -29,7 +29,7 @@ const HomeContent: React.FC = () => {
         <img src="/media/dogs_title.png" alt="dogs_mobile" className="block lg:hidden w-full max-w-[600px]" />
 
         {/* CTA overlay */}
-        <div className="absolute left-4 bottom-4 md:left-8 md:bottom-8 text-white">
+        <div className="absolute left-4 bottom-4 md:left-8 md:bottom-8">
           <CTAButton label={translate('getStarted')} href="/register" />
         </div>
       </div>
@@ -45,7 +45,7 @@ const HomeContent: React.FC = () => {
           <img src="/media/helpCat.svg" alt="Helping Cat" className='w-80 mx-auto m-5' />
           <div className="flex flex-col items-left md:items-start text-left max-w-xl font-nunito gap-8">
             <p className="lead text-left w-full max-w-4xl"> {translate('howToHelpText')} </p>
-            <button className=" cursor-pointer bg-[#51344D] !text-white p-4 rounded hover:bg-[#BCAAA4] text-white hover:text-white transition-all duration-200 "> {translate('supportAnAnimal')} </button>
+            <button className="ui-action ui-action--primary cursor-pointer p-4"> {translate('supportAnAnimal')} </button>
           </div>
         </div>
       </section>

@@ -47,8 +47,8 @@ h1, h2, h3, h4, h5, h6 {
   min-width: 0;
   margin-block: 0;
   color: var(--color-ink);
-  font-family: var(--font-display);
-  font-weight: 400;
+  font-family: var(--font-body);
+  font-weight: 700;
   line-height: 1.12;
   letter-spacing: -0.025em;
   overflow-wrap: anywhere;
@@ -66,6 +66,13 @@ a { color: inherit; text-decoration-thickness: 0.08em; text-underline-offset: 0.
 ::selection { background: var(--color-accent); color: var(--color-accent-ink); }
 
 .background-primary { background: var(--color-paper); color: var(--color-ink); }
+.h1,
+.h2,
+.font-caprasimo {
+  font-family: var(--font-display);
+  font-weight: 400;
+}
+
 .h1 { font-size: var(--text-display); }
 .h2 { font-size: clamp(var(--text-lg), 3vw, var(--text-xl)); }
 .lead { max-width: 65ch; color: var(--color-ink-soft); font-size: var(--text-md); line-height: 1.5; }
@@ -111,6 +118,96 @@ a { color: inherit; text-decoration-thickness: 0.08em; text-underline-offset: 0.
 .pet-card-arrow { transition-property: transform; }
 
 .ui-contrast-action { color: var(--color-accent-ink); }
+
+.ui-page {
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+
+.ui-panel,
+.ui-panel-muted {
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-card);
+  color: var(--color-ink);
+}
+
+.ui-panel {
+  background: var(--color-surface-raised);
+  box-shadow: var(--shadow-card);
+}
+
+.ui-panel-muted { background: var(--color-surface); }
+.ui-text-muted { color: var(--color-muted); }
+.ui-text-accent { color: var(--color-accent); }
+.ui-on-accent { color: var(--color-accent-ink); }
+
+.ui-control {
+  border: 1px solid var(--color-rule-strong);
+  border-radius: var(--radius-control);
+  background: var(--color-surface-raised);
+  color: var(--color-ink);
+  outline: 2px solid transparent;
+  outline-offset: 1px;
+}
+
+.ui-control::placeholder { color: var(--color-neutral); }
+.ui-control:hover { border-color: var(--color-accent); }
+.ui-control:focus-visible { border-color: var(--color-accent); outline-color: var(--color-focus); }
+
+.ui-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+  font-weight: 700;
+  transition-duration: var(--duration-short);
+  transition-property: color, background-color, border-color, box-shadow, transform;
+  transition-timing-function: var(--ease-out);
+  white-space: nowrap;
+}
+
+.ui-action:active { transform: translateY(1px); }
+.ui-action--primary { background: var(--color-accent); color: var(--color-accent-ink); }
+.ui-action--secondary { border-color: var(--color-rule-strong); background: var(--color-surface-raised); color: var(--color-ink); }
+.ui-action--danger { background: var(--color-error); color: var(--color-error-ink); }
+
+.ui-status {
+  border-radius: var(--radius-pill);
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.ui-status--success { background: var(--color-success-soft); color: var(--color-success-text); }
+.ui-status--warning { background: var(--color-warning-soft); color: var(--color-warning-ink); }
+.ui-status--info { background: var(--color-info-soft); color: var(--color-info-ink); }
+.ui-status--error { background: var(--color-error-soft); color: var(--color-error); }
+.ui-status--neutral { background: var(--color-neutral-soft); color: var(--color-neutral-ink); }
+.ui-toast--success { background: var(--color-success); color: var(--color-success-ink); }
+.ui-chat-bubble--own,
+.ui-conversation--selected {
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+}
+
+.ui-chat-bubble--other { background: var(--color-paper-2); color: var(--color-ink); }
+
+.ui-conversation {
+  border: 1px solid var(--color-rule);
+  background: var(--color-surface-raised);
+  color: var(--color-ink);
+  transition-duration: var(--duration-short);
+  transition-property: color, background-color, border-color, box-shadow;
+  transition-timing-function: var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ui-action--primary:hover { background: var(--color-accent-hover); color: var(--color-accent-ink); }
+  .ui-action--secondary:hover { border-color: var(--color-accent); background: var(--color-paper-2); }
+  .ui-action--danger:hover { background: var(--color-error-hover); color: var(--color-error-ink); }
+  .ui-conversation:not(.ui-conversation--selected):hover { background: var(--color-paper-2); }
+}
 
 .ui-hover-surface,
 .ui-hover-accent,

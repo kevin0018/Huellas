@@ -107,7 +107,7 @@ const LanguageSwitcher: FC<{ className?: string }> = ({ className }) => {
         aria-label="Change language"
         onClick={() => setOpen((o) => !o)}
         onKeyDown={onTriggerKeyDown}
-        className="inline-flex h-6 w-6 3xl:h-8 3xl:w-8 items-center justify-center rounded-md bg-transparent p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2"
+        className="inline-flex h-6 w-6 3xl:h-8 3xl:w-8 items-center justify-center rounded-md bg-transparent p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
       >
         <img
           src={SRC_BY_LANG[currentLanguage]}
@@ -124,7 +124,7 @@ const LanguageSwitcher: FC<{ className?: string }> = ({ className }) => {
           aria-label="Languages"
           tabIndex={-1}
           onKeyDown={onListKeyDown}
-          className="absolute right-0 z-50 min-w-[10rem] rounded-md border bg-white shadow-md dark:border-neutral-700 dark:bg-neutral-900"
+          className="ui-panel absolute right-0 z-50 min-w-[10rem]"
         >
           {availableLanguages.map((lang, i) => (
             <li key={lang} role="option" aria-selected={lang === currentLanguage}>
@@ -132,8 +132,8 @@ const LanguageSwitcher: FC<{ className?: string }> = ({ className }) => {
                 ref={(el) => { itemRefs.current[i] = el; }}
                 type="button"
                 onClick={() => selectLang(lang)}
-                className={`flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left hover:bg-neutral-100 focus:bg-neutral-100 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800 ${
-                  i === activeIdx ? 'ring-1 ring-neutral-300 dark:ring-neutral-700' : ''
+                className={`ui-hover-surface flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left ${
+                  i === activeIdx ? 'ring-1 ring-[var(--color-rule-strong)]' : ''
                 }`}
               >
                 <img src={SRC_BY_LANG[lang]} alt="" className="h-5 w-5 rounded-sm" />

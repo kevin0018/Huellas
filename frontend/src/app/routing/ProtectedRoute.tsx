@@ -34,8 +34,8 @@ export default function ProtectedRoute() {
 
   if (status === 'checking') {
     return (
-      <main className="min-h-screen grid place-items-center bg-[#FDF2DE] dark:bg-[#51344D]" aria-live="polite">
-        <p className="text-[#51344D] dark:text-[#FDF2DE]">Comprobando sesión…</p>
+      <main className="ui-page min-h-screen grid place-items-center" aria-live="polite">
+        <p>Comprobando sesión…</p>
       </main>
     );
   }

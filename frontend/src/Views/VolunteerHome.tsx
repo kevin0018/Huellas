@@ -115,25 +115,25 @@ function VolunteerBoard() {
         <div className="relative z-10 w-full flex flex-col items-center max-w-4xl py-4 3xl:max-w-[50%] ">
           {/* Go back */}
           <div className="w-full text-left mx-auto mt-8">
-            <GoBackButton variant="outline" hideIfNoHistory className="bg-white" />
+            <GoBackButton variant="outline" hideIfNoHistory />
           </div>
 
-          <h1 className="h1 font-caprasimo mb-8 text-4xl md:text-5xl text-[#51344D] drop-shadow-lg dark:text-[#FDF2DE]">
+          <h1 className="h1 font-caprasimo mb-8 text-4xl md:text-5xl text-[var(--color-ink)] drop-shadow-lg">
             Hola, {user?.name || 'voluntarix'}
           </h1>
 
-          <div className="bg-[#FDF2DE]/90 dark:bg-[#51344D]/90 border-[#BCAAA4] border-2 rounded-lg shadow-lg p-6 w-full mx-auto text-center themed-card-invL">
-            <p className="lead text-[--huellas-eggplant]/80 dark:text-[#FDF2DE] text-center mb-8 px-4">
+          <div className="ui-panel p-6 w-full mx-auto text-center">
+            <p className="lead text-center mb-8 px-4 mx-auto">
               Aquí tienes todo lo que necesitas para empezar a ayudar.
             </p>
 
             {/* Mensajes de estado */}
-            {error && <div className="mb-4 text-red-700 font-semibold">{error}</div>}
-            {ok && <div className="mb-4 text-green-700 font-semibold">¡Anuncio creado!</div>}
+            {error && <div className="ui-status--error mb-4 rounded-md p-3 font-semibold">{error}</div>}
+            {ok && <div className="ui-status--success mb-4 rounded-md p-3 font-semibold">¡Anuncio creado!</div>}
 
             <div className="flex flex-col md:flex-row lg:flex-row items-center justify-center gap-4 mt-8 3xl:gap-10">
               {/* Formulario simplificado con layout de grid */}
-              <form className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left text-[#51344D]" onSubmit={onSubmit}>
+              <form className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left text-[var(--color-ink)]" onSubmit={onSubmit}>
                 {/* Título */}
                 <div className="md:col-span-2">
                   <label htmlFor="title" className="block text-sm font-medium">
@@ -143,7 +143,7 @@ function VolunteerBoard() {
                     type="text"
                     name="title"
                     id="title"
-                    className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#51344D]"
+                    className="ui-control mt-1 block w-full px-3 py-2 shadow-sm"
                     required
                     placeholder="Título del anuncio"
                   />
@@ -156,7 +156,7 @@ function VolunteerBoard() {
                     type="text"
                     name="nombre"
                     id="nombre"
-                    className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#51344D]"
+                    className="ui-control mt-1 block w-full px-3 py-2 shadow-sm"
                     placeholder="Tu nombre"
                     value={user?.name || ''}
                     readOnly
@@ -170,7 +170,7 @@ function VolunteerBoard() {
                     type="text"
                     name="apellidos"
                     id="apellidos"
-                    className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#51344D]"
+                    className="ui-control mt-1 block w-full px-3 py-2 shadow-sm"
                     placeholder="Tus apellidos"
                     value={user?.lastName || ''}
                     readOnly
@@ -184,7 +184,7 @@ function VolunteerBoard() {
                     type="email"
                     name="email"
                     id="email"
-                    className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#51344D]"
+                    className="ui-control mt-1 block w-full px-3 py-2 shadow-sm"
                     placeholder="tu.correo@ejemplo.com"
                     value={user?.email || ''}
                     readOnly
@@ -198,7 +198,7 @@ function VolunteerBoard() {
                     type="number"
                     name="number"
                     id="number"
-                    className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#51344D]"
+                    className="ui-control mt-1 block w-full px-3 py-2 shadow-sm"
                     placeholder="Tu número de teléfono"
                   />
                 </div>
@@ -210,7 +210,7 @@ function VolunteerBoard() {
                     id="category"
                     value={category}
                     onChange={(e) => setCategory(e.target.value as PostCategory)}
-                    className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#51344D]"
+                    className="ui-control mt-1 block w-full px-3 py-2 shadow-sm"
                   >
                     {Object.keys(CATEGORY_LABEL).map((key) => {
                       const k = key as PostCategory;
@@ -232,7 +232,7 @@ function VolunteerBoard() {
                     min={todayStr}
                     value={expiresAt}
                     onChange={(e) => setExpiresAt(e.target.value)}
-                    className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#51344D]"
+                    className="ui-control mt-1 block w-full px-3 py-2 shadow-sm"
                   />
                 </div>
 
@@ -243,7 +243,7 @@ function VolunteerBoard() {
                     id="comentarios"
                     name="comentarios"
                     required
-                    className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#51344D]"
+                    className="ui-control mt-1 block w-full px-3 py-2 shadow-sm"
                     placeholder="Escribe aquí tu mensaje..."
                   ></textarea>
                 </div>
@@ -253,7 +253,7 @@ function VolunteerBoard() {
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="w-full flex items-center justify-center gap-3 p-3 bg-[#51344D] text-white font-semibold rounded-lg shadow-md hover:bg-[#6a4f66] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#51344D] transition-colors duration-300 disabled:opacity-60"
+                    className="ui-action ui-action--primary w-full gap-3 p-3 shadow-md"
                   >
                     {submitting ? "Enviando..." : "Enviar"}
                   </button>
@@ -264,7 +264,7 @@ function VolunteerBoard() {
               <div className="flex flex-col gap-4 p-4">
                 <button
                   type="button"
-                  className=" flex items-center justify-center gap-3  p-4 bg-[#51344D] text-white font-semibold rounded-lg shadow-md hover:bg-[#A89B9D] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition-colors duration-300 ease-in-out cursor-pointer "
+                  className="ui-action ui-action--primary gap-3 p-4 shadow-md cursor-pointer"
                   onClick={() => navigate("/volunteer-board")}
                 >
                   <img src="media/paw_icon.svg" alt="Icono de añadir mascota" className="h-7 w-7" />

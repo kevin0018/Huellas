@@ -71,17 +71,17 @@ export default function GoBackButton({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [enableHotkey, handleClick]);
 
-  const baseStyles = "inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition-[background,box-shadow,transform] focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-[0.98]";
+  const baseStyles = "ui-action inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2";
 
   const variantStyles = useMemo(() => {
     switch (variant) {
       case "solid":
-        return "bg-neutral-900 text-white hover:bg-neutral-800 focus:ring-neutral-400 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-white/90";
+        return "ui-action--primary";
       case "outline":
-        return "border border-neutral-300 text-neutral-900 hover:bg-neutral-50 focus:ring-neutral-400 dark:border-neutral-700 dark:text-neutral-100 dark:hover:bg-neutral-800/60";
+        return "ui-action--secondary";
       case "ghost":
       default:
-        return "text-neutral-800 hover:bg-neutral-100 focus:ring-neutral-400 dark:text-neutral-100 dark:hover:bg-neutral-800/60";
+        return "ui-hover-surface text-[var(--color-ink)]";
     }
   }, [variant]);
 
