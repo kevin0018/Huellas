@@ -79,6 +79,74 @@
 .form-label { color: var(--color-ink); font-size: var(--text-sm); font-weight: 700; }
 .form-label__optional { color: var(--color-muted); font-weight: 400; }
 
+.form-page {
+  display: grid;
+  min-height: calc(100dvh - 5rem);
+  place-items: center;
+  padding: var(--space-8) var(--page-gutter);
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+
+.form-page__content { display: grid; width: min(100%, 40rem); gap: var(--space-5); }
+.form-page__content--wide { width: min(100%, 58rem); }
+.form-page__header { display: grid; gap: var(--space-2); text-align: start; }
+.form-page__title { font-size: clamp(var(--text-xl), 6vw, var(--text-2xl)); }
+.form-page__description { max-width: 65ch; color: var(--color-muted); }
+
+.form-surface {
+  display: grid;
+  gap: var(--space-5);
+  padding: clamp(var(--space-5), 5vw, var(--space-8));
+  border: 1px solid var(--color-rule-strong);
+  border-radius: var(--radius-card);
+  background: var(--color-surface-raised);
+  color: var(--color-ink);
+  box-shadow: var(--shadow-card);
+}
+
+.form-stack { display: grid; gap: var(--space-4); }
+.form-section { display: grid; gap: var(--space-4); }
+.form-section + .form-section { padding-block-start: var(--space-5); border-block-start: 1px solid var(--color-rule); }
+.form-section__title { font-family: var(--font-body); font-size: var(--text-md); font-weight: 700; letter-spacing: 0; }
+
+.form-choice-set { min-width: 0; margin: 0; padding: 0; border: 0; }
+.form-legend { margin-block-end: var(--space-2); color: var(--color-ink); font-size: var(--text-sm); font-weight: 700; }
+.form-choice-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); }
+
+.form-choice,
+.form-check {
+  display: flex;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: var(--space-2);
+  border-radius: var(--radius-control);
+  color: var(--color-ink);
+}
+
+.form-choice {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-rule-strong);
+  background: var(--color-surface-raised);
+  transition: background-color var(--duration-short) var(--ease-out), border-color var(--duration-short) var(--ease-out), transform var(--duration-instant) var(--ease-out);
+}
+
+.form-choice:has(input:checked) { border-color: var(--color-accent); background: var(--color-paper-2); color: var(--color-ink); }
+.form-choice:active { transform: translateY(1px); }
+.form-choice input,
+.form-check input { width: 1.25rem; height: 1.25rem; flex: 0 0 auto; accent-color: var(--color-accent); }
+.form-check { width: fit-content; padding-block: var(--space-1); }
+.form-check:has(input:disabled) { cursor: not-allowed; opacity: 0.55; }
+
+.form-meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2) var(--space-4); color: var(--color-muted); font-size: var(--text-sm); }
+.form-link { min-height: 2.75rem; display: inline-flex; align-items: center; color: var(--color-accent); font-weight: 700; white-space: nowrap; }
+.form-submit { width: 100%; }
+
+@media (hover: hover) and (pointer: fine) {
+  .form-choice:hover { background: var(--color-paper-2); color: var(--color-ink); }
+  .form-link:hover { color: var(--color-accent-hover); }
+}
+
 .form-control {
   width: 100%;
   min-height: 2.75rem;

@@ -1,5 +1,4 @@
 import { useEffect, useId, useRef, type ReactNode, type RefObject } from 'react';
-import './Dialog.css';
 
 interface DialogProps {
   children: ReactNode;

@@ -23,6 +23,7 @@ function LoginContent() {
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
+    if (error) setError(null);
   };
 
   const getErrorMessage = (error: string): string => {
@@ -82,67 +83,78 @@ function LoginContent() {
     }
   }, [searchParams, setSearchParams]);
   return (
-    <div className="flex flex-col items-center justify-center background-primary px-2 sm:px-0 overflow-hidden" style={{ minHeight: 'calc(100vh - 80px)' }}>
-      {/* Responsive background with dogs */}
-      <div className="fixed inset-0 z-0 w-full h-full bg-repeat bg-[url('/media/bg_phone_userhome.png')] md:bg-[url('/media/bg_tablet_userhome.png')] lg:bg-[url('/media/bg_desktop_userhome.png')] opacity-60 pointer-events-none select-none" aria-hidden="true" />
+    <main className="form-page relative overflow-hidden">
+      <div
+        className="pointer-events-none absolute inset-0 bg-[url('/media/bg_phone_userhome.png')] bg-repeat opacity-60 md:bg-[url('/media/bg_tablet_userhome.png')] lg:bg-[url('/media/bg_desktop_userhome.png')]"
+        aria-hidden="true"
+      />
 
-      <div className="w-full text-left max-w-6xl xl:max-w-6xl 3xl:max-w-[1600px]">
-        <GoBackButton variant="outline" hideIfNoHistory className="bg-white" />
-      </div>
+      <div className="form-page__content relative z-10">
+        <div>
+          <GoBackButton variant="outline" hideIfNoHistory className="ui-button ui-button--secondary" />
+        </div>
 
-      {/* Content overlay */}
-      <div className="relative z-10 w-full flex flex-col items-center max-w-lg py-4">
-        <h1 className="h1 font-caprasimo mb-4 text-4xl md:text-5xl text-[#51344D] drop-shadow-lg dark:text-[#FDF2DE]">{translate('login')}</h1>
-        <div className="w-full max-w-xs sm:max-w-md md:max-w-lg p-6 sm:p-8 bg-white/90 dark:bg-[#51344D]/90 rounded-xl shadow-lg border border-[#51344D] flex flex-col gap-4 mt-0">
-          <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-            <div className="flex flex-col gap-1">
-              <label htmlFor="email" className="font-nunito text-base text-eggplant text-left">{translate('email')}</label>
+        <header className="form-page__header">
+          <h1 id="login-title" className="form-page__title">{translate('login')}</h1>
+        </header>
+
+        <div className="form-surface">
+          <form className="form-stack" onSubmit={handleSubmit} aria-labelledby="login-title" aria-busy={loading}>
+            <div className="form-field">
+              <label htmlFor="login-email" className="form-label">{translate('email')}</label>
               <input
+                id="login-email"
                 type="email"
                 name="email"
                 value={form.email}
                 onChange={handleInputChange}
                 placeholder={translate('email')}
-                className="input bg-[#FDF2DE] border-2 border-[#51344D] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9886AD] dark:bg-[#BAA9CB] dark:text-white"
+                autoComplete="email"
+                className="form-control"
+                aria-invalid={error ? 'true' : undefined}
+                aria-describedby={error ? 'login-error' : undefined}
                 required
               />
             </div>
-            <div className="flex flex-col gap-1">
-              <label htmlFor="password" className="font-nunito text-base text-eggplant text-left">{translate('password')}</label>
+            <div className="form-field">
+              <label htmlFor="login-password" className="form-label">{translate('password')}</label>
               <input
+                id="login-password"
                 type="password"
                 name="password"
                 value={form.password}
                 onChange={handleInputChange}
                 placeholder={translate('password')}
-                className="input bg-[#FDF2DE] border-2 border-[#51344D] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9886AD] dark:bg-[#BAA9CB] dark:text-white"
+                autoComplete="current-password"
+                className="form-control"
+                aria-invalid={error ? 'true' : undefined}
+                aria-describedby={error ? 'login-error' : undefined}
                 required
               />
             </div>
 
             {error && (
-              <div className="text-red-500 text-sm text-center">{error}</div>
+              <div id="login-error" className="form-alert" role="alert">{error}</div>
             )}
 
             <button
               type="submit"
               disabled={loading}
-              className="btn font-bold py-2 rounded-md mt-2 transition-colors w-full disabled:opacity-50"
-              style={{ background: '#51344D', color: '#fff' }}
+              className="ui-button form-submit"
+              aria-busy={loading}
             >
-              {loading ? translate('loading') || 'Cargando...' : translate('login')}
+              {loading && <span className="ui-spinner" aria-hidden="true" />}
+              <span aria-live="polite">{loading ? translate('loading') : translate('login')}</span>
             </button>
           </form>
-          <div className="mt-2 text-sm flex flex-col gap-1 items-center dark:text-[#FDF2DE]">
-            <Link to="/reset-password" className="text-[#51344D] underline hover:opacity-80 focus:underline focus:outline-none dark:text-[#FDF2DE]">
+
+          <div className="form-meta">
+            <Link to="/reset-password" className="form-link">
               {translate('forgotPassword')}
             </Link>
-            <div className="flex flex-row gap-1 items-center">
+            <div className="flex min-h-11 flex-wrap items-center gap-1">
               <span>{translate('dontHaveAccount')}</span>
-              <Link
-                to="/register"
-                className="register-link text-[#51344D] underline hover:opacity-80 focus:underline focus:outline-none dark:text-[#FDF2DE]"
-              >
+              <Link to="/register" className="form-link register-link">
                 {translate('register')}
               </Link>
             </div>
@@ -150,16 +162,19 @@ function LoginContent() {
         </div>
       </div>
 
-      {/* Success Toast */}
       {showSuccessToast && (
-        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-fade-in">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div
+          className="fixed bottom-4 left-1/2 z-50 flex min-h-11 -translate-x-1/2 items-center gap-2 rounded-[var(--radius-control)] border border-[var(--color-success)] bg-[var(--color-success)] px-6 py-3 text-[var(--color-success-ink)] shadow-[var(--shadow-card)]"
+          role="status"
+          aria-live="polite"
+        >
+          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
           <span className="font-medium">{translate('registerSuccess')}</span>
         </div>
       )}
-    </div>
+    </main>
   );
 }
 
