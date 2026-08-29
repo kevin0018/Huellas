@@ -131,22 +131,24 @@ function UserHomeContent() {
         <div className="pointer-events-none absolute inset-0 bg-[url('/media/bg_phone_userhome.png')] bg-repeat opacity-20 md:bg-[url('/media/bg_tablet_userhome.png')] lg:bg-[url('/media/bg_desktop_userhome.png')]" aria-hidden="true" />
 
         <div className="relative mx-auto w-full max-w-[var(--page-max)]">
-          <GoBackButton
-            variant="outline"
-            hideIfNoHistory
-            className="min-h-11 border-[var(--color-rule-strong)] bg-[var(--color-surface)] text-[var(--color-ink)]"
-          />
+          <header className="grid max-w-4xl grid-cols-[auto_minmax(0,1fr)] items-start gap-x-3 pb-8 sm:gap-x-5 sm:pb-10">
+            <GoBackButton
+              variant="outline"
+              hideIfNoHistory
+              className="mt-1 min-h-11 border-[var(--color-rule-strong)] bg-[var(--color-surface)] text-[var(--color-ink)] [&>span]:hidden sm:[&>span]:inline"
+            />
 
-          <header className="max-w-3xl pb-8 pt-6 sm:pb-10">
-            <p className="mb-2 text-sm font-bold uppercase tracking-[0.16em] text-[var(--color-accent)]">
-              Tu agenda de cuidados
-            </p>
-            <h1 className="text-[clamp(2.25rem,8vw,4.25rem)]">
-              {translate("hello")}, {user.name}
-            </h1>
-            <p className="mt-4 max-w-2xl text-lg leading-relaxed text-[var(--color-ink-soft)]">
-              {translate("homePageSubtitle")}
-            </p>
+            <div className="min-w-0">
+              <p className="mb-2 text-sm font-bold uppercase tracking-[0.16em] text-[var(--color-accent)]">
+                Tu agenda de cuidados
+              </p>
+              <h1 className="text-[clamp(2.25rem,8vw,4.25rem)]">
+                {translate("hello")}, {user.name}
+              </h1>
+              <p className="mt-4 max-w-2xl text-lg leading-relaxed text-[var(--color-ink-soft)]">
+                {translate("homePageSubtitle")}
+              </p>
+            </div>
           </header>
 
           <AsyncContent
