@@ -126,6 +126,32 @@ describe('AppointmentModal', () => {
     expect(screen.getByLabelText('Estado')).toHaveValue(AppointmentStatus.COMPLETED);
   });
 
+  it('opens native date and time pickers from their whole fields', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <AppointmentModal
+        isOpen
+        onClose={vi.fn()}
+        onSubmit={vi.fn()}
+        pets={pets}
+      />,
+    );
+
+    const dateInput = screen.getByLabelText('Fecha');
+    const timeInput = screen.getByLabelText('Hora');
+    const showDatePicker = vi.fn();
+    const showTimePicker = vi.fn();
+    Object.defineProperty(dateInput, 'showPicker', { value: showDatePicker });
+    Object.defineProperty(timeInput, 'showPicker', { value: showTimePicker });
+
+    await user.click(dateInput);
+    await user.click(timeInput);
+
+    expect(showDatePicker).toHaveBeenCalledOnce();
+    expect(showTimePicker).toHaveBeenCalledOnce();
+  });
+
   it('shows save errors inline and blocks every close path while loading', () => {
     const onClose = vi.fn();
 

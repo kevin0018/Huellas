@@ -34,6 +34,14 @@ function formatLocalTime(date: Date): string {
   return `${hours}:${minutes}`;
 }
 
+function openNativePicker(event: React.MouseEvent<HTMLInputElement>) {
+  try {
+    event.currentTarget.showPicker?.();
+  } catch {
+    event.currentTarget.focus();
+  }
+}
+
 const AppointmentModal: React.FC<AppointmentModalProps> = ({
   isOpen,
   onClose,
@@ -133,6 +141,7 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
               id="appointment-date"
               min={appointment ? undefined : formatLocalDate(new Date())}
               onChange={(event) => setSelectedDate(event.target.value)}
+              onClick={openNativePicker}
               ref={dateInputRef}
               required
               type="date"
@@ -150,6 +159,7 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
               disabled={loading}
               id="appointment-time"
               onChange={(event) => setSelectedTime(event.target.value)}
+              onClick={openNativePicker}
               required
               step={1800}
               type="time"
