@@ -55,7 +55,7 @@ describe('PetRegister', () => {
     expect(screen.getByRole('heading', { name: 'Información de salud' })).toBeInTheDocument();
     expect(screen.getByRole('group', { name: 'Sexo *' })).toBeInTheDocument();
     expect(screen.getByRole('group', { name: '¿Tiene pasaporte?' })).toBeInTheDocument();
-    expect(screen.getByLabelText('Tipo *')).toHaveAccessibleDescription('Perro, gato o hurón.');
+    expect(screen.getByLabelText('Tipo de animal *')).toHaveValue('dog');
     expect(screen.queryByLabelText('Número de pasaporte')).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'Ir a procedimientos' })).not.toBeInTheDocument();
 

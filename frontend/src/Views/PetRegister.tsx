@@ -151,27 +151,30 @@ const PetRegister: React.FC = () => {
       <NavBar />
       <main className="form-page bg-dogs-userhome-mobile bg-cover bg-center md:bg-dogs-userhome-tablet lg:bg-dogs-userhome-desktop dark:bg-dogs-userhome-mobile">
         <div className="form-page__content form-page__content--wide">
-          <GoBackButton variant="outline" hideIfNoHistory />
-
-          <header className="form-page__header">
+          <header className="form-page__header relative justify-items-center text-center">
+            <GoBackButton
+              className="mb-1 w-fit justify-self-start lg:absolute lg:left-0 lg:top-0"
+              variant="outline"
+              hideIfNoHistory
+            />
             <h1 className="form-page__title font-caprasimo">
               {isEdit ? 'Editar mascota' : 'Añadir mascota'}
             </h1>
-            <p className="form-page__description">
+            <p className="form-page__description mx-auto">
               Guarda sus datos básicos y la información que puede ayudar durante una consulta.
             </p>
           </header>
 
-          <form aria-busy={saving || undefined} className="form-surface form-stack pet-form" noValidate onSubmit={onSubmit}>
+          <form aria-busy={saving || undefined} className="form-surface form-stack gap-5" noValidate onSubmit={onSubmit}>
             {error && <p className="form-alert" role="alert">{error}</p>}
 
-            <section aria-labelledby="pet-profile-heading" className="form-section pet-form__section">
-              <div className="pet-form__section-heading">
+            <section aria-labelledby="pet-profile-heading" className="form-section content-start gap-3">
+              <div className="grid gap-1">
                 <h2 className="form-section__title" id="pet-profile-heading">Datos básicos</h2>
-                <p className="pet-form__section-copy">Su identidad y los datos que usarás con más frecuencia.</p>
+                <p className="form-section__description">Su identidad y los datos que usarás con más frecuencia.</p>
               </div>
 
-              <div className="pet-form__profile-grid">
+              <div className="grid min-w-0 items-start gap-x-4 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
                 <div className="form-field">
                   <label htmlFor="name" className="form-label">Nombre *</label>
                   <input id="name" value={form.name} onChange={(e) => onChange("name", e.target.value)}
@@ -182,14 +185,13 @@ const PetRegister: React.FC = () => {
                 </div>
 
                 <div className="form-field">
-                  <label htmlFor="type" className="form-label">Tipo *</label>
+                  <label htmlFor="type" className="form-label">Tipo de animal *</label>
                   <select id="type" value={form.type} onChange={(e) => onChange("type", e.target.value as PetType)}
-                    aria-describedby="pet-type-help" className="form-control" required>
+                    className="form-control" required>
                     <option value="dog">Perro</option>
                     <option value="cat">Gato</option>
                     <option value="ferret">Hurón</option>
                   </select>
-                  <p className="form-help" id="pet-type-help">Perro, gato o hurón.</p>
                 </div>
 
                 <div className="form-field">
@@ -237,17 +239,24 @@ const PetRegister: React.FC = () => {
               </div>
             </section>
 
-            <div className="pet-form__columns">
-              <section aria-labelledby="pet-identification-heading" className="form-section pet-form__section">
-                <div className="pet-form__section-heading">
-                  <h2 className="form-section__title" id="pet-identification-heading">Identificación y viaje</h2>
-                  <p className="pet-form__section-copy">Datos útiles si se pierde o viaja contigo.</p>
-                </div>
+            <section aria-labelledby="pet-identification-heading" className="form-section content-start gap-3">
+              <div className="grid gap-1">
+                <h2 className="form-section__title" id="pet-identification-heading">Identificación y viaje</h2>
+                <p className="form-section__description">Datos útiles si se pierde o viaja contigo.</p>
+              </div>
 
+              <div className={`grid min-w-0 items-start gap-x-4 gap-y-3 sm:grid-cols-2 ${form.hasPassport ? 'lg:grid-cols-4' : 'lg:grid-cols-3'}`}>
                 <div className="form-field">
                   <label htmlFor="microchipCode" className="form-label">Código de microchip</label>
                   <input id="microchipCode" value={form.microchipCode ?? ''} onChange={(e) => onChange("microchipCode", e.target.value)}
                     placeholder="Sin microchip o desconocido"
+                    className="form-control" />
+                </div>
+
+                <div className="form-field">
+                  <label htmlFor="countryOfOrigin" className="form-label">País de origen</label>
+                  <input id="countryOfOrigin" value={form.countryOfOrigin ?? ''}
+                    onChange={(e) => onChange("countryOfOrigin", e.target.value)}
                     className="form-control" />
                 </div>
 
@@ -275,21 +284,16 @@ const PetRegister: React.FC = () => {
                       className="form-control" />
                   </div>
                 )}
+              </div>
+            </section>
 
-                <div className="form-field">
-                  <label htmlFor="countryOfOrigin" className="form-label">País de origen</label>
-                  <input id="countryOfOrigin" value={form.countryOfOrigin ?? ''}
-                    onChange={(e) => onChange("countryOfOrigin", e.target.value)}
-                    className="form-control" />
-                </div>
-              </section>
+            <section aria-labelledby="pet-health-heading" className="form-section content-start gap-3">
+              <div className="grid gap-1">
+                <h2 className="form-section__title" id="pet-health-heading">Información de salud</h2>
+                <p className="form-section__description">Lo que conviene tener a mano durante una consulta.</p>
+              </div>
 
-              <section aria-labelledby="pet-health-heading" className="form-section pet-form__section">
-                <div className="pet-form__section-heading">
-                  <h2 className="form-section__title" id="pet-health-heading">Información de salud</h2>
-                  <p className="pet-form__section-copy">Lo que conviene tener a mano durante una consulta.</p>
-                </div>
-
+              <div className="grid min-w-0 items-start gap-x-4 gap-y-3 md:grid-cols-2">
                 {(['allergies', 'activeMedications', 'medicalConditions'] as const).map((field) => (
                   <div className="form-field" key={field}>
                     <label htmlFor={field} className="form-label">
@@ -306,17 +310,17 @@ const PetRegister: React.FC = () => {
                     onChange={(e) => onChange("notes", e.target.value)}
                     className="form-control" />
                 </div>
-              </section>
-            </div>
+              </div>
+            </section>
 
-            <div className="modal-form__actions pet-form__actions">
+            <div className={`modal-form__actions grid grid-cols-1 gap-3 sm:flex sm:items-center ${isEdit ? 'sm:justify-between' : 'sm:justify-end'}`}>
               {isEdit && (
-                <Link to={`/procedures-view/${id}`} className="ui-button ui-button--secondary">
+                <Link to={`/procedures-view/${id}`} className="ui-button ui-button--secondary w-full sm:w-auto">
                   <img src="/media/agenda_icon.svg" alt="" aria-hidden="true" className="h-5 w-5" />
                   Ir a procedimientos
                 </Link>
               )}
-              <button aria-busy={saving || undefined} className="ui-button" type="submit" disabled={saving}>
+              <button aria-busy={saving || undefined} className="ui-button w-full sm:w-auto" type="submit" disabled={saving}>
                 {saving && <span aria-hidden="true" className="ui-spinner" />}
                 {saving ? "Guardando…" : isEdit ? "Guardar cambios" : "Crear mascota"}
               </button>
