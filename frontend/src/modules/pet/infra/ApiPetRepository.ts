@@ -44,6 +44,7 @@ export class ApiPetRepository implements PetRepository {
       allergies: (pet.allergies as string) ?? undefined,
       activeMedications: ((pet.activeMedications as string) ?? (pet.active_medications as string)) || undefined,
       medicalConditions: ((pet.medicalConditions as string) ?? (pet.medical_conditions as string)) || undefined,
+      profileImageUrl: ((pet.profileImageUrl as string) ?? (pet.profile_image_url as string)) || undefined,
     };
   }
 

@@ -17,6 +17,7 @@ export class Pet {
   private allergies: string | null;
   private activeMedications: string | null;
   private medicalConditions: string | null;
+  private profileImageUrl: string | null;
 
   public getId(): number {
     return this.id;
@@ -125,6 +126,7 @@ export class Pet {
   public getAllergies(): string | null { return this.allergies; }
   public getActiveMedications(): string | null { return this.activeMedications; }
   public getMedicalConditions(): string | null { return this.medicalConditions; }
+  public getProfileImageUrl(): string | null { return this.profileImageUrl; }
 
   constructor(
     id: number,
@@ -142,7 +144,8 @@ export class Pet {
     notes: string | null,
     allergies: string | null = null,
     activeMedications: string | null = null,
-    medicalConditions: string | null = null
+    medicalConditions: string | null = null,
+    profileImageUrl: string | null = null
   ) {
     this.id = id;
     this.name = name;
@@ -160,5 +163,6 @@ export class Pet {
     this.allergies = allergies;
     this.activeMedications = activeMedications;
     this.medicalConditions = medicalConditions;
+    this.profileImageUrl = profileImageUrl;
   }
 }

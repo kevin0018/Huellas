@@ -28,7 +28,7 @@ export class PetRepository implements IPetRepository {
       pet.has_passport,
       pet.country_of_origin,
       pet.passport_number,
-      pet.notes, pet.allergies, pet.active_medications, pet.medical_conditions
+      pet.notes, pet.allergies, pet.active_medications, pet.medical_conditions, pet.profile_image_url
     );
   }
 
@@ -67,7 +67,7 @@ export class PetRepository implements IPetRepository {
       savedPet.has_passport,
       savedPet.country_of_origin,
       savedPet.passport_number,
-      savedPet.notes, savedPet.allergies, savedPet.active_medications, savedPet.medical_conditions
+      savedPet.notes, savedPet.allergies, savedPet.active_medications, savedPet.medical_conditions, savedPet.profile_image_url
     );
 
     return newPet;
@@ -117,7 +117,7 @@ export class PetRepository implements IPetRepository {
       editedPet.has_passport,
       editedPet.country_of_origin,
       editedPet.passport_number,
-      editedPet.notes, editedPet.allergies, editedPet.active_medications, editedPet.medical_conditions
+      editedPet.notes, editedPet.allergies, editedPet.active_medications, editedPet.medical_conditions, editedPet.profile_image_url
     )
 
     return pet;
@@ -143,7 +143,7 @@ export class PetRepository implements IPetRepository {
       item.has_passport,
       item.country_of_origin,
       item.passport_number,
-      item.notes, item.allergies, item.active_medications, item.medical_conditions
+      item.notes, item.allergies, item.active_medications, item.medical_conditions, item.profile_image_url
     ))
 
     return pets;

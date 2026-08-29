@@ -168,6 +168,7 @@ model Pet {
   allergies         String?  @db.Text
   active_medications String? @db.Text
   medical_conditions String? @db.Text
+  profile_image_url String? @db.VarChar(512)
 
   owner        Owner         @relation(fields: [owner_id], references: [id], onDelete: Cascade, onUpdate: Restrict)
   checkups     Checkup[]

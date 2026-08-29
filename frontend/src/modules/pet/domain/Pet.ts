@@ -38,6 +38,7 @@ export interface Pet {
   allergies?: string | null;
   activeMedications?: string | null;
   medicalConditions?: string | null;
+  profileImageUrl?: string | null;
 }
 
 // Helper functions
@@ -95,6 +96,7 @@ export const clone = (pet: Pet): Pet => {
     notes: pet.notes,
     allergies: pet.allergies,
     activeMedications: pet.activeMedications,
-    medicalConditions: pet.medicalConditions
+    medicalConditions: pet.medicalConditions,
+    profileImageUrl: pet.profileImageUrl
   };
 };

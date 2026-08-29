@@ -39,6 +39,7 @@ const pet: Pet = {
   activeMedications: "Sin medicación prescrita",
   medicalConditions: "Asma leve",
   notes: "Prefiere transportín cubierto.",
+  profileImageUrl: "/pets/cat3.jpg",
 };
 
 afterEach(cleanup);
@@ -64,6 +65,7 @@ describe("PetProfile", () => {
     expect(screen.getByRole("link", { name: "Abrir cartilla" })).toHaveAttribute("href", "/pets/9/health");
     expect(screen.getByRole("link", { name: "Ver procedimientos" })).toHaveAttribute("href", "/procedures-view/9");
     expect(screen.getByRole("link", { name: "Editar datos" })).toHaveAttribute("href", "/pets/9/edit");
+    expect(container.querySelector('img[src="/pets/cat3.jpg"]')).toBeInTheDocument();
     await expectNoCriticalAccessibilityViolations(container);
   });
 });

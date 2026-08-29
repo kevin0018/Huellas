@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import Footer from "../Components/footer";
 import GoBackButton from "../Components/GoBackButton";
 import NavBar from "../Components/NavBar";
+import { getPetImageUrl } from "../Components/pet/petImage";
 import { applicationServices } from "../composition/applicationServices";
 import { AuthService } from "../modules/auth/infra/AuthService";
 import {
@@ -115,33 +116,33 @@ function PetProfile() {
     <>
       <NavBar />
       <main className="relative min-h-[calc(100dvh-var(--nav-height))] bg-[var(--color-paper)] px-[var(--page-gutter)] py-8 text-[var(--color-ink)] sm:py-12">
-        <div aria-hidden="true" className="bg-dogs-userhome-mobile pointer-events-none fixed inset-0 bg-repeat opacity-45 md:bg-dogs-userhome-tablet lg:bg-dogs-userhome-desktop" />
+        <div aria-hidden="true" className="bg-dogs-userhome-mobile pointer-events-none fixed inset-0 bg-repeat opacity-45 dark:opacity-10 md:bg-dogs-userhome-tablet lg:bg-dogs-userhome-desktop" />
 
         <div className="relative z-10 mx-auto w-full max-w-[var(--page-max)]">
-          <header className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] items-start gap-3 border-b border-[var(--color-rule-strong)] pb-6 sm:gap-5">
-            <GoBackButton
-              className="mt-1 min-h-11 border-[var(--color-rule-strong)] bg-[var(--color-surface-raised)] text-[var(--color-ink)] [&>span]:hidden sm:[&>span]:inline"
-              hideIfNoHistory
-              variant="outline"
-            />
+          <header className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-[var(--color-rule-strong)] pb-6 sm:gap-5">
+            <div className="min-w-0">
+              <h1 className="font-caprasimo text-[clamp(2.25rem,7vw,4.25rem)] text-[var(--color-ink)]">
+                {pet?.name || "Perfil de mascota"}
+              </h1>
+              <p className="mt-2 max-w-[65ch] text-[var(--color-ink-soft)]">
+                {pet
+                  ? `${getPetTypeLabel(pet.type)} · ${pet.race || "Raza sin registrar"} · ${getSexLabel(pet.sex)}`
+                  : "Consulta su identidad, información importante y accesos de salud."}
+              </p>
+            </div>
 
-            <div className="flex min-w-0 items-end justify-between gap-4">
-              <div className="min-w-0">
-                <h1 className="font-caprasimo text-[clamp(2.25rem,7vw,4.25rem)] text-[var(--color-ink)]">
-                  {pet?.name || "Perfil de mascota"}
-                </h1>
-                <p className="mt-2 max-w-[65ch] text-[var(--color-ink-soft)]">
-                  {pet
-                    ? `${getPetTypeLabel(pet.type)} · ${pet.race || "Raza sin registrar"} · ${getSexLabel(pet.sex)}`
-                    : "Consulta su identidad, información importante y accesos de salud."}
-                </p>
-              </div>
-
+            <div className="flex items-center gap-2 sm:gap-3">
               {pet && (
-                <span aria-hidden="true" className="avatar-circle size-16 shrink-0 bg-[var(--color-surface-raised)] sm:size-24">
-                  <img alt="" className="size-full object-contain" height="96" src="/media/pfp_sample.svg" width="96" />
+                <span aria-hidden="true" className="avatar-circle size-14 shrink-0 bg-[var(--color-surface-raised)] sm:size-24">
+                  <img alt="" className="size-full object-cover" height="96" src={getPetImageUrl(pet)} width="96" />
                 </span>
               )}
+
+              <GoBackButton
+                className="min-h-11 border-[var(--color-rule-strong)] bg-[var(--color-surface-raised)] text-[var(--color-ink)] [&>span]:hidden sm:[&>span]:inline"
+                hideIfNoHistory
+                variant="outline"
+              />
             </div>
           </header>
 
@@ -157,7 +158,7 @@ function PetProfile() {
             >
               {pet && (
                 <div className="grid gap-10">
-                  <section aria-labelledby="critical-information-title" className="border-y border-[var(--color-rule-strong)]">
+                  <section aria-labelledby="critical-information-title" className="rounded-[var(--radius-card)] border border-[var(--color-rule-strong)] bg-[var(--color-surface)] px-5 shadow-[var(--shadow-card)] sm:px-6">
                     <div className="pt-5">
                       <h2 className="font-nunito text-xl font-bold tracking-normal" id="critical-information-title">
                         Información importante
@@ -175,7 +176,7 @@ function PetProfile() {
                   </section>
 
                   <div className="grid min-w-0 gap-10 lg:grid-cols-[minmax(0,7fr)_minmax(18rem,5fr)] lg:items-start">
-                    <section aria-labelledby="pet-details-title" className="min-w-0">
+                    <section aria-labelledby="pet-details-title" className="min-w-0 rounded-[var(--radius-card)] border border-[var(--color-rule-strong)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-card)] sm:p-6">
                       <h2 className="font-nunito text-2xl font-bold tracking-normal" id="pet-details-title">Ficha de identidad</h2>
                       <p className="mt-1 max-w-[65ch] text-sm text-[var(--color-ink-soft)]">
                         La información básica que identifica a {pet.name}.
@@ -213,7 +214,7 @@ function PetProfile() {
                         </div>
                       </section>
 
-                      <section className="border-t border-[var(--color-rule-strong)] pt-5" aria-labelledby="pet-notes-title">
+                      <section className="rounded-[var(--radius-card)] border border-[var(--color-rule-strong)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-card)] sm:p-6" aria-labelledby="pet-notes-title">
                         <h2 className="font-nunito text-xl font-bold tracking-normal" id="pet-notes-title">Notas</h2>
                         <p className={`mt-3 whitespace-pre-wrap ${pet.notes ? "text-[var(--color-ink-soft)]" : "text-[var(--color-muted)]"}`}>
                           {pet.notes || "Sin notas adicionales."}

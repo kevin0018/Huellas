@@ -1,38 +1,22 @@
 import { Link } from "react-router-dom";
 import { getPetTypeLabel, type Pet } from "../../modules/pet/domain/Pet";
-
-function getPetImage(type: string, index: number): string {
-  const imagesByType: Record<string, string[]> = {
-    dog: [
-      "/pets/dog1.jpg", "/pets/dog2.jpg", "/pets/dog3.jpg", "/pets/dog4.jpg", "/pets/dog5.jpg",
-      "/pets/dog6.jpg", "/pets/dog7.jpg", "/pets/dog8.jpg", "/pets/dog9.jpg",
-    ],
-    cat: [
-      "/pets/cat1.jpg", "/pets/cat2.jpg", "/pets/cat3.jpg", "/pets/cat4.jpg",
-      "/pets/cat5.jpg", "/pets/cat6.jpg", "/pets/cat7.jpg", "/pets/cat8.jpg",
-    ],
-    ferret: ["/pets/ferret1.jpg", "/pets/ferret2.jpg", "/pets/ferret3.jpg"],
-  };
-  const images = imagesByType[type];
-
-  return images?.[index % images.length] ?? "/pets/default.svg";
-}
+import { getPetImageUrl } from "./petImage";
 
 export function PetAvatarGrid({ pets }: { pets: Pet[] }) {
   if (!pets.length) return <p className="text-sm text-[var(--color-ink-soft)]">Aún no tienes mascotas.</p>;
 
   return (
     <ul className="pet-grid grid gap-3" aria-label="Tus mascotas">
-      {pets.map((pet, index) => (
+      {pets.map((pet) => (
         <li key={pet.id}>
           <Link
             to={`/pets/${pet.id}`}
             aria-label={`Abrir el perfil de ${pet.name}`}
-            className="pet-card-link grid min-h-20 grid-cols-[4rem_minmax(0,1fr)_auto] items-center gap-3 rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-surface-raised)] p-2 no-underline"
+            className="pet-card-link grid min-h-20 grid-cols-[4rem_minmax(0,1fr)_auto] items-center gap-3 rounded-[var(--radius-card)] border border-[var(--color-rule-strong)] bg-[var(--color-surface-raised)] p-2 text-[var(--color-ink)] shadow-[var(--shadow-card)] no-underline"
           >
             <span className="size-16 overflow-hidden rounded-[var(--radius-control)] bg-[var(--color-paper-2)]" aria-hidden="true">
               <img
-                src={getPetImage(pet.type, index)}
+                src={getPetImageUrl(pet)}
                 alt=""
                 className="size-full object-cover"
               />
