@@ -71,7 +71,7 @@
 .dialog__body { min-height: 0; overflow-y: auto; padding: var(--space-5); overscroll-behavior: contain; }
 
 .modal-form { display: grid; gap: var(--space-5); }
-.modal-form__grid { display: grid; gap: var(--space-4); }
+.modal-form__grid { display: grid; align-items: start; gap: var(--space-4); }
 .modal-form__actions { display: flex; flex-wrap: wrap-reverse; justify-content: flex-end; gap: var(--space-3); padding-block-start: var(--space-4); border-block-start: 1px solid var(--color-rule); }
 .modal-form__actions > * { flex: 1 1 9rem; }
 

@@ -97,14 +97,19 @@ describe('ProcedureModal', () => {
     expect(screen.getByRole('button', { name: 'Guardar cambios' })).toBeEnabled();
   });
 
-  it('opens the native date picker from the whole date field', () => {
+  it('opens the native date picker only from the date input', () => {
     render(
       <ProcedureModal isOpen onClose={vi.fn()} onModalSubmit={vi.fn()} procedure={procedure} />,
     );
 
     const dateInput = screen.getByLabelText('Fecha de realización');
+    const dateField = dateInput.closest('.form-field');
     const showPicker = vi.fn();
     Object.defineProperty(dateInput, 'showPicker', { value: showPicker });
+
+    expect(dateField).not.toBeNull();
+    fireEvent.click(dateField as HTMLElement);
+    expect(showPicker).not.toHaveBeenCalled();
 
     fireEvent.click(dateInput);
 
