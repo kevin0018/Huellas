@@ -109,4 +109,16 @@ describe('PetRegister', () => {
     finishSaving?.();
     await waitFor(() => expect(screen.getByText('Inicio cargado')).toBeInTheDocument());
   });
+
+  it('opens the native date picker from the whole birth date field', async () => {
+    const user = userEvent.setup();
+    renderCreate();
+    const birthDate = screen.getByLabelText('Fecha de nacimiento *');
+    const showPicker = vi.fn();
+    Object.defineProperty(birthDate, 'showPicker', { value: showPicker });
+
+    await user.click(birthDate);
+
+    expect(showPicker).toHaveBeenCalledOnce();
+  });
 });

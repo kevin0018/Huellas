@@ -7,6 +7,14 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import type { Pet, PetSize, PetType, Sex } from "../modules/pet/domain/Pet";
 import { applicationServices } from "../composition/applicationServices";
 
+function openDatePicker(event: React.MouseEvent<HTMLInputElement>) {
+  try {
+    event.currentTarget.showPicker?.();
+  } catch {
+    event.currentTarget.focus();
+  }
+}
+
 const PetRegister: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
@@ -198,6 +206,7 @@ const PetRegister: React.FC = () => {
                   <label htmlFor="birthDate" className="form-label">Fecha de nacimiento *</label>
                   <input id="birthDate" required type="date" value={form.birthDate}
                     onChange={(e) => onChange("birthDate", e.target.value)}
+                    onClick={openDatePicker}
                     aria-describedby={missingBirthDate ? 'pet-birth-date-error' : undefined}
                     aria-invalid={missingBirthDate || undefined}
                     className="form-control" ref={birthDateInputRef} />

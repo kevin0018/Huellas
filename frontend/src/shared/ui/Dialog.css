@@ -163,6 +163,12 @@
 }
 
 textarea.form-control { min-height: 6rem; resize: vertical; }
+.form-control:is([type="date"], [type="time"]) { cursor: pointer; }
+.form-control:is([type="date"], [type="time"])::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.72;
+  transition: opacity var(--duration-short) var(--ease-out);
+}
 .form-control::placeholder { color: var(--color-neutral); }
 .form-control:focus-visible { border-color: var(--color-ink-soft); outline-color: var(--color-focus); }
 .form-control[aria-invalid="true"], .form-control[data-state="error"] { border-color: var(--color-error); }
@@ -220,6 +226,7 @@ textarea.form-control { min-height: 6rem; resize: vertical; }
 @media (hover: hover) and (pointer: fine) {
   .dialog__close:hover { background: var(--color-paper-2); color: var(--color-ink); }
   .form-control:hover:not(:disabled) { background: var(--color-paper-2); }
+  .form-control:is([type="date"], [type="time"]):hover::-webkit-calendar-picker-indicator { opacity: 1; }
   .ui-button:hover:not(:disabled) { background: var(--color-accent-hover); color: var(--color-accent-ink); }
   .ui-button--secondary:hover:not(:disabled) { background: var(--color-paper-2); color: var(--color-ink); }
   .ui-button--danger:hover:not(:disabled) { background: var(--color-error-hover); color: var(--color-error-ink); }
