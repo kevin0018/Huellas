@@ -76,26 +76,45 @@ beforeEach(() => {
 });
 
 describe('ProceduresView', () => {
-  it('orders the preventive plan by attention, proximity and current records', async () => {
+  it('keeps every status visible and filters the plan without burying later groups', async () => {
     const { container } = renderView();
 
     expect(await screen.findByRole('heading', { level: 1, name: 'Prevención de Miso' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /perfil de mascota/i })).toHaveAttribute('href', '/pets/14');
     expect(container.querySelector('img[src="/pets/miso.jpg"]')).toBeInTheDocument();
-    expect(screen.getByRole('complementary', { name: /cuidados necesitan atención/i })).toHaveTextContent('2');
+    expect(screen.getByRole('button', { name: 'Vencidos: 2' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'Próximos: 2' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Al día: 1' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Todos: 5' })).toBeVisible();
 
     const attention = screen.getByRole('region', { name: 'Necesita atención' });
     const attentionEntries = within(attention).getAllByRole('article');
     expect(attentionEntries[0]).toHaveTextContent('Vacuna trivalente');
     expect(attentionEntries[1]).toHaveTextContent('Desparasitación interna');
+    expect(screen.queryByText('Vacuna de rabia')).not.toBeInTheDocument();
 
+    fireEvent.click(screen.getByRole('button', { name: 'Próximos: 2' }));
     const upcoming = screen.getByRole('region', { name: 'Próximamente' });
     const upcomingEntries = within(upcoming).getAllByRole('article');
     expect(upcomingEntries[0]).toHaveTextContent('Vacuna de rabia');
     expect(upcomingEntries[1]).toHaveTextContent('Vacuna de leucemia');
 
+    fireEvent.click(screen.getByRole('button', { name: 'Al día: 1' }));
     expect(screen.getByRole('region', { name: 'Al día' })).toHaveTextContent('Revisión anual');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Todos: 5' }));
+    expect(within(screen.getByRole('region', { name: 'Todo el plan' })).getAllByRole('article')).toHaveLength(5);
     await waitFor(async () => expectNoCriticalAccessibilityViolations(container));
+  });
+
+  it('opens the first available status when there are no overdue procedures', async () => {
+    services.pets.getPetProcedures.mockResolvedValue(procedures.filter(({ status }) => status !== 'MISSING'));
+    renderView();
+
+    await screen.findByRole('button', { name: 'Próximos: 2' });
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Próximos: 2' })).toHaveAttribute('aria-pressed', 'true'));
+    expect(screen.getByRole('button', { name: 'Vencidos: 0' })).toBeDisabled();
+    expect(screen.getByRole('region', { name: 'Próximamente' })).toBeInTheDocument();
   });
 
   it('opens the selected procedure record from its contextual action', async () => {

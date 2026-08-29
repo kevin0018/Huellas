@@ -1,4 +1,4 @@
-/* Hallmark · pre-emit critique: P5 H5 E4 S5 R5 V5 · genre: playful · macrostructure: Stat-Led · theme: Huellas · enrichment: existing pet avatar · nav/footer: preserved · contrast: pass (40–41) · slop: 58/58 pass · mobile: pass (34, 49, 50–57) */
+/* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V5 · genre: playful · macrostructure: Stat-Led · signature: persistent status filter rail · theme: Huellas · enrichment: existing pet avatar · nav/footer: preserved · contrast: pass (40–41) · slop: 58/58 pass · mobile: pass (34, 49, 50–57) */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Footer from '../Components/footer';
@@ -15,6 +15,46 @@ import { AsyncContent } from '../shared/ui/AsyncContent.js';
 const { checkups: checkupRepository, pets: petRepository } = applicationServices;
 
 const dateValue = (value?: string | null) => value ? new Date(value).getTime() : null;
+type ProcedureFilter = PetProcedure['status'] | 'ALL';
+
+const filterDetails: Record<ProcedureFilter, { description: string; label: string; summary: string; summarySingular: string; title: string }> = {
+  ALL: {
+    description: 'Todo el plan, ordenado por prioridad y después por fecha.',
+    label: 'Todos',
+    summary: 'cuidados en el plan',
+    summarySingular: 'cuidado en el plan',
+    title: 'Todo el plan',
+  },
+  DONE: {
+    description: 'Registros vigentes o cuidados sin una nueva recurrencia pendiente.',
+    label: 'Al día',
+    summary: 'cuidados al día',
+    summarySingular: 'cuidado al día',
+    title: 'Al día',
+  },
+  MISSING: {
+    description: 'Cuidados que ya han superado su fecha orientativa.',
+    label: 'Vencidos',
+    summary: 'cuidados vencidos',
+    summarySingular: 'cuidado vencido',
+    title: 'Necesita atención',
+  },
+  UPCOMING: {
+    description: 'Lo siguiente que conviene preparar, de más cercano a más lejano.',
+    label: 'Próximos',
+    summary: 'cuidados próximos',
+    summarySingular: 'cuidado próximo',
+    title: 'Próximamente',
+  },
+};
+
+const filterOrder: ProcedureFilter[] = ['MISSING', 'UPCOMING', 'DONE', 'ALL'];
+const filterTone: Record<ProcedureFilter, string> = {
+  ALL: 'text-[var(--color-accent)]',
+  DONE: 'text-[var(--color-success)]',
+  MISSING: 'text-[var(--color-error)]',
+  UPCOMING: 'text-[var(--color-warning)]',
+};
 
 function ProceduresView() {
   const petId = Number(useParams<{ petId: string }>().petId);
@@ -22,6 +62,7 @@ function ProceduresView() {
   const [procedures, setProcedures] = useState<PetProcedure[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [activeFilter, setActiveFilter] = useState<ProcedureFilter>('MISSING');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProcedure, setEditingProcedure] = useState<PetProcedure | null>(null);
 
@@ -39,6 +80,10 @@ function ProceduresView() {
         petRepository.getPetById(petId),
       ]);
       setProcedures(procedureData);
+      setActiveFilter((current) => {
+        if (current === 'ALL' || procedureData.some(({ status }) => status === current)) return current;
+        return filterOrder.find((filter) => filter !== 'ALL' && procedureData.some(({ status }) => status === filter)) ?? 'ALL';
+      });
       setPet(currentPet);
       setError('');
     } catch (caught) {
@@ -62,8 +107,14 @@ function ProceduresView() {
       .sort((a, b) => (dateValue(a.dueAt) ?? Number.POSITIVE_INFINITY) - (dateValue(b.dueAt) ?? Number.POSITIVE_INFINITY)),
   }), [procedures]);
 
-  const needsAttention = groupedProcedures.attention.length;
-  const scheduledCount = needsAttention + groupedProcedures.upcoming.length;
+  const proceduresByFilter = useMemo<Record<ProcedureFilter, PetProcedure[]>>(() => ({
+    ALL: [...groupedProcedures.attention, ...groupedProcedures.upcoming, ...groupedProcedures.current],
+    DONE: groupedProcedures.current,
+    MISSING: groupedProcedures.attention,
+    UPCOMING: groupedProcedures.upcoming,
+  }), [groupedProcedures]);
+  const activeProcedures = proceduresByFilter[activeFilter];
+  const activeDetails = filterDetails[activeFilter];
 
   const handleOpenEditModal = (procedure: PetProcedure) => {
     setEditingProcedure(procedure);
@@ -126,64 +177,57 @@ function ProceduresView() {
             onRetry={loadData}
           >
             <div className="mt-8 grid min-w-0 gap-8 lg:grid-cols-[minmax(14rem,0.75fr)_minmax(0,2.25fr)] lg:items-start lg:gap-12">
-              <aside aria-labelledby="attention-summary" className="min-w-0 border-b border-[var(--color-rule-strong)] pb-7 lg:sticky lg:top-24 lg:border-b-0 lg:border-r lg:pb-2 lg:pr-10">
-                <p className={`font-caprasimo text-[clamp(4.75rem,17vw,7rem)] leading-[0.9] tabular-nums ${needsAttention > 0 ? 'text-[var(--color-error)]' : 'text-[var(--color-success)]'}`}>
-                  {needsAttention}
+              <aside aria-labelledby="filter-summary" className="min-w-0 border-b border-[var(--color-rule-strong)] pb-7 lg:sticky lg:top-24 lg:border-b-0 lg:border-r lg:pb-2 lg:pr-10">
+                <p className={`font-caprasimo text-[clamp(4.75rem,17vw,7rem)] leading-[0.9] tabular-nums ${filterTone[activeFilter]}`}>
+                  {activeProcedures.length}
                 </p>
-                <h2 className="mt-4 font-nunito text-2xl font-bold leading-tight tracking-normal" id="attention-summary">
-                  {needsAttention === 1 ? 'cuidado necesita atención' : 'cuidados necesitan atención'}
+                <h2 className="mt-4 font-nunito text-2xl font-bold leading-tight tracking-normal" id="filter-summary">
+                  {activeProcedures.length === 1 ? activeDetails.summarySingular : activeDetails.summary}
                 </h2>
                 <p className="mt-3 max-w-[34ch] text-sm leading-6 text-[var(--color-ink-soft)]">
-                  {needsAttention > 0
-                    ? 'Empieza por los vencidos. Al registrar su realización, el plan recalcula la próxima fecha.'
-                    : 'No hay cuidados vencidos. Puedes revisar lo próximo o corregir un registro anterior.'}
+                  {activeFilter === 'MISSING'
+                    ? 'Empieza por aquí. Al registrar una realización, el plan recalcula la próxima fecha.'
+                    : activeDetails.description}
                 </p>
-                <dl className="mt-6 grid grid-cols-2 gap-4 border-t border-[var(--color-rule)] pt-5 text-sm">
-                  <div>
-                    <dt className="text-[var(--color-muted)]">En agenda</dt>
-                    <dd className="mt-1 text-xl font-bold tabular-nums">{scheduledCount}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-[var(--color-muted)]">Al día</dt>
-                    <dd className="mt-1 text-xl font-bold tabular-nums">{groupedProcedures.current.length}</dd>
-                  </div>
-                </dl>
+
+                <nav aria-label="Filtrar plan preventivo" className="mt-6 grid grid-cols-2 gap-2 border-t border-[var(--color-rule)] pt-5 sm:grid-cols-4 lg:grid-cols-1">
+                  {filterOrder.map((filter) => {
+                    const count = proceduresByFilter[filter].length;
+                    const selected = activeFilter === filter;
+                    return <button
+                      aria-label={`${filterDetails[filter].label}: ${count}`}
+                      aria-pressed={selected}
+                      aria-controls="filtered-plan"
+                      className={`grid min-h-11 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 whitespace-nowrap rounded-[var(--radius-control)] border px-3 py-2 text-left text-sm font-bold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus)] ${selected ? 'border-[var(--color-accent)] bg-[var(--color-paper-2)] text-[var(--color-ink)]' : 'border-[var(--color-rule)] bg-[var(--color-surface)] text-[var(--color-ink-soft)] hover:bg-[var(--color-paper-2)] active:bg-[var(--color-paper-3)]'}`}
+                      disabled={count === 0}
+                      key={filter}
+                      onClick={() => setActiveFilter(filter)}
+                      type="button"
+                    >
+                      <span>{filterDetails[filter].label}</span>
+                      <span className={`tabular-nums ${selected ? filterTone[filter] : 'text-[var(--color-muted)]'}`}>{count}</span>
+                    </button>;
+                  })}
+                </nav>
                 <p className="mt-6 text-sm leading-5 text-[var(--color-muted)]">
                   Las fechas son orientativas y se derivan de los registros de la cartilla. Confirma cualquier pauta con tu veterinario.
                 </p>
               </aside>
 
-              <div className="grid min-w-0 gap-10">
-                <section aria-labelledby="attention-title" className="min-w-0">
-                  <div className="border-b border-[var(--color-rule-strong)] pb-4">
-                    <h2 className="font-caprasimo text-[var(--text-xl)] leading-tight" id="attention-title">Necesita atención</h2>
-                    <p className="mt-1 text-sm text-[var(--color-muted)]">Cuidados que ya han superado su fecha orientativa.</p>
+              <section aria-labelledby="filtered-plan-title" className="min-w-0" id="filtered-plan">
+                <div className="flex min-w-0 flex-wrap items-end justify-between gap-3 border-b border-[var(--color-rule-strong)] pb-4">
+                  <div className="min-w-0">
+                    <h2 className="font-caprasimo text-[var(--text-xl)] leading-tight" id="filtered-plan-title">{activeDetails.title}</h2>
+                    <p className="mt-1 max-w-[65ch] text-sm text-[var(--color-muted)]">{activeDetails.description}</p>
                   </div>
-                  {groupedProcedures.attention.length > 0
-                    ? <div>{groupedProcedures.attention.map((procedure, index) => <ProcedureCard emphasis={index === 0} key={procedure.id} onEdit={handleOpenEditModal} procedure={procedure} />)}</div>
-                    : <p className="border-b border-[var(--color-rule)] py-6 text-sm font-semibold text-[var(--color-success)]" role="status">Ningún cuidado vencido.</p>}
-                </section>
-
-                <section aria-labelledby="upcoming-title" className="min-w-0">
-                  <div className="border-b border-[var(--color-rule-strong)] pb-4">
-                    <h2 className="font-caprasimo text-[var(--text-xl)] leading-tight" id="upcoming-title">Próximamente</h2>
-                    <p className="mt-1 text-sm text-[var(--color-muted)]">Lo siguiente que conviene preparar, de más cercano a más lejano.</p>
-                  </div>
-                  {groupedProcedures.upcoming.length > 0
-                    ? <div>{groupedProcedures.upcoming.map((procedure) => <ProcedureCard key={procedure.id} onEdit={handleOpenEditModal} procedure={procedure} />)}</div>
-                    : <p className="border-b border-[var(--color-rule)] py-6 text-sm text-[var(--color-muted)]" role="status">No hay cuidados próximos.</p>}
-                </section>
-
-                <section aria-labelledby="current-title" className="min-w-0">
-                  <div className="border-b border-[var(--color-rule-strong)] pb-4">
-                    <h2 className="font-caprasimo text-[var(--text-xl)] leading-tight" id="current-title">Al día</h2>
-                    <p className="mt-1 text-sm text-[var(--color-muted)]">Registros vigentes o cuidados sin una nueva recurrencia pendiente.</p>
-                  </div>
-                  {groupedProcedures.current.length > 0
-                    ? <div>{groupedProcedures.current.map((procedure) => <ProcedureCard compact key={procedure.id} onEdit={handleOpenEditModal} procedure={procedure} />)}</div>
-                    : <p className="border-b border-[var(--color-rule)] py-6 text-sm text-[var(--color-muted)]" role="status">Aún no hay cuidados registrados como realizados.</p>}
-                </section>
-              </div>
+                  <p aria-live="polite" className="text-sm font-bold tabular-nums text-[var(--color-ink-soft)]">
+                    {activeProcedures.length} {activeProcedures.length === 1 ? 'resultado' : 'resultados'}
+                  </p>
+                </div>
+                {activeProcedures.length > 0
+                  ? <div>{activeProcedures.map((procedure, index) => <ProcedureCard compact={procedure.status === 'DONE'} emphasis={procedure.status === 'MISSING' && index === 0} key={procedure.id} onEdit={handleOpenEditModal} procedure={procedure} />)}</div>
+                  : <p className="border-b border-[var(--color-rule)] py-6 text-sm text-[var(--color-muted)]" role="status">No hay cuidados en este estado.</p>}
+              </section>
             </div>
           </AsyncContent>
         </div>
