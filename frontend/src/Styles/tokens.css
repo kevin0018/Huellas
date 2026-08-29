@@ -52,6 +52,8 @@
   --radius-pill: 9999px;
   --page-gutter: clamp(1rem, 4vw, 2rem);
   --page-max: 76rem;
+  --nav-height: 5rem;
+  --rule-hairline: 0.0625rem;
   --shadow-card: 0 0.5rem 1.5rem -0.75rem oklch(28% 0.07 326 / 0.28);
   --shadow-card-hover: 0 0.75rem 2rem -0.75rem oklch(28% 0.07 326 / 0.34);
   --shadow-nav: 0 0.5rem 1.5rem -1rem oklch(28% 0.07 326 / 0.42);

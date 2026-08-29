@@ -110,7 +110,7 @@ export default function NavBar() {
       aria-label="Navegación principal"
       className="sticky top-0 z-50 w-full border-b border-[var(--color-rule)] bg-[var(--color-surface-raised)]/95 px-[var(--page-gutter)] shadow-[var(--shadow-nav)] backdrop-blur-sm"
     >
-      <div className="mx-auto grid min-h-20 max-w-[var(--page-max)] grid-cols-[1fr_auto] items-center gap-4 lg:grid-cols-[auto_1fr_auto]">
+      <div className="mx-auto grid min-h-[calc(var(--nav-height)-var(--rule-hairline))] max-w-[var(--page-max)] grid-cols-[1fr_auto] items-center gap-4 lg:grid-cols-[auto_1fr_auto]">
         <NavLink
           to={isLoggedIn && canManagePets ? '/user-home' : '/'}
           end={!isLoggedIn}

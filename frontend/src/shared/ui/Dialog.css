@@ -81,7 +81,7 @@
 
 .form-page {
   display: grid;
-  min-height: calc(100dvh - 5rem);
+  min-height: calc(100dvh - var(--nav-height));
   place-items: center;
   padding: var(--space-8) var(--page-gutter);
   background: var(--color-paper);
