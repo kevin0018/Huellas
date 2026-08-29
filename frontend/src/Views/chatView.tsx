@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import NavBar from "../Components/NavBar";
-import GoBackButton from "../Components/GoBackButton";
 import { useChat } from "../modules/chat/application/useChat";
 import { AuthService } from "../modules/auth/infra/AuthService";
 import type { ConversationListItem, Message } from "../modules/chat/domain/Conversation";
@@ -202,8 +201,7 @@ export default function ChatView() {
       <NavBar />
       <main className="workspace-page">
         <div className="workspace-shell">
-          <header className="workspace-header">
-            <GoBackButton hideIfNoHistory />
+          <header className="workspace-header workspace-header--primary">
             <div className="workspace-header__copy">
               <h1 className="workspace-header__title">Mensajes</h1>
               <p className="workspace-header__description">

@@ -10,7 +10,6 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock('../Components/NavBar', () => ({ default: () => <nav>Huellas</nav> }));
-vi.mock('../Components/GoBackButton', () => ({ default: () => <button type="button">Atrás</button> }));
 vi.mock('../modules/auth/infra/AuthService', () => ({
   AuthService: { getUser: () => ({ id: 1 }) },
 }));
@@ -51,6 +50,7 @@ describe('ChatView', () => {
     const sidebar = screen.getByRole('complementary', { name: 'Conversaciones' });
     const thread = screen.getByRole('region', { name: 'Conversación activa' });
 
+    expect(screen.queryByRole('button', { name: 'Atrás' })).toBeNull();
     expect(sidebar.getAttribute('data-mobile-hidden')).toBe('false');
     expect(thread.getAttribute('data-mobile-hidden')).toBe('true');
 

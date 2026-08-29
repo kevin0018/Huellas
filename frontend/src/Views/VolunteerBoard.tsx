@@ -167,10 +167,10 @@ function VolunteerBoard() {
                 </select>
               </div>
 
-              <label className="inline-flex items-center gap-2 select-none">
+              <label className="board-toolbar__toggle">
                 <input
                   type="checkbox"
-                  className="h-4 w-4 rounded border-[var(--color-rule-strong)] text-[var(--color-accent)] focus:ring-[var(--color-focus)]"
+                  className="board-toolbar__checkbox rounded border-[var(--color-rule-strong)] text-[var(--color-accent)] focus:ring-[var(--color-focus)]"
                   checked={myOnly}
                   onChange={(e) => setMyOnly(e.target.checked)}
                   disabled={!currentUserId}
