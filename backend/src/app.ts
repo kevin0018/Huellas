@@ -8,12 +8,17 @@ import { config } from './config/env.js';
 import { createRateLimiter, errorHandler, notFoundHandler, securityHeaders } from './middleware/security.js';
 import { openApiDocument } from './contracts/openapi.js';
 import { createApplicationModules, type ApplicationModules } from './composition/createApplicationModules.js';
+import { isOriginAllowed } from './config/originPolicy.js';
 
 export async function buildApp(modules: ApplicationModules = createApplicationModules()) {
   const app = express();
   const corsMiddleware = cors({
     origin(origin, callback) {
-      if (!origin || config.corsOrigins.includes(origin)) {
+      if (isOriginAllowed(origin, {
+        allowedOrigins: config.corsOrigins,
+        frontendPort: config.frontendPort,
+        nodeEnv: config.nodeEnv,
+      })) {
         callback(null, true);
         return;
       }

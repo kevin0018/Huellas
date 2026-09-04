@@ -69,6 +69,7 @@ export const en = {
   registrationError: "Registration failed. Please try again",
   invalidCredentials: "Invalid email or password",
   serverError: "Server error. Please try again later",
+  tooManyLoginAttempts: "Too many login attempts. Wait a few minutes and try again.",
 
   // --- Header & Navigation ---
   pets: "My Pets",
@@ -308,6 +309,7 @@ export const es: LocaleMap = {
   registrationError: "Registro fallido. Inténtalo de nuevo",
   invalidCredentials: "Correo o contraseña incorrectos",
   serverError: "Error del servidor. Inténtalo más tarde",
+  tooManyLoginAttempts: "Demasiados intentos de acceso. Espera unos minutos y vuelve a intentarlo.",
 
   // --- Header & Navigation ---
   pets: "Mascotas",
@@ -542,6 +544,7 @@ export const ca: LocaleMap = {
   registrationError: "Registre fallit. Torna-ho a intentar",
   invalidCredentials: "Correu o contrasenya incorrectes",
   serverError: "Error del servidor. Intenta-ho més tard",
+  tooManyLoginAttempts: "Massa intents d'accés. Espera uns minuts i torna-ho a provar.",
 
   // --- Header & Navigation ---
   pets: "Mascotes",

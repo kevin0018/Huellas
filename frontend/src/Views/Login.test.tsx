@@ -9,6 +9,7 @@ import LanguageProvider from '../i18n/LanguageProvider';
 import { authActions } from '../features/auth/authActions';
 import { expectNoCriticalAccessibilityViolations } from '../test/accessibility';
 import Login from './Login';
+import { ApiError } from '../shared/api/apiClient';
 
 vi.mock('../Components/NavBar', () => ({ default: () => <nav aria-label="Principal" /> }));
 vi.mock('../Components/GoBackButton', () => ({ default: () => null }));
@@ -96,5 +97,17 @@ describe('Login', () => {
       },
     });
     await waitFor(() => expect(screen.getByRole('button', { name: 'Iniciar Sesión' })).toBeEnabled());
+  });
+
+  it('distinguishes a temporary login limit from invalid credentials', async () => {
+    const user = userEvent.setup();
+    vi.mocked(authActions.login).mockRejectedValue(new ApiError('Too many login attempts. Try again later.', 429));
+    renderLogin();
+
+    await user.type(screen.getByLabelText('Correo Electrónico'), 'juan@email.com');
+    await user.type(screen.getByLabelText('Contraseña'), 'huellas123');
+    await user.click(screen.getByRole('button', { name: 'Iniciar Sesión' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Demasiados intentos de acceso');
   });
 });

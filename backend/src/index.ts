@@ -7,6 +7,7 @@ import { prisma } from './db/prisma.js';
 import { RedisService } from './config/RedisService.js';
 import { dbPool } from './db/pool.js';
 import { createApplicationModules } from './composition/createApplicationModules.js';
+import { isOriginAllowed } from './config/originPolicy.js';
 
 async function startServer() {
   try {
@@ -15,7 +16,17 @@ async function startServer() {
     const httpServer = createServer(app);
     const io = new Server(httpServer, {
       cors: {
-        origin: config.corsOrigins,
+        origin(origin, callback) {
+          if (isOriginAllowed(origin, {
+            allowedOrigins: config.corsOrigins,
+            frontendPort: config.frontendPort,
+            nodeEnv: config.nodeEnv,
+          })) {
+            callback(null, true);
+            return;
+          }
+          callback(new Error('Origin not allowed by CORS'));
+        },
         methods: ["GET", "POST"]
       }
     });

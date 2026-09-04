@@ -6,6 +6,7 @@ import { authActions } from '../features/auth/authActions';
 import { Capability, hasCapability } from '../modules/auth/domain/User';
 import type { ChangeEvent, FormEvent } from 'react';
 import GoBackButton from '../Components/GoBackButton';
+import { ApiError } from '../shared/api/apiClient';
 
 function LoginContent() {
   const { translate } = useTranslation();
@@ -62,7 +63,9 @@ function LoginContent() {
       navigate(typeof returnTo === 'string' && returnTo.startsWith('/') ? returnTo : defaultDestination, { replace: true });
 
     } catch (err) {
-      if (err instanceof Error) {
+      if (err instanceof ApiError && err.status === 429) {
+        setError(translate('tooManyLoginAttempts'));
+      } else if (err instanceof Error) {
         setError(getErrorMessage(err.message));
       } else {
         setError(translate('invalidCredentials'));
