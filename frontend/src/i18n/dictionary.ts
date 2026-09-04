@@ -384,6 +384,22 @@ export const en = {
   shareHealthBookError: "The health book could not be shared",
 
   // --- Landing & App ---
+  homeEyebrow: "Everyday care, together",
+  homeTitle: "Their wellbeing, all in one place.",
+  homeDescription: "Health records, appointments and upcoming care. Keep what matters close, and spend more time enjoying life with your pets.",
+  homeCareEyebrow: "From the first day",
+  homeCareTitle: "A little order. More peace of mind.",
+  homeCareDescription: "Huellas helps you keep track of each pet’s care, one step at a time.",
+  homePetTitle: "Meet your pet",
+  homePetDescription: "Create their profile and record allergies, medication and the details that matter.",
+  homeRecordTitle: "Keep their story",
+  homeRecordDescription: "Add vaccinations, visits and documents to a health record you can check whenever you need it.",
+  homeNextTitle: "Know what comes next",
+  homeNextDescription: "Check upcoming appointments and preventive care. Mark what is done and keep the next step in sight.",
+  homeTogetherTitle: "Care brings us together.",
+  homeTogetherDescription: "We built Huellas from something we share: wanting to take better care of our pets. Meet the people behind the project.",
+  aboutTitle: "More time together. Better care.",
+
   huellas: "Huellas",
   appDescription:
     "Huellas is an all-in-one platform designed to manage your pets' health and wellness. It centralizes each pet's complete medical history, allowing you to track vaccination dates, deworming, known allergies, and medications. The app also helps you never miss an important appointment with programmable reminders for vet visits or their next dose.",
@@ -988,6 +1004,22 @@ export const es: LocaleMap = {
   shareHealthBookError: "No se pudo compartir la cartilla",
 
   // --- Landing & App ---
+  homeEyebrow: "El cuidado de cada día",
+  homeTitle: "Su bienestar, en un mismo lugar.",
+  homeDescription: "Cartilla, citas y próximos cuidados. Ten a mano lo importante y dedica más tiempo a disfrutar con tus mascotas.",
+  homeCareEyebrow: "Desde el primer día",
+  homeCareTitle: "Un poco de orden. Más tranquilidad.",
+  homeCareDescription: "Huellas te ayuda a seguir el cuidado de cada mascota, paso a paso.",
+  homePetTitle: "Conoce a tu mascota",
+  homePetDescription: "Crea su perfil y anota alergias, medicación y esos detalles que conviene tener presentes.",
+  homeRecordTitle: "Guarda su historia",
+  homeRecordDescription: "Añade vacunas, visitas y documentos a una cartilla que puedes consultar cuando la necesites.",
+  homeNextTitle: "Mira qué viene después",
+  homeNextDescription: "Consulta las próximas citas y cuidados preventivos. Marca lo que ya está hecho y ten a la vista el siguiente paso.",
+  homeTogetherTitle: "Cuidar nos une.",
+  homeTogetherDescription: "Creamos Huellas a partir de algo que compartimos: querer cuidar mejor de nuestras mascotas. Conoce a las personas detrás del proyecto.",
+  aboutTitle: "Más tiempo juntos. Más cuidado.",
+
   huellas: "Huellas",
   appDescription:
     "Huellas es una plataforma integral diseñada para unificar todos los aspectos de la salud y el bienestar de tus compañeros peludos, sin importar cuántos tengas. Centraliza el historial médico completo de cada mascota, permitiéndote registrar y consultar fechas de vacunación, desparasitaciones, alergias conocidas y cualquier medicación actual. Además, la aplicación te ayuda a no olvidar nunca una cita importante gracias a su sistema de recordatorios programables para visitas al veterinario o la próxima dosis de su medicación.",
@@ -1587,6 +1619,22 @@ export const ca: LocaleMap = {
   shareHealthBookError: "No s'ha pogut compartir la cartilla",
 
   // --- Landing & App ---
+  homeEyebrow: "La cura de cada dia",
+  homeTitle: "El seu benestar, en un mateix lloc.",
+  homeDescription: "Cartilla, cites i properes cures. Tingues a mà el que importa i dedica més temps a gaudir amb les teves mascotes.",
+  homeCareEyebrow: "Des del primer dia",
+  homeCareTitle: "Una mica d’ordre. Més tranquil·litat.",
+  homeCareDescription: "Huellas t’ajuda a seguir la cura de cada mascota, pas a pas.",
+  homePetTitle: "Coneix la teva mascota",
+  homePetDescription: "Crea el seu perfil i anota al·lèrgies, medicació i els detalls que convé tenir presents.",
+  homeRecordTitle: "Guarda la seva història",
+  homeRecordDescription: "Afegeix vacunes, visites i documents a una cartilla que pots consultar quan la necessitis.",
+  homeNextTitle: "Mira què ve després",
+  homeNextDescription: "Consulta les properes cites i cures preventives. Marca el que ja està fet i tingues a la vista el pas següent.",
+  homeTogetherTitle: "Cuidar ens uneix.",
+  homeTogetherDescription: "Vam crear Huellas a partir d’una cosa que compartim: voler cuidar millor les nostres mascotes. Coneix les persones darrere del projecte.",
+  aboutTitle: "Més temps junts. Més cura.",
+
   huellas: "Huellas",
   appDescription:
     "Huellas és una plataforma integral dissenyada per unificar tots els aspectes de la salut i el benestar dels teus companys peluts, sense importar quants en tinguis. Centralitza l'historial mèdic complet de cada mascota, permetent-te registrar i consultar dates de vacunació, desparasitacions, al·lèrgies conegudes i qualsevol medicació actual. A més, l'aplicació t'ajuda a no oblidar mai una cita important gràcies al seu sistema de recordatoris programables per a visites al veterinari o la pròxima dosi de la seva medicació.",
