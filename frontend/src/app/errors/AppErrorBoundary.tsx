@@ -1,5 +1,6 @@
 /* eslint-disable react-refresh/only-export-components -- React error boundaries must be class components. */
 import { Component, type ReactNode } from 'react';
+import { ViewLoadError } from '../routing/lazyView';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../i18n/hooks/hook';
 
@@ -9,6 +10,7 @@ type AppErrorBoundaryProps = {
 
 type AppErrorBoundaryState = {
   hasError: boolean;
+  reloadRequired: boolean;
 };
 
 function AppErrorFallback({ onRetry }: { onRetry: () => void }) {
@@ -43,10 +45,10 @@ function AppErrorFallback({ onRetry }: { onRetry: () => void }) {
 }
 
 export default class AppErrorBoundary extends Component<AppErrorBoundaryProps, AppErrorBoundaryState> {
-  state: AppErrorBoundaryState = { hasError: false };
+  state: AppErrorBoundaryState = { hasError: false, reloadRequired: false };
 
-  static getDerivedStateFromError(): AppErrorBoundaryState {
-    return { hasError: true };
+  static getDerivedStateFromError(error: unknown): AppErrorBoundaryState {
+    return { hasError: true, reloadRequired: error instanceof ViewLoadError };
   }
 
   componentDidCatch() {
@@ -54,7 +56,12 @@ export default class AppErrorBoundary extends Component<AppErrorBoundaryProps, A
   }
 
   private reset = () => {
-    this.setState({ hasError: false });
+    // React.lazy caches rejected imports; remounting alone cannot recover them.
+    if (this.state.reloadRequired) {
+      window.location.reload();
+      return;
+    }
+    this.setState({ hasError: false, reloadRequired: false });
   };
 
   render() {
