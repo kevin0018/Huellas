@@ -60,8 +60,11 @@ export class PrismaOwnerRepository implements OwnerRepository {
   }
 
   async delete(id: OwnerId): Promise<void> {
-    await prisma.user.delete({
-      where: { id: id.getValue() }
+    // HealthEvent.entered_by restricts user deletion before the pet cascade.
+    // Keep both deletions atomic so unrelated references cannot leave a partial account.
+    await prisma.$transaction(async (database) => {
+      await database.pet.deleteMany({ where: { owner_id: id.getValue() } });
+      await database.user.delete({ where: { id: id.getValue() } });
     });
   }
 }

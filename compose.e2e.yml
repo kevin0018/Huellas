@@ -1,0 +1,36 @@
+name: huellas-e2e
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: e2e
+      MYSQL_DATABASE: huellas_e2e
+    ports:
+      - "127.0.0.1:33306:3306"
+    tmpfs:
+      - /var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-pe2e"]
+      interval: 2s
+      timeout: 5s
+      retries: 40
+    mem_limit: 768m
+    cpus: 1
+    pids_limit: 200
+    logging:
+      options: { max-size: "5m", max-file: "2" }
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    ports:
+      - "127.0.0.1:36379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+    mem_limit: 128m
+    cpus: 0.25
+    pids_limit: 100
+    logging:
+      options: { max-size: "5m", max-file: "2" }

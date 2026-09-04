@@ -23,7 +23,8 @@
     "prisma:status": "prisma migrate status",
     "db:seed": "tsx src/db/seed.ts",
     "db:reset": "prisma migrate reset --force",
-    "db:migrate:dev": "prisma migrate dev && pnpm db:seed"
+    "db:migrate:dev": "prisma migrate dev && pnpm db:seed",
+    "start:e2e": "tsx src/testing/e2e-server.ts"
   },
   "prisma": {
     "seed": "tsx src/db/seed.ts"

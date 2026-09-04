@@ -14,7 +14,10 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "test:e2e": "playwright test",
+    "test:e2e:public": "playwright test --config playwright.public.config.ts",
+    "test:full": "pnpm test:run && pnpm test:e2e"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.11",
@@ -27,6 +30,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.32.0",
+    "@playwright/test": "^1.62.1",
     "@testing-library/jest-dom": "^6.6.4",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
