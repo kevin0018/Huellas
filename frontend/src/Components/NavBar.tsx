@@ -91,9 +91,9 @@ export default function NavBar() {
   const authenticatedLinks = (
     <>
       {canManagePets && <NavLink to="/user-home" className={navLinkClass}>{translate('home')}</NavLink>}
-      {canPublishVolunteerPosts && <NavLink to="/volunteer-home" className={navLinkClass}>Voluntariado</NavLink>}
-      <NavLink to="/volunteer-board" className={navLinkClass}>Buscar voluntarios</NavLink>
-      <NavLink to="/chat" className={navLinkClass}>Mis chats</NavLink>
+      {canPublishVolunteerPosts && <NavLink to="/volunteer-home" className={navLinkClass}>{translate('volunteering')}</NavLink>}
+      <NavLink to="/volunteer-board" className={navLinkClass}>{translate('findVolunteers')}</NavLink>
+      <NavLink to="/chat" className={navLinkClass}>{translate('myChats')}</NavLink>
     </>
   );
 
@@ -107,7 +107,7 @@ export default function NavBar() {
 
   return (
     <nav
-      aria-label="Navegación principal"
+      aria-label={translate('mainNavigation')}
       className="sticky top-0 z-50 w-full border-b border-[var(--color-rule)] bg-[var(--color-surface-raised)]/95 px-[var(--page-gutter)] shadow-[var(--shadow-nav)] backdrop-blur-sm"
     >
       <div className="mx-auto grid min-h-[calc(var(--nav-height)-var(--rule-hairline))] max-w-[var(--page-max)] grid-cols-[1fr_auto] items-center gap-4 lg:grid-cols-[auto_1fr_auto]">
@@ -115,7 +115,7 @@ export default function NavBar() {
           to={isLoggedIn && canManagePets ? '/user-home' : '/'}
           end={!isLoggedIn}
           className="inline-flex min-h-11 w-fit items-center gap-2 rounded-[var(--radius-control)] pr-2 font-[var(--font-display)] text-xl leading-none text-[var(--color-accent)] no-underline"
-          aria-label="Huellas, ir al inicio"
+          aria-label={translate('brandHomeLabel')}
         >
           <img src="/media/logotipo.svg" alt="" className="h-11 w-11 object-contain" />
           <span>Huellas</span>
@@ -151,7 +151,7 @@ export default function NavBar() {
             onClick={() => setIsOpen((open) => !open)}
             aria-expanded={isOpen}
             aria-controls="primary-navigation-mobile"
-            aria-label={isOpen ? 'Cerrar menú' : 'Abrir menú'}
+            aria-label={isOpen ? translate('closeMenu') : translate('openMenu')}
             className="ui-hover-surface inline-flex h-11 w-11 items-center justify-center rounded-[var(--radius-control)] text-[var(--color-accent)] transition-[color,background-color] duration-[var(--duration-short)]"
           >
             {isOpen ? (
@@ -173,9 +173,9 @@ export default function NavBar() {
             {isLoggedIn ? (
               <>
                 {canManagePets && <NavLink to="/user-home" className={mobileNavLinkClass}>{translate('home')}</NavLink>}
-                {canPublishVolunteerPosts && <NavLink to="/volunteer-home" className={mobileNavLinkClass}>Voluntariado</NavLink>}
-                <NavLink to="/volunteer-board" className={mobileNavLinkClass}>Buscar voluntarios</NavLink>
-                <NavLink to="/chat" className={mobileNavLinkClass}>Mis chats</NavLink>
+                {canPublishVolunteerPosts && <NavLink to="/volunteer-home" className={mobileNavLinkClass}>{translate('volunteering')}</NavLink>}
+                <NavLink to="/volunteer-board" className={mobileNavLinkClass}>{translate('findVolunteers')}</NavLink>
+                <NavLink to="/chat" className={mobileNavLinkClass}>{translate('myChats')}</NavLink>
                 <NavLink to="/user-profile" className={mobileNavLinkClass}>{translate('profile')}</NavLink>
                 <button
                   type="button"
@@ -194,7 +194,7 @@ export default function NavBar() {
               </>
             )}
             <div className="mt-2 flex min-h-11 items-center justify-between border-t border-[var(--color-rule)] px-4 pt-3 text-sm font-semibold text-[var(--color-ink-soft)]">
-              <span>Tema</span>
+              <span>{translate('theme')}</span>
               <ThemeSwitcher className="!h-11 !w-[4.5rem]" />
             </div>
           </div>

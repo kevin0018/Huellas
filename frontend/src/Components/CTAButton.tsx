@@ -5,6 +5,7 @@
  */
 
 import type { FC } from "react";
+import { Link } from "react-router-dom";
 
 type Props = {
   label: string;
@@ -18,13 +19,25 @@ const CTAButton: FC<Props> = ({ label, href, onClick, className }) => {
     "ui-action ui-action--primary rounded-full px-8 py-6 text-base md:text-lg shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 z-10" +
     " mt-8 mx-auto";
   if (href) {
+    if (href.startsWith('/') && !href.startsWith('//')) {
+      return (
+        <Link
+          to={href}
+          onClick={onClick}
+          className={`${base} ${className ?? ""}`}
+        >
+          {label}
+        </Link>
+      );
+    }
+
     return (
       <a
         href={href}
         onClick={onClick}
         className={`${base} ${className ?? ""}`}
       >
-          {label} {" "}
+          {label}
       </a>
     );
   }
@@ -34,7 +47,7 @@ const CTAButton: FC<Props> = ({ label, href, onClick, className }) => {
       onClick={onClick}
       className={`${base} ${className ?? ""}`}
     >
-       {label} {" "}
+       {label}
     </button>
   );
 };

@@ -16,6 +16,8 @@ export const en = {
   search: "Search",
   remove: "Remove",
   clearAll: "Remove all",
+  retry: "Try again",
+  backToHome: "Back to home",
 
   // --- Landing & App ---
   huellas: "Huellas",
@@ -73,6 +75,41 @@ export const en = {
   users: "Users",
   profile: "My Profile",
   settings: "Settings",
+  mainNavigation: "Main navigation",
+  brandHomeLabel: "Huellas, go to home",
+  volunteering: "Volunteering",
+  findVolunteers: "Find volunteers",
+  myChats: "My chats",
+  openMenu: "Open menu",
+  closeMenu: "Close menu",
+  changeLanguage: "Change language",
+  languages: "Languages",
+
+  // --- Navigation fallbacks & legal pages ---
+  notFoundTitle: "This page does not exist",
+  unexpectedErrorTitle: "We couldn't display this page",
+  unexpectedErrorDescription:
+    "The rest of your data is safe. Try loading the page again or return home.",
+  passwordRecovery: "Password recovery",
+  passwordRecoveryDescription:
+    "Automatic password recovery is not available yet. Return to sign in and contact the project team if you need access restored.",
+  backToLogin: "Back to sign in",
+  termsTitle: "Terms and privacy",
+  termsIntro:
+    "These conditions explain the scope of Huellas while it remains a demonstration project.",
+  termsServiceTitle: "Purpose of the service",
+  termsServiceBody:
+    "Huellas helps owners organize pet identity, health events, appointments, reminders and community requests.",
+  termsHealthTitle: "Health information",
+  termsHealthBody:
+    "Owner-entered information is for personal organization and does not replace veterinary diagnosis, treatment or professional advice.",
+  termsPrivacyTitle: "Personal data",
+  termsPrivacyBody:
+    "Only enter information you are authorized to manage. Health documents and private links must not be shared with people who do not need access.",
+  termsCommunityTitle: "Community use",
+  termsCommunityBody:
+    "Do not publish sensitive data, misleading requests or content that could put people or animals at risk.",
+  termsUpdated: "Last updated: September 4, 2026",
   
   // --- Home page ---
   homePageTitle: "Welcome back, {{name}}!",
@@ -138,6 +175,8 @@ export const es: LocaleMap = {
   search: "Buscar",
   remove: "Eliminar",
   clearAll: "Eliminar todo",
+  retry: "Volver a intentar",
+  backToHome: "Volver al inicio",
 
   // --- Landing & App ---
   huellas: "Huellas",
@@ -195,6 +234,41 @@ export const es: LocaleMap = {
   users: "Usuarios",
   profile: "Mi perfil",
   settings: "Ajustes",
+  mainNavigation: "Navegación principal",
+  brandHomeLabel: "Huellas, ir al inicio",
+  volunteering: "Voluntariado",
+  findVolunteers: "Buscar voluntarios",
+  myChats: "Mis chats",
+  openMenu: "Abrir menú",
+  closeMenu: "Cerrar menú",
+  changeLanguage: "Cambiar idioma",
+  languages: "Idiomas",
+
+  // --- Navegación, errores y páginas legales ---
+  notFoundTitle: "Esta página no existe",
+  unexpectedErrorTitle: "No hemos podido mostrar esta página",
+  unexpectedErrorDescription:
+    "El resto de tus datos sigue a salvo. Prueba a cargar la página de nuevo o vuelve al inicio.",
+  passwordRecovery: "Recuperar contraseña",
+  passwordRecoveryDescription:
+    "La recuperación automática todavía no está disponible. Vuelve al inicio de sesión y contacta con el equipo del proyecto si necesitas recuperar el acceso.",
+  backToLogin: "Volver a iniciar sesión",
+  termsTitle: "Términos y privacidad",
+  termsIntro:
+    "Estas condiciones explican el alcance de Huellas mientras continúa siendo un proyecto de demostración.",
+  termsServiceTitle: "Finalidad del servicio",
+  termsServiceBody:
+    "Huellas permite organizar la identidad, los eventos sanitarios, las citas, los recordatorios y las solicitudes comunitarias de tus mascotas.",
+  termsHealthTitle: "Información sanitaria",
+  termsHealthBody:
+    "La información introducida por el propietario sirve para la organización personal y no sustituye el diagnóstico, el tratamiento ni el consejo veterinario.",
+  termsPrivacyTitle: "Datos personales",
+  termsPrivacyBody:
+    "Introduce únicamente información que estés autorizado a gestionar. Los documentos sanitarios y enlaces privados no deben compartirse con quien no necesite acceso.",
+  termsCommunityTitle: "Uso de la comunidad",
+  termsCommunityBody:
+    "No publiques datos sensibles, solicitudes engañosas ni contenido que pueda poner en riesgo a personas o animales.",
+  termsUpdated: "Última actualización: 4 de septiembre de 2026",
 
   // --- Home page ---
   homePageTitle: "¡Hola de nuevo, {{name}}!",
@@ -255,6 +329,8 @@ export const ca: LocaleMap = {
   search: "Cercar",
   remove: "Elimina",
   clearAll: "Elimina-ho tot",
+  retry: "Torna-ho a provar",
+  backToHome: "Torna a l'inici",
 
   // --- Landing & App ---
   huellas: "Huellas",
@@ -312,6 +388,41 @@ export const ca: LocaleMap = {
   users: "Usuaris",
   profile: "El meu perfil",
   settings: "Configuració",
+  mainNavigation: "Navegació principal",
+  brandHomeLabel: "Huellas, ves a l'inici",
+  volunteering: "Voluntariat",
+  findVolunteers: "Cercar voluntaris",
+  myChats: "Els meus xats",
+  openMenu: "Obre el menú",
+  closeMenu: "Tanca el menú",
+  changeLanguage: "Canvia l'idioma",
+  languages: "Idiomes",
+
+  // --- Navegació, errors i pàgines legals ---
+  notFoundTitle: "Aquesta pàgina no existeix",
+  unexpectedErrorTitle: "No hem pogut mostrar aquesta pàgina",
+  unexpectedErrorDescription:
+    "La resta de les teves dades continua segura. Prova de carregar la pàgina de nou o torna a l'inici.",
+  passwordRecovery: "Recuperar la contrasenya",
+  passwordRecoveryDescription:
+    "La recuperació automàtica encara no està disponible. Torna a l'inici de sessió i contacta amb l'equip del projecte si necessites recuperar l'accés.",
+  backToLogin: "Torna a iniciar sessió",
+  termsTitle: "Termes i privacitat",
+  termsIntro:
+    "Aquestes condicions expliquen l'abast de Huellas mentre continua sent un projecte de demostració.",
+  termsServiceTitle: "Finalitat del servei",
+  termsServiceBody:
+    "Huellas permet organitzar la identitat, els esdeveniments sanitaris, les cites, els recordatoris i les sol·licituds comunitàries de les teves mascotes.",
+  termsHealthTitle: "Informació sanitària",
+  termsHealthBody:
+    "La informació introduïda pel propietari serveix per a l'organització personal i no substitueix el diagnòstic, el tractament ni el consell veterinari.",
+  termsPrivacyTitle: "Dades personals",
+  termsPrivacyBody:
+    "Introdueix només informació que estiguis autoritzat a gestionar. Els documents sanitaris i els enllaços privats no s'han de compartir amb qui no necessiti accés.",
+  termsCommunityTitle: "Ús de la comunitat",
+  termsCommunityBody:
+    "No publiquis dades sensibles, sol·licituds enganyoses ni contingut que pugui posar en risc persones o animals.",
+  termsUpdated: "Última actualització: 4 de setembre de 2026",
 
   // --- Home page ---
   homePageTitle: "Hola de nou, {{name}}!",

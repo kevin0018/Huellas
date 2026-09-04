@@ -25,7 +25,7 @@ const SRC_BY_LANG: Record<Language, string> = {
 };
 
 const LanguageSwitcher: FC<{ className?: string }> = ({ className }) => {
-  const { currentLanguage, changeLanguage, availableLanguages } = useTranslation();
+  const { translate, currentLanguage, changeLanguage, availableLanguages } = useTranslation();
 
   const [open, setOpen] = useState(false);
   const [activeIdx, setActiveIdx] = useState(0);
@@ -104,7 +104,7 @@ const LanguageSwitcher: FC<{ className?: string }> = ({ className }) => {
         type="button"
         aria-haspopup="listbox"
         aria-expanded={open}
-        aria-label="Change language"
+        aria-label={translate('changeLanguage')}
         onClick={() => setOpen((o) => !o)}
         onKeyDown={onTriggerKeyDown}
         className="inline-flex h-6 w-6 3xl:h-8 3xl:w-8 items-center justify-center rounded-md bg-transparent p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
@@ -121,7 +121,7 @@ const LanguageSwitcher: FC<{ className?: string }> = ({ className }) => {
         <ul
           ref={listRef}
           role="listbox"
-          aria-label="Languages"
+          aria-label={translate('languages')}
           tabIndex={-1}
           onKeyDown={onListKeyDown}
           className="ui-panel absolute right-0 z-50 min-w-[10rem]"

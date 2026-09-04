@@ -1,7 +1,7 @@
 import { registerUser } from '../features/registration/registerUser';
 import { useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from '../i18n/hooks/hook';
 import NavBar from '../Components/NavBar';
 import GoBackButton from '../Components/GoBackButton';
@@ -219,9 +219,9 @@ function RegisterForm() {
                 />
               <span>{translate('acceptTerms')}</span>
             </label>
-              <a href="/terms" target="_blank" rel="noopener noreferrer" className="form-link">
+              <Link to="/terms" className="form-link">
                 {translate('readTerms')}
-              </a>
+              </Link>
           </div>
 
           {error && <div className="form-alert" id="register-error" role="alert">{error}</div>}
