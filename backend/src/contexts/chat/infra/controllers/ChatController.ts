@@ -1,3 +1,4 @@
+import { logger } from '../../../../observability/logger.js';
 import { Response } from 'express';
 import { AuthenticatedRequest } from '../../../auth/infra/middleware/JwtMiddleware.js';
 import { CreateConversationCommandHandler } from '../../app/commands/CreateConversationCommandHandler.js';
@@ -158,7 +159,7 @@ export class ChatController {
           socketService.emitNewMessage(conversationId, conversation.participantIds, messageDTO);
         }
       } catch (socketError) {
-        console.warn('[ChatController] Failed to broadcast via Socket.IO:', socketError);
+        logger.warn('[ChatController] Failed to broadcast via Socket.IO:', socketError);
         // Don't fail the request if socket broadcast fails
       }
       

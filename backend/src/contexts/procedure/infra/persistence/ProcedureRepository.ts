@@ -15,7 +15,6 @@ export class ProcedureRepository implements IProcedureRepository {
       }
     })
 
-    console.log(results[0]);
 
     const procedures = results.map((item) => new Procedure(
       item.id,

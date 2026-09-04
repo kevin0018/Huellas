@@ -1,3 +1,4 @@
+import { logger } from '../../../../observability/logger.js';
 import { Request, Response } from "express";
 import { GetVolunteerPostUseCase } from "../../app/usecases/GetVolunteerPostUseCase.js";
 
@@ -34,7 +35,7 @@ export class GetVolunteerPostController {
         expiresAt: post.getExpiresAt(),
       });
     } catch (err) {
-      console.error("[GetVolunteerPostController] Error:", err);
+      logger.error("[GetVolunteerPostController] Error:", err);
       res.status(500).json({ error: "Internal server error" });
     }
   }

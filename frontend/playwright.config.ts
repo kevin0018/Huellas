@@ -33,7 +33,7 @@ export default defineConfig({
   webServer: [
     {
       command: 'pnpm --dir ../backend start:e2e',
-      url: 'http://127.0.0.1:3001/db-check',
+      url: 'http://127.0.0.1:3001/ready',
       reuseExistingServer: false,
       stdout: 'pipe',
       timeout: 120_000,

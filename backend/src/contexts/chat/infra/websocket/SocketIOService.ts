@@ -1,3 +1,4 @@
+import { logger } from '../../../../observability/logger.js';
 import { Server } from 'socket.io';
 
 export class SocketIOService {
@@ -24,7 +25,7 @@ export class SocketIOService {
   // Emit a new message to conversation participants
   emitNewMessage(conversationId: number, participantIds: number[], messageData: any): void {
     if (!this.io) {
-      console.warn('[SocketIOService] Socket.IO not initialized');
+      logger.warn('[SocketIOService] Socket.IO not initialized');
       return;
     }
 
@@ -36,7 +37,7 @@ export class SocketIOService {
   // Emit message read status
   emitMessageRead(messageId: number, userId: number): void {
     if (!this.io) {
-      console.warn('[SocketIOService] Socket.IO not initialized');
+      logger.warn('[SocketIOService] Socket.IO not initialized');
       return;
     }
 

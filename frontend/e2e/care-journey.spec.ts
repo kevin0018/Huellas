@@ -17,6 +17,9 @@ for (const width of [375, 1440]) {
     await page.getByRole('button', { name: 'Crear mascota', exact: true }).click();
     const response = await created;
     expect(response.status()).toBe(201);
+    const requestId = await response.request().headerValue('X-Request-ID');
+    expect(requestId).toMatch(/^[\da-f-]{36}$/);
+    expect(await response.headerValue('X-Request-ID')).toBe(requestId);
     const { id } = await response.json();
     await expect(page).toHaveURL(/\/user-home$/);
 

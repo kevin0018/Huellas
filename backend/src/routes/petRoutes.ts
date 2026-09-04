@@ -5,7 +5,6 @@ import type { HealthModule } from '../contexts/health/index.js';
 import { Capability } from '../contexts/auth/domain/AccessControl.js';
 
 export function createPetRoutes({ pets, checkups, procedures }: PetCareModule, health: HealthModule): Router {
-  console.log('Creating pet routes...');
   const router = Router();
 
   // Routes

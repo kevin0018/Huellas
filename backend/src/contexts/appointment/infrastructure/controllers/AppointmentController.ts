@@ -1,3 +1,4 @@
+import { logger } from '../../../../observability/logger.js';
 import { Request, Response } from 'express';
 import { CreateAppointmentCommandHandler } from '../../app/commands/createAppointment/CreateAppointmentCommandHandler.js';
 import { CreateAppointmentCommand } from '../../app/commands/createAppointment/CreateAppointmentCommand.js';
@@ -74,7 +75,7 @@ export class AppointmentController {
         status: appointment.status
       });
     } catch (error) {
-      console.error('Error creating appointment:', error);
+      logger.error('Error creating appointment:', error);
       res.status(400).json({ 
         error: error instanceof Error ? error.message : 'Failed to create appointment' 
       });
@@ -127,7 +128,7 @@ export class AppointmentController {
         status: appointment.status
       });
     } catch (error) {
-      console.error('Error updating appointment:', error);
+      logger.error('Error updating appointment:', error);
       if (error instanceof Error && error.message.includes('not found or access denied')) {
         res.status(404).json({ error: 'Appointment not found or access denied' });
       } else {
@@ -153,7 +154,7 @@ export class AppointmentController {
       
       res.status(204).send();
     } catch (error) {
-      console.error('Error deleting appointment:', error);
+      logger.error('Error deleting appointment:', error);
       if (error instanceof Error && error.message.includes('not found or access denied')) {
         res.status(404).json({ error: 'Appointment not found or access denied' });
       } else {
@@ -184,7 +185,7 @@ export class AppointmentController {
         status: appointment.status
       })));
     } catch (error) {
-      console.error('Error getting appointments:', error);
+      logger.error('Error getting appointments:', error);
       res.status(500).json({ error: 'Failed to get appointments' });
     }
   }
@@ -216,7 +217,7 @@ export class AppointmentController {
         status: appointment.status
       });
     } catch (error) {
-      console.error('Error getting appointment:', error);
+      logger.error('Error getting appointment:', error);
       res.status(500).json({ error: 'Failed to get appointment' });
     }
   }

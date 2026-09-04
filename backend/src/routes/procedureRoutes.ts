@@ -4,7 +4,6 @@ import type { PetCareModule } from '../contexts/pet/index.js';
 import { Capability } from '../contexts/auth/domain/AccessControl.js';
 
 export function createProcedureRoutes({ procedures }: PetCareModule): Router {
-  console.log('Creating procedure routes...');
   const router = Router();
 
   // Routes

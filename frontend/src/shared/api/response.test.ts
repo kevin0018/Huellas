@@ -45,3 +45,38 @@ describe('HTTP error provenance', () => {
     await expect(new ApiAppointmentRepository().getAppointments()).resolves.toEqual([]);
   });
 });
+
+describe('request correlation', () => {
+  it('generates an independent request ID while preserving headers and request bodies', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response('{}'));
+    vi.stubGlobal('fetch', fetchMock);
+    await fetchResponse('/api/pets', { method: 'POST', headers: { Authorization: 'Bearer private-token' }, body: 'private-health-note' });
+    await fetchResponse('/api/pets');
+    const first = fetchMock.mock.calls[0][1] as RequestInit;
+    const second = fetchMock.mock.calls[1][1] as RequestInit;
+    const firstId = new Headers(first.headers).get('X-Request-ID');
+    expect(firstId).toMatch(/^[\da-f]{8}-[\da-f]{4}-4[\da-f]{3}-[89ab][\da-f]{3}-[\da-f]{12}$/);
+    expect(new Headers(second.headers).get('X-Request-ID')).not.toBe(firstId);
+    expect(new Headers(first.headers).get('Authorization')).toBe('Bearer private-token');
+    expect(first.body).toBe('private-health-note');
+  });
+
+  it('preserves a valid ID and Request headers, replacing untrusted text', async () => {
+    const id = 'de6712c8-d2ae-4ee0-9c7a-c248a319c72d';
+    const fetchMock = vi.fn().mockResolvedValue(new Response('{}'));
+    vi.stubGlobal('fetch', fetchMock);
+    await fetchResponse(new Request('https://example.test/api/pets', { headers: { 'X-Request-ID': id, Authorization: 'Bearer token' } }));
+    expect(new Headers(fetchMock.mock.calls[0][1].headers).get('X-Request-ID')).toBe(id);
+    expect(new Headers(fetchMock.mock.calls[0][1].headers).get('Authorization')).toBe('Bearer token');
+    await fetchResponse('/api/pets', { headers: { 'X-Request-ID': 'private-diagnosis' } });
+    expect(new Headers(fetchMock.mock.calls[1][1].headers).get('X-Request-ID')).not.toBe('private-diagnosis');
+  });
+
+  it('attaches the server correlation ID to normalized errors without changing the message', async () => {
+    const id = 'de6712c8-d2ae-4ee0-9c7a-c248a319c72d';
+    await expect(ensureResponseOk(new Response('{"error":"No permitido"}', { status: 403, headers: { 'X-Request-ID': id } })))
+      .rejects.toMatchObject({ status: 403, message: 'No permitido', requestId: id });
+    await expect(ensureResponseOk(new Response('', { status: 503, headers: { 'X-Request-ID': 'private-text' } })))
+      .rejects.toMatchObject({ status: 503, requestId: undefined });
+  });
+});

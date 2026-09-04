@@ -63,9 +63,6 @@ export class VolunteerPostRepository implements IVolunteerPostRepository {
 
     if (result.count === 0) {
       // Si no se borró nada: o no existe, o el user no es el autor.
-      console.warn(
-        `[VolunteerPostRepository] deleteById -> not found or forbidden (id=${id}, authorId=${authorId})`
-      );
       // Lanzamos error controlado para que el controller responda 404/403 según convenga.
       throw new Error("VOLUNTEER_POST_NOT_FOUND_OR_FORBIDDEN");
     }

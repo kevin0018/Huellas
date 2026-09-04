@@ -1,16 +1,20 @@
 import express from 'express';
+import { requestLogging } from './observability/requestLogging.js';
+import { createDependencyReadiness } from './observability/dependencies.js';
 import cors from 'cors';
 import { testDbConnection } from './db/pool.js';
 import { createRoutes } from './routes/index.js';
 import { testRoutes } from './test-routes.js';
-import { RedisService } from './config/RedisService.js';
 import { config } from './config/env.js';
 import { createRateLimiter, errorHandler, notFoundHandler, securityHeaders } from './middleware/security.js';
 import { openApiDocument } from './contracts/openapi.js';
 import { createApplicationModules, type ApplicationModules } from './composition/createApplicationModules.js';
 import { isOriginAllowed } from './config/originPolicy.js';
 
-export async function buildApp(modules: ApplicationModules = createApplicationModules()) {
+export async function buildApp(
+  modules: ApplicationModules = createApplicationModules(),
+  readiness = createDependencyReadiness(),
+) {
   const app = express();
   const corsMiddleware = cors({
     origin(origin, callback) {
@@ -25,9 +29,11 @@ export async function buildApp(modules: ApplicationModules = createApplicationMo
       callback(new Error('Origin not allowed by CORS'));
     },
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-ID'],
+    exposedHeaders: ['X-Request-ID'],
   });
   app.disable('x-powered-by');
+  app.use(requestLogging);
   app.use(securityHeaders);
   app.use(corsMiddleware);
   app.options('*', corsMiddleware);
@@ -36,17 +42,16 @@ export async function buildApp(modules: ApplicationModules = createApplicationMo
   app.use('/api/pets/:id/health-documents', express.json({ limit: '7mb' }));
   app.use(express.json({ limit: '100kb' }));
 
-  // Initialize Redis connection
-  try {
-    const redisService = RedisService.getInstance();
-    await redisService.connect();
-  } catch (error) {
-    console.warn('Redis connection failed!!!, using memory fallback:', error);
-  }
-
-  // Health check routes
-  app.get('/health', (_req, res) => {
+  // Liveness remains independent of external services; /health is the legacy alias.
+  app.get(['/health', '/live'], (_req, res) => {
+    res.setHeader('Cache-Control', 'no-store');
     res.json({ status: 'ok', ts: new Date().toISOString() });
+  });
+  app.get('/ready', (_req, res, next) => {
+    res.setHeader('Cache-Control', 'no-store');
+    void readiness.status().then(result => {
+      res.status(result.status === 'ready' ? 200 : 503).json(result);
+    }).catch(next);
   });
 
   if (config.nodeEnv !== 'production') {
@@ -61,7 +66,7 @@ export async function buildApp(modules: ApplicationModules = createApplicationMo
   }
 
   // API routes
-  console.log('Setting up API routes...');
+  app.use('/api', readiness.requireReady);
   app.get('/api/openapi.json', (_req, res) => {
     res.json(openApiDocument);
   });

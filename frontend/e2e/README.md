@@ -18,7 +18,8 @@ docker compose -f compose.e2e.yml down
 
 The test Compose project is `huellas-e2e`. MySQL uses localhost port 33306 and
 an ephemeral filesystem; Redis uses localhost port 36379. The API and preview
-use ports 3001 and 4173. Existing application servers are never reused.
+use ports 3001 and 4173. Existing application servers are never reused. The runner waits for `/ready`,
+which checks both database clients and Redis.
 
 The bootstrap requires the MySQL database `huellas_e2e`, deploys migrations and
 upserts one preventive-care fixture. Redis database **15** is reserved for this
@@ -47,7 +48,9 @@ runner, so a developer's frontend `.env` cannot redirect requests to their API.
   next care journey in mobile and desktop browsers, and real HTTP ownership
   tests for pets, events, documents, appointments, reminders and revocable shares.
   Also changes real account passwords through the profile on mobile and desktop,
-  verifying that the new password works and the old one is rejected.
+  verifying that the new password works and the old one is rejected. Operational
+  checks cover liveness/readiness, CORS and request-ID propagation from the browser.
+  See [API operations](../../docs/OPERATIONS.md) for the log and probe contract.
 - `pnpm --dir frontend test:full`: frontend fast tests followed by the E2E suite;
   requires the test services above. Backend fast tests remain a separate command.
 

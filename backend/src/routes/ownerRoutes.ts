@@ -5,19 +5,14 @@ import type { IdentityModule } from '../contexts/auth/index.js';
 import { Capability } from '../contexts/auth/domain/AccessControl.js';
 
 export function createOwnerRoutes({ pets }: PetCareModule, { ownerAccounts }: IdentityModule): Router {
-  console.log('Creating owner routes...');
   const router = Router();
 
   // Routes
-  console.log('Registering POST /register route...');
   router.post('/register', async (req, res) => {
-    console.log('POST /register endpoint');
     await ownerAccounts.register.handle(req, res);
   });
 
-  console.log('Registering DELETE /:id route...');
   router.delete('/:id', ...JwtMiddleware.requireCapability(Capability.MANAGE_PETS), async (req, res) => {
-    console.log('DELETE /:id endpoint');
     await ownerAccounts.delete.handle(req, res);
   });
 

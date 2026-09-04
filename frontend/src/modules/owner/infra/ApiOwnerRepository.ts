@@ -1,3 +1,4 @@
+import { correlatedFetch } from '../../../shared/api/requestId';
 import { Owner } from '../domain/Owner';
 import type { OwnerRepository } from '../domain/OwnerRepository';
 import { API_BASE_URL } from '../../../shared/api/apiConfig';
@@ -18,7 +19,7 @@ export class ApiOwnerRepository implements OwnerRepository {
 			};
 			let response: Response;
 			try {
-				response = await fetch(this.baseUrl, {
+				response = await correlatedFetch(this.baseUrl, {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',

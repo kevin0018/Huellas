@@ -1,3 +1,4 @@
+import { logger } from '../observability/logger.js';
 import type { NextFunction, Request, Response } from 'express';
 
 type RateLimitEntry = { count: number; resetAt: number };
@@ -56,6 +57,6 @@ export function errorHandler(
     return;
   }
 
-  console.error('Unhandled request error:', error instanceof Error ? error.message : 'Unknown error');
+  logger.error('http.unhandled_error', error);
   res.status(500).json({ error: 'Internal server error' });
 }
