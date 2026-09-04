@@ -91,6 +91,9 @@ describe('Register', () => {
     mockedRegisterUser.mockRejectedValue(new Error('Network error'));
     renderRegister();
     await completeRequiredFields(user);
+    await user.click(screen.getByRole('button', { name: 'Mostrar contraseña' }));
+    expect(screen.getByLabelText('Contraseña')).toHaveAttribute('type', 'text');
+    expect(mockedRegisterUser).not.toHaveBeenCalled();
     await user.click(screen.getByRole('checkbox', { name: 'Acepto los términos' }));
 
     await user.click(screen.getByRole('button', { name: 'Regístrate' }));

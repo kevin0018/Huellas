@@ -16,6 +16,8 @@ export const frontendServer = {
 
 export default defineConfig({
   testDir: './e2e',
+  // Run the account-password suite with a fresh API process and real rate limits.
+  testIgnore: 'password-profile.spec.ts',
   fullyParallel: false,
   workers: 1,
   retries: process.env.CI ? 1 : 0,

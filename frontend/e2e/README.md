@@ -22,7 +22,9 @@ use ports 3001 and 4173. Existing application servers are never reused.
 
 The bootstrap requires the MySQL database `huellas_e2e`, deploys migrations and
 upserts one preventive-care fixture. Redis database **15** is reserved for this
-suite and cleared at startup so real rate limits do not accumulate across runs.
+suite and cleared at startup so state does not accumulate across runs.
+The password-change suite starts a fresh API process after the main suite, so
+independent login scenarios stay within the real 10-attempt rate limit.
 Never point these settings at a database with data you want to keep.
 
 CI supplies `E2E_DATABASE_URL` and `E2E_REDIS_URL` for its dedicated services.
@@ -34,12 +36,16 @@ runner, so a developer's frontend `.env` cannot redirect requests to their API.
 
 - `pnpm --dir frontend test:run`: fast component, application and routing tests.
 - `pnpm --dir backend test`: fast domain, application and mocked HTTP tests.
-- `pnpm --dir frontend test:e2e:public`: browser checks for Home and About,
+- `pnpm --dir frontend test:e2e:public`: browser checks for Home, About, login and registration,
   without API/database services. Exercises Spanish, English and Catalan at
   320, 375, 414, 768 and 1440 px in light and dark themes; saves full-page captures.
+  Password checks cover visibility, caret selection, companion poses, keyboard
+  controls, language changes and reduced motion at 320 and 1440 px.
 - `pnpm --dir frontend test:e2e`: public checks plus the pet → health event →
   next care journey in mobile and desktop browsers, and real HTTP ownership
   tests for pets, events, documents, appointments, reminders and revocable shares.
+  Also changes real account passwords through the profile on mobile and desktop,
+  verifying that the new password works and the old one is rejected.
 - `pnpm --dir frontend test:full`: frontend fast tests followed by the E2E suite;
   requires the test services above. Backend fast tests remain a separate command.
 

@@ -4,6 +4,14 @@
 */
 
 export const en = {
+  showPassword: "Show password",
+  hidePassword: "Hide password",
+  homeTitleAccent: "You care for their story.",
+  homePetTab: "Your pet",
+  homeRecordTab: "Their record",
+  homeNextTab: "What’s next",
+  homeNote: "A life together, worth looking after.",
+
   checkingSession: "Checking session…",
   // --- Local failures ---
   authenticationRequired: "Sign in to continue.",
@@ -385,7 +393,7 @@ export const en = {
 
   // --- Landing & App ---
   homeEyebrow: "Everyday care, together",
-  homeTitle: "Their wellbeing, all in one place.",
+  homeTitle: "They leave pawprints.",
   homeDescription: "Health records, appointments and upcoming care. Keep what matters close, and spend more time enjoying life with your pets.",
   homeCareEyebrow: "From the first day",
   homeCareTitle: "A little order. More peace of mind.",
@@ -624,6 +632,14 @@ export type TranslationKey = keyof typeof en;
 export type LocaleMap = Record<TranslationKey, string>;
 
 export const es: LocaleMap = {
+  showPassword: "Mostrar contraseña",
+  hidePassword: "Ocultar contraseña",
+  homeTitleAccent: "Tú cuidas su historia.",
+  homePetTab: "Tu mascota",
+  homeRecordTab: "Su cartilla",
+  homeNextTab: "Lo que viene",
+  homeNote: "Una vida juntos merece que la cuides.",
+
   checkingSession: "Comprobando sesión…",
   // --- Local failures ---
   authenticationRequired: "Inicia sesión para continuar.",
@@ -1005,7 +1021,7 @@ export const es: LocaleMap = {
 
   // --- Landing & App ---
   homeEyebrow: "El cuidado de cada día",
-  homeTitle: "Su bienestar, en un mismo lugar.",
+  homeTitle: "Ellos dejan huella.",
   homeDescription: "Cartilla, citas y próximos cuidados. Ten a mano lo importante y dedica más tiempo a disfrutar con tus mascotas.",
   homeCareEyebrow: "Desde el primer día",
   homeCareTitle: "Un poco de orden. Más tranquilidad.",
@@ -1239,6 +1255,14 @@ export const es: LocaleMap = {
 };
 
 export const ca: LocaleMap = {
+  showPassword: "Mostra la contrasenya",
+  hidePassword: "Amaga la contrasenya",
+  homeTitleAccent: "Tu cuides la seva història.",
+  homePetTab: "La teva mascota",
+  homeRecordTab: "La seva cartilla",
+  homeNextTab: "El que ve",
+  homeNote: "Una vida junts mereix que la cuidis.",
+
   checkingSession: "Comprovant la sessió…",
   // --- Local failures ---
   authenticationRequired: "Inicia sessió per continuar.",
@@ -1620,7 +1644,7 @@ export const ca: LocaleMap = {
 
   // --- Landing & App ---
   homeEyebrow: "La cura de cada dia",
-  homeTitle: "El seu benestar, en un mateix lloc.",
+  homeTitle: "Ells deixen petjada.",
   homeDescription: "Cartilla, cites i properes cures. Tingues a mà el que importa i dedica més temps a gaudir amb les teves mascotes.",
   homeCareEyebrow: "Des del primer dia",
   homeCareTitle: "Una mica d’ordre. Més tranquil·litat.",

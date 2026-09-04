@@ -1,3 +1,4 @@
+import PasswordInput, { PasswordCompanion } from '../shared/ui/PasswordInput';
 import type { TranslationKey } from '../i18n/dictionary';
 import { ClientError } from '../shared/errors/ClientError';
 import { useTranslation } from '../i18n/hooks/hook';
@@ -123,22 +124,23 @@ function LoginContent() {
                 required
               />
             </div>
-            <div className="form-field">
-              <label htmlFor="login-password" className="form-label">{translate('password')}</label>
-              <input
-                id="login-password"
-                type="password"
-                name="password"
-                value={form.password}
-                onChange={handleInputChange}
-                placeholder={translate('password')}
-                autoComplete="current-password"
-                className="form-control"
-                aria-invalid={error ? 'true' : undefined}
-                aria-describedby={error ? 'login-error' : undefined}
-                required
-              />
-            </div>
+            <PasswordCompanion>
+              <div className="form-field">
+                <label htmlFor="login-password" className="form-label">{translate('password')}</label>
+                <PasswordInput
+                  id="login-password"
+                  name="password"
+                  value={form.password}
+                  onChange={handleInputChange}
+                  placeholder={translate('password')}
+                  autoComplete="current-password"
+                  className="form-control"
+                  aria-invalid={error ? 'true' : undefined}
+                  aria-describedby={error ? 'login-error' : undefined}
+                  required
+                />
+              </div>
+            </PasswordCompanion>
 
             {error && (
               <div id="login-error" className="form-alert" role="alert">{error && translate(error)}</div>

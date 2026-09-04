@@ -1,3 +1,4 @@
+import PasswordInput, { PasswordCompanion } from '../shared/ui/PasswordInput';
 import { LocalizedError, messageFromError, translateMessage, type LocalizedMessage } from '../i18n/message';
 import { useTranslation } from '../i18n/hooks/hook';
 import { useState, useEffect } from "react";
@@ -340,57 +341,62 @@ export default function UserProfile() {
                 </header>
 
                 <form onSubmit={handleChangePassword} className="workspace-form-grid">
-                  <div className="workspace-field workspace-field--full">
-                  <label htmlFor="currentPassword" className="workspace-field__label">{translate('currentPassword')}</label>
-                  <input
-                    type="password"
-                    name="currentPassword"
-                    id="currentPassword"
-                    value={formData.currentPassword}
-                    onChange={handleInputChange}
-                    className="ui-control"
-                    placeholder={translate('currentPasswordPlaceholder')}
-                    disabled={isLoading}
-                  />
-                  </div>
+                  <PasswordCompanion>
+                    <div className="workspace-field workspace-field--full">
+                    <label htmlFor="currentPassword" className="workspace-field__label">{translate('currentPassword')}</label>
+                    <PasswordInput
+                      name="currentPassword"
+                      toggleLabel={translate('currentPassword')}
+                      autoComplete="current-password"
+                      id="currentPassword"
+                      value={formData.currentPassword}
+                      onChange={handleInputChange}
+                      className="ui-control"
+                      placeholder={translate('currentPasswordPlaceholder')}
+                      disabled={isLoading}
+                    />
+                    </div>
 
-                  <div className="workspace-field">
-                  <label htmlFor="newPassword" className="workspace-field__label">{translate('newPassword')}</label>
-                  <input
-                    type="password"
-                    name="newPassword"
-                    id="newPassword"
-                    value={formData.newPassword}
-                    onChange={handleInputChange}
-                    className="ui-control"
-                    placeholder={translate('newPasswordPlaceholder')}
-                    disabled={isLoading}
-                  />
-                  </div>
+                    <div className="workspace-field">
+                    <label htmlFor="newPassword" className="workspace-field__label">{translate('newPassword')}</label>
+                    <PasswordInput
+                      name="newPassword"
+                      toggleLabel={translate('newPassword')}
+                      autoComplete="new-password"
+                      id="newPassword"
+                      value={formData.newPassword}
+                      onChange={handleInputChange}
+                      className="ui-control"
+                      placeholder={translate('newPasswordPlaceholder')}
+                      disabled={isLoading}
+                    />
+                    </div>
 
-                  <div className="workspace-field">
-                  <label htmlFor="confirmPassword" className="workspace-field__label">{translate('confirmPasswordLabel')}</label>
-                  <input
-                    type="password"
-                    name="confirmPassword"
-                    id="confirmPassword"
-                    value={formData.confirmPassword}
-                    onChange={handleInputChange}
-                    className="ui-control"
-                    placeholder={translate('confirmNewPasswordPlaceholder')}
-                    disabled={isLoading}
-                  />
-                  </div>
+                    <div className="workspace-field">
+                    <label htmlFor="confirmPassword" className="workspace-field__label">{translate('confirmPasswordLabel')}</label>
+                    <PasswordInput
+                      name="confirmPassword"
+                      toggleLabel={translate('confirmPasswordLabel')}
+                      autoComplete="new-password"
+                      id="confirmPassword"
+                      value={formData.confirmPassword}
+                      onChange={handleInputChange}
+                      className="ui-control"
+                      placeholder={translate('confirmNewPasswordPlaceholder')}
+                      disabled={isLoading}
+                    />
+                    </div>
 
-                  <div className="workspace-form-actions">
-                  <button
-                    type="submit"
-                    disabled={isLoading || !formData.currentPassword || !formData.newPassword}
-                    className="ui-action ui-action--primary px-5 py-3"
-                  >
-                    {isLoading ? translate('changingPassword') : translate('changePassword')}
-                  </button>
-                  </div>
+                    <div className="workspace-form-actions">
+                    <button
+                      type="submit"
+                      disabled={isLoading || !formData.currentPassword || !formData.newPassword}
+                      className="ui-action ui-action--primary px-5 py-3"
+                    >
+                      {isLoading ? translate('changingPassword') : translate('changePassword')}
+                    </button>
+                    </div>
+                  </PasswordCompanion>
                 </form>
               </section>
             </div>

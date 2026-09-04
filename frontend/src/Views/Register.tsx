@@ -1,3 +1,4 @@
+import PasswordInput, { PasswordCompanion } from '../shared/ui/PasswordInput';
 import type { TranslationKey } from '../i18n/dictionary';
 import { ClientError } from '../shared/errors/ClientError';
 import { registerUser } from '../features/registration/registerUser';
@@ -182,19 +183,20 @@ function RegisterForm() {
                 required
               />
             </div>
-            <div className="form-field">
-              <label className="form-label" htmlFor="register-password">{translate('password')}</label>
-              <input
-                autoComplete="new-password"
-                className="form-control"
-                id="register-password"
-                name="password"
-                type="password"
-                value={form.password}
-                onChange={handleChange}
-                required
-              />
-            </div>
+            <PasswordCompanion>
+              <div className="form-field">
+                <label className="form-label" htmlFor="register-password">{translate('password')}</label>
+                <PasswordInput
+                  autoComplete="new-password"
+                  className="form-control"
+                  id="register-password"
+                  name="password"
+                  value={form.password}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </PasswordCompanion>
             {userType === 'volunteer' && (
               <div className="form-field">
                 <label className="form-label" htmlFor="register-description">{translate('description')}</label>

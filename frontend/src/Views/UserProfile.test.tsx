@@ -32,6 +32,10 @@ it('switches profile fields and visible password validation without losing edits
   await user.type(screen.getByLabelText('Nombre'), ' II');
   await user.type(screen.getByLabelText('Contraseña actual'), 'current123');
   await user.type(screen.getByLabelText('Nueva contraseña'), 'new123');
+  await user.click(screen.getByRole('button', { name: 'Mostrar contraseña: Contraseña actual' }));
+  expect(screen.getByLabelText('Contraseña actual')).toHaveAttribute('type', 'text');
+  expect(screen.getByLabelText('Nueva contraseña')).toHaveAttribute('type', 'password');
+  expect(screen.getByLabelText('Confirmar contraseña')).toHaveAttribute('type', 'password');
   await user.click(screen.getByRole('button', { name: 'Cambiar contraseña' }));
   expect(screen.getByRole('alert')).toHaveTextContent('Las contraseñas no coinciden');
 
@@ -40,12 +44,16 @@ it('switches profile fields and visible password validation without losing edits
   expect(screen.getByRole('alert')).toHaveTextContent('Passwords do not match');
   expect(screen.getByLabelText('Name')).toHaveValue('María II');
   expect(screen.getByLabelText('Current password')).toHaveValue('current123');
+  expect(screen.getByRole('button', { name: 'Hide password: Current password' })).toHaveAttribute('aria-pressed', 'true');
   expect(screen.getByLabelText('Last name')).toHaveValue('García');
   expect(screen.getByLabelText('Email address')).toHaveValue('maria@example.com');
 
   switchLanguage('Català');
   expect(screen.getByRole('alert')).toHaveTextContent('Les contrasenyes no coincideixen');
   await user.type(screen.getByLabelText('Confirma la contrasenya'), 'new123');
+  await user.click(screen.getByRole('button', { name: 'Mostra la contrasenya: Contrasenya nova' }));
+  expect(screen.getByLabelText('Contrasenya nova')).toHaveAttribute('type', 'text');
+  expect(screen.getByLabelText('Confirma la contrasenya')).toHaveAttribute('type', 'password');
   actions.changePassword.mockResolvedValue(undefined);
   await user.click(screen.getByRole('button', { name: 'Canvia la contrasenya' }));
   await screen.findByText('Canvis desats');
