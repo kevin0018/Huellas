@@ -41,6 +41,8 @@ runner, so a developer's frontend `.env` cannot redirect requests to their API.
   320, 375, 414, 768 and 1440 px in light and dark themes; saves full-page captures.
   Password checks cover visibility, caret selection, companion poses, keyboard
   controls, language changes and reduced motion at 320 and 1440 px.
+  A 1920 px check also exercises cursor tracking, password priority, complete eye
+  coverage and switching the motion preference without reloading.
 - `pnpm --dir frontend test:e2e`: public checks plus the pet → health event →
   next care journey in mobile and desktop browsers, and real HTTP ownership
   tests for pets, events, documents, appointments, reminders and revocable shares.

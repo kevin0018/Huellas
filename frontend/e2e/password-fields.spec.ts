@@ -28,7 +28,10 @@ for (const width of [320, 1440]) {
       await expect(input).toBeFocused();
       expect(await input.evaluate((element: HTMLInputElement) => [element.selectionStart, element.selectionEnd])).toEqual(selection);
       await expect(cat).toHaveAttribute('data-mood', 'watching');
-      await expect(cat.locator('.huellas-cat__gaze')).toHaveCSS('transform', 'matrix(1, 0, 0, 1, 0, 7)');
+      await expect.poll(() => cat.locator('.huellas-cat__gaze').evaluate(element => {
+        const gaze = new DOMMatrix(getComputedStyle(element).transform);
+        return gaze.m42 > 0 && (innerWidth >= 1280 ? gaze.m41 < 0 : Math.abs(gaze.m41) < 1);
+      })).toBe(true);
       await page.screenshot({ path: testInfo.outputPath('visible.png'), fullPage: true });
       for (const [language, code, action] of [['English', 'en', 'Hide password'], ['Català', 'ca', 'Amaga la contrasenya'], ['Español', 'es', 'Ocultar contraseña']]) {
         await page.getByRole('button', { name: /Cambiar idioma|Change language|Canvia l'idioma/ }).click();
@@ -48,7 +51,7 @@ for (const width of [320, 1440]) {
       await page.reload();
       await expect(page.locator('html')).toHaveClass(/dark/);
       await expect(cat.locator('.huellas-cat__eye').first()).toHaveCSS('animation-name', 'none');
-      await expect(paw).toHaveCSS('transition-property', 'none');
+      await expect(cat.locator('.huellas-cat__arm').first()).toHaveCSS('transition-property', 'none');
       // Check the actual icon contrast, including any theme transition in progress.
       await expect.poll(() => page.locator('.password-input__toggle').evaluate(element => {
         const context = document.createElement('canvas').getContext('2d')!;
@@ -88,4 +91,59 @@ test('the care notebook supports keyboard navigation and keeps the chosen page a
   await page.getByRole('button', { name: 'Català', exact: true }).click();
   await expect(page.getByRole('tab', { name: 'El que ve' })).toHaveAttribute('aria-selected', 'true');
   await expect(page.getByRole('heading', { name: 'Mira què ve després' })).toBeVisible();
+});
+
+
+test('the large desktop cat follows the cursor, prioritizes passwords and respects reduced motion', async ({ page }, testInfo) => {
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await page.goto('/login');
+  const cat = page.locator('.password-companion .huellas-cat');
+  const form = page.locator('.form-surface');
+  const input = page.locator('#login-password');
+  const bounds = (await cat.boundingBox())!;
+  const formBounds = (await form.boundingBox())!;
+  expect(bounds.width).toBeGreaterThan(400);
+  expect(bounds.x).toBeGreaterThan(formBounds.x + formBounds.width);
+  expect(bounds.x + bounds.width).toBeLessThanOrEqual(1920);
+  const gaze = cat.locator('.huellas-cat__gaze');
+  const head = cat.locator('.huellas-cat__head');
+  await page.mouse.move(20, 120);
+  await expect.poll(() => gaze.evaluate(element => new DOMMatrix(getComputedStyle(element).transform).m41)).toBeLessThan(-3);
+  await expect.poll(() => head.evaluate(element => new DOMMatrix(getComputedStyle(element).transform).m12)).toBeLessThan(0);
+  await page.screenshot({ path: testInfo.outputPath('following-left.png'), fullPage: true });
+  await page.mouse.move(1900, 950);
+  await expect.poll(() => gaze.evaluate(element => new DOMMatrix(getComputedStyle(element).transform).m41)).toBeGreaterThan(3);
+  await expect.poll(() => head.evaluate(element => new DOMMatrix(getComputedStyle(element).transform).m12)).toBeGreaterThan(0);
+  await input.fill('Miso-test-123!');
+  await page.mouse.move(20, 120);
+  await expect(cat).toHaveAttribute('data-mood', 'hiding');
+  await expect.poll(() => gaze.evaluate(element => new DOMMatrix(getComputedStyle(element).transform).m41)).toBe(0);
+  for (const side of ['left', 'right']) {
+    const eye = cat.locator('.huellas-cat__eye').nth(side === 'left' ? 0 : 1);
+    const paw = cat.locator(`.huellas-cat__paw--${side}`);
+    await expect.poll(async () => {
+      const e = (await eye.boundingBox())!;
+      const p = (await paw.boundingBox())!;
+      return p.x <= e.x && p.y <= e.y && p.x + p.width >= e.x + e.width && p.y + p.height >= e.y + e.height;
+    }).toBe(true);
+  }
+  await page.screenshot({ path: testInfo.outputPath('covered.png'), fullPage: true });
+  await page.getByRole('button', { name: 'Mostrar contraseña', exact: true }).click();
+  await page.mouse.move(1900, 950);
+  await expect.poll(() => gaze.evaluate(element => new DOMMatrix(getComputedStyle(element).transform).m41)).toBeLessThan(-3);
+  await page.screenshot({ path: testInfo.outputPath('watching-password.png'), fullPage: true });
+  await page.getByRole('button', { name: 'Ocultar contraseña', exact: true }).click();
+  await page.locator('#login-email').focus();
+  await expect(cat).toHaveAttribute('data-mood', 'idle');
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.mouse.move(1900, 950);
+  await expect.poll(() => gaze.evaluate(element => new DOMMatrix(getComputedStyle(element).transform).m41)).toBe(0);
+  await expect(head).toHaveCSS('transition-property', 'none');
+  // Changing the preference while mounted should re-enable tracking.
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.mouse.move(20, 120);
+  await expect.poll(() => gaze.evaluate(element => new DOMMatrix(getComputedStyle(element).transform).m41)).toBeLessThan(-3);
+  await page.setViewportSize({ width: 320, height: 900 });
+  await expect.poll(async () => (await cat.boundingBox())!.width).toBeLessThan(260);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });

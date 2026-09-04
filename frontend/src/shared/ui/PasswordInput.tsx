@@ -7,19 +7,15 @@ const CompanionContext = createContext<((mood: CatMood, input: HTMLInputElement 
 
 /** One companion can respond to several independent password fields. */
 export function PasswordCompanion({ children }: { children: ReactNode }) {
-  const [pose, setPose] = useState<{ mood: CatMood; lookX: number }>({ mood: 'idle', lookX: 0 });
-  const stage = useRef<HTMLDivElement>(null);
+  const [pose, setPose] = useState<{ mood: CatMood; lookAt: HTMLInputElement | null }>({ mood: 'idle', lookAt: null });
 
   function reactToInput(mood: CatMood, input: HTMLInputElement | null) {
-    const field = input?.getBoundingClientRect();
-    const cat = stage.current?.getBoundingClientRect();
-    const lookX = field && cat ? Math.max(-5, Math.min(5, (field.left + field.width / 2 - cat.left - cat.width / 2) / 30)) : 0;
-    setPose({ mood, lookX });
+    setPose({ mood, lookAt: mood === 'watching' ? input : null });
   }
 
   return (
     <CompanionContext.Provider value={reactToInput}>
-      <div className="password-companion" ref={stage}><HuellasCat {...pose} /></div>
+      <div className="password-companion"><HuellasCat {...pose} followPointer /></div>
       {children}
     </CompanionContext.Provider>
   );
