@@ -1,4 +1,6 @@
 import type { FC, ReactNode } from "react";
+import { postCategoryTranslationKeys } from "../features/volunteering/postPresentation";
+import { useTranslation } from "../i18n/hooks/hook";
 import type { PostCategory } from "../modules/posts/domain/types";
 
 // Icono por categoría (igual que antes)
@@ -85,20 +87,6 @@ export interface AnuncioCardProps {
   onDelete?: () => void | Promise<void>;
 }
 
-const CATEGORY_LABEL: Record<PostCategory, string> = {
-  GENERAL: "General",
-  PET_SITTING: "Cuidado en casa",
-  WALKING_EXERCISE: "Paseos y ejercicio",
-  VET_TRANSPORT: "Transporte veterinario",
-  FOSTER_CARE: "Casa de acogida",
-  TRAINING_BEHAVIOR: "Conducta",
-  SHELTER_SUPPORT: "Protectoras",
-  GROOMING_HYGIENE: "Higiene",
-  MEDICAL_SUPPORT: "Soporte médico",
-  ADOPTION_REHOMING: "Adopción",
-  LOST_AND_FOUND: "Mascotas perdidas",
-};
-
 const AnuncioCard: FC<AnuncioCardProps> = ({
   title,
   author,
@@ -107,18 +95,20 @@ const AnuncioCard: FC<AnuncioCardProps> = ({
   onOpenChat,
   onDelete,
 }) => {
+  const { translate } = useTranslation();
+
   return (
     <article className="post-card">
       <div className="post-card__category">
         <span className="post-card__category-icon" aria-hidden="true">
           {categoryIcon(category)}
         </span>
-        <span>{CATEGORY_LABEL[category]}</span>
+        <span>{translate(postCategoryTranslationKeys[category])}</span>
       </div>
 
       <header>
         <h2 className="post-card__title">{title}</h2>
-        <p className="post-card__author">Publicado por {author}</p>
+        <p className="post-card__author">{translate('publishedBy', { author })}</p>
       </header>
 
       <p className="post-card__description">{description}</p>
@@ -137,7 +127,7 @@ const AnuncioCard: FC<AnuncioCardProps> = ({
                 <path strokeLinecap="round" strokeLinejoin="round"
                   d="M7 8h10M7 12h6M21 12a9 9 0 10-3.1 6.8L21 21l-1.2-3.4A8.97 8.97 0 0021 12z" />
               </svg>
-              Contactar
+              {translate('contactAction')}
             </button>
           ) : <span />}
 
@@ -151,7 +141,7 @@ const AnuncioCard: FC<AnuncioCardProps> = ({
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 3h6m-9 4h12m-1 0-1 13a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 7m3 0V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
               <path strokeLinecap="round" strokeLinejoin="round" d="M10 11v6M14 11v6" />
             </svg>
-            Eliminar
+            {translate('delete')}
           </button>
           )}
         </footer>

@@ -4,6 +4,8 @@ import NavBar from "../Components/NavBar";
 import { useChat } from "../modules/chat/application/useChat";
 import { AuthService } from "../modules/auth/infra/AuthService";
 import type { ConversationListItem, Message } from "../modules/chat/domain/Conversation";
+import { useTranslation } from '../i18n/hooks/hook';
+import { localeByLanguage } from '../i18n/locale';
 
 interface ChatMessageProps {
   message: Message;
@@ -11,6 +13,7 @@ interface ChatMessageProps {
 }
 
 function ChatMessage({ message, isCurrentUser }: ChatMessageProps) {
+  const { currentLanguage } = useTranslation();
 
   return (
     <div className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'} mb-4`}>
@@ -25,10 +28,10 @@ function ChatMessage({ message, isCurrentUser }: ChatMessageProps) {
           {message.content}
         </p>
         <p className="text-xs mt-1 opacity-70 text-inherit">
-          {new Date(message.createdAt).toLocaleTimeString('es-ES', {
+          {new Intl.DateTimeFormat(localeByLanguage[currentLanguage], {
             hour: '2-digit',
             minute: '2-digit'
-          })}
+          }).format(new Date(message.createdAt))}
         </p>
       </div>
     </div>
@@ -48,12 +51,14 @@ function ConversationList({
   onSelectConversation, 
   loading 
 }: ConversationListProps) {
+  const { translate } = useTranslation();
+
   if (loading) {
-    return <div className="ui-text-muted">Cargando conversaciones...</div>;
+    return <div className="ui-text-muted">{translate('loadingConversations')}</div>;
   }
 
   if (!conversations.length) {
-    return <div className="ui-text-muted">No hay conversaciones</div>;
+    return <div className="ui-text-muted">{translate('noConversations')}</div>;
   }
 
   return (
@@ -75,7 +80,7 @@ function ConversationList({
               <h3 
                 className="font-semibold text-sm text-inherit"
               >
-                {conversation?.title || 'Sin título'}
+                {conversation?.title || translate('untitled')}
               </h3>
               {conversation?.unreadCount && conversation.unreadCount > 0 && (
               <span className="ui-status ui-status--error text-xs min-w-[20px] text-center">
@@ -89,7 +94,7 @@ function ConversationList({
             {conversation.participants
               ?.filter(p => p?.name && p?.lastName)
               ?.map(p => `${p.name} ${p.lastName}`)
-              ?.join(', ') || 'Sin participantes'}
+              ?.join(', ') || translate('noParticipants')}
           </p>
           {conversation?.lastMessage && (
             <p 
@@ -106,6 +111,7 @@ function ConversationList({
 }
 
 export default function ChatView() {
+  const { translate } = useTranslation();
   const [searchParams] = useSearchParams();
   const postId = searchParams.get('postId');
   const withUserId = searchParams.get('with');
@@ -203,9 +209,9 @@ export default function ChatView() {
         <div className="workspace-shell">
           <header className="workspace-header workspace-header--primary">
             <div className="workspace-header__copy">
-              <h1 className="workspace-header__title">Mensajes</h1>
+              <h1 className="workspace-header__title">{translate('messagesTitle')}</h1>
               <p className="workspace-header__description">
-                Organiza las conversaciones nacidas en el tablón y concreta la ayuda desde aquí.
+                {translate('messagesDescription')}
               </p>
             </div>
           </header>
@@ -217,7 +223,7 @@ export default function ChatView() {
                 type="button"
                 onClick={() => setError(null)}
                 className="ui-action ml-2 px-2 py-1"
-                aria-label="Cerrar error"
+                aria-label={translate('closeError')}
               >
                 ✕
               </button>
@@ -225,9 +231,9 @@ export default function ChatView() {
           )}
 
           <div className="chat-workspace mt-8">
-            <aside className="chat-sidebar" aria-label="Conversaciones" data-mobile-hidden={mobilePanel === 'thread'}>
+            <aside className="chat-sidebar" aria-label={translate('conversations')} data-mobile-hidden={mobilePanel === 'thread'}>
               <header className="chat-sidebar__header">
-                <h2 className="chat-sidebar__title">Conversaciones</h2>
+                <h2 className="chat-sidebar__title">{translate('conversations')}</h2>
                 <span className="chat-sidebar__count">{conversations.length}</span>
               </header>
               <div className="chat-conversation-list">
@@ -240,7 +246,7 @@ export default function ChatView() {
               </div>
             </aside>
 
-            <section className="chat-thread" aria-label="Conversación activa" data-mobile-hidden={mobilePanel === 'list'}>
+            <section className="chat-thread" aria-label={translate('activeConversation')} data-mobile-hidden={mobilePanel === 'list'}>
               {selectedConversation ? (
                 <>
                   <header className="chat-thread__header">
@@ -249,7 +255,7 @@ export default function ChatView() {
                       className="chat-mobile-back ui-action ui-action--secondary px-3 py-2"
                       onClick={() => setMobilePanel('list')}
                     >
-                      Conversaciones
+                      {translate('conversations')}
                     </button>
                     <div className="chat-thread__identity">
                       <h2 className="chat-thread__title">
@@ -266,9 +272,9 @@ export default function ChatView() {
 
                   <div className="chat-thread__messages" aria-live="polite">
                     {loading && messages.length === 0 ? (
-                      <div className="chat-empty">Cargando mensajes…</div>
+                      <div className="chat-empty">{translate('loadingMessages')}</div>
                     ) : messages.length === 0 ? (
-                      <div className="chat-empty">Todavía no hay mensajes. Empieza la conversación.</div>
+                      <div className="chat-empty">{translate('noMessagesYet')}</div>
                     ) : (
                       <div>
                         {messages.map((message) => (
@@ -289,8 +295,8 @@ export default function ChatView() {
                           type="text"
                           value={newMessage}
                           onChange={(e) => setNewMessage(e.target.value)}
-                        placeholder="Escribe un mensaje…"
-                        aria-label="Mensaje"
+                        placeholder={translate('messagePlaceholder')}
+                        aria-label={translate('message')}
                         className="ui-control px-3 py-2"
                           disabled={loading}
                         />
@@ -299,14 +305,14 @@ export default function ChatView() {
                           disabled={!newMessage.trim() || loading}
                         className="ui-action ui-action--primary px-5 py-2"
                         >
-                          Enviar
+                          {translate('send')}
                         </button>
                       </div>
                   </form>
                 </>
               ) : (
                 <div className="chat-empty">
-                  Selecciona una conversación para ver los mensajes.
+                  {translate('selectConversation')}
                 </div>
               )}
             </section>

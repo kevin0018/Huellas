@@ -11,36 +11,9 @@ import type { PostCategory, VolunteerPostListItem } from "../modules/posts/domai
 import { AuthService } from "../modules/auth/infra/AuthService";
 import { useChat } from "../modules/chat/application/useChat";
 import { postActions } from '../features/volunteering/postActions';
+import { postCategories, postCategoryTranslationKeys } from '../features/volunteering/postPresentation';
+import { useTranslation } from '../i18n/hooks/hook';
 import { AsyncContent } from '../shared/ui/AsyncContent';
-
-const CATEGORY_LABEL: Record<PostCategory, string> = {
-  GENERAL: "General",
-  PET_SITTING: "Cuidado en casa",
-  WALKING_EXERCISE: "Paseos y ejercicio",
-  VET_TRANSPORT: "Transporte a veterinario",
-  FOSTER_CARE: "Casa de acogida",
-  TRAINING_BEHAVIOR: "Adiestramiento y conducta",
-  SHELTER_SUPPORT: "Apoyo a protectoras",
-  GROOMING_HYGIENE: "Higiene y peluquería",
-  MEDICAL_SUPPORT: "Soporte médico",
-  ADOPTION_REHOMING: "Adopción / Reubicación",
-  LOST_AND_FOUND: "Mascotas perdidas",
-};
-
-const CATEGORY_OPTIONS: { value: PostCategory | "ALL"; label: string }[] = [
-  { value: "ALL", label: "Todos" },
-  { value: "GENERAL", label: CATEGORY_LABEL.GENERAL },
-  { value: "PET_SITTING", label: CATEGORY_LABEL.PET_SITTING },
-  { value: "WALKING_EXERCISE", label: CATEGORY_LABEL.WALKING_EXERCISE },
-  { value: "VET_TRANSPORT", label: CATEGORY_LABEL.VET_TRANSPORT },
-  { value: "FOSTER_CARE", label: CATEGORY_LABEL.FOSTER_CARE },
-  { value: "TRAINING_BEHAVIOR", label: CATEGORY_LABEL.TRAINING_BEHAVIOR },
-  { value: "SHELTER_SUPPORT", label: CATEGORY_LABEL.SHELTER_SUPPORT },
-  { value: "GROOMING_HYGIENE", label: CATEGORY_LABEL.GROOMING_HYGIENE },
-  { value: "MEDICAL_SUPPORT", label: CATEGORY_LABEL.MEDICAL_SUPPORT },
-  { value: "ADOPTION_REHOMING", label: CATEGORY_LABEL.ADOPTION_REHOMING },
-  { value: "LOST_AND_FOUND", label: CATEGORY_LABEL.LOST_AND_FOUND },
-];
 
 function excerpt(text: string, max = 240): string {
   if (!text) return "";
@@ -49,6 +22,7 @@ function excerpt(text: string, max = 240): string {
 
 function VolunteerBoard() {
   const navigate = useNavigate();
+  const { translate } = useTranslation();
 
   const currentUser = useMemo(() => AuthService.getUser(), []);
   const currentUserId = currentUser?.id ?? null;
@@ -75,25 +49,25 @@ function VolunteerBoard() {
   });
 
   async function handleDelete(postId: number) {
-    const ok = window.confirm("¿Seguro que quieres eliminar este anuncio?");
+    const ok = window.confirm(translate('confirmDeletePost'));
     if (!ok) return;
     try {
       await postActions.remove(postId);
       await reload();
     } catch (err: unknown) {
       console.error("[VolunteerBoard] delete error:", err);
-      alert((err as Error)?.message || "No se pudo eliminar el anuncio");
+      alert((err as Error)?.message || translate('deletePostError'));
     }
   }
 
   async function handleOpenChat(postId: number, authorId: number, postTitle: string) {
     if (!currentUserId) {
-      alert("Debes iniciar sesión para enviar mensajes");
+      alert(translate('loginToMessage'));
       return;
     }
 
     if (currentUserId === authorId) {
-      alert("No puedes enviarte mensajes a ti mismo");
+      alert(translate('cannotMessageSelf'));
       return;
     }
 
@@ -103,7 +77,7 @@ function VolunteerBoard() {
       const existingConversation = conversations?.find(conv =>
         conv?.participants?.some(p => p?.id === authorId) &&
         conv?.participants?.some(p => p?.id === currentUserId) &&
-        conv?.title?.includes(`Consulta sobre: ${postTitle}`)
+        conv?.title?.includes(postTitle)
       );
 
       if (existingConversation) {
@@ -113,7 +87,7 @@ function VolunteerBoard() {
         // Create new conversation specific to this post
         
         const newConversation = await createConversation(
-          `Consulta sobre: ${postTitle}`,
+          translate('postConversationTitle', { title: postTitle }),
           [currentUserId, authorId]
         );
         
@@ -122,7 +96,7 @@ function VolunteerBoard() {
       }
     } catch (error) {
       console.error("Error handling chat:", error);
-      alert("Error al iniciar conversación. Inténtalo de nuevo.");
+      alert(translate('chatStartError'));
     }
   }
 
@@ -133,9 +107,9 @@ function VolunteerBoard() {
         <div className="workspace-shell">
           <header className="workspace-header workspace-header--primary">
             <div className="workspace-header__copy">
-              <h1 className="workspace-header__title">Tablón de ayuda</h1>
+              <h1 className="workspace-header__title">{translate('volunteerBoardTitle')}</h1>
               <p className="workspace-header__description">
-                Encuentra personas de la comunidad disponibles para echar una mano en Barcelona.
+                {translate('volunteerBoardDescription')}
               </p>
             </div>
             <div className="workspace-header__actions">
@@ -144,24 +118,25 @@ function VolunteerBoard() {
                 className="ui-action ui-action--primary px-4 py-3"
                 onClick={() => navigate('/volunteer-home')}
               >
-                Publicar anuncio
+                {translate('publishPost')}
               </button>
             </div>
           </header>
 
-          <section aria-label="Anuncios de voluntariado">
+          <section aria-label={translate('volunteerPostsRegionLabel')}>
             <div className="board-toolbar">
               <div className="workspace-field">
-                <label htmlFor="category" className="workspace-field__label">Categoría</label>
+                <label htmlFor="category" className="workspace-field__label">{translate('category')}</label>
                 <select
                   id="category"
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value as PostCategory | "ALL")}
                   className="ui-control"
                 >
-                  {CATEGORY_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
+                  <option value="ALL">{translate('allCategories')}</option>
+                  {postCategories.map((category) => (
+                    <option key={category} value={category}>
+                      {translate(postCategoryTranslationKeys[category])}
                     </option>
                   ))}
                 </select>
@@ -176,11 +151,11 @@ function VolunteerBoard() {
                   disabled={!currentUserId}
                 />
                 <span className={`text-sm ${currentUserId ? "text-[var(--color-ink)]" : "ui-text-muted"}`}>
-                  Mis anuncios
+                  {translate('myPosts')}
                 </span>
               </label>
               <p className="board-toolbar__count" aria-live="polite">
-                {total} {total === 1 ? 'anuncio' : 'anuncios'}
+                {translate(total === 1 ? 'postCountOne' : 'postCountMany', { count: total })}
               </p>
             </div>
 
@@ -188,11 +163,11 @@ function VolunteerBoard() {
               loading={loading}
               error={error}
               empty={items.length === 0}
-              loadingLabel="Cargando anuncios…"
-              emptyTitle={myOnly ? "Aún no tienes anuncios publicados" : "No hay anuncios disponibles"}
+              loadingLabel={translate('loadingPosts')}
+              emptyTitle={translate(myOnly ? 'noOwnPosts' : 'noPosts')}
               emptyDescription={myOnly
-                ? "Publica un anuncio para que aparezca en esta sección."
-                : "Prueba con otra categoría o vuelve más tarde."}
+                ? translate('noOwnPostsDescription')
+                : translate('noPostsDescription')}
               onRetry={reload}
             >
               <>
@@ -216,23 +191,23 @@ function VolunteerBoard() {
                 </div>
 
                 {total > pageSize && (
-                  <nav className="board-pagination" aria-label="Paginación de anuncios">
+                  <nav className="board-pagination" aria-label={translate('paginationLabel')}>
                     <button
                       className="ui-action ui-action--secondary px-4 py-2"
                       disabled={page <= 1}
                       onClick={() => goToPage(page - 1)}
                     >
-                      ← Anterior
+                      ← {translate('previous')}
                     </button>
                     <span className="board-pagination__status">
-                      Página {page} de {Math.ceil(total / pageSize)}
+                      {translate('pageOf', { page, pages: Math.ceil(total / pageSize) })}
                     </span>
                     <button
                       className="ui-action ui-action--secondary px-4 py-2"
                       disabled={page >= Math.ceil(total / pageSize)}
                       onClick={() => goToPage(page + 1)}
                     >
-                      Siguiente →
+                      {translate('next')} →
                     </button>
                   </nav>
                 )}
