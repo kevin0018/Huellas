@@ -20,3 +20,7 @@ yarn.lock
 /backups/
 *.huellas-backup
 *.backup-key
+
+# OS metadata
+.DS_Store
+Thumbs.db
