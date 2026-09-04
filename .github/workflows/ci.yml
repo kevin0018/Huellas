@@ -133,3 +133,24 @@ jobs:
             frontend/playwright-report/
             frontend/test-results/
           retention-days: 7
+
+  recovery:
+    name: Encrypted backup and restore
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.10.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+          cache-dependency-path: backend/pnpm-lock.yaml
+      - run: pnpm --dir backend install --frozen-lockfile
+      - run: pnpm --dir backend prisma:generate
+      - run: docker compose -f compose.e2e.yml up -d --wait mysql
+      - run: pnpm --dir backend db:test-recovery
+      - if: ${{ always() }}
+        run: docker compose -f compose.e2e.yml down

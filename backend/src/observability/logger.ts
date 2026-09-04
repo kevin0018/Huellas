@@ -2,7 +2,7 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 
 export const requestContext = new AsyncLocalStorage<{ requestId: string }>();
 
-type LogFields = { requestId?: string; method?: string; route?: string; status?: number; durationMs?: number; errorCode?: string };
+type LogFields = { relatedRequestId?: string; requestId?: string; method?: string; route?: string; status?: number; durationMs?: number; errorCode?: string };
 type Level = 'info' | 'warn' | 'error';
 
 /** Only operational fields: never serialize errors, queries, headers or payloads. */
@@ -10,6 +10,7 @@ export function writeLog(level: Level, event: string, fields: LogFields = {}): v
   const record = {
     time: new Date().toISOString(), level, event,
     requestId: fields.requestId ?? requestContext.getStore()?.requestId,
+    relatedRequestId: fields.relatedRequestId,
     method: fields.method, route: fields.route, status: fields.status,
     durationMs: fields.durationMs, errorCode: fields.errorCode,
   };

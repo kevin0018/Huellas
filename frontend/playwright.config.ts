@@ -40,6 +40,7 @@ export default defineConfig({
       gracefulShutdown: { signal: 'SIGTERM', timeout: 5_000 },
       env: {
         NODE_ENV: 'test', PORT: '3001', FRONTEND_PORT: '4173',
+        METRICS_TOKEN: 'huellas-e2e-metrics-only-token-32-characters',
         CORS_ORIGINS: 'http://127.0.0.1:4173',
         DATABASE_URL: databaseUrl.href,
         DB_HOST: databaseUrl.hostname, DB_PORT: databaseUrl.port || '3306',

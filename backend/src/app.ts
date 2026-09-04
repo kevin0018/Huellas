@@ -1,3 +1,6 @@
+import { metrics, metricsHandler } from './observability/metrics.js';
+import { collectMysqlMetrics } from './observability/mysqlMetrics.js';
+import { clientReportHandler, clientReportParseError } from './observability/clientReports.js';
 import express from 'express';
 import { requestLogging } from './observability/requestLogging.js';
 import { createDependencyReadiness } from './observability/dependencies.js';
@@ -37,6 +40,8 @@ export async function buildApp(
   app.use(securityHeaders);
   app.use(corsMiddleware);
   app.options('*', corsMiddleware);
+  app.post('/api/client-errors', express.json({ limit: '1kb' }), clientReportHandler(), clientReportParseError);
+  app.get('/metrics', metricsHandler(process.env.METRICS_TOKEN, collectMysqlMetrics, metrics.registry));
   // Base64 adds roughly 33% overhead to the documented 5 MB binary limit.
   // Keep the larger parser scoped exclusively to the private upload endpoint.
   app.use('/api/pets/:id/health-documents', express.json({ limit: '7mb' }));

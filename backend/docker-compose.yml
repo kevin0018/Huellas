@@ -42,6 +42,7 @@ services:
       DB_USER: appuser
       JWT_SECRET: "${JWT_SECRET:-huellas-local-development-only}"
       FRONTEND_PORT: "${FRONTEND_PORT:-5173}"
+      METRICS_TOKEN: "${METRICS_TOKEN:-}"
       NODE_ENV: development
       PORT: "3000"
       REDIS_URL: redis://redis:6379

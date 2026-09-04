@@ -69,7 +69,7 @@ it('translates actual appointment network failures without starting new requests
   expect(screen.getByRole('alert')).toHaveTextContent('Connection error. Please try again');
   switchLanguage('Català');
   expect(screen.getByRole('alert')).toHaveTextContent('Error de connexió. Torna-ho a intentar');
-  expect(fetchMock).toHaveBeenCalledTimes(2);
+  expect(fetchMock.mock.calls.filter(([url]) => !String(url).endsWith('/client-errors'))).toHaveLength(2);
 });
 
 it('keeps a server message verbatim even when it matches local Spanish copy', async () => {

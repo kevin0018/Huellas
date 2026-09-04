@@ -15,3 +15,8 @@
 package-lock.json
 npm-shrinkwrap.json
 yarn.lock
+
+# Local encrypted recovery artifacts and keys
+/backups/
+*.huellas-backup
+*.backup-key

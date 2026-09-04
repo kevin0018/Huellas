@@ -1,4 +1,5 @@
 /* eslint-disable react-refresh/only-export-components -- React error boundaries must be class components. */
+import { reportClientFailure } from '../../shared/observability/clientReports';
 import { Component, type ReactNode } from 'react';
 import { ViewLoadError } from '../routing/lazyView';
 import { Link } from 'react-router-dom';
@@ -52,7 +53,7 @@ export default class AppErrorBoundary extends Component<AppErrorBoundaryProps, A
   }
 
   componentDidCatch() {
-    console.error('[AppErrorBoundary] Unexpected render error');
+    reportClientFailure('render');
   }
 
   private reset = () => {

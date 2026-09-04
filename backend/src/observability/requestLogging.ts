@@ -1,3 +1,4 @@
+import { metrics } from './metrics.js';
 import { randomUUID } from 'node:crypto';
 import type { RequestHandler } from 'express';
 import { requestContext, writeLog } from './logger.js';
@@ -19,6 +20,8 @@ export const requestLogging: RequestHandler = (req, res, next) => {
     // Express route templates are code-owned; originalUrl, params and query are private.
     const path: unknown = req.route?.path;
     const route = typeof path === 'string' && scopes.has(req.baseUrl) ? `${req.baseUrl}${path}` : 'unmatched';
+    const method = methods.has(req.method) ? req.method : 'OTHER';
+    if (path !== '/metrics') metrics.observeHttp(method, status, (performance.now() - started) / 1000);
     writeLog(status >= 500 ? 'error' : status >= 400 ? 'warn' : 'info', 'http.request', {
       requestId, method: methods.has(req.method) ? req.method : 'OTHER', route, status,
       durationMs: Math.round((performance.now() - started) * 100) / 100,

@@ -24,13 +24,17 @@
     "db:seed": "tsx src/db/seed.ts",
     "db:reset": "prisma migrate reset --force",
     "db:migrate:dev": "prisma migrate dev && pnpm db:seed",
-    "start:e2e": "tsx src/testing/e2e-server.ts"
+    "start:e2e": "tsx src/testing/e2e-server.ts",
+    "db:backup": "node scripts/database-backup.mjs backup",
+    "db:restore": "node scripts/database-backup.mjs restore",
+    "db:test-recovery": "node scripts/restore-drill.mjs"
   },
   "prisma": {
     "seed": "tsx src/db/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "6.19.3",
+    "@prometheus-io/client": "^0.16.1",
     "@types/bcrypt": "^6.0.0",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",

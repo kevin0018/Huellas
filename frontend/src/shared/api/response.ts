@@ -1,3 +1,4 @@
+import { reportClientFailure } from '../observability/clientReports';
 import { correlatedFetch, validRequestId } from './requestId';
 import { ClientError, type ClientErrorCode } from '../errors/ClientError';
 
@@ -21,6 +22,7 @@ export async function fetchResponse(input: RequestInfo | URL, init?: RequestInit
     return await correlatedFetch(input, init);
   } catch (cause) {
     if (cause instanceof Error && cause.name === 'AbortError') throw cause;
+    reportClientFailure('network');
     throw new ClientError('NETWORK', { cause });
   }
 }
@@ -31,6 +33,7 @@ export async function ensureResponseOk(
 ): Promise<void> {
   if (response.ok) return;
   const requestId = validRequestId(response.headers.get('X-Request-ID'));
+  if (response.status >= 500) reportClientFailure('http_5xx', requestId);
   const body = await response.text();
   if (body) {
     let parsed: unknown;
