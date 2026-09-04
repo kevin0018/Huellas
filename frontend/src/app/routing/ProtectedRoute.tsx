@@ -1,3 +1,4 @@
+import { useTranslation } from '../../i18n/hooks/hook';
 import { useEffect, useState } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import type { User } from '../../modules/auth/domain/User';
@@ -7,6 +8,7 @@ import { apiClient } from '../../shared/api/apiClient';
 type ProfileResponse = { user: User };
 
 export default function ProtectedRoute() {
+  const { translate } = useTranslation();
   const location = useLocation();
   const [status, setStatus] = useState<'checking' | 'authenticated' | 'anonymous'>('checking');
 
@@ -35,7 +37,7 @@ export default function ProtectedRoute() {
   if (status === 'checking') {
     return (
       <main className="ui-page min-h-screen grid place-items-center" aria-live="polite">
-        <p>Comprobando sesión…</p>
+        <p>{translate('checkingSession')}</p>
       </main>
     );
   }

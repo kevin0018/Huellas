@@ -5,10 +5,11 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-li
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import HealthBookView from './HealthBookView';
+import { ClientError } from '../shared/errors/ClientError';
 import type { HealthEvent } from '../modules/health/HealthEvent';
 import { PetSize, PetType, Sex, type Pet } from '../modules/pet/domain/Pet';
 import { expectNoCriticalAccessibilityViolations } from '../test/accessibility';
-import LanguageProvider from '../i18n/LanguageProvider';
+import { TestLanguageProvider, switchLanguage } from '../test/language';
 
 const services = vi.hoisted(() => ({
   healthEvents: {
@@ -93,11 +94,11 @@ const events: HealthEvent[] = [
 
 function renderView() {
   return render(
-    <LanguageProvider>
+    <TestLanguageProvider>
       <MemoryRouter initialEntries={['/pets/7/health']}>
         <Routes><Route element={<HealthBookView />} path="/pets/:petId/health" /></Routes>
       </MemoryRouter>
-    </LanguageProvider>,
+    </TestLanguageProvider>,
   );
 }
 
@@ -176,4 +177,52 @@ describe('HealthBookView', () => {
     expect(within(timeline).getByText(/1 May 2025/)).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Prepare summary' })).toBeInTheDocument();
   });
+});
+
+it('keeps an unfinished event and visible file validation when switching languages', async () => {
+  renderView();
+  await screen.findByText('Revisión anual');
+  fireEvent.click(screen.getByRole('button', { name: /Añadir evento/ }));
+  fireEvent.change(screen.getByLabelText('Título'), { target: { value: 'Control de Miso' } });
+  const file = new File(['image'], 'grande.png', { type: 'image/png' });
+  Object.defineProperty(file, 'size', { value: 6 * 1024 * 1024 });
+  fireEvent.change(screen.getAllByLabelText('Adjuntar imagen o PDF')[0], { target: { files: [file] } });
+  expect(await screen.findByRole('alert')).toHaveTextContent('El archivo supera el límite de 5 MB');
+
+  switchLanguage('English');
+  expect(screen.getByRole('alert')).toHaveTextContent('The file exceeds the 5 MB limit');
+  expect(screen.getByLabelText('Title')).toHaveValue('Control de Miso');
+  expect(screen.getByLabelText('Date')).toHaveAttribute('lang', 'en-GB');
+  switchLanguage('Català');
+  expect(screen.getByLabelText('Títol')).toHaveValue('Control de Miso');
+  expect(screen.getByLabelText('Data')).toHaveAttribute('lang', 'ca-ES');
+  expect(services.healthEvents.list).toHaveBeenCalledOnce();
+  expect(services.pets.getPetById).toHaveBeenCalledOnce();
+  expect(services.healthEvents.uploadDocument).not.toHaveBeenCalled();
+});
+
+it.each([
+  ['download', 'The document could not be downloaded', "No s'ha pogut descarregar el document"],
+  ['export', 'The summary could not be generated', "No s'ha pogut generar el resum"],
+  ['revoke', 'The link could not be revoked', "No s'ha pogut revocar l'enllaç"],
+] as const)('announces and translates %s failures without losing data', async (action, english, catalan) => {
+  localStorage.setItem('language', 'en');
+  const failure = new ClientError('REQUEST_FAILED');
+  services.healthEvents.downloadDocument.mockRejectedValue(failure);
+  services.healthEvents.exportSummary.mockRejectedValue(failure);
+  services.healthEvents.revokeShare.mockRejectedValue(failure);
+  services.healthEvents.createShare.mockResolvedValue({ id: 42, token: 'share-token', expiresAt: '2030-09-18T12:00:00.000Z' });
+  renderView();
+  await screen.findByText('Revisión anual');
+  if (action === 'download') fireEvent.click(screen.getByRole('button', { name: 'vacuna.pdf' }));
+  if (action === 'export') fireEvent.click(screen.getByRole('button', { name: 'Download HTML' }));
+  if (action === 'revoke') {
+    fireEvent.click(screen.getByRole('button', { name: '24-hour link' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Revoke link' }));
+  }
+  expect(await screen.findByRole('alert')).toHaveTextContent(english);
+  switchLanguage('Català');
+  expect(screen.getByRole('alert')).toHaveTextContent(catalan);
+  if (action === 'revoke') expect(screen.getByRole('link', { name: /share-token/ })).toBeInTheDocument();
+  expect(services.healthEvents.list).toHaveBeenCalledOnce();
 });

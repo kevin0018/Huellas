@@ -1,3 +1,4 @@
+import { localeByLanguage } from '../i18n/locale';
 import React, { useEffect, useRef, useState } from 'react';
 import type { Pet } from '../modules/pet/domain/Pet.js';
 import type { Appointment, AppointmentReason, AppointmentStatus } from '../modules/appointment/domain/Appointment.js';
@@ -53,7 +54,7 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
   loading = false,
   error,
 }) => {
-  const { translate } = useTranslation();
+  const { translate, currentLanguage } = useTranslation();
   const [selectedPetId, setSelectedPetId] = useState<number | undefined>(appointment?.petId);
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
@@ -148,6 +149,7 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
               ref={dateInputRef}
               required
               type="date"
+              lang={localeByLanguage[currentLanguage]}
               value={selectedDate}
             />
             {showValidation && missingDate && <span className="form-error" id="appointment-date-error">{translate('selectDateRequired')}</span>}
@@ -166,6 +168,7 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
               required
               step={1800}
               type="time"
+              lang={localeByLanguage[currentLanguage]}
               value={selectedTime}
             />
             {showValidation && missingTime && <span className="form-error" id="appointment-time-error">{translate('selectTimeRequired')}</span>}

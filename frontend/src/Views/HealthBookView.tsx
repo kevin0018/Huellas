@@ -1,4 +1,6 @@
 /* Hallmark · pre-emit critique: P5 H5 E4 S5 R5 V5 · genre: playful · macrostructure: Narrative Workflow · theme: Huellas · enrichment: existing pet avatar · nav/footer: preserved · contrast: pass (40–41) · slop: 58/58 pass · mobile: pass (34, 49, 50–57) */
+import { LocalizedError, messageFromError, translateMessage, type LocalizedMessage } from '../i18n/message';
+import type { TranslationKey } from '../i18n/dictionary';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Footer from '../Components/footer';
@@ -35,7 +37,7 @@ export default function HealthBookView() {
   const [pet, setPet] = useState<Pet | null>(null);
   const [events, setEvents] = useState<HealthEvent[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<LocalizedMessage>('');
   const [showForm, setShowForm] = useState(false);
   const [editingEventId, setEditingEventId] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
@@ -57,7 +59,7 @@ export default function HealthBookView() {
 
   const load = useCallback(async () => {
     if (!Number.isInteger(petId) || petId <= 0) {
-      setError(translate('invalidPetId'));
+      setError({ translationKey: 'invalidPetId' });
       setLoading(false);
       return;
     }
@@ -68,9 +70,9 @@ export default function HealthBookView() {
       setPet(currentPet);
       setError('');
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : translate('loadHealthBookError'));
+      setError(messageFromError(caught, 'loadHealthBookError'));
     } finally { setLoading(false); }
-  }, [petId, translate]);
+  }, [petId]);
 
   useEffect(() => { void load(); }, [load]);
   useEffect(() => {
@@ -132,7 +134,7 @@ export default function HealthBookView() {
       else await repository.update(editingEventId, draft);
       closeEventForm();
       await load();
-    } catch (caught) { setError(caught instanceof Error ? caught.message : translate('saveHealthEventError')); }
+    } catch (caught) { setError(messageFromError(caught, 'saveHealthEventError')); }
     finally { setSaving(false); }
   };
 
@@ -141,20 +143,25 @@ export default function HealthBookView() {
     try {
       await repository.delete(id);
       setEvents((current) => current.filter((event) => event.id !== id));
-    } catch (caught) { setError(caught instanceof Error ? caught.message : translate('deleteHealthEventError')); }
+    } catch (caught) { setError(messageFromError(caught, 'deleteHealthEventError')); }
   };
 
   const uploadDocument = async (healthEventId: number, file?: File) => {
     if (!file) return;
     try {
-      if (file.size > 5 * 1024 * 1024) throw new Error(translate('healthFileTooLarge'));
+      if (file.size > 5 * 1024 * 1024) throw new LocalizedError('healthFileTooLarge');
       await repository.uploadDocument(petId, healthEventId, file);
       await load();
-    } catch (caught) { setError(caught instanceof Error ? caught.message : translate('uploadHealthDocumentError')); }
+    } catch (caught) { setError(messageFromError(caught, 'uploadHealthDocumentError')); }
   };
   const deleteDocument = async (id: number) => {
     try { await repository.deleteDocument(id); await load(); }
-    catch (caught) { setError(caught instanceof Error ? caught.message : translate('deleteHealthDocumentError')); }
+    catch (caught) { setError(messageFromError(caught, 'deleteHealthDocumentError')); }
+  };
+
+  const runDocumentAction = async (action: () => Promise<void>, fallback: TranslationKey) => {
+    try { await action(); }
+    catch (caught) { setError(messageFromError(caught, fallback)); }
   };
   const toggleSummarySection = (section: string) => setSummarySections((current) => current.includes(section) ? current.filter((item) => item !== section) : [...current, section]);
   const createShare = async () => {
@@ -162,7 +169,7 @@ export default function HealthBookView() {
       setSharing(true); setError('');
       const created = await repository.createShare(petId, summarySections, periodFrom, periodTo);
       setShare({ id: created.id, url: `${window.location.origin}${apiUrlForShare(created.token)}`, expiresAt: created.expiresAt });
-    } catch (caught) { setError(caught instanceof Error ? caught.message : translate('shareHealthBookError')); }
+    } catch (caught) { setError(messageFromError(caught, 'shareHealthBookError')); }
     finally { setSharing(false); }
   };
 
@@ -195,13 +202,13 @@ export default function HealthBookView() {
           <div><h2 className="font-nunito text-xl font-bold tracking-normal">{editingEventId === null ? translate('newHealthEvent') : translate('editHealthEvent')}</h2><p className="mt-1 max-w-[65ch] text-sm text-[var(--color-muted)]">{editingEventId === null ? translate('newHealthEventDescription') : translate('editHealthEventDescription')}</p></div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="form-field"><label className="form-label" htmlFor="health-event-type">{translate('healthType')}</label><select className="form-control" id="health-event-type" value={type} onChange={(event) => setType(event.target.value as HealthEventType)}>{healthEventTypes.map((value) => <option key={value} value={value}>{translate(healthEventTranslationKeys[value])}</option>)}</select></div>
-            <div className="form-field"><label className="form-label" htmlFor="health-event-date">{translate('healthDate')}</label><input className="form-control" id="health-event-date" required type="date" value={date} onChange={(event) => setDate(event.target.value)} onClick={openDatePicker} /></div>
+            <div className="form-field"><label className="form-label" htmlFor="health-event-date">{translate('healthDate')}</label><input className="form-control" id="health-event-date" required type="date" lang={locale} value={date} onChange={(event) => setDate(event.target.value)} onClick={openDatePicker} /></div>
             <div className="form-field sm:col-span-2"><label className="form-label" htmlFor="health-event-title">{translate('healthTitle')}</label><input className="form-control" id="health-event-title" maxLength={120} placeholder={translate('healthTitlePlaceholder')} required value={title} onChange={(event) => setTitle(event.target.value)} /></div>
             <div className="form-field"><label className="form-label" htmlFor="health-event-provider">{translate('healthProvider')} <span className="form-label__optional">({translate('optional')})</span></label><input className="form-control" id="health-event-provider" value={provider} onChange={(event) => setProvider(event.target.value)} /></div>
             <div className="form-field"><label className="form-label" htmlFor="health-event-result">{translate('healthResult')} <span className="form-label__optional">({translate('optional')})</span></label><input className="form-control" id="health-event-result" value={result} onChange={(event) => setResult(event.target.value)} /></div>
             {dosageTypes.has(type) && <div className="form-field"><label className="form-label" htmlFor="health-event-dose">{translate('healthDose')} <span className="form-label__optional">({translate('optional')})</span></label><input className="form-control" id="health-event-dose" value={dose} onChange={(event) => setDose(event.target.value)} /></div>}
             {type === 'VACCINATION' && <div className="form-field"><label className="form-label" htmlFor="health-event-lot">{translate('healthLot')} <span className="form-label__optional">({translate('optional')})</span></label><input className="form-control" id="health-event-lot" value={lotNumber} onChange={(event) => setLotNumber(event.target.value)} /></div>}
-            {dosageTypes.has(type) && <div className="form-field"><label className="form-label" htmlFor="health-event-expiry">{translate('healthExpiry')} <span className="form-label__optional">({translate('optional')})</span></label><input className="form-control" id="health-event-expiry" type="date" value={expiresAt} onChange={(event) => setExpiresAt(event.target.value)} onClick={openDatePicker} /></div>}
+            {dosageTypes.has(type) && <div className="form-field"><label className="form-label" htmlFor="health-event-expiry">{translate('healthExpiry')} <span className="form-label__optional">({translate('optional')})</span></label><input className="form-control" id="health-event-expiry" type="date" lang={locale} value={expiresAt} onChange={(event) => setExpiresAt(event.target.value)} onClick={openDatePicker} /></div>}
             <div className="form-field sm:col-span-2"><label className="form-label" htmlFor="health-event-notes">{translate('healthNotes')} <span className="form-label__optional">({translate('optional')})</span></label><textarea className="form-control" id="health-event-notes" maxLength={5000} rows={3} value={notes} onChange={(event) => setNotes(event.target.value)} /></div>
           </div>
           <div className="flex flex-wrap-reverse justify-end gap-3 border-t border-[var(--color-rule)] pt-5">
@@ -216,7 +223,7 @@ export default function HealthBookView() {
               <div><h2 className="font-caprasimo text-[var(--text-xl)] leading-tight" id="timeline-title">{translate('healthHistory')}</h2><p className="mt-1 text-sm text-[var(--color-muted)]">{translate('healthHistoryDescription')}</p></div>
               {!loading && !error && <p className="text-sm font-semibold tabular-nums text-[var(--color-ink-soft)]">{translate(events.length === 1 ? 'healthEventCountOne' : 'healthEventCountMany', { count: events.length })} · {translate(documentCount === 1 ? 'healthDocumentCountOne' : 'healthDocumentCountMany', { count: documentCount })}</p>}
             </div>
-            <AsyncContent empty={events.length === 0} emptyDescription={translate('noHealthEventsDescription')} emptyTitle={translate('noHealthEventsTitle')} error={error} loading={loading} loadingLabel={translate('loadingHealthHistory')} onRetry={load}>
+            <AsyncContent empty={events.length === 0} emptyDescription={translate('noHealthEventsDescription')} emptyTitle={translate('noHealthEventsTitle')} error={translateMessage(error, translate)} loading={loading} loadingLabel={translate('loadingHealthHistory')} onRetry={load}>
               <div className="grid gap-10">
                 {groupedEvents.map(([year, yearEvents]) => <section aria-labelledby={`health-year-${year}`} className="grid min-w-0 gap-4 sm:grid-cols-[5rem_minmax(0,1fr)] sm:gap-6" key={year}>
                   <h3 className="whitespace-nowrap font-caprasimo text-2xl text-[var(--color-accent)] sm:sticky sm:top-24 sm:h-fit" id={`health-year-${year}`}>{year}</h3>
@@ -237,7 +244,7 @@ export default function HealthBookView() {
                       {healthEvent.notes && <p className="mt-4 whitespace-pre-wrap break-words text-sm leading-6 text-[var(--color-ink-soft)]">{healthEvent.notes}</p>}
                       <div className="mt-5 border-t border-[var(--color-rule)] pt-5"><p className="text-sm font-bold">{translate('privateDocuments')}</p>
                         {(healthEvent.attachments || []).length > 0 && <ul className="mt-3 grid gap-2">{healthEvent.attachments.map((document) => <li className="flex min-w-0 flex-wrap items-center justify-between gap-2 rounded-[var(--radius-control)] bg-[var(--color-paper-2)] px-3 py-2" key={document.id}>
-                          <button className="ui-hover-accent min-h-11 min-w-0 break-all text-left text-sm font-bold text-[var(--color-accent)]" onClick={() => void repository.downloadDocument(document)} type="button">{document.fileName}</button>
+                          <button className="ui-hover-accent min-h-11 min-w-0 break-all text-left text-sm font-bold text-[var(--color-accent)]" onClick={() => void runDocumentAction(() => repository.downloadDocument(document), 'downloadHealthDocumentError')} type="button">{document.fileName}</button>
                           <button aria-label={translate('deleteNamedDocument', { name: document.fileName })} className="min-h-11 rounded-[var(--radius-control)] px-3 text-sm font-bold text-[var(--color-error)] hover:bg-[var(--color-error-soft)] active:bg-[var(--color-error-soft)]" onClick={() => void deleteDocument(document.id)} type="button">{translate('remove')}</button>
                         </li>)}</ul>}
                         <label className="ui-button ui-button--secondary mt-3 cursor-pointer">{translate('attachHealthDocument')}<input accept="application/pdf,image/jpeg,image/png,image/webp" className="sr-only" onChange={(input) => { void uploadDocument(healthEvent.id, input.target.files?.[0]); input.target.value = ''; }} type="file" /></label>
@@ -263,12 +270,12 @@ export default function HealthBookView() {
               {healthSummaryOptions.map(([value, labelKey]) => <label className="form-choice" key={value}><input checked={summarySections.includes(value)} onChange={() => toggleSummarySection(value)} type="checkbox" />{translate(labelKey)}</label>)}
             </div></fieldset>
             <div className="mt-5 grid gap-4">
-              <div className="form-field"><label className="form-label" htmlFor="summary-from">{translate('healthSummaryFrom')} <span className="form-label__optional">({translate('optional')})</span></label><input className="form-control" id="summary-from" type="date" value={periodFrom} onChange={(event) => setPeriodFrom(event.target.value)} onClick={openDatePicker} /></div>
-              <div className="form-field"><label className="form-label" htmlFor="summary-to">{translate('healthSummaryTo')} <span className="form-label__optional">({translate('optional')})</span></label><input className="form-control" id="summary-to" type="date" value={periodTo} onChange={(event) => setPeriodTo(event.target.value)} onClick={openDatePicker} /></div>
+              <div className="form-field"><label className="form-label" htmlFor="summary-from">{translate('healthSummaryFrom')} <span className="form-label__optional">({translate('optional')})</span></label><input className="form-control" id="summary-from" type="date" lang={locale} value={periodFrom} onChange={(event) => setPeriodFrom(event.target.value)} onClick={openDatePicker} /></div>
+              <div className="form-field"><label className="form-label" htmlFor="summary-to">{translate('healthSummaryTo')} <span className="form-label__optional">({translate('optional')})</span></label><input className="form-control" id="summary-to" type="date" lang={locale} value={periodTo} onChange={(event) => setPeriodTo(event.target.value)} onClick={openDatePicker} /></div>
             </div>
-            <div className="mt-5 grid gap-2"><button className="ui-button" disabled={!summarySections.length} onClick={() => void repository.exportSummary(petId, summarySections, periodFrom, periodTo)} type="button">{translate('downloadHtml')}</button><button aria-busy={sharing || undefined} className="ui-button ui-button--secondary" disabled={!summarySections.length || sharing} onClick={() => void createShare()} type="button">{sharing ? translate('creatingLink') : translate('linkFor24Hours')}</button></div>
+            <div className="mt-5 grid gap-2"><button className="ui-button" disabled={!summarySections.length} onClick={() => void runDocumentAction(() => repository.exportSummary(petId, summarySections, periodFrom, periodTo), 'exportHealthSummaryError')} type="button">{translate('downloadHtml')}</button><button aria-busy={sharing || undefined} className="ui-button ui-button--secondary" disabled={!summarySections.length || sharing} onClick={() => void createShare()} type="button">{sharing ? translate('creatingLink') : translate('linkFor24Hours')}</button></div>
             <p className="mt-4 text-xs leading-5 text-[var(--color-muted)]">{translate('healthSummaryDisclaimer')}</p>
-            {share && <div className="mt-5 rounded-[var(--radius-control)] border border-[var(--color-rule)] bg-[var(--color-paper-2)] p-3 text-sm"><p className="font-bold">{translate('activeLink')}</p><a className="ui-hover-accent mt-2 block break-all font-semibold text-[var(--color-accent)]" href={share.url} rel="noreferrer" target="_blank">{share.url}</a><p className="mt-2 text-xs text-[var(--color-muted)]">{translate('expires')}: {new Date(share.expiresAt).toLocaleString(locale)}</p><button className="mt-2 min-h-11 rounded-[var(--radius-control)] px-2 text-sm font-bold text-[var(--color-error)] hover:bg-[var(--color-error-soft)] active:bg-[var(--color-error-soft)]" onClick={async () => { await repository.revokeShare(share.id); setShare(null); }} type="button">{translate('revokeLink')}</button></div>}
+            {share && <div className="mt-5 rounded-[var(--radius-control)] border border-[var(--color-rule)] bg-[var(--color-paper-2)] p-3 text-sm"><p className="font-bold">{translate('activeLink')}</p><a className="ui-hover-accent mt-2 block break-all font-semibold text-[var(--color-accent)]" href={share.url} rel="noreferrer" target="_blank">{share.url}</a><p className="mt-2 text-xs text-[var(--color-muted)]">{translate('expires')}: {new Date(share.expiresAt).toLocaleString(locale)}</p><button className="mt-2 min-h-11 rounded-[var(--radius-control)] px-2 text-sm font-bold text-[var(--color-error)] hover:bg-[var(--color-error-soft)] active:bg-[var(--color-error-soft)]" onClick={() => void runDocumentAction(async () => { await repository.revokeShare(share.id); setShare(null); }, 'revokeHealthShareError')} type="button">{translate('revokeLink')}</button></div>}
           </aside>
         </div>
       </div>

@@ -1,3 +1,5 @@
+import { messageFromError, translateMessage, type LocalizedMessage } from '../../../i18n/message';
+import { useTranslation } from '../../../i18n/hooks/hook';
 import { useEffect, useMemo, useState } from "react";
 import type {
   VolunteerPostListItem,
@@ -13,13 +15,14 @@ export interface UseVolunteerPostsOptions {
 }
 
 export function useVolunteerPosts(options: UseVolunteerPostsOptions = {}) {
+  const { translate } = useTranslation();
   const [items, setItems] = useState<VolunteerPostListItem[]>([]);
   const [total, setTotal] = useState<number>(0);
   const [page, setPage] = useState<number>(1);
   const pageSize = options.pageSize ?? 12;
 
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<LocalizedMessage | null>(null);
 
   const api = useMemo(() => new ApiVolunteerPosts(), []);
 
@@ -42,7 +45,7 @@ export function useVolunteerPosts(options: UseVolunteerPostsOptions = {}) {
       setPage(result.page);
     } catch (err: unknown) {
       console.error("[useVolunteerPosts] Error:", err);
-      setError(err instanceof Error ? err.message : "Unknown error");
+      setError(messageFromError(err, 'loadPostsError'));
     } finally {
       setLoading(false);
     }
@@ -59,7 +62,7 @@ export function useVolunteerPosts(options: UseVolunteerPostsOptions = {}) {
     page,
     pageSize,
     loading,
-    error,
+    error: translateMessage(error, translate),
     reload: () => fetchPage(page),
     goToPage: (p: number) => fetchPage(p),
   };

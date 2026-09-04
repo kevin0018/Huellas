@@ -1,5 +1,5 @@
 /* Hallmark · pre-emit critique: P5 H5 E4 S5 R5 V5 · genre: playful · macrostructure: Split Studio · theme: Huellas · enrichment: existing pet avatar · nav/footer: preserved · contrast: pass (40–41) · slop: pass (42–57) */
-import { translateMessage, type LocalizedMessage } from '../i18n/message';
+import { messageFromError, translateMessage, type LocalizedMessage } from '../i18n/message';
 import { localeByLanguage } from '../i18n/locale';
 import { useTranslation } from '../i18n/hooks/hook';
 import { useEffect, useState, type ReactNode } from "react";
@@ -97,7 +97,7 @@ function PetProfile() {
           return;
         }
         if (!cancelled) {
-          setError(caught instanceof Error ? caught.message : { translationKey: 'loadPetError' });
+          setError(messageFromError(caught, 'loadPetError'));
         }
       } finally {
         if (!cancelled) setLoading(false);

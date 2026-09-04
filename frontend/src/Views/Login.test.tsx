@@ -5,7 +5,7 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import LanguageProvider from '../i18n/LanguageProvider';
+import { TestLanguageProvider, switchLanguage } from '../test/language';
 import { authActions } from '../features/auth/authActions';
 import { expectNoCriticalAccessibilityViolations } from '../test/accessibility';
 import Login from './Login';
@@ -20,9 +20,9 @@ vi.mock('../features/auth/authActions', () => ({
 function renderLogin(initialEntry = '/login') {
   return render(
     <MemoryRouter initialEntries={[initialEntry]}>
-      <LanguageProvider>
+      <TestLanguageProvider>
         <Login />
-      </LanguageProvider>
+      </TestLanguageProvider>
     </MemoryRouter>,
   );
 }
@@ -109,5 +109,28 @@ describe('Login', () => {
     await user.click(screen.getByRole('button', { name: 'Iniciar Sesión' }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Demasiados intentos de acceso');
+  });
+});
+
+describe('login error language changes', () => {
+  beforeEach(() => { vi.clearAllMocks(); localStorage.clear(); });
+  afterEach(cleanup);
+
+  it.each([
+    [new ApiError('Unauthorized', 401), 'Invalid email or password'],
+    [new ApiError('Too many attempts', 429), 'Too many login attempts. Wait a few minutes and try again.'],
+  ])('updates a visible authentication error without resubmitting', async (failure, english) => {
+    const user = userEvent.setup();
+    vi.mocked(authActions.login).mockRejectedValue(failure);
+    renderLogin();
+    await user.type(screen.getByLabelText('Correo Electrónico'), 'ana@example.com');
+    await user.type(screen.getByLabelText('Contraseña'), 'incorrecta');
+    await user.click(screen.getByRole('button', { name: 'Iniciar Sesión' }));
+    await screen.findByRole('alert');
+    switchLanguage('English');
+    expect(screen.getByRole('alert')).toHaveTextContent(english);
+    expect(screen.getByLabelText('Password')).toHaveAccessibleDescription(english);
+    expect(screen.getByLabelText('Email')).toHaveValue('ana@example.com');
+    expect(authActions.login).toHaveBeenCalledOnce();
   });
 });

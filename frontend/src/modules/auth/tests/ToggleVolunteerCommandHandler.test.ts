@@ -91,7 +91,7 @@ describe('ToggleVolunteerCommandHandler', () => {
     localStorageMock.getItem.mockReturnValue(null);
 
     // Act & Assert
-    await expect(handler.handle(command)).rejects.toThrow('No authentication token found');
+    await expect(handler.handle(command)).rejects.toMatchObject({ code: 'AUTH_REQUIRED' });
     expect(mockRepository.toggleVolunteer).not.toHaveBeenCalled();
   });
 
@@ -101,7 +101,7 @@ describe('ToggleVolunteerCommandHandler', () => {
     localStorageMock.getItem.mockReturnValue('valid-token');
 
     // Act & Assert
-    await expect(handler.handle(command)).rejects.toThrow('Description is required to become a volunteer');
+    await expect(handler.handle(command)).rejects.toMatchObject({ code: 'VOLUNTEER_DESCRIPTION_REQUIRED' });
     expect(mockRepository.toggleVolunteer).not.toHaveBeenCalled();
   });
 
@@ -111,7 +111,7 @@ describe('ToggleVolunteerCommandHandler', () => {
     localStorageMock.getItem.mockReturnValue('valid-token');
 
     // Act & Assert
-    await expect(handler.handle(command)).rejects.toThrow('Description is required to become a volunteer');
+    await expect(handler.handle(command)).rejects.toMatchObject({ code: 'VOLUNTEER_DESCRIPTION_REQUIRED' });
     expect(mockRepository.toggleVolunteer).not.toHaveBeenCalled();
   });
 

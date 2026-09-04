@@ -1,3 +1,5 @@
+import type { TranslationKey } from '../i18n/dictionary';
+import { ClientError } from '../shared/errors/ClientError';
 import { useTranslation } from '../i18n/hooks/hook';
 import NavBar from '../Components/NavBar';
 import { useEffect, useState } from 'react';
@@ -19,7 +21,7 @@ function LoginContent() {
     password: ''
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<TranslationKey | null>(null);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -27,27 +29,27 @@ function LoginContent() {
     if (error) setError(null);
   };
 
-  const getErrorMessage = (error: string): string => {
+  const getErrorKey = (error: string): TranslationKey => {
     const errorMessage = error.toLowerCase();
 
     if (errorMessage.includes('invalid email or password') ||
       errorMessage.includes('unauthorized') ||
       errorMessage.includes('401')) {
-      return translate('invalidCredentials');
+      return 'invalidCredentials';
     }
 
     if (errorMessage.includes('network error') ||
       errorMessage.includes('fetch') ||
       errorMessage.includes('connection')) {
-      return translate('networkError');
+      return 'networkError';
     }
 
     if (errorMessage.includes('server error') ||
       errorMessage.includes('http 5')) {
-      return translate('serverError');
+      return 'serverError';
     }
 
-    return translate('invalidCredentials');
+    return 'invalidCredentials';
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -64,11 +66,13 @@ function LoginContent() {
 
     } catch (err) {
       if (err instanceof ApiError && err.status === 429) {
-        setError(translate('tooManyLoginAttempts'));
+        setError('tooManyLoginAttempts');
+      } else if (err instanceof ClientError) {
+        setError(err.code === 'NETWORK' ? 'networkError' : 'invalidCredentials');
       } else if (err instanceof Error) {
-        setError(getErrorMessage(err.message));
+        setError(getErrorKey(err.message));
       } else {
-        setError(translate('invalidCredentials'));
+        setError('invalidCredentials');
       }
     } finally {
       setLoading(false);
@@ -137,7 +141,7 @@ function LoginContent() {
             </div>
 
             {error && (
-              <div id="login-error" className="form-alert" role="alert">{error}</div>
+              <div id="login-error" className="form-alert" role="alert">{error && translate(error)}</div>
             )}
 
             <button

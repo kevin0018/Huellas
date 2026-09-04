@@ -1,3 +1,5 @@
+import { ApiError } from '../shared/api/response';
+import { messageFromError, translateMessage, type LocalizedMessage } from '../i18n/message';
 import React, { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -18,7 +20,7 @@ function VolunteerHome() {
 
   // Estado de envío/mensajes
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<LocalizedMessage | null>(null);
   const [ok, setOk] = useState(false);
 
   // Estado local para controles nuevos
@@ -57,7 +59,7 @@ function VolunteerHome() {
       const content = String(data.get("comentarios") || "").trim();
 
       if (!title || !content) {
-        setError(translate('titleDescriptionRequired'));
+        setError({ translationKey: 'titleDescriptionRequired' });
         setSubmitting(false);
         return;
       }
@@ -70,15 +72,9 @@ function VolunteerHome() {
       navigate("/volunteer-board");
     } catch (err: unknown) {
       console.error("[VolunteerHome] create post error:", err);
-      let msg = translate('createPostError');
-      
-      if (err instanceof Error) {
-        if (err.message.includes("403")) {
-          msg = translate('volunteerProfileRequired');
-        }
-      }
-      
-      setError(msg);
+      setError(err instanceof ApiError && err.status === 403
+        ? { translationKey: 'volunteerProfileRequired' }
+        : messageFromError(err, 'createPostError'));
     } finally {
       setSubmitting(false);
     }
@@ -150,7 +146,7 @@ function VolunteerHome() {
                 </div>
               </header>
 
-              {error && <div className="workspace-alert ui-status--error" role="alert">{error}</div>}
+              {error && <div className="workspace-alert ui-status--error" role="alert">{translateMessage(error, translate)}</div>}
               {ok && <div className="workspace-alert ui-status--success" role="status">{translate('postCreated')}</div>}
 
               <form className="workspace-form-grid" onSubmit={onSubmit}>
@@ -189,6 +185,7 @@ function VolunteerHome() {
                   <input
                     id="expires"
                     type="date"
+                    lang={localeByLanguage[currentLanguage]}
                     min={todayStr}
                     value={expiresAt}
                     onChange={(e) => setExpiresAt(e.target.value)}

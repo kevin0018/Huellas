@@ -1,3 +1,5 @@
+import { ClientError } from '../../shared/errors/ClientError';
+import { ensureResponseOk, fetchResponse } from '../../shared/api/response';
 import { AuthService } from '../auth/infra/AuthService.js';
 import type { HealthDocument, HealthEvent, HealthEventDraft } from './HealthEvent.js';
 import { API_BASE_URL } from '../../shared/api/apiConfig.js';
@@ -5,10 +7,7 @@ import { API_BASE_URL } from '../../shared/api/apiConfig.js';
 const apiUrl = API_BASE_URL;
 
 async function parseResponse<T>(response: Response): Promise<T> {
-  if (!response.ok) {
-    const body = await response.json().catch(() => ({ error: 'Request failed' }));
-    throw new Error(body.error || 'Request failed');
-  }
+  await ensureResponseOk(response);
   return response.json() as Promise<T>;
 }
 
@@ -17,13 +16,13 @@ export class ApiHealthEventRepository {
     return { sections, periodFrom: periodFrom || null, periodTo: periodTo ? `${periodTo}T23:59:59.999Z` : null };
   }
   async list(petId: number): Promise<HealthEvent[]> {
-    return parseResponse(await fetch(`${apiUrl}/pets/${petId}/health-events`, {
+    return parseResponse(await fetchResponse(`${apiUrl}/pets/${petId}/health-events`, {
       headers: AuthService.getAuthHeaders(),
     }));
   }
 
   async create(petId: number, draft: HealthEventDraft): Promise<HealthEvent> {
-    return parseResponse(await fetch(`${apiUrl}/pets/${petId}/health-events`, {
+    return parseResponse(await fetchResponse(`${apiUrl}/pets/${petId}/health-events`, {
       method: 'POST',
       headers: { ...AuthService.getAuthHeaders(), 'Content-Type': 'application/json' },
       body: JSON.stringify(draft),
@@ -31,7 +30,7 @@ export class ApiHealthEventRepository {
   }
 
   async update(id: number, draft: HealthEventDraft): Promise<HealthEvent> {
-    return parseResponse(await fetch(`${apiUrl}/health-events/${id}`, {
+    return parseResponse(await fetchResponse(`${apiUrl}/health-events/${id}`, {
       method: 'PUT',
       headers: { ...AuthService.getAuthHeaders(), 'Content-Type': 'application/json' },
       body: JSON.stringify(draft),
@@ -39,21 +38,21 @@ export class ApiHealthEventRepository {
   }
 
   async delete(id: number): Promise<void> {
-    const response = await fetch(`${apiUrl}/health-events/${id}`, {
+    const response = await fetchResponse(`${apiUrl}/health-events/${id}`, {
       method: 'DELETE',
       headers: AuthService.getAuthHeaders(),
     });
-    if (!response.ok) throw new Error('No se pudo eliminar el evento');
+    await ensureResponseOk(response);
   }
 
   async uploadDocument(petId: number, healthEventId: number, file: File): Promise<HealthDocument> {
     const contentBase64 = await new Promise<string>((resolve, reject) => {
       const reader = new FileReader();
-      reader.onerror = () => reject(new Error('No se pudo leer el archivo'));
+      reader.onerror = () => reject(new ClientError('READ_FILE_FAILED'));
       reader.onload = () => resolve(String(reader.result).split(',')[1] || '');
       reader.readAsDataURL(file);
     });
-    return parseResponse(await fetch(`${apiUrl}/pets/${petId}/health-documents`, {
+    return parseResponse(await fetchResponse(`${apiUrl}/pets/${petId}/health-documents`, {
       method: 'POST',
       headers: { ...AuthService.getAuthHeaders(), 'Content-Type': 'application/json' },
       body: JSON.stringify({ healthEventId, fileName: file.name, mimeType: file.type, contentBase64 }),
@@ -61,8 +60,8 @@ export class ApiHealthEventRepository {
   }
 
   async downloadDocument(document: HealthDocument): Promise<void> {
-    const response = await fetch(`${apiUrl}/health-documents/${document.id}`, { headers: AuthService.getAuthHeaders() });
-    if (!response.ok) throw new Error('No se pudo descargar el documento');
+    const response = await fetchResponse(`${apiUrl}/health-documents/${document.id}`, { headers: AuthService.getAuthHeaders() });
+    await ensureResponseOk(response);
     const url = URL.createObjectURL(await response.blob());
     const anchor = window.document.createElement('a');
     anchor.href = url; anchor.download = document.fileName; anchor.click();
@@ -70,23 +69,23 @@ export class ApiHealthEventRepository {
   }
 
   async deleteDocument(id: number): Promise<void> {
-    const response = await fetch(`${apiUrl}/health-documents/${id}`, { method: 'DELETE', headers: AuthService.getAuthHeaders() });
-    if (!response.ok) throw new Error('No se pudo eliminar el documento');
+    const response = await fetchResponse(`${apiUrl}/health-documents/${id}`, { method: 'DELETE', headers: AuthService.getAuthHeaders() });
+    await ensureResponseOk(response);
   }
 
   async exportSummary(petId: number, sections: string[], periodFrom: string, periodTo: string): Promise<void> {
-    const response = await fetch(`${apiUrl}/pets/${petId}/health-export`, { method: 'POST', headers: { ...AuthService.getAuthHeaders(), 'Content-Type': 'application/json' }, body: JSON.stringify(this.summaryBody(sections, periodFrom, periodTo)) });
-    if (!response.ok) throw new Error('No se pudo generar el resumen');
+    const response = await fetchResponse(`${apiUrl}/pets/${petId}/health-export`, { method: 'POST', headers: { ...AuthService.getAuthHeaders(), 'Content-Type': 'application/json' }, body: JSON.stringify(this.summaryBody(sections, periodFrom, periodTo)) });
+    await ensureResponseOk(response);
     const url = URL.createObjectURL(await response.blob()); const anchor = window.document.createElement('a');
     anchor.href = url; anchor.download = `cartilla-${petId}.html`; anchor.click(); URL.revokeObjectURL(url);
   }
 
   async createShare(petId: number, sections: string[], periodFrom: string, periodTo: string): Promise<{ id: number; token: string; expiresAt: string }> {
-    return parseResponse(await fetch(`${apiUrl}/pets/${petId}/health-shares`, { method: 'POST', headers: { ...AuthService.getAuthHeaders(), 'Content-Type': 'application/json' }, body: JSON.stringify({ ...this.summaryBody(sections, periodFrom, periodTo), expiresInHours: 24 }) }));
+    return parseResponse(await fetchResponse(`${apiUrl}/pets/${petId}/health-shares`, { method: 'POST', headers: { ...AuthService.getAuthHeaders(), 'Content-Type': 'application/json' }, body: JSON.stringify({ ...this.summaryBody(sections, periodFrom, periodTo), expiresInHours: 24 }) }));
   }
 
   async revokeShare(id: number): Promise<void> {
-    const response = await fetch(`${apiUrl}/health-shares/${id}`, { method: 'DELETE', headers: AuthService.getAuthHeaders() });
-    if (!response.ok) throw new Error('No se pudo revocar el enlace');
+    const response = await fetchResponse(`${apiUrl}/health-shares/${id}`, { method: 'DELETE', headers: AuthService.getAuthHeaders() });
+    await ensureResponseOk(response);
   }
 }

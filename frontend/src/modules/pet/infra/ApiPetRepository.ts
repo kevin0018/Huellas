@@ -1,3 +1,4 @@
+import { ensureResponseOk, fetchResponse } from '../../../shared/api/response';
 // frontend/src/modules/pet/infra/ApiPetRepository.ts
 import type { PetRepository } from '../domain/PetRepository.js';
 import type { Pet } from '../domain/Pet.js';
@@ -17,7 +18,7 @@ export class ApiPetRepository implements PetRepository {
   }
 
   // -------------------------------------------------------------------------
-  // Mappers / error helpers
+  // Mappers
   // -------------------------------------------------------------------------
 
   private fromApi(pet: Record<string, unknown>): Pet {
@@ -48,56 +49,38 @@ export class ApiPetRepository implements PetRepository {
     };
   }
 
-  private async ensureOk(res: Response, fallbackMsg: string): Promise<void> {
-    if (res.ok) return;
-
-    const responseBody = await res.text();
-    if (responseBody) {
-      let errorMessage = responseBody;
-      try {
-        const json = JSON.parse(responseBody) as { error?: unknown };
-        if (typeof json.error === 'string') errorMessage = json.error;
-      } catch {
-        // Non-JSON error responses are already useful as plain text.
-      }
-      throw new Error(errorMessage);
-    }
-
-    throw new Error(`${fallbackMsg}: ${res.status} ${res.statusText}`);
-  }
-
   // -------------------------------------------------------------------------
   // Queries
   // -------------------------------------------------------------------------
 
   /** List pets for the authenticated owner (GET /owners/my-pets) */
   async getUserPets(): Promise<Pet[]> {
-    const response = await fetch(`${this.baseUrl}/owners/my-pets`, {
+    const response = await fetchResponse(`${this.baseUrl}/owners/my-pets`, {
       method: 'GET',
       headers: this.getAuthHeaders(),
     });
-    await this.ensureOk(response, 'Failed to fetch pets');
+    await ensureResponseOk(response);
     const rawPets = await response.json();
     return (rawPets as Record<string, unknown>[]).map((p) => this.fromApi(p));
   }
 
   /** Get a single pet (GET /pets/:id) */
   async getPetById(id: number): Promise<Pet> {
-    const res = await fetch(`${this.baseUrl}/pets/${id}`, {
+    const res = await fetchResponse(`${this.baseUrl}/pets/${id}`, {
       method: 'GET',
       headers: this.getAuthHeaders(),
     });
-    await this.ensureOk(res, 'Failed to fetch pet');
+    await ensureResponseOk(res);
     const raw = await res.json();
     return this.fromApi(raw);
   }
 
   async getPetProcedures(id: number): Promise<PetProcedure[]> {
-    const res = await fetch(`${this.baseUrl}/pets/${id}/procedures`, {
+    const res = await fetchResponse(`${this.baseUrl}/pets/${id}/procedures`, {
       method: 'GET',
       headers: this.getAuthHeaders(),
     });
-    await this.ensureOk(res, 'Failed to fetch pet');
+    await ensureResponseOk(res);
     const raw = await res.json();
     return raw;
   }
@@ -138,13 +121,13 @@ export class ApiPetRepository implements PetRepository {
 
     if (ownerId) body.ownerId = ownerId;
 
-    const res = await fetch(`${this.baseUrl}/pets`, {
+    const res = await fetchResponse(`${this.baseUrl}/pets`, {
       method: 'POST',
       headers: this.getAuthHeaders(),
       body: JSON.stringify(body),
     });
 
-    await this.ensureOk(res, 'Failed to create pet');
+    await ensureResponseOk(res);
     const raw = await res.json();
     return this.fromApi(raw);
   }
@@ -199,23 +182,23 @@ export class ApiPetRepository implements PetRepository {
       ...(data.medicalConditions !== undefined && { medicalConditions: data.medicalConditions?.trim() || null }),
     };
 
-    const res = await fetch(`${this.baseUrl}/pets/${id}`, {
+    const res = await fetchResponse(`${this.baseUrl}/pets/${id}`, {
       method: 'PATCH',
       headers: this.getAuthHeaders(),
       body: JSON.stringify(body),
     });
 
-    await this.ensureOk(res, 'Failed to update pet');
+    await ensureResponseOk(res);
     const raw = await res.json();
     return this.fromApi(raw);
   }
 
   /** Delete pet (DELETE /pets/:id) */
   async delete(id: number): Promise<void> {
-    const res = await fetch(`${this.baseUrl}/pets/${id}`, {
+    const res = await fetchResponse(`${this.baseUrl}/pets/${id}`, {
       method: 'DELETE',
       headers: this.getAuthHeaders(),
     });
-    await this.ensureOk(res, 'Failed to delete pet');
+    await ensureResponseOk(res);
   }
 }

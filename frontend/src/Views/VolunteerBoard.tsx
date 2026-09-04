@@ -1,3 +1,4 @@
+import { messageFromError, translateMessage } from '../i18n/message';
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -56,7 +57,7 @@ function VolunteerBoard() {
       await reload();
     } catch (err: unknown) {
       console.error("[VolunteerBoard] delete error:", err);
-      alert((err as Error)?.message || translate('deletePostError'));
+      alert(translateMessage(messageFromError(err, 'deletePostError'), translate));
     }
   }
 

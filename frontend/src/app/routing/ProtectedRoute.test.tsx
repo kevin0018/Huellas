@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AuthService } from '../../modules/auth/infra/AuthService';
 import { apiClient } from '../../shared/api/apiClient';
 import ProtectedRoute from './ProtectedRoute';
+import { TestLanguageProvider, switchLanguage } from '../../test/language';
 
 vi.mock('../../modules/auth/infra/AuthService', () => ({
   AuthService: {
@@ -21,20 +22,20 @@ vi.mock('../../shared/api/apiClient', () => ({
 
 function renderRoute() {
   return render(
-    <MemoryRouter initialEntries={['/private']}>
+    <TestLanguageProvider><MemoryRouter initialEntries={['/private']}>
       <Routes>
         <Route path="/login" element={<p>Login</p>} />
         <Route element={<ProtectedRoute />}>
           <Route path="/private" element={<p>Private</p>} />
         </Route>
       </Routes>
-    </MemoryRouter>,
+    </MemoryRouter></TestLanguageProvider>,
   );
 }
 
 describe('ProtectedRoute', () => {
   beforeEach(() => vi.clearAllMocks());
-  afterEach(cleanup);
+  afterEach(() => { cleanup(); localStorage.clear(); });
 
   it('redirects before rendering private content when there is no token', async () => {
     vi.mocked(AuthService.getToken).mockReturnValue(null);
@@ -63,4 +64,20 @@ describe('ProtectedRoute', () => {
     await waitFor(() => expect(AuthService.logout).toHaveBeenCalled());
     expect(await screen.findByText('Login')).toBeInTheDocument();
   });
+});
+
+it('switches the pending session message without repeating validation', async () => {
+  localStorage.clear();
+  vi.clearAllMocks();
+  vi.mocked(AuthService.getToken).mockReturnValue('token');
+  vi.mocked(apiClient.get).mockReturnValue(new Promise(() => {}));
+  renderRoute();
+  expect(screen.getByText('Comprobando sesión…')).toBeInTheDocument();
+  switchLanguage('English');
+  expect(screen.getByText('Checking session…')).toBeInTheDocument();
+  switchLanguage('Català');
+  expect(screen.getByText('Comprovant la sessió…')).toBeInTheDocument();
+  expect(apiClient.get).toHaveBeenCalledOnce();
+  cleanup();
+  localStorage.clear();
 });

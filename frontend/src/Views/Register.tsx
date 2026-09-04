@@ -1,3 +1,5 @@
+import type { TranslationKey } from '../i18n/dictionary';
+import { ClientError } from '../shared/errors/ClientError';
 import { registerUser } from '../features/registration/registerUser';
 import { useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
@@ -22,7 +24,7 @@ function RegisterForm() {
   });
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<TranslationKey | null>(null);
   const [errorTarget, setErrorTarget] = useState<'terms' | null>(null);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -45,42 +47,42 @@ function RegisterForm() {
     }
   };
 
-  const getErrorMessage = (error: string): string => {
+  const getErrorKey = (error: string): TranslationKey => {
     // Extract the main error message from API response
     const errorMessage = error.toLowerCase();
 
     if (errorMessage.includes('owner with this email already exists') ||
       errorMessage.includes('volunteer with this email already exists') ||
       errorMessage.includes('email already exists')) {
-      return translate('emailAlreadyExists');
+      return 'emailAlreadyExists';
     }
 
     if (errorMessage.includes('network error') ||
       errorMessage.includes('fetch') ||
       errorMessage.includes('connection')) {
-      return translate('networkError');
+      return 'networkError';
     }
 
     if (errorMessage.includes('server error') ||
       errorMessage.includes('internal server error') ||
       errorMessage.includes('http 5')) {
-      return translate('serverError');
+      return 'serverError';
     }
 
     if (errorMessage.includes('missing required fields') ||
       errorMessage.includes('validation') ||
       errorMessage.includes('invalid')) {
-      return translate('registrationError');
+      return 'registrationError';
     }
 
     // Default fallback
-    return translate('registrationError');
+    return 'registrationError';
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!acceptTerms) {
-      setError(translate('acceptTerms') + '.');
+      setError('acceptTermsError');
       setErrorTarget('terms');
       return;
     }
@@ -91,10 +93,12 @@ function RegisterForm() {
       await registerUser(userType, form);
       navigate('/login?registered=true');
     } catch (err) {
-      if (err instanceof Error) {
-        setError(getErrorMessage(err.message));
+      if (err instanceof ClientError) {
+        setError(err.code === 'NETWORK' ? 'networkError' : 'registrationError');
+      } else if (err instanceof Error) {
+        setError(getErrorKey(err.message));
       } else {
-        setError(translate('registrationError'));
+        setError('registrationError');
       }
       setErrorTarget(null);
     } finally {
@@ -193,7 +197,7 @@ function RegisterForm() {
             </div>
             {userType === 'volunteer' && (
               <div className="form-field">
-                <label className="form-label" htmlFor="register-description">{translate('description') || 'Descripción'}</label>
+                <label className="form-label" htmlFor="register-description">{translate('description')}</label>
                 <textarea
                   className="form-control"
                   id="register-description"
@@ -224,7 +228,7 @@ function RegisterForm() {
               </Link>
           </div>
 
-          {error && <div className="form-alert" id="register-error" role="alert">{error}</div>}
+          {error && <div className="form-alert" id="register-error" role="alert">{error && translate(error)}</div>}
           <button
             type="submit"
             className="ui-button form-submit"

@@ -1,3 +1,4 @@
+import { ensureResponseOk, fetchResponse } from '../../../shared/api/response';
 import type { AuthRepository } from '../domain/AuthRepository';
 import type { LoginResponse, User } from '../domain/User';
 import { AuthService } from './AuthService';
@@ -19,17 +20,10 @@ export class ApiAuthRepository implements AuthRepository {
   }
 
   async logout(): Promise<void> {
-    let response: Response;
-    try {
-      response = await fetch(`${this.baseUrl}/logout`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${AuthService.getToken()}`,
-        }
-      });
-    } catch (err) {
-      throw new Error('Network error: ' + (err instanceof Error ? err.message : String(err)));
-    }
+    const response = await fetchResponse(`${this.baseUrl}/logout`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${AuthService.getToken()}` },
+    });
 
     if (!response.ok) {
       console.warn('Logout failed on server, clearing local token anyway');
@@ -55,7 +49,7 @@ export class ApiAuthRepository implements AuthRepository {
 
     try {
       // Fetch complete profile from backend
-      const response = await fetch(`${this.baseUrl}/profile`, {
+      const response = await fetchResponse(`${this.baseUrl}/profile`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -88,7 +82,7 @@ export class ApiAuthRepository implements AuthRepository {
     email: string;
     description?: string;
   }): Promise<User> {
-    const response = await fetch(`${this.baseUrl}/profile`, {
+    const response = await fetchResponse(`${this.baseUrl}/profile`, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -97,10 +91,7 @@ export class ApiAuthRepository implements AuthRepository {
       body: JSON.stringify(profileData),
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to update profile');
-    }
+    await ensureResponseOk(response);
 
     const updatedUser = await response.json();
     
@@ -114,7 +105,7 @@ export class ApiAuthRepository implements AuthRepository {
     currentPassword: string;
     newPassword: string;
   }): Promise<void> {
-    const response = await fetch(`${this.baseUrl}/password`, {
+    const response = await fetchResponse(`${this.baseUrl}/password`, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -123,10 +114,7 @@ export class ApiAuthRepository implements AuthRepository {
       body: JSON.stringify(passwordData),
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to change password');
-    }
+    await ensureResponseOk(response);
   }
 
   async toggleVolunteer(token: string, volunteerData?: {
@@ -135,7 +123,7 @@ export class ApiAuthRepository implements AuthRepository {
     const method = volunteerData ? 'POST' : 'DELETE';
     const url = `${this.baseUrl}/volunteer`;
 
-    const response = await fetch(url, {
+    const response = await fetchResponse(url, {
       method,
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -144,10 +132,7 @@ export class ApiAuthRepository implements AuthRepository {
       body: volunteerData ? JSON.stringify(volunteerData) : undefined,
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to toggle volunteer status');
-    }
+    await ensureResponseOk(response);
 
     const updatedUser = await response.json();
     

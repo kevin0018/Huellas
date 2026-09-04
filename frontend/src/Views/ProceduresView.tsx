@@ -1,5 +1,5 @@
 /* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V5 · genre: playful · macrostructure: Stat-Led · signature: persistent status filter rail · theme: Huellas · enrichment: existing pet avatar · nav/footer: preserved · contrast: pass (40–41) · slop: 58/58 pass · mobile: pass (34, 49, 50–57) */
-import { translateMessage, type LocalizedMessage } from '../i18n/message';
+import { messageFromError, translateMessage, type LocalizedMessage } from '../i18n/message';
 import type { TranslationKey } from '../i18n/dictionary';
 import { useTranslation } from '../i18n/hooks/hook';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -91,7 +91,7 @@ function ProceduresView() {
       setPet(currentPet);
       setError('');
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : { translationKey: 'loadPlanError' });
+      setError(messageFromError(caught, 'loadPlanError'));
     } finally {
       setLoading(false);
     }

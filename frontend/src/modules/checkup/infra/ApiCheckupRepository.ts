@@ -1,3 +1,4 @@
+import { ensureResponseOk, fetchResponse } from '../../../shared/api/response';
 import type { CheckupRepository } from '../domain/CheckupRepository';
 import { Checkup } from '../domain/Checkup';
 import { AuthService } from '../../auth/infra/AuthService.js';
@@ -30,9 +31,9 @@ export class ApiCheckupRepository implements CheckupRepository {
       'Authorization': `Bearer ${token}`
     };
 
-    const res = await fetch(url, { ...init, headers });
+    const res = await fetchResponse(url, { ...init, headers });
 
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    await ensureResponseOk(res);
     if (res.status === 204) return undefined as unknown as T;
 
     return (await res.json()) as T;

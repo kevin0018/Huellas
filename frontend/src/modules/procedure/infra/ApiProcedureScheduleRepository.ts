@@ -1,3 +1,4 @@
+import { ensureResponseOk, fetchResponse } from '../../../shared/api/response';
 import type { ProcedureScheduleRepository } from '../domain/ProcedureScheduleRepository';
 import { ProcedureSchedule } from '../domain/ProcedureSchedule';
 import { API_BASE_URL } from '../../../shared/api/apiConfig';
@@ -27,8 +28,8 @@ export class ApiProcedureScheduleRepository implements ProcedureScheduleReposito
       ...(this.getAuthHeaders ? await this.getAuthHeaders() : {}),
       ...(init?.headers || {}),
     };
-    const res = await fetch(url, { ...init, headers });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const res = await fetchResponse(url, { ...init, headers });
+    await ensureResponseOk(res);
     return (await res.json()) as T;
   }
 

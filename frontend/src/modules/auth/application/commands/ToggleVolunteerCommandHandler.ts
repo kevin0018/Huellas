@@ -1,3 +1,4 @@
+import { ClientError } from '../../../../shared/errors/ClientError';
 import type { AuthRepository } from '../../domain/AuthRepository';
 import type { User } from '../../domain/User';
 import { ToggleVolunteerCommand } from './ToggleVolunteerCommand';
@@ -13,12 +14,12 @@ export class ToggleVolunteerCommandHandler {
   async handle(command: ToggleVolunteerCommand): Promise<User> {
     const token = AuthService.getToken();
     if (!token) {
-      throw new Error('No authentication token found');
+      throw new ClientError('AUTH_REQUIRED');
     }
 
     // Validate description if becoming a volunteer
     if (command.isBecomingVolunteer && !command.description?.trim()) {
-      throw new Error('Description is required to become a volunteer');
+      throw new ClientError('VOLUNTEER_DESCRIPTION_REQUIRED');
     }
 
     const updatedUser = await this.authRepository.toggleVolunteer(

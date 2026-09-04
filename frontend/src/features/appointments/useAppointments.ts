@@ -1,3 +1,5 @@
+import { messageFromError, translateMessage, type LocalizedMessage } from '../../i18n/message';
+import { useTranslation } from '../../i18n/hooks/hook';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type {
   Appointment,
@@ -20,11 +22,12 @@ const appointmentRepository = new ApiAppointmentRepository();
 const petRepository = new ApiPetRepository();
 
 export function useAppointments() {
+  const { translate } = useTranslation();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [pets, setPets] = useState<Pet[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<LocalizedMessage | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -37,7 +40,7 @@ export function useAppointments() {
       setAppointments(nextAppointments);
       setPets(nextPets);
     } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : 'Error desconocido');
+      setError(messageFromError(loadError, 'loadAppointmentsError'));
     } finally {
       setLoading(false);
     }
@@ -69,7 +72,7 @@ export function useAppointments() {
         setAppointments((current) => [...current, created]);
       }
     } catch (saveError) {
-      setError(saveError instanceof Error ? saveError.message : 'Error al guardar la cita');
+      setError(messageFromError(saveError, 'saveAppointmentError'));
       throw saveError;
     } finally {
       setActionLoading(false);
@@ -83,7 +86,7 @@ export function useAppointments() {
       await appointmentRepository.deleteAppointment(id);
       setAppointments((current) => current.filter((item) => item.id !== id));
     } catch (deleteError) {
-      setError(deleteError instanceof Error ? deleteError.message : 'Error al eliminar la cita');
+      setError(messageFromError(deleteError, 'deleteAppointmentError'));
       throw deleteError;
     } finally {
       setActionLoading(false);
@@ -97,11 +100,11 @@ export function useAppointments() {
     pets,
     loading,
     actionLoading,
-    error,
+    error: translateMessage(error, translate),
     clearError: () => setError(null),
     reload: load,
     save,
     remove,
     petById,
-  }), [actionLoading, appointments, error, load, loading, petById, pets, remove, save]);
+  }), [actionLoading, appointments, error, load, loading, petById, pets, remove, save, translate]);
 }

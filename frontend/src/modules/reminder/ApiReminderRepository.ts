@@ -1,3 +1,4 @@
+import { ensureResponseOk, fetchResponse } from '../../shared/api/response';
 import { AuthService } from '../auth/infra/AuthService.js';
 import { API_BASE_URL } from '../../shared/api/apiConfig.js';
 
@@ -23,18 +24,18 @@ export class ApiReminderRepository {
   private headers() { return { ...AuthService.getAuthHeaders(), 'Content-Type': 'application/json' }; }
 
   async list(): Promise<ReminderFeed> {
-    const response = await fetch(`${apiUrl}/reminders`, { headers: this.headers() });
-    if (!response.ok) throw new Error('No se pudieron cargar los recordatorios');
+    const response = await fetchResponse(`${apiUrl}/reminders`, { headers: this.headers() });
+    await ensureResponseOk(response, 'LOAD_REMINDERS');
     return response.json();
   }
 
   async action(id: number, action: 'postpone' | 'complete' | 'cancel', days?: number): Promise<void> {
-    const response = await fetch(`${apiUrl}/reminders/${id}`, { method: 'PATCH', headers: this.headers(), body: JSON.stringify({ action, days }) });
-    if (!response.ok) throw new Error('No se pudo actualizar el recordatorio');
+    const response = await fetchResponse(`${apiUrl}/reminders/${id}`, { method: 'PATCH', headers: this.headers(), body: JSON.stringify({ action, days }) });
+    await ensureResponseOk(response, 'UPDATE_REMINDER');
   }
 
   async preferences(enabled: boolean, leadDays: number): Promise<void> {
-    const response = await fetch(`${apiUrl}/reminders/preferences`, { method: 'PATCH', headers: this.headers(), body: JSON.stringify({ enabled, leadDays }) });
-    if (!response.ok) throw new Error('No se pudieron guardar las preferencias');
+    const response = await fetchResponse(`${apiUrl}/reminders/preferences`, { method: 'PATCH', headers: this.headers(), body: JSON.stringify({ enabled, leadDays }) });
+    await ensureResponseOk(response, 'SAVE_REMINDER_PREFERENCES');
   }
 }

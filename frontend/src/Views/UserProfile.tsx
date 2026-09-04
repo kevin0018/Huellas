@@ -1,4 +1,4 @@
-import { LocalizedError, translateMessage, type LocalizedMessage } from '../i18n/message';
+import { LocalizedError, messageFromError, translateMessage, type LocalizedMessage } from '../i18n/message';
 import { useTranslation } from '../i18n/hooks/hook';
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -96,7 +96,7 @@ export default function UserProfile() {
       }));
       showToastMessage();
     } catch (error) {
-      setError(error instanceof Error ? error.message : { translationKey: 'updateProfileError' });
+      setError(messageFromError(error, 'updateProfileError'));
     } finally {
       setIsLoading(false);
     }
@@ -130,7 +130,7 @@ export default function UserProfile() {
       }));
       showToastMessage();
     } catch (error) {
-      setError(error instanceof Error ? error.message : { translationKey: 'changePasswordError' });
+      setError(messageFromError(error, 'changePasswordError'));
     } finally {
       setIsLoading(false);
     }
@@ -164,7 +164,7 @@ export default function UserProfile() {
       }));
       showToastMessage();
     } catch (error) {
-      setError(error instanceof Error ? error.message : { translationKey: 'volunteerStatusError' });
+      setError(messageFromError(error, 'volunteerStatusError'));
       throw error instanceof Error ? error : new LocalizedError('volunteerStatusError');
     } finally {
       setIsLoading(false);

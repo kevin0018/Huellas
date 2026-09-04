@@ -1,35 +1,8 @@
 import { AuthService } from '../../modules/auth/infra/AuthService';
 import { apiUrl } from './apiConfig';
 
-type ErrorPayload = {
-  error?: unknown;
-  message?: unknown;
-};
-
-export class ApiError extends Error {
-  readonly status: number;
-
-  constructor(message: string, status: number) {
-    super(message);
-    this.name = 'ApiError';
-    this.status = status;
-  }
-}
-
-async function errorMessage(response: Response): Promise<string> {
-  const body = await response.text();
-  if (!body) return `HTTP ${response.status}`;
-
-  try {
-    const payload = JSON.parse(body) as ErrorPayload;
-    if (typeof payload.error === 'string') return payload.error;
-    if (typeof payload.message === 'string') return payload.message;
-  } catch {
-    // Plain-text errors are valid API responses too.
-  }
-
-  return body;
-}
+import { ensureResponseOk, fetchResponse } from './response';
+export { ApiError } from './response';
 
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers);
@@ -42,15 +15,8 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
     headers.set('Content-Type', 'application/json');
   }
 
-  let response: Response;
-  try {
-    response = await fetch(apiUrl(path), { ...init, headers });
-  } catch (error) {
-    const detail = error instanceof Error ? error.message : String(error);
-    throw new Error(`No se pudo conectar con el servidor: ${detail}`);
-  }
-
-  if (!response.ok) throw new ApiError(await errorMessage(response), response.status);
+  const response = await fetchResponse(apiUrl(path), { ...init, headers });
+  await ensureResponseOk(response);
   if (response.status === 204) return undefined as T;
 
   const responseBody = await response.text();

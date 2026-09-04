@@ -1,3 +1,4 @@
+import { messageFromError, translateMessage, type LocalizedMessage } from '../i18n/message';
 import { localeByLanguage } from '../i18n/locale';
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -32,12 +33,12 @@ function UserHomeContent() {
   const [user, setUser] = useState<User | null>(null);
   const [pets, setPets] = useState<Pet[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<LocalizedMessage | null>(null);
   const [reminderFeed, setReminderFeed] = useState<ReminderFeed | null>(null);
   const [reloadVersion, setReloadVersion] = useState(0);
   const [pendingReminderId, setPendingReminderId] = useState<number | null>(null);
   const [savingPreferences, setSavingPreferences] = useState(false);
-  const [actionError, setActionError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<LocalizedMessage | null>(null);
 
   useEffect(() => {
     if (!AuthService.isAuthenticated?.()) {
@@ -70,7 +71,7 @@ function UserHomeContent() {
             navigate("/login");
             return;
           }
-          setError(message);
+          setError(messageFromError(requestError, 'loadDashboardError'));
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -91,7 +92,7 @@ function UserHomeContent() {
       await reminderRepository.action(id, action, action === "postpone" ? 7 : undefined);
       await reloadReminders();
     } catch (requestError) {
-      setActionError(requestError instanceof Error ? requestError.message : String(requestError));
+      setActionError(messageFromError(requestError, 'updateReminderError'));
     } finally {
       setPendingReminderId(null);
     }
@@ -104,7 +105,7 @@ function UserHomeContent() {
       await reminderRepository.preferences(enabled, leadDays);
       await reloadReminders();
     } catch (requestError) {
-      setActionError(requestError instanceof Error ? requestError.message : String(requestError));
+      setActionError(messageFromError(requestError, 'saveReminderPreferencesError'));
     } finally {
       setSavingPreferences(false);
     }
@@ -145,7 +146,7 @@ function UserHomeContent() {
 
           <AsyncContent
             loading={loading}
-            error={error}
+            error={translateMessage(error, translate)}
             empty={false}
             loadingLabel={translate("loading")}
             emptyTitle=""
@@ -220,7 +221,7 @@ function UserHomeContent() {
 
                   <div className="mt-5" aria-live="polite">
                     {savingPreferences && <p className="text-sm text-[var(--color-ink-soft)]">{translate('savingPreferences')}</p>}
-                    {actionError && <p className="rounded-[var(--radius-control)] border border-[var(--color-error)] p-3 text-sm font-semibold text-[var(--color-error)]" role="alert">{actionError}</p>}
+                    {actionError && <p className="rounded-[var(--radius-control)] border border-[var(--color-error)] p-3 text-sm font-semibold text-[var(--color-error)]" role="alert">{translateMessage(actionError, translate)}</p>}
                   </div>
 
                   {reminderFeed?.preferences.enabled ? (

@@ -1,4 +1,4 @@
-import { translateMessage, type LocalizedMessage } from '../i18n/message';
+import { messageFromError, translateMessage, type LocalizedMessage } from '../i18n/message';
 import { localeByLanguage } from '../i18n/locale';
 import { useTranslation } from '../i18n/hooks/hook';
 import React from "react";
@@ -88,7 +88,7 @@ const PetRegister: React.FC = () => {
           medicalConditions: pet.medicalConditions || "",
         });
       } catch (e) {
-        setError(e instanceof Error ? e.message : String(e));
+        setError(messageFromError(e, 'loadPetError'));
       }
     })();
     return () => { cancelled = true; };
@@ -149,7 +149,7 @@ const PetRegister: React.FC = () => {
 
       navigate('/user-home', { replace: true });
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(messageFromError(e, isEdit ? 'updatePetError' : 'createPetError'));
     } finally {
       setSaving(false);
     }

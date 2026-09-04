@@ -1,3 +1,5 @@
+import { ClientError } from '../../../shared/errors/ClientError';
+import { ensureResponseOk, fetchResponse } from '../../../shared/api/response';
 import type { ChatRepository } from '../domain/ChatRepository';
 import type { 
   Conversation, 
@@ -30,7 +32,7 @@ export class ApiChatRepository implements ChatRepository {
     const url = `${this.baseUrl}${endpoint}`;
     
     try {
-      const response = await fetch(url, {
+      const response = await fetchResponse(url, {
         ...options,
         headers: {
           'Content-Type': 'application/json',
@@ -39,15 +41,13 @@ export class ApiChatRepository implements ChatRepository {
         },
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
-      }
+      await ensureResponseOk(response);
 
       const result: ApiResponse<T> = await response.json();
       
       if (!result.success) {
-        throw new Error(result.message || 'API request failed');
+        if (result.message) throw new Error(result.message);
+        throw new ClientError('REQUEST_FAILED');
       }
 
       return result.data;

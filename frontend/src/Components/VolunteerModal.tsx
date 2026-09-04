@@ -1,4 +1,4 @@
-import { LocalizedError, translateMessage, type LocalizedMessage } from '../i18n/message';
+import { messageFromError, translateMessage, type LocalizedMessage } from '../i18n/message';
 import { useTranslation } from '../i18n/hooks/hook';
 import { useEffect, useId, useState } from 'react';
 import { Dialog } from '../shared/ui/Dialog';
@@ -43,9 +43,7 @@ export default function VolunteerModal({
       setError('');
       await onConfirm(isCurrentlyVolunteer ? undefined : normalizedDescription);
     } catch (reason) {
-      setError(reason instanceof LocalizedError
-        ? { translationKey: reason.translationKey }
-        : reason instanceof Error ? reason.message : { translationKey: 'volunteerActionError' });
+      setError(messageFromError(reason, 'volunteerActionError'));
     }
   };
 

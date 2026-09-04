@@ -1,4 +1,4 @@
-import { translateMessage, type LocalizedMessage } from '../i18n/message';
+import { messageFromError, translateMessage, type LocalizedMessage } from '../i18n/message';
 import { localeByLanguage } from '../i18n/locale';
 import { useTranslation } from '../i18n/hooks/hook';
 import { useEffect, useState, type FormEvent } from 'react';
@@ -54,7 +54,7 @@ const ProcedureModal = ({ isOpen, onClose, onModalSubmit, procedure }: Procedure
       );
       onClose();
     } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : { translationKey: 'procedureSaveError' });
+      setSubmitError(messageFromError(error, 'procedureSaveError'));
     } finally {
       setIsSaving(false);
     }

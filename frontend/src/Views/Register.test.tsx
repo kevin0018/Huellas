@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import LanguageProvider from '../i18n/LanguageProvider';
+import { TestLanguageProvider, switchLanguage } from '../test/language';
 import { expectNoCriticalAccessibilityViolations } from '../test/accessibility';
 import Register from './Register';
 import { registerUser } from '../features/registration/registerUser';
@@ -19,9 +19,9 @@ const mockedRegisterUser = vi.mocked(registerUser);
 function renderRegister() {
   return render(
     <MemoryRouter initialEntries={['/register']}>
-      <LanguageProvider>
+      <TestLanguageProvider>
         <Register />
-      </LanguageProvider>
+      </TestLanguageProvider>
     </MemoryRouter>,
   );
 }
@@ -131,4 +131,19 @@ describe('Register', () => {
 
     await expectNoCriticalAccessibilityViolations(container);
   });
+});
+
+it('updates visible terms validation while preserving registration data', async () => {
+  const user = userEvent.setup();
+  renderRegister();
+  await completeRequiredFields(user);
+  await user.click(screen.getByRole('button', { name: 'Regístrate' }));
+  expect(screen.getByRole('alert')).toHaveTextContent('Acepto los términos.');
+  switchLanguage('English');
+  expect(screen.getByRole('alert')).toHaveTextContent('I accept the terms.');
+  expect(screen.getByRole('checkbox', { name: 'I accept the terms' })).toHaveAccessibleDescription('I accept the terms.');
+  switchLanguage('Català');
+  expect(screen.getByRole('alert')).toHaveTextContent('Accepto els termes.');
+  expect(screen.getByLabelText('Nom')).toHaveValue('Ada');
+  expect(mockedRegisterUser).not.toHaveBeenCalled();
 });
