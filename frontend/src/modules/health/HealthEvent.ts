@@ -11,17 +11,6 @@ export const healthEventTypes = [
 
 export type HealthEventType = typeof healthEventTypes[number];
 
-export const healthEventLabels: Record<HealthEventType, string> = {
-  VACCINATION: 'Vacuna',
-  GENERAL_CHECKUP: 'Visita general',
-  MEDICATION: 'Medicación',
-  TREATMENT: 'Tratamiento',
-  TEST: 'Prueba',
-  SURGERY: 'Cirugía',
-  WEIGHT: 'Peso',
-  OTHER: 'Otro',
-};
-
 export interface HealthEvent {
   id: number;
   petId: number;

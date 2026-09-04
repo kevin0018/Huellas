@@ -1,7 +1,9 @@
 import React from 'react';
 import type { Appointment, AppointmentStatus } from '../modules/appointment/domain/Appointment.js';
 import type { Pet } from '../modules/pet/domain/Pet.js';
-import { getAppointmentReasonLabel, getAppointmentStatusLabel } from '../modules/appointment/domain/Appointment.js';
+import { appointmentReasonTranslationKeys, appointmentStatusTranslationKeys } from '../features/appointments/appointmentPresentation.js';
+import { useTranslation } from '../i18n/hooks/hook.js';
+import { localeByLanguage } from '../i18n/locale.js';
 
 interface AppointmentCardProps {
   appointment: Appointment;
@@ -43,16 +45,18 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
   onEdit,
   onDelete,
 }) => {
+  const { currentLanguage, translate } = useTranslation();
+  const locale = localeByLanguage[currentLanguage];
   const date = new Date(appointment.date);
-  const petName = pet?.name ?? `Mascota ${appointment.petId}`;
-  const reasonLabel = getAppointmentReasonLabel(appointment.reason);
-  const day = date.toLocaleDateString('es-ES', { day: '2-digit' });
-  const monthAndYear = date.toLocaleDateString('es-ES', { month: 'short', year: 'numeric' });
-  const time = date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+  const petName = pet?.name ?? translate('appointmentPetFallback', { id: appointment.petId });
+  const reasonLabel = translate(appointmentReasonTranslationKeys[appointment.reason]);
+  const day = date.toLocaleDateString(locale, { day: '2-digit' });
+  const monthAndYear = date.toLocaleDateString(locale, { month: 'short', year: 'numeric' });
+  const time = date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
 
   return (
     <article
-      aria-label={`${reasonLabel} de ${petName}`}
+      aria-label={translate('appointmentAccessibleName', { reason: reasonLabel, pet: petName })}
       className={`flex min-w-0 flex-col gap-4 border-b border-[var(--color-rule)] p-4 last:border-b-0 sm:flex-row sm:items-center sm:gap-5 sm:p-5 ${emphasis ? 'bg-[var(--color-paper-2)]' : 'bg-[var(--color-surface-raised)]'}`}
     >
       <time className="flex shrink-0 items-baseline gap-2 tabular-nums sm:w-28 sm:flex-col sm:items-start sm:gap-0" dateTime={appointment.date}>
@@ -66,7 +70,7 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
           <h3 className="font-nunito text-lg font-bold tracking-normal text-[var(--color-ink)]">{petName}</h3>
           {emphasis && (
             <span className="rounded-[var(--radius-pill)] bg-[var(--color-accent)] px-2.5 py-1 text-xs font-bold text-[var(--color-accent-ink)]">
-              Siguiente cita
+              {translate('nextAppointment')}
             </span>
           )}
         </div>
@@ -75,7 +79,7 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
           <span className="font-semibold text-[var(--color-ink-soft)]">{reasonLabel}</span>
           <span aria-hidden="true" className="text-[var(--color-rule-strong)]">·</span>
           <span className={`rounded-[var(--radius-pill)] border px-2 py-0.5 text-xs font-bold ${statusStyles[appointment.status]}`}>
-            {getAppointmentStatusLabel(appointment.status)}
+            {translate(appointmentStatusTranslationKeys[appointment.status])}
           </span>
         </div>
 
@@ -88,11 +92,11 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
         <div className="flex shrink-0 items-center gap-1 self-end sm:self-center">
           {onEdit && (
             <button
-              aria-label={`Editar cita de ${petName}`}
+              aria-label={translate('editAppointmentForPet', { pet: petName })}
               className="ui-hover-surface inline-flex size-11 items-center justify-center rounded-[var(--radius-control)] text-[var(--color-accent)] disabled:cursor-wait"
               disabled={actionsDisabled}
               onClick={() => onEdit(appointment)}
-              title="Editar cita"
+              title={translate('editAppointment')}
               type="button"
             >
               <EditIcon />
@@ -100,11 +104,11 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
           )}
           {onDelete && (
             <button
-              aria-label={`Eliminar cita de ${petName}`}
+              aria-label={translate('deleteAppointmentForPet', { pet: petName })}
               className="ui-hover-surface inline-flex size-11 items-center justify-center rounded-[var(--radius-control)] text-[var(--color-error)] disabled:cursor-wait"
               disabled={actionsDisabled}
               onClick={() => onDelete(appointment.id)}
-              title="Eliminar cita"
+              title={translate('delete')}
               type="button"
             >
               <DeleteIcon />

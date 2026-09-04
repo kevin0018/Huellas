@@ -8,6 +8,7 @@ import AppointmentModal from '../Components/AppointmentModal';
 import { AppointmentStatus, type Appointment } from '../modules/appointment/domain/Appointment.js';
 import { useAppointments, type SaveAppointment } from '../features/appointments/useAppointments.js';
 import { AsyncContent } from '../shared/ui/AsyncContent.js';
+import { useTranslation } from '../i18n/hooks/hook.js';
 
 function AddIcon() {
   return (
@@ -17,11 +18,8 @@ function AddIcon() {
   );
 }
 
-function appointmentCount(count: number) {
-  return `${count} ${count === 1 ? 'cita' : 'citas'}`;
-}
-
 function AppointmentsView() {
+  const { translate } = useTranslation();
   const { appointments, pets, loading, actionLoading, error, clearError, reload, save, remove, petById } = useAppointments();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAppointment, setEditingAppointment] = useState<Appointment | undefined>();
@@ -43,7 +41,7 @@ function AppointmentsView() {
   };
 
   const handleDeleteAppointment = async (appointmentId: number) => {
-    if (!confirm('¿Estás seguro de que quieres eliminar esta cita?')) {
+    if (!confirm(translate('confirmDeleteAppointment'))) {
       return;
     }
 
@@ -87,9 +85,9 @@ function AppointmentsView() {
 
           <header className="mt-6 flex flex-col gap-5 border-b border-[var(--color-rule-strong)] pb-6 sm:flex-row sm:items-end sm:justify-between">
             <div className="min-w-0">
-              <h1 className="font-caprasimo text-4xl text-[var(--color-ink)] sm:text-5xl">Mis citas</h1>
+              <h1 className="font-caprasimo text-4xl text-[var(--color-ink)] sm:text-5xl">{translate('appointmentsTitle')}</h1>
               <p className="mt-2 max-w-[65ch] text-[var(--color-ink-soft)]">
-                Consulta lo próximo y conserva el historial de cada mascota.
+                {translate('appointmentsDescription')}
               </p>
             </div>
 
@@ -102,11 +100,11 @@ function AppointmentsView() {
                 type="button"
               >
                 <AddIcon />
-                Nueva cita
+                {translate('newAppointment')}
               </button>
               {pets.length === 0 && (
                 <p className="mt-2 max-w-72 text-sm text-[var(--color-warning)]" id="appointment-create-help">
-                  Añade una mascota antes de crear una cita.
+                  {translate('addPetBeforeAppointment')}
                 </p>
               )}
             </div>
@@ -117,21 +115,21 @@ function AppointmentsView() {
               loading={loading}
               error={error}
               empty={appointments.length === 0}
-              loadingLabel="Cargando citas…"
-              emptyTitle="Todavía no tienes citas"
+              loadingLabel={translate('loadingAppointments')}
+              emptyTitle={translate('noAppointmentsTitle')}
               emptyDescription={pets.length > 0
-                ? 'Crea una cita para empezar a organizar las próximas visitas.'
-                : 'Añade una mascota para poder programar su primera visita.'}
+                ? translate('noAppointmentsWithPets')
+                : translate('noAppointmentsWithoutPets')}
               onRetry={reload}
             >
               <div className="grid gap-10">
                 <section aria-labelledby="upcoming-appointments-title">
                   <div className="flex flex-wrap items-end justify-between gap-3">
                     <div>
-                      <h2 className="font-nunito text-2xl font-bold tracking-normal" id="upcoming-appointments-title">Próximas citas</h2>
-                      <p className="mt-1 text-sm text-[var(--color-ink-soft)]">La visita más cercana aparece primero.</p>
+                      <h2 className="font-nunito text-2xl font-bold tracking-normal" id="upcoming-appointments-title">{translate('upcomingAppointments')}</h2>
+                      <p className="mt-1 text-sm text-[var(--color-ink-soft)]">{translate('upcomingAppointmentsDescription')}</p>
                     </div>
-                    <p className="text-sm font-bold tabular-nums text-[var(--color-muted)]">{appointmentCount(upcomingAppointments.length)}</p>
+                    <p className="text-sm font-bold tabular-nums text-[var(--color-muted)]">{translate(upcomingAppointments.length === 1 ? 'appointmentCountOne' : 'appointmentCountMany', { count: upcomingAppointments.length })}</p>
                   </div>
 
                   {upcomingAppointments.length > 0 ? (
@@ -150,7 +148,7 @@ function AppointmentsView() {
                     </div>
                   ) : (
                     <p className="mt-4 rounded-[var(--radius-control)] border border-dashed border-[var(--color-rule-strong)] bg-[var(--color-surface)] p-5 text-sm text-[var(--color-ink-soft)]" role="status">
-                      No hay citas próximas. Cuando programes una visita, aparecerá aquí.
+                      {translate('noUpcomingAppointments')}
                     </p>
                   )}
                 </section>
@@ -159,10 +157,10 @@ function AppointmentsView() {
                   <section aria-labelledby="appointment-history-title">
                     <div className="flex flex-wrap items-end justify-between gap-3">
                       <div>
-                        <h2 className="font-nunito text-2xl font-bold tracking-normal" id="appointment-history-title">Historial</h2>
-                        <p className="mt-1 text-sm text-[var(--color-ink-soft)]">Visitas pasadas, completadas o canceladas.</p>
+                        <h2 className="font-nunito text-2xl font-bold tracking-normal" id="appointment-history-title">{translate('appointmentHistory')}</h2>
+                        <p className="mt-1 text-sm text-[var(--color-ink-soft)]">{translate('appointmentHistoryDescription')}</p>
                       </div>
-                      <p className="text-sm font-bold tabular-nums text-[var(--color-muted)]">{appointmentCount(historyAppointments.length)}</p>
+                      <p className="text-sm font-bold tabular-nums text-[var(--color-muted)]">{translate(historyAppointments.length === 1 ? 'appointmentCountOne' : 'appointmentCountMany', { count: historyAppointments.length })}</p>
                     </div>
 
                     <div className="mt-4 overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-rule)]">

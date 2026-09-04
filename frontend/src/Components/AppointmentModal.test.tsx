@@ -7,6 +7,8 @@ import userEvent from '@testing-library/user-event';
 import AppointmentModal from './AppointmentModal';
 import { AppointmentReason, AppointmentStatus } from '../modules/appointment/domain/Appointment';
 import { PetSize, PetType, Sex, type Pet } from '../modules/pet/domain/Pet';
+import LanguageProvider from '../i18n/LanguageProvider';
+import type { ReactNode } from 'react';
 
 const pets: Pet[] = [{
   id: 7,
@@ -19,6 +21,10 @@ const pets: Pet[] = [{
   sex: Sex.FEMALE,
   hasPassport: false,
 }];
+
+function renderWithLanguage(ui: ReactNode) {
+  return render(<LanguageProvider>{ui}</LanguageProvider>);
+}
 
 afterEach(cleanup);
 
@@ -41,7 +47,7 @@ describe('AppointmentModal', () => {
   it('exposes a named dialog, associated fields and accessible validation', async () => {
     const user = userEvent.setup();
 
-    render(
+    renderWithLanguage(
       <AppointmentModal
         isOpen
         onClose={vi.fn()}
@@ -72,7 +78,7 @@ describe('AppointmentModal', () => {
     const user = userEvent.setup();
     const onSubmit = vi.fn();
 
-    render(
+    renderWithLanguage(
       <AppointmentModal
         isOpen
         onClose={vi.fn()}
@@ -101,7 +107,7 @@ describe('AppointmentModal', () => {
   it('uses local date fields while editing and keeps the pet immutable', () => {
     const localDate = new Date(2030, 4, 12, 10, 30);
 
-    render(
+    renderWithLanguage(
       <AppointmentModal
         appointment={{
           id: 12,
@@ -129,7 +135,7 @@ describe('AppointmentModal', () => {
   it('opens native date and time pickers from their whole fields', async () => {
     const user = userEvent.setup();
 
-    render(
+    renderWithLanguage(
       <AppointmentModal
         isOpen
         onClose={vi.fn()}
@@ -155,7 +161,7 @@ describe('AppointmentModal', () => {
   it('shows save errors inline and blocks every close path while loading', () => {
     const onClose = vi.fn();
 
-    render(
+    renderWithLanguage(
       <AppointmentModal
         error="No se pudo guardar la cita"
         isOpen

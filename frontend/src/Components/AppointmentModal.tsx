@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import type { Pet } from '../modules/pet/domain/Pet.js';
 import type { Appointment, AppointmentReason, AppointmentStatus } from '../modules/appointment/domain/Appointment.js';
-import { AppointmentReason as AppointmentReasonEnum, AppointmentStatus as AppointmentStatusEnum, getAppointmentReasonLabel, getAppointmentStatusLabel } from '../modules/appointment/domain/Appointment.js';
+import { AppointmentReason as AppointmentReasonEnum, AppointmentStatus as AppointmentStatusEnum } from '../modules/appointment/domain/Appointment.js';
+import { appointmentReasonTranslationKeys, appointmentStatusTranslationKeys } from '../features/appointments/appointmentPresentation.js';
+import { useTranslation } from '../i18n/hooks/hook.js';
 import { Dialog } from '../shared/ui/Dialog.js';
 import PetSelector from './PetSelector.js';
 
@@ -51,6 +53,7 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
   loading = false,
   error,
 }) => {
+  const { translate } = useTranslation();
   const [selectedPetId, setSelectedPetId] = useState<number | undefined>(appointment?.petId);
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
@@ -106,23 +109,23 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
 
   return (
     <Dialog
-      closeLabel="Cerrar formulario de cita"
+      closeLabel={translate('closeAppointmentForm')}
       description={appointment
-        ? 'Actualiza los datos y el estado de esta cita.'
-        : 'Programa una visita para una de tus mascotas.'}
+        ? translate('editAppointmentDescription')
+        : translate('createAppointmentDescription')}
       initialFocusRef={appointment ? dateInputRef : petSelectRef}
       isOpen={isOpen}
       onClose={onClose}
       preventClose={loading}
       size="large"
-      title={appointment ? 'Editar cita' : 'Nueva cita'}
+      title={appointment ? translate('editAppointment') : translate('newAppointment')}
     >
       <form aria-busy={loading || undefined} className="modal-form" noValidate onSubmit={handleSubmit}>
         {error && <div className="form-alert" role="alert">{error}</div>}
 
         <PetSelector
           disabled={Boolean(appointment) || loading}
-          error={showValidation && missingPet ? 'Selecciona una mascota.' : undefined}
+          error={showValidation && missingPet ? translate('selectPetRequired') : undefined}
           inputRef={petSelectRef}
           onPetSelect={setSelectedPetId}
           pets={pets}
@@ -132,7 +135,7 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
 
         <div className="modal-form__grid">
           <div className="form-field">
-            <label className="form-label" htmlFor="appointment-date">Fecha</label>
+            <label className="form-label" htmlFor="appointment-date">{translate('appointmentDate')}</label>
             <input
               aria-describedby={showValidation && missingDate ? 'appointment-date-error' : undefined}
               aria-invalid={showValidation && missingDate || undefined}
@@ -147,11 +150,11 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
               type="date"
               value={selectedDate}
             />
-            {showValidation && missingDate && <span className="form-error" id="appointment-date-error">Selecciona una fecha.</span>}
+            {showValidation && missingDate && <span className="form-error" id="appointment-date-error">{translate('selectDateRequired')}</span>}
           </div>
 
           <div className="form-field">
-            <label className="form-label" htmlFor="appointment-time">Hora</label>
+            <label className="form-label" htmlFor="appointment-time">{translate('appointmentTime')}</label>
             <input
               aria-describedby={showValidation && missingTime ? 'appointment-time-error' : undefined}
               aria-invalid={showValidation && missingTime || undefined}
@@ -165,12 +168,12 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
               type="time"
               value={selectedTime}
             />
-            {showValidation && missingTime && <span className="form-error" id="appointment-time-error">Selecciona una hora.</span>}
+            {showValidation && missingTime && <span className="form-error" id="appointment-time-error">{translate('selectTimeRequired')}</span>}
           </div>
         </div>
 
         <div className="form-field">
-          <label className="form-label" htmlFor="appointment-reason">Motivo de la cita</label>
+          <label className="form-label" htmlFor="appointment-reason">{translate('appointmentReason')}</label>
           <select
             aria-describedby={showValidation && missingReason ? 'appointment-reason-error' : undefined}
             aria-invalid={showValidation && missingReason || undefined}
@@ -181,17 +184,17 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
             required
             value={selectedReason}
           >
-            <option value="">Selecciona un motivo...</option>
+            <option value="">{translate('selectReason')}</option>
             {Object.values(AppointmentReasonEnum).map((reason) => (
-              <option key={reason} value={reason}>{getAppointmentReasonLabel(reason)}</option>
+              <option key={reason} value={reason}>{translate(appointmentReasonTranslationKeys[reason])}</option>
             ))}
           </select>
-          {showValidation && missingReason && <span className="form-error" id="appointment-reason-error">Selecciona un motivo.</span>}
+          {showValidation && missingReason && <span className="form-error" id="appointment-reason-error">{translate('selectReasonRequired')}</span>}
         </div>
 
         {appointment && (
           <div className="form-field">
-            <label className="form-label" htmlFor="appointment-status">Estado</label>
+            <label className="form-label" htmlFor="appointment-status">{translate('appointmentStatus')}</label>
             <select
               className="form-control"
               disabled={loading}
@@ -200,7 +203,7 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
               value={selectedStatus}
             >
               {Object.values(AppointmentStatusEnum).map((status) => (
-                <option key={status} value={status}>{getAppointmentStatusLabel(status)}</option>
+                <option key={status} value={status}>{translate(appointmentStatusTranslationKeys[status])}</option>
               ))}
             </select>
           </div>
@@ -208,14 +211,14 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
 
         <div className="form-field">
           <label className="form-label" htmlFor="appointment-notes">
-            Notas adicionales <span className="form-label__optional">(opcional)</span>
+            {translate('appointmentNotes')} <span className="form-label__optional">({translate('optional')})</span>
           </label>
           <textarea
             className="form-control"
             disabled={loading}
             id="appointment-notes"
             onChange={(event) => setNotes(event.target.value)}
-            placeholder="Información adicional sobre la cita"
+            placeholder={translate('appointmentNotesPlaceholder')}
             rows={3}
             value={notes}
           />
@@ -223,11 +226,11 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
 
         <div className="modal-form__actions">
           <button className="ui-button ui-button--secondary" disabled={loading} onClick={onClose} type="button">
-            Cancelar
+            {translate('cancel')}
           </button>
           <button aria-busy={loading || undefined} className="ui-button" disabled={loading} type="submit">
             {loading && <span aria-hidden="true" className="ui-spinner" />}
-            {loading ? 'Guardando…' : appointment ? 'Actualizar cita' : 'Crear cita'}
+            {loading ? translate('saving') : appointment ? translate('updateAppointment') : translate('createAppointment')}
           </button>
         </div>
       </form>

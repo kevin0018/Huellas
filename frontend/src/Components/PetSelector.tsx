@@ -1,6 +1,7 @@
 import type { RefObject } from 'react';
 import type { Pet } from '../modules/pet/domain/Pet.js';
-import { getPetTypeLabel } from '../modules/pet/domain/Pet.js';
+import { useTranslation } from '../i18n/hooks/hook.js';
+import { petTypeTranslationKeys } from '../features/pets/petPresentation.js';
 
 interface PetSelectorProps {
   pets: Pet[];
@@ -23,21 +24,22 @@ function PetSelector({
   required = false,
   inputRef,
 }: PetSelectorProps) {
+  const { translate } = useTranslation();
   if (loading) {
-    return <div aria-live="polite" className="form-help">Cargando mascotas…</div>;
+    return <div aria-live="polite" className="form-help">{translate('loadingPets')}</div>;
   }
 
   if (pets.length === 0) {
     return (
       <div className="form-alert" role="status">
-        No tienes mascotas registradas. Registra una mascota primero para poder crear citas.
+        {translate('noPetsForAppointments')}
       </div>
     );
   }
 
   return (
     <div className="form-field">
-      <label className="form-label" htmlFor="appointment-pet">Mascota</label>
+      <label className="form-label" htmlFor="appointment-pet">{translate('appointmentPet')}</label>
       <select
         aria-describedby={error ? 'appointment-pet-error' : undefined}
         aria-invalid={Boolean(error) || undefined}
@@ -49,14 +51,14 @@ function PetSelector({
         required={required}
         value={selectedPetId || ''}
       >
-        <option value="">Selecciona una mascota...</option>
+        <option value="">{translate('selectPet')}</option>
         {pets.map((pet) => (
           <option key={pet.id} value={pet.id}>
-            {pet.name} · {getPetTypeLabel(pet.type)}{pet.race ? ` · ${pet.race}` : ''}
+            {pet.name} · {translate(petTypeTranslationKeys[pet.type])}{pet.race ? ` · ${pet.race}` : ''}
           </option>
         ))}
       </select>
-      {disabled && <span className="form-help">La mascota no puede cambiarse al editar una cita.</span>}
+      {disabled && <span className="form-help">{translate('petCannotChange')}</span>}
       {error && <span className="form-error" id="appointment-pet-error">{error}</span>}
     </div>
   );

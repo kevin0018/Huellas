@@ -7,6 +7,7 @@ import AppointmentsView from './AppointmentsView';
 import { AppointmentReason, AppointmentStatus, type Appointment } from '../modules/appointment/domain/Appointment';
 import { PetSize, PetType, Sex, type Pet } from '../modules/pet/domain/Pet';
 import { expectNoCriticalAccessibilityViolations } from '../test/accessibility';
+import LanguageProvider from '../i18n/LanguageProvider';
 
 const useAppointmentsMock = vi.hoisted(() => vi.fn());
 
@@ -48,7 +49,10 @@ const appointments: Appointment[] = [
   { id: 4, petId: 2, date: '2021-03-11T11:00:00.000Z', reason: AppointmentReason.OTHERS, status: AppointmentStatus.CANCELLED },
 ];
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  localStorage.clear();
+});
 
 beforeEach(() => {
   useAppointmentsMock.mockReturnValue({
@@ -67,7 +71,7 @@ beforeEach(() => {
 
 describe('AppointmentsView', () => {
   it('separates upcoming appointments from history in chronological order', async () => {
-    const { container } = render(<AppointmentsView />);
+    const { container } = render(<LanguageProvider><AppointmentsView /></LanguageProvider>);
 
     const upcoming = screen.getByRole('region', { name: 'Próximas citas' });
     const history = screen.getByRole('region', { name: 'Historial' });
@@ -82,5 +86,16 @@ describe('AppointmentsView', () => {
     expect(historyRows[0]).toHaveTextContent('Luna');
     expect(historyRows[1]).toHaveTextContent('Miso');
     await expectNoCriticalAccessibilityViolations(container);
+  });
+
+  it('localizes appointment content and date presentation', () => {
+    localStorage.setItem('language', 'en');
+    render(<LanguageProvider><AppointmentsView /></LanguageProvider>);
+
+    expect(screen.getByRole('heading', { name: 'My appointments' })).toBeInTheDocument();
+    const upcoming = screen.getByRole('region', { name: 'Upcoming appointments' });
+    expect(within(upcoming).getByText('Next appointment')).toBeInTheDocument();
+    expect(within(upcoming).getByText('Vaccination')).toBeInTheDocument();
+    expect(within(upcoming).getAllByText(/May 2035/i).length).toBeGreaterThan(0);
   });
 });

@@ -8,6 +8,7 @@ import HealthBookView from './HealthBookView';
 import type { HealthEvent } from '../modules/health/HealthEvent';
 import { PetSize, PetType, Sex, type Pet } from '../modules/pet/domain/Pet';
 import { expectNoCriticalAccessibilityViolations } from '../test/accessibility';
+import LanguageProvider from '../i18n/LanguageProvider';
 
 const services = vi.hoisted(() => ({
   healthEvents: {
@@ -92,13 +93,18 @@ const events: HealthEvent[] = [
 
 function renderView() {
   return render(
-    <MemoryRouter initialEntries={['/pets/7/health']}>
-      <Routes><Route element={<HealthBookView />} path="/pets/:petId/health" /></Routes>
-    </MemoryRouter>,
+    <LanguageProvider>
+      <MemoryRouter initialEntries={['/pets/7/health']}>
+        <Routes><Route element={<HealthBookView />} path="/pets/:petId/health" /></Routes>
+      </MemoryRouter>
+    </LanguageProvider>,
   );
 }
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  localStorage.clear();
+});
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -158,5 +164,16 @@ describe('HealthBookView', () => {
       type: 'GENERAL_CHECKUP',
     })));
     expect(services.healthEvents.create).not.toHaveBeenCalled();
+  });
+
+  it('localizes health event labels, dates and summary controls', async () => {
+    localStorage.setItem('language', 'en');
+    renderView();
+
+    expect(await screen.findByRole('heading', { name: 'Health book' })).toBeInTheDocument();
+    const timeline = screen.getByRole('region', { name: 'History' });
+    expect(within(timeline).getByText('Vaccine')).toBeInTheDocument();
+    expect(within(timeline).getByText(/1 May 2025/)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Prepare summary' })).toBeInTheDocument();
   });
 });
