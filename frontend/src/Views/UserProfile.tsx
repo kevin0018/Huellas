@@ -1,3 +1,5 @@
+import { LocalizedError, translateMessage, type LocalizedMessage } from '../i18n/message';
+import { useTranslation } from '../i18n/hooks/hook';
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import NavBar from "../Components/NavBar";
@@ -9,12 +11,13 @@ import type { User } from '../modules/auth/domain/User';
 import { isVolunteer, isOwner } from '../modules/auth/domain/User';
 
 export default function UserProfile() {
+  const { translate } = useTranslation();
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isVolunteerModalOpen, setIsVolunteerModalOpen] = useState(false);
   const [pendingVolunteerChange, setPendingVolunteerChange] = useState<boolean | null>(null);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<LocalizedMessage | null>('');
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -91,12 +94,9 @@ export default function UserProfile() {
         email: updatedUser.email,
         description: updatedUser.description || ''
       }));
-
-      // TODO: Add translation
       showToastMessage();
     } catch (error) {
-      // TODO: Add translation
-      setError(error instanceof Error ? error.message : 'Error al actualizar el perfil');
+      setError(error instanceof Error ? error.message : { translationKey: 'updateProfileError' });
     } finally {
       setIsLoading(false);
     }
@@ -106,14 +106,12 @@ export default function UserProfile() {
     e.preventDefault();
 
     if (formData.newPassword !== formData.confirmPassword) {
-      // TODO: Add translation
-      setError('Las contraseñas no coinciden');
+      setError({ translationKey: 'passwordMismatch' });
       return;
     }
 
     if (formData.newPassword.length < 6) {
-      // TODO: Add translation
-      setError('La contraseña debe tener al menos 6 caracteres');
+      setError({ translationKey: 'passwordTooShort' });
       return;
     }
 
@@ -130,12 +128,9 @@ export default function UserProfile() {
         newPassword: '',
         confirmPassword: ''
       }));
-
-      // TODO: Add translation
       showToastMessage();
     } catch (error) {
-      // TODO: Add translation
-      setError(error instanceof Error ? error.message : 'Error al cambiar la contraseña');
+      setError(error instanceof Error ? error.message : { translationKey: 'changePasswordError' });
     } finally {
       setIsLoading(false);
     }
@@ -167,14 +162,10 @@ export default function UserProfile() {
         isVolunteer: becomesVolunteer,
         description: updatedUser.description || ''
       }));
-
-      // TODO: Add translation
       showToastMessage();
     } catch (error) {
-      // TODO: Add translation
-      const message = error instanceof Error ? error.message : 'Error al actualizar el estado de voluntario';
-      setError(message);
-      throw error instanceof Error ? error : new Error(message);
+      setError(error instanceof Error ? error.message : { translationKey: 'volunteerStatusError' });
+      throw error instanceof Error ? error : new LocalizedError('volunteerStatusError');
     } finally {
       setIsLoading(false);
     }
@@ -197,7 +188,7 @@ export default function UserProfile() {
     return (
       <main className="workspace-page grid place-items-center" aria-live="polite">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--color-accent)]" aria-hidden="true" />
-        <span className="sr-only">Cargando perfil…</span>
+        <span className="sr-only">{translate('loadingProfile')}</span>
       </main>
     );
   }
@@ -210,18 +201,18 @@ export default function UserProfile() {
           <header className="workspace-header">
             <GoBackButton hideIfNoHistory />
             <div className="workspace-header__copy">
-              <h1 className="workspace-header__title">Tu perfil</h1>
+              <h1 className="workspace-header__title">{translate('yourProfile')}</h1>
               <p className="workspace-header__description">
-                Mantén tus datos al día y decide cómo quieres participar en la comunidad.
+                {translate('profileDescription')}
               </p>
             </div>
           </header>
 
           <div className="workspace-layout">
-            <aside className="workspace-rail" aria-label="Identidad y participación">
+            <aside className="workspace-rail" aria-label={translate('profileIdentity')}>
               <div className="workspace-rail__group profile-identity">
                 <div className="profile-identity__avatar">
-                  <img src="/media/pfp_sample.svg" alt="Avatar del perfil" />
+                  <img src="/media/pfp_sample.svg" alt={translate('profileAvatar')} />
                 </div>
                 <div>
                   <p className="profile-identity__name">{user.name} {user.lastName}</p>
@@ -230,9 +221,9 @@ export default function UserProfile() {
               </div>
 
               <div className="workspace-rail__group profile-role">
-                <p className="workspace-rail__label">Participación</p>
+                <p className="workspace-rail__label">{translate('participation')}</p>
                 <span className={`ui-status w-fit ${isVolunteer(user) ? 'ui-status--success' : 'ui-status--neutral'}`}>
-                  {isVolunteer(user) ? 'Perfil voluntario' : 'Perfil propietario'}
+                  {isVolunteer(user) ? translate('volunteerRole') : translate('ownerRole')}
                 </span>
                 {isOwner(user) && (
                   <button
@@ -241,7 +232,7 @@ export default function UserProfile() {
                     disabled={isLoading}
                     className={`ui-action px-4 py-2 ${isVolunteer(user) ? 'ui-action--danger' : 'ui-action--primary'}`}
                   >
-                    {isLoading ? 'Procesando…' : isVolunteer(user) ? 'Dejar el voluntariado' : 'Activar voluntariado'}
+                    {isLoading ? translate('processing') : isVolunteer(user) ? translate('leaveVolunteering') : translate('enableVolunteering')}
                   </button>
                 )}
               </div>
@@ -250,21 +241,21 @@ export default function UserProfile() {
             <div className="workspace-main">
               {error && (
                 <div className="workspace-alert ui-status--error" role="alert">
-                  {error}
+                  {translateMessage(error, translate)}
                 </div>
               )}
 
               <section className="workspace-section" aria-labelledby="profile-data-title">
                 <header className="workspace-section__header">
                   <div>
-                    <h2 id="profile-data-title" className="workspace-section__title">Datos personales</h2>
-                    <p className="workspace-section__description">Esta información identifica tu cuenta en Huellas.</p>
+                    <h2 id="profile-data-title" className="workspace-section__title">{translate('personalDetails')}</h2>
+                    <p className="workspace-section__description">{translate('personalDetailsDescription')}</p>
                   </div>
                 </header>
 
                 <form onSubmit={handleUpdateProfile} className="workspace-form-grid">
                   <div className="workspace-field">
-                  <label htmlFor="name" className="workspace-field__label">Nombre</label>
+                  <label htmlFor="name" className="workspace-field__label">{translate('name')}</label>
                   <input
                     type="text"
                     name="name"
@@ -273,13 +264,13 @@ export default function UserProfile() {
                     onChange={handleInputChange}
                     className="ui-control"
                     required
-                    placeholder="Nombre"
+                    placeholder={translate('name')}
                     disabled={isLoading}
                   />
                   </div>
 
                   <div className="workspace-field">
-                  <label htmlFor="lastName" className="workspace-field__label">Apellidos</label>
+                  <label htmlFor="lastName" className="workspace-field__label">{translate('lastNameLabel')}</label>
                   <input
                     type="text"
                     name="lastName"
@@ -288,13 +279,13 @@ export default function UserProfile() {
                     onChange={handleInputChange}
                     className="ui-control"
                     required
-                    placeholder="Apellidos"
+                    placeholder={translate('lastNameLabel')}
                     disabled={isLoading}
                   />
                   </div>
 
                   <div className="workspace-field workspace-field--full">
-                  <label htmlFor="email" className="workspace-field__label">Correo electrónico</label>
+                  <label htmlFor="email" className="workspace-field__label">{translate('emailLabel')}</label>
                   <input
                     type="email"
                     name="email"
@@ -303,27 +294,27 @@ export default function UserProfile() {
                     onChange={handleInputChange}
                     className="ui-control"
                     required
-                    placeholder="correo@ejemplo.com"
+                    placeholder={translate('emailExample')}
                     disabled={isLoading}
                   />
                   </div>
 
                   {isVolunteer(user) && (
                   <div className="workspace-field workspace-field--full">
-                    <label htmlFor="description" className="workspace-field__label">Descripción del voluntariado</label>
+                    <label htmlFor="description" className="workspace-field__label">{translate('volunteerDescriptionLabel')}</label>
                     <textarea
                       id="description"
                       name="description"
                       rows={3}
                       value={formData.description}
                       onChange={handleInputChange}
-                      placeholder="Describe tu experiencia, habilidades y motivación como voluntario..."
+                      placeholder={translate('volunteerDescriptionPlaceholder')}
                       className="ui-control"
                       disabled={isLoading || !isOwner(user)}
                       readOnly={!isOwner(user)}
                     />
                     {!isOwner(user) && (
-                      <p className="ui-text-muted text-xs">Este perfil solo permite consultar la descripción.</p>
+                      <p className="ui-text-muted text-xs">{translate('volunteerDescriptionReadOnly')}</p>
                     )}
                   </div>
                   )}
@@ -334,7 +325,7 @@ export default function UserProfile() {
                     disabled={isLoading}
                     className="ui-action ui-action--primary px-5 py-3"
                   >
-                    {isLoading ? 'Guardando…' : 'Guardar cambios'}
+                    {isLoading ? translate('saving') : translate('saveChanges')}
                   </button>
                   </div>
                 </form>
@@ -343,14 +334,14 @@ export default function UserProfile() {
               <section className="workspace-section" aria-labelledby="profile-security-title">
                 <header className="workspace-section__header">
                   <div>
-                    <h2 id="profile-security-title" className="workspace-section__title">Seguridad</h2>
-                    <p className="workspace-section__description">Cambia tu contraseña sin modificar el resto del perfil.</p>
+                    <h2 id="profile-security-title" className="workspace-section__title">{translate('security')}</h2>
+                    <p className="workspace-section__description">{translate('passwordChangeDescription')}</p>
                   </div>
                 </header>
 
                 <form onSubmit={handleChangePassword} className="workspace-form-grid">
                   <div className="workspace-field workspace-field--full">
-                  <label htmlFor="currentPassword" className="workspace-field__label">Contraseña actual</label>
+                  <label htmlFor="currentPassword" className="workspace-field__label">{translate('currentPassword')}</label>
                   <input
                     type="password"
                     name="currentPassword"
@@ -358,13 +349,13 @@ export default function UserProfile() {
                     value={formData.currentPassword}
                     onChange={handleInputChange}
                     className="ui-control"
-                    placeholder="Introduce tu contraseña actual"
+                    placeholder={translate('currentPasswordPlaceholder')}
                     disabled={isLoading}
                   />
                   </div>
 
                   <div className="workspace-field">
-                  <label htmlFor="newPassword" className="workspace-field__label">Nueva contraseña</label>
+                  <label htmlFor="newPassword" className="workspace-field__label">{translate('newPassword')}</label>
                   <input
                     type="password"
                     name="newPassword"
@@ -372,13 +363,13 @@ export default function UserProfile() {
                     value={formData.newPassword}
                     onChange={handleInputChange}
                     className="ui-control"
-                    placeholder="Introduce nueva contraseña"
+                    placeholder={translate('newPasswordPlaceholder')}
                     disabled={isLoading}
                   />
                   </div>
 
                   <div className="workspace-field">
-                  <label htmlFor="confirmPassword" className="workspace-field__label">Confirmar contraseña</label>
+                  <label htmlFor="confirmPassword" className="workspace-field__label">{translate('confirmPasswordLabel')}</label>
                   <input
                     type="password"
                     name="confirmPassword"
@@ -386,7 +377,7 @@ export default function UserProfile() {
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
                     className="ui-control"
-                    placeholder="Confirma la nueva contraseña"
+                    placeholder={translate('confirmNewPasswordPlaceholder')}
                     disabled={isLoading}
                   />
                   </div>
@@ -397,7 +388,7 @@ export default function UserProfile() {
                     disabled={isLoading || !formData.currentPassword || !formData.newPassword}
                     className="ui-action ui-action--primary px-5 py-3"
                   >
-                    {isLoading ? 'Cambiando…' : 'Cambiar contraseña'}
+                    {isLoading ? translate('changingPassword') : translate('changePassword')}
                   </button>
                   </div>
                 </form>
@@ -421,7 +412,7 @@ export default function UserProfile() {
           <svg aria-hidden="true" className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
-          <span className="font-medium">Cambios guardados</span>
+          <span className="font-medium">{translate('changesSaved')}</span>
         </div>
       )}
 

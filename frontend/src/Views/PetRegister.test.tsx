@@ -1,12 +1,17 @@
 // @vitest-environment jsdom
 
+import type { ReactElement } from 'react';
+import { TestLanguageProvider, switchLanguage } from '../test/language';
+
 import '@testing-library/jest-dom/vitest';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, render as rtlRender, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import PetRegister from './PetRegister';
 import { expectNoCriticalAccessibilityViolations } from '../test/accessibility';
+
+const render = (ui: ReactElement) => rtlRender(ui, { wrapper: TestLanguageProvider });
 
 const petRepository = vi.hoisted(() => ({
   create: vi.fn(),
@@ -24,6 +29,7 @@ vi.mock('../Components/GoBackButton', () => ({ default: () => null }));
 
 afterEach(() => {
   cleanup();
+  localStorage.clear();
   vi.clearAllMocks();
 });
 
@@ -121,4 +127,55 @@ describe('PetRegister', () => {
 
     expect(showPicker).toHaveBeenCalledOnce();
   });
+});
+
+it('switches a visible validation error and preserves form data when creating in Catalan', async () => {
+  const user = userEvent.setup();
+  petRepository.create.mockResolvedValue(undefined);
+  renderCreate();
+  await user.type(screen.getByLabelText('Nombre *'), 'Núvol');
+  await user.click(screen.getByRole('button', { name: 'Crear mascota' }));
+  expect(screen.getByRole('alert')).toHaveTextContent('Revisa los campos obligatorios');
+
+  switchLanguage('English');
+  expect(screen.getByRole('alert')).toHaveTextContent('Review the required fields before continuing.');
+  expect(screen.getByLabelText('Name *')).toHaveValue('Núvol');
+  expect(screen.getByLabelText('Date of birth *')).toHaveAccessibleDescription('Enter their date of birth.');
+  expect(screen.getByRole('option', { name: 'Dog' })).toHaveValue('dog');
+
+  switchLanguage('Català');
+  expect(screen.getByRole('alert')).toHaveTextContent('Revisa els camps obligatoris');
+  expect(screen.getByLabelText('Data de naixement *')).toHaveAttribute('lang', 'ca-ES');
+  await user.type(screen.getByLabelText('Data de naixement *'), '2022-04-03');
+  await user.click(screen.getByRole('radio', { name: 'Femella' }));
+  await user.click(screen.getByRole('radio', { name: 'Sí' }));
+  await user.type(screen.getByLabelText('Número de passaport'), 'ES-42');
+  await user.click(screen.getByRole('button', { name: 'Crea la mascota' }));
+  expect(petRepository.create).toHaveBeenCalledWith(expect.objectContaining({
+    name: 'Núvol', birthDate: '2022-04-03', type: 'dog', sex: 'female', hasPassport: true, passportNumber: 'ES-42',
+  }));
+  await screen.findByText('Inicio cargado');
+});
+
+it('keeps unsaved pet edits when switching from Catalan to English', async () => {
+  localStorage.setItem('language', 'ca');
+  petRepository.getPetById.mockResolvedValue({
+    id: 9, name: 'Miso', type: 'cat', size: 'small', sex: 'female', birthDate: '2022-04-03', hasPassport: false,
+  });
+  petRepository.update.mockResolvedValue(undefined);
+  const user = userEvent.setup();
+  render(<MemoryRouter initialEntries={['/pets/9/edit']}><Routes>
+    <Route path="/pets/:id/edit" element={<PetRegister />} />
+    <Route path="/user-home" element={<p>Inicio cargado</p>} />
+  </Routes></MemoryRouter>);
+  await screen.findByDisplayValue('Miso');
+  await user.type(screen.getByLabelText('Nom *'), ' II');
+  switchLanguage('English');
+  expect(screen.getByRole('heading', { name: 'Edit pet' })).toBeInTheDocument();
+  expect(screen.getByLabelText('Name *')).toHaveValue('Miso II');
+  expect(screen.getByRole('link', { name: 'Go to procedures' })).toHaveAttribute('href', '/procedures-view/9');
+  expect(petRepository.getPetById).toHaveBeenCalledOnce();
+  await user.click(screen.getByRole('button', { name: 'Save changes' }));
+  expect(petRepository.update).toHaveBeenCalledWith(9, expect.objectContaining({ name: 'Miso II', type: 'cat' }));
+  await screen.findByText('Inicio cargado');
 });

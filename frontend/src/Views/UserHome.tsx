@@ -1,3 +1,4 @@
+import { localeByLanguage } from '../i18n/locale';
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import NavBar from "../Components/NavBar";
@@ -25,7 +26,7 @@ function CalendarIcon() {
 }
 
 function UserHomeContent() {
-  const { translate } = useTranslation();
+  const { translate, currentLanguage } = useTranslation();
   const navigate = useNavigate();
 
   const [user, setUser] = useState<User | null>(null);
@@ -132,7 +133,7 @@ function UserHomeContent() {
         <div className="relative mx-auto w-full max-w-[var(--page-max)]">
           <header className="max-w-3xl pb-8 sm:pb-10">
             <p className="mb-2 text-sm font-bold uppercase tracking-[0.16em] text-[var(--color-accent)]">
-              Tu agenda de cuidados
+              {translate('careAgenda')}
             </p>
             <h1 className="text-[clamp(2.25rem,8vw,4.25rem)]">
               {translate("hello")}, {user.name}
@@ -157,17 +158,17 @@ function UserHomeContent() {
                     <div>
                       <p className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.16em] text-[var(--color-accent)]">
                         <span className="size-2 rounded-full bg-[var(--color-accent)]" aria-hidden="true" />
-                        Ahora
+                        {translate('now')}
                       </p>
                       <h2 id="now-title" className="mt-2 text-[clamp(1.55rem,5vw,2.45rem)] text-[var(--color-ink)]">
                         {urgentCount > 0
-                          ? `${urgentCount} ${urgentCount === 1 ? "cuidado necesita" : "cuidados necesitan"} tu atención`
-                          : "Todo al día por ahora"}
+                          ? translate(urgentCount === 1 ? 'urgentCareOne' : 'urgentCareMany', { count: urgentCount })
+                          : translate('allCareCurrent')}
                       </h2>
                       <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--color-ink-soft)] sm:text-base">
                         {urgentCount > 0
-                          ? "Revisa los avisos activos y deja registrada cada acción cuando la completes."
-                          : "Puedes consultar tus citas o revisar la cartilla de cualquier mascota cuando lo necesites."}
+                          ? translate('urgentCareDescription')
+                          : translate('currentCareDescription')}
                       </p>
                     </div>
                     <Link
@@ -175,7 +176,7 @@ function UserHomeContent() {
                       className="ui-contrast-action ui-lift inline-flex min-h-11 shrink-0 items-center justify-center gap-2 self-start whitespace-nowrap rounded-[var(--radius-control)] bg-[var(--color-accent)] px-4 py-2 font-bold no-underline sm:self-auto"
                     >
                       <CalendarIcon />
-                      Ver mis citas
+                      {translate('myAppointmentsLink')}
                     </Link>
                   </div>
                 </section>
@@ -183,16 +184,16 @@ function UserHomeContent() {
                 <section className="rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-card)] sm:p-7" aria-labelledby="upcoming-title">
                   <div className="flex flex-col gap-5 border-b border-[var(--color-rule)] pb-5 xl:flex-row xl:items-end xl:justify-between">
                     <div>
-                      <p className="text-sm font-bold uppercase tracking-[0.16em] text-[var(--color-accent)]">Próximamente</p>
-                      <h2 id="upcoming-title" className="mt-2 text-2xl sm:text-3xl">Siguientes cuidados</h2>
+                      <p className="text-sm font-bold uppercase tracking-[0.16em] text-[var(--color-accent)]">{translate('planSoon')}</p>
+                      <h2 id="upcoming-title" className="mt-2 text-2xl sm:text-3xl">{translate('upcomingCare')}</h2>
                       <p className="mt-2 max-w-xl text-sm text-[var(--color-ink-soft)]">
-                        Una prioridad por mascota, calculada desde sus citas y su plan preventivo.
+                        {translate('upcomingCareDescription')}
                       </p>
                     </div>
 
                     {reminderFeed && (
                       <fieldset className="grid gap-3 text-sm text-[var(--color-ink-soft)]" disabled={savingPreferences}>
-                        <legend className="sr-only">Preferencias de recordatorios</legend>
+                        <legend className="sr-only">{translate('reminderPreferences')}</legend>
                         <label className="flex min-h-11 cursor-pointer items-center gap-3 font-semibold">
                           <input
                             type="checkbox"
@@ -200,17 +201,17 @@ function UserHomeContent() {
                             checked={reminderFeed.preferences.enabled}
                             onChange={(event) => void updatePreferences(event.target.checked, reminderFeed.preferences.leadDays)}
                           />
-                          Notificaciones en la aplicación
+                          {translate('inAppNotifications')}
                         </label>
                         <label className="flex min-h-11 items-center gap-2 font-semibold">
-                          <span>Avisar con</span>
+                          <span>{translate('notifyInAdvance')}</span>
                           <select
                             className="min-h-11 rounded-[var(--radius-control)] border border-[var(--color-rule-strong)] bg-[var(--color-surface-raised)] px-3 text-[var(--color-ink)]"
                             value={reminderFeed.preferences.leadDays}
                             onChange={(event) => void updatePreferences(reminderFeed.preferences.enabled, Number(event.target.value))}
-                            aria-label="Días de antelación del aviso"
+                            aria-label={translate('reminderLeadDays')}
                           >
-                            {[7, 14, 30, 60].map((days) => <option key={days} value={days}>{days} días</option>)}
+                            {[7, 14, 30, 60].map((days) => <option key={days} value={days}>{translate('dayCount', { count: days })}</option>)}
                           </select>
                         </label>
                       </fieldset>
@@ -218,7 +219,7 @@ function UserHomeContent() {
                   </div>
 
                   <div className="mt-5" aria-live="polite">
-                    {savingPreferences && <p className="text-sm text-[var(--color-ink-soft)]">Guardando preferencias…</p>}
+                    {savingPreferences && <p className="text-sm text-[var(--color-ink-soft)]">{translate('savingPreferences')}</p>}
                     {actionError && <p className="rounded-[var(--radius-control)] border border-[var(--color-error)] p-3 text-sm font-semibold text-[var(--color-error)]" role="alert">{actionError}</p>}
                   </div>
 
@@ -229,29 +230,29 @@ function UserHomeContent() {
                         return (
                           <article key={reminder.id} className="flex min-w-0 flex-col rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-surface-raised)] p-5">
                             <p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--color-accent)]">
-                              {reminder.petName} · {reminder.source === "APPOINTMENT" ? "Cita" : "Prevención"}
+                              {reminder.petName} · {reminder.source === "APPOINTMENT" ? translate('reminderAppointment') : translate('prevention')}
                             </p>
                             <h3 className="mt-2 text-xl">{reminder.title}</h3>
                             <time className="mt-2 text-sm font-semibold text-[var(--color-ink-soft)]" dateTime={reminder.dueAt}>
-                              {new Date(reminder.dueAt).toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" })}
+                              {new Date(reminder.dueAt).toLocaleDateString(localeByLanguage[currentLanguage], { day: "numeric", month: "long", year: "numeric" })}
                             </time>
                             {reminder.notifyNow && (
                               <span className="mt-3 w-fit rounded-[var(--radius-pill)] border border-[var(--color-warning)] px-3 py-1 text-xs font-bold text-[var(--color-warning)]">
-                                Aviso activo
+                                {translate('activeReminder')}
                               </span>
                             )}
                             <div className="mt-auto grid gap-2 pt-5 sm:grid-cols-2">
                               <button type="button" disabled={pendingReminderId !== null} onClick={() => void reminderAction(reminder.id, "complete")} className="ui-contrast-action min-h-11 whitespace-nowrap rounded-[var(--radius-control)] bg-[var(--color-success)] px-3 py-2 text-sm font-bold disabled:cursor-wait disabled:opacity-60">
-                                {isPending ? "Actualizando…" : "Completar"}
+                                {isPending ? translate('updating') : translate('complete')}
                               </button>
                               <button type="button" disabled={pendingReminderId !== null} onClick={() => void reminderAction(reminder.id, "postpone")} className="min-h-11 whitespace-nowrap rounded-[var(--radius-control)] border border-[var(--color-warning)] px-3 py-2 text-sm font-bold text-[var(--color-warning)] disabled:cursor-wait disabled:opacity-60">
-                                Posponer 7 días
+                                {translate('postponeWeek')}
                               </button>
                               <Link to={`/pets/${reminder.petId}/health`} className="inline-flex min-h-11 items-center justify-center whitespace-nowrap rounded-[var(--radius-control)] border border-[var(--color-accent)] px-3 py-2 text-sm font-bold text-[var(--color-accent)] no-underline">
-                                Abrir cartilla
+                                {translate('openHealthBook')}
                               </Link>
                               <button type="button" disabled={pendingReminderId !== null} onClick={() => void reminderAction(reminder.id, "cancel")} className="min-h-11 whitespace-nowrap rounded-[var(--radius-control)] px-3 py-2 text-sm font-bold text-[var(--color-error)] underline decoration-current underline-offset-4 disabled:cursor-wait disabled:opacity-60">
-                                Cancelar aviso
+                                {translate('cancelReminder')}
                               </button>
                             </div>
                           </article>
@@ -259,23 +260,23 @@ function UserHomeContent() {
                       })}
                       {nextByPet.length === 0 && (
                         <p className="md:col-span-2 rounded-[var(--radius-control)] border border-dashed border-[var(--color-rule-strong)] p-5 text-sm text-[var(--color-ink-soft)]" role="status">
-                          No hay acciones pendientes. Cuando haya una cita o cuidado próximo, aparecerá aquí.
+                          {translate('noPendingCare')}
                         </p>
                       )}
                     </div>
                   ) : (
                     <p className="mt-5 rounded-[var(--radius-control)] border border-dashed border-[var(--color-rule-strong)] p-5 text-sm text-[var(--color-ink-soft)]" role="status">
-                      Los recordatorios están pausados. Activa las notificaciones para ver aquí las próximas prioridades.
+                      {translate('remindersPaused')}
                     </p>
                   )}
                 </section>
               </div>
 
               <aside className="rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-card)] sm:p-7" aria-labelledby="pets-title">
-                <p className="text-sm font-bold uppercase tracking-[0.16em] text-[var(--color-accent)]">Mascotas</p>
-                <h2 id="pets-title" className="mt-2 text-2xl sm:text-3xl">Tu familia</h2>
+                <p className="text-sm font-bold uppercase tracking-[0.16em] text-[var(--color-accent)]">{translate('pets')}</p>
+                <h2 id="pets-title" className="mt-2 text-2xl sm:text-3xl">{translate('yourFamily')}</h2>
                 <p className="mt-2 text-sm text-[var(--color-ink-soft)]">
-                  Entra en cada perfil para consultar su cartilla y sus datos de salud.
+                  {translate('familyDescription')}
                 </p>
 
                 <div className="mt-6">
@@ -283,9 +284,9 @@ function UserHomeContent() {
                     <PetAvatarGrid pets={pets} />
                   ) : (
                     <div className="rounded-[var(--radius-control)] border border-dashed border-[var(--color-rule-strong)] p-5" role="status">
-                      <h3 className="text-lg">Todavía no tienes mascotas</h3>
+                      <h3 className="text-lg">{translate('noPetsYet')}</h3>
                       <p className="mt-2 text-sm text-[var(--color-ink-soft)]">
-                        Añade la primera para empezar a gestionar su cartilla.
+                        {translate('addFirstPet')}
                       </p>
                     </div>
                   )}
@@ -296,7 +297,7 @@ function UserHomeContent() {
                   className="ui-contrast-action ui-lift ui-hover-accent-fill mt-6 inline-flex min-h-11 w-full items-center justify-center gap-2 whitespace-nowrap rounded-[var(--radius-control)] bg-[var(--color-accent)] px-4 py-2 font-bold no-underline"
                 >
                   <PawIcon />
-                  Añadir mascota
+                  {translate('addPetTitle')}
                 </Link>
               </aside>
             </div>

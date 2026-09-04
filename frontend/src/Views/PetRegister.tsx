@@ -1,3 +1,6 @@
+import { translateMessage, type LocalizedMessage } from '../i18n/message';
+import { localeByLanguage } from '../i18n/locale';
+import { useTranslation } from '../i18n/hooks/hook';
 import React from "react";
 import GoBackButton from '../Components/GoBackButton';
 import NavBar from "../Components/NavBar";
@@ -16,6 +19,7 @@ function openDatePicker(event: React.MouseEvent<HTMLInputElement>) {
 }
 
 const PetRegister: React.FC = () => {
+  const { translate, currentLanguage } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const isEdit = !!id;
@@ -23,7 +27,7 @@ const PetRegister: React.FC = () => {
   const repo = applicationServices.pets;
 
   const [saving, setSaving] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
+  const [error, setError] = React.useState<LocalizedMessage | null>(null);
   const [submitted, setSubmitted] = React.useState(false);
   const nameInputRef = React.useRef<HTMLInputElement>(null);
   const birthDateInputRef = React.useRef<HTMLInputElement>(null);
@@ -96,7 +100,7 @@ const PetRegister: React.FC = () => {
     setError(null);
 
     if (!form.name.trim() || !form.birthDate) {
-      setError('Revisa los campos obligatorios antes de continuar.');
+      setError({ translationKey: 'petRequiredFields' });
       queueMicrotask(() => {
         if (!form.name.trim()) nameInputRef.current?.focus();
         else birthDateInputRef.current?.focus();
@@ -166,82 +170,82 @@ const PetRegister: React.FC = () => {
               hideIfNoHistory
             />
             <h1 className="form-page__title font-caprasimo">
-              {isEdit ? 'Editar mascota' : 'Añadir mascota'}
+              {isEdit ? translate('editPetTitle') : translate('addPetTitle')}
             </h1>
             <p className="form-page__description mx-auto">
-              Guarda sus datos básicos y la información que puede ayudar durante una consulta.
+              {translate('petRegisterDescription')}
             </p>
           </header>
 
           <form aria-busy={saving || undefined} className="form-surface form-stack gap-5" noValidate onSubmit={onSubmit}>
-            {error && <p className="form-alert" role="alert">{error}</p>}
+            {error && <p className="form-alert" role="alert">{translateMessage(error, translate)}</p>}
 
             <section aria-labelledby="pet-profile-heading" className="form-section content-start gap-3">
               <div className="grid gap-1">
-                <h2 className="form-section__title" id="pet-profile-heading">Datos básicos</h2>
-                <p className="form-section__description">Su identidad y los datos que usarás con más frecuencia.</p>
+                <h2 className="form-section__title" id="pet-profile-heading">{translate('petBasicDetails')}</h2>
+                <p className="form-section__description">{translate('petBasicDetailsDescription')}</p>
               </div>
 
               <div className="grid min-w-0 items-start gap-x-4 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
                 <div className="form-field">
-                  <label htmlFor="name" className="form-label">Nombre *</label>
+                  <label htmlFor="name" className="form-label">{translate('name')} *</label>
                   <input id="name" value={form.name} onChange={(e) => onChange("name", e.target.value)}
                     aria-describedby={missingName ? 'pet-name-error' : undefined}
                     aria-invalid={missingName || undefined}
                     className="form-control" ref={nameInputRef} required />
-                  {missingName && <span className="form-error" id="pet-name-error">Escribe el nombre de tu mascota.</span>}
+                  {missingName && <span className="form-error" id="pet-name-error">{translate('petNameRequired')}</span>}
                 </div>
 
                 <div className="form-field">
-                  <label htmlFor="type" className="form-label">Tipo de animal *</label>
+                  <label htmlFor="type" className="form-label">{translate('animalType')} *</label>
                   <select id="type" value={form.type} onChange={(e) => onChange("type", e.target.value as PetType)}
                     className="form-control" required>
-                    <option value="dog">Perro</option>
-                    <option value="cat">Gato</option>
-                    <option value="ferret">Hurón</option>
+                    <option value="dog">{translate('petTypeDog')}</option>
+                    <option value="cat">{translate('petTypeCat')}</option>
+                    <option value="ferret">{translate('petTypeFerret')}</option>
                   </select>
                 </div>
 
                 <div className="form-field">
-                  <label htmlFor="birthDate" className="form-label">Fecha de nacimiento *</label>
-                  <input id="birthDate" required type="date" value={form.birthDate}
+                  <label htmlFor="birthDate" className="form-label">{translate('birthDate')} *</label>
+                  <input id="birthDate" required type="date" lang={localeByLanguage[currentLanguage]} value={form.birthDate}
                     onChange={(e) => onChange("birthDate", e.target.value)}
                     onClick={openDatePicker}
                     aria-describedby={missingBirthDate ? 'pet-birth-date-error' : undefined}
                     aria-invalid={missingBirthDate || undefined}
                     className="form-control" ref={birthDateInputRef} />
-                  {missingBirthDate && <span className="form-error" id="pet-birth-date-error">Indica su fecha de nacimiento.</span>}
+                  {missingBirthDate && <span className="form-error" id="pet-birth-date-error">{translate('petBirthDateRequired')}</span>}
                 </div>
 
                 <div className="form-field">
-                  <label htmlFor="race" className="form-label">Raza</label>
+                  <label htmlFor="race" className="form-label">{translate('breed')}</label>
                   <input id="race" value={form.race ?? ''} onChange={(e) => onChange("race", e.target.value)}
-                    placeholder="Desconocida"
+                    placeholder={translate('unknownBreed')}
                     className="form-control" />
                 </div>
 
                 <div className="form-field">
-                  <label htmlFor="size" className="form-label">Tamaño</label>
+                  <label htmlFor="size" className="form-label">{translate('petSize')}</label>
                   <select id="size" required value={form.size} onChange={(e) => onChange("size", e.target.value as PetSize)}
                     className="form-control">
-                    <option value="large">Grande</option>
-                    <option value="medium">Mediano</option>
-                    <option value="small">Pequeño</option>
+                    <option value="large">{translate('petSizeLarge')}</option>
+                    <option value="medium">{translate('petSizeMedium')}</option>
+                    <option value="small">{translate('petSizeSmall')}</option>
                   </select>
                 </div>
 
                 <fieldset className="form-choice-set">
-                  <legend className="form-legend">Sexo *</legend>
+                  <legend className="form-legend">{translate('petSex')} *</legend>
                   <div className="form-choice-grid">
                     <label className="form-choice">
                       <input type="radio" name="sex" value="male" checked={form.sex === "male"}
                         onChange={() => onChange("sex", "male" as Sex)} />
-                      <span>Macho</span>
+                      <span>{translate('petSexMale')}</span>
                     </label>
                     <label className="form-choice">
                       <input type="radio" name="sex" value="female" checked={form.sex === "female"}
                         onChange={() => onChange("sex", "female" as Sex)} />
-                      <span>Hembra</span>
+                      <span>{translate('petSexFemale')}</span>
                     </label>
                   </div>
                 </fieldset>
@@ -250,44 +254,44 @@ const PetRegister: React.FC = () => {
 
             <section aria-labelledby="pet-identification-heading" className="form-section content-start gap-3">
               <div className="grid gap-1">
-                <h2 className="form-section__title" id="pet-identification-heading">Identificación y viaje</h2>
-                <p className="form-section__description">Datos útiles si se pierde o viaja contigo.</p>
+                <h2 className="form-section__title" id="pet-identification-heading">{translate('petTravelDetails')}</h2>
+                <p className="form-section__description">{translate('petTravelDescription')}</p>
               </div>
 
               <div className={`grid min-w-0 items-start gap-x-4 gap-y-3 sm:grid-cols-2 ${form.hasPassport ? 'lg:grid-cols-4' : 'lg:grid-cols-3'}`}>
                 <div className="form-field">
-                  <label htmlFor="microchipCode" className="form-label">Código de microchip</label>
+                  <label htmlFor="microchipCode" className="form-label">{translate('microchipCode')}</label>
                   <input id="microchipCode" value={form.microchipCode ?? ''} onChange={(e) => onChange("microchipCode", e.target.value)}
-                    placeholder="Sin microchip o desconocido"
+                    placeholder={translate('unknownMicrochip')}
                     className="form-control" />
                 </div>
 
                 <div className="form-field">
-                  <label htmlFor="countryOfOrigin" className="form-label">País de origen</label>
+                  <label htmlFor="countryOfOrigin" className="form-label">{translate('countryOfOrigin')}</label>
                   <input id="countryOfOrigin" value={form.countryOfOrigin ?? ''}
                     onChange={(e) => onChange("countryOfOrigin", e.target.value)}
                     className="form-control" />
                 </div>
 
                 <fieldset className="form-choice-set">
-                  <legend className="form-legend">¿Tiene pasaporte?</legend>
+                  <legend className="form-legend">{translate('hasPassport')}</legend>
                   <div className="form-choice-grid">
                     <label className="form-choice">
                       <input type="radio" name="hasPassport" value="yes" checked={form.hasPassport === true}
                         onChange={() => onChange("hasPassport", true)} />
-                      <span>Sí</span>
+                      <span>{translate('yes')}</span>
                     </label>
                     <label className="form-choice">
                       <input type="radio" name="hasPassport" value="no" checked={form.hasPassport === false}
                         onChange={() => onChange("hasPassport", false)} />
-                      <span>No</span>
+                      <span>{translate('no')}</span>
                     </label>
                   </div>
                 </fieldset>
 
                 {form.hasPassport && (
                   <div className="form-field">
-                    <label htmlFor="passportNumber" className="form-label">Número de pasaporte</label>
+                    <label htmlFor="passportNumber" className="form-label">{translate('passportNumber')}</label>
                     <input id="passportNumber" value={form.passportNumber ?? ''}
                       onChange={(e) => onChange("passportNumber", e.target.value)}
                       className="form-control" />
@@ -298,15 +302,15 @@ const PetRegister: React.FC = () => {
 
             <section aria-labelledby="pet-health-heading" className="form-section content-start gap-3">
               <div className="grid gap-1">
-                <h2 className="form-section__title" id="pet-health-heading">Información de salud</h2>
-                <p className="form-section__description">Lo que conviene tener a mano durante una consulta.</p>
+                <h2 className="form-section__title" id="pet-health-heading">{translate('petHealthInformation')}</h2>
+                <p className="form-section__description">{translate('petHealthDescription')}</p>
               </div>
 
               <div className="grid min-w-0 items-start gap-x-4 gap-y-3 md:grid-cols-2">
                 {(['allergies', 'activeMedications', 'medicalConditions'] as const).map((field) => (
                   <div className="form-field" key={field}>
                     <label htmlFor={field} className="form-label">
-                      {field === 'allergies' ? 'Alergias' : field === 'activeMedications' ? 'Medicación activa' : 'Condiciones relevantes'}
+                      {field === 'allergies' ? translate('allergies') : field === 'activeMedications' ? translate('activeMedications') : translate('medicalConditions')}
                     </label>
                     <textarea id={field} rows={2} value={form[field] ?? ''} onChange={(event) => onChange(field, event.target.value)}
                       className="form-control" />
@@ -314,7 +318,7 @@ const PetRegister: React.FC = () => {
                 ))}
 
                 <div className="form-field">
-                  <label htmlFor="notes" className="form-label">Comentarios adicionales</label>
+                  <label htmlFor="notes" className="form-label">{translate('additionalComments')}</label>
                   <textarea id="notes" rows={2} value={form.notes ?? ''}
                     onChange={(e) => onChange("notes", e.target.value)}
                     className="form-control" />
@@ -326,12 +330,12 @@ const PetRegister: React.FC = () => {
               {isEdit && (
                 <Link to={`/procedures-view/${id}`} className="ui-button ui-button--secondary w-full sm:w-auto">
                   <img src="/media/agenda_icon.svg" alt="" aria-hidden="true" className="h-5 w-5" />
-                  Ir a procedimientos
+                  {translate('goToProcedures')}
                 </Link>
               )}
               <button aria-busy={saving || undefined} className="ui-button w-full sm:w-auto" type="submit" disabled={saving}>
                 {saving && <span aria-hidden="true" className="ui-spinner" />}
-                {saving ? "Guardando…" : isEdit ? "Guardar cambios" : "Crear mascota"}
+                {saving ? translate('saving') : isEdit ? translate('saveChanges') : translate('createPet')}
               </button>
             </div>
           </form>

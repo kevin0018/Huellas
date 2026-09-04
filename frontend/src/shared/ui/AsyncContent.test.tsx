@@ -1,11 +1,16 @@
 // @vitest-environment jsdom
 
+import type { ReactElement } from 'react';
+import { TestLanguageProvider } from '../../test/language';
+
 import '@testing-library/jest-dom/vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render as rtlRender, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AsyncContent } from './AsyncContent';
 
-afterEach(cleanup);
+const render = (ui: ReactElement) => rtlRender(ui, { wrapper: TestLanguageProvider });
+
+afterEach(() => { cleanup(); localStorage.clear(); });
 
 const renderState = (overrides: Partial<React.ComponentProps<typeof AsyncContent>> = {}) => render(
   <AsyncContent

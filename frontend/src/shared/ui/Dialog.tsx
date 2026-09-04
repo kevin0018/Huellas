@@ -1,3 +1,4 @@
+import { useTranslation } from '../../i18n/hooks/hook';
 import { useEffect, useId, useRef, type ReactNode, type RefObject } from 'react';
 
 interface DialogProps {
@@ -14,7 +15,7 @@ interface DialogProps {
 
 export function Dialog({
   children,
-  closeLabel = 'Cerrar',
+  closeLabel,
   description,
   initialFocusRef,
   isOpen,
@@ -23,6 +24,7 @@ export function Dialog({
   size = 'medium',
   title,
 }: DialogProps) {
+  const { translate } = useTranslation();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const returnFocusRef = useRef<HTMLElement | null>(null);
   const titleId = useId();
@@ -88,7 +90,7 @@ export function Dialog({
             {description && <p className="dialog__description" id={descriptionId}>{description}</p>}
           </div>
           <button
-            aria-label={closeLabel}
+            aria-label={closeLabel ?? translate('close')}
             className="dialog__close"
             disabled={preventClose}
             onClick={requestClose}

@@ -1,3 +1,4 @@
+import { useTranslation } from '../i18n/hooks/hook';
 import { useCallback, useEffect, useMemo } from "react";
 import {type To, useLocation, useNavigate } from "react-router-dom";
 
@@ -40,12 +41,14 @@ function useCanGoBack() {
 
 export default function GoBackButton({
   fallback = "/",
-  label = "Atrás",
+  label,
   hideIfNoHistory = false,
   enableHotkey = true,
   variant = "ghost",
   className,
 }: GoBackButtonProps) {
+  const { translate } = useTranslation();
+  const buttonLabel = label ?? translate('back');
   const navigate = useNavigate();
   const location = useLocation();
   const canGoBack = useCanGoBack();
@@ -93,14 +96,14 @@ export default function GoBackButton({
       onClick={handleClick}
       aria-label={
         canGoBack
-          ? `Volver a la página anterior desde ${location.pathname}`
-          : `Ir a ${typeof fallback === "string" ? fallback : "la página previa"}`
+          ? translate('backFromPage', { path: location.pathname })
+          : translate('goToPage', { path: typeof fallback === 'string' ? fallback : translate('previousPage') })
       }
-      title={label}
+      title={buttonLabel}
       className={cx(baseStyles, variantStyles, className)}
     >
       <ArrowLeftIcon className="size-6" />
-      <span>{label}</span>
+      <span>{buttonLabel}</span>
     </button>
   );
 }

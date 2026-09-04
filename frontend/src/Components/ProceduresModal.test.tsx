@@ -1,11 +1,16 @@
 // @vitest-environment jsdom
 
+import type { ReactElement } from 'react';
+import { TestLanguageProvider, switchLanguage } from '../test/language';
+
 import '@testing-library/jest-dom/vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render as rtlRender, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import type { PetProcedure } from '../modules/pet/domain/PetProcedure';
 import ProcedureModal from './ProceduresModal';
+
+const render = (ui: ReactElement) => rtlRender(ui, { wrapper: TestLanguageProvider });
 
 beforeAll(() => {
   Object.defineProperty(HTMLDialogElement.prototype, 'showModal', {
@@ -22,7 +27,7 @@ beforeAll(() => {
   });
 });
 
-afterEach(cleanup);
+afterEach(() => { cleanup(); localStorage.clear(); });
 
 const procedure: PetProcedure = {
   id: 7,
@@ -115,4 +120,25 @@ describe('ProcedureModal', () => {
 
     expect(showPicker).toHaveBeenCalledOnce();
   });
+});
+
+it('switches the open form, preserves edits and translates a visible fallback error', async () => {
+  const user = userEvent.setup();
+  const onModalSubmit = vi.fn().mockRejectedValue(null);
+  const onClose = vi.fn();
+  render(<ProcedureModal isOpen onClose={onClose} onModalSubmit={onModalSubmit} procedure={procedure} />);
+  await user.clear(screen.getByLabelText(/Notas/));
+  await user.type(screen.getByLabelText(/Notas/), 'Nota escrita');
+  switchLanguage('English');
+  expect(screen.getByLabelText('Completion date')).toHaveValue('2026-09-18');
+  expect(screen.getByLabelText(/Notes/)).toHaveValue('Nota escrita');
+  expect(screen.getByRole('button', { name: 'Close procedure editor' })).toBeEnabled();
+  await user.click(screen.getByRole('button', { name: 'Save changes' }));
+  expect(await screen.findByRole('alert')).toHaveTextContent('Changes could not be saved. Try again.');
+  switchLanguage('Català');
+  expect(screen.getByRole('alert')).toHaveTextContent("No s'han pogut desar els canvis. Torna-ho a provar.");
+  expect(screen.getByLabelText('Data de realització')).toHaveAttribute('lang', 'ca-ES');
+  expect(screen.getByLabelText(/Notes/)).toHaveValue('Nota escrita');
+  expect(onModalSubmit).toHaveBeenCalledWith(7, 12, '2026-09-18', 'Nota escrita');
+  expect(onClose).not.toHaveBeenCalled();
 });

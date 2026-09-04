@@ -1,3 +1,6 @@
+import { translateMessage, type LocalizedMessage } from '../i18n/message';
+import { localeByLanguage } from '../i18n/locale';
+import { useTranslation } from '../i18n/hooks/hook';
 import { useEffect, useState, type FormEvent } from 'react';
 import type { PetProcedure } from '../modules/pet/domain/PetProcedure';
 import { Dialog } from '../shared/ui/Dialog';
@@ -22,10 +25,11 @@ function openDatePicker(event: React.MouseEvent<HTMLInputElement>) {
 }
 
 const ProcedureModal = ({ isOpen, onClose, onModalSubmit, procedure }: ProcedureModalProps) => {
+  const { translate, currentLanguage } = useTranslation();
   const [date, setDate] = useState(() => inputDate(procedure.checkupDate));
   const [notes, setNotes] = useState(procedure.checkupNotes ?? '');
   const [isSaving, setIsSaving] = useState(false);
-  const [submitError, setSubmitError] = useState('');
+  const [submitError, setSubmitError] = useState<LocalizedMessage | null>('');
 
   useEffect(() => {
     if (!isOpen) return;
@@ -50,7 +54,7 @@ const ProcedureModal = ({ isOpen, onClose, onModalSubmit, procedure }: Procedure
       );
       onClose();
     } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : 'No se pudieron guardar los cambios. Inténtalo de nuevo.');
+      setSubmitError(error instanceof Error ? error.message : { translationKey: 'procedureSaveError' });
     } finally {
       setIsSaving(false);
     }
@@ -58,7 +62,7 @@ const ProcedureModal = ({ isOpen, onClose, onModalSubmit, procedure }: Procedure
 
   return (
     <Dialog
-      closeLabel="Cerrar edición del procedimiento"
+      closeLabel={translate('closeProcedureForm')}
       description={procedure.description ?? undefined}
       isOpen={isOpen}
       onClose={onClose}
@@ -68,7 +72,7 @@ const ProcedureModal = ({ isOpen, onClose, onModalSubmit, procedure }: Procedure
       <form className="modal-form" onSubmit={handleSubmit}>
         <div className="modal-form__grid">
           <div className="form-field">
-            <label className="form-label" htmlFor="procedure-date">Fecha de realización</label>
+            <label className="form-label" htmlFor="procedure-date">{translate('procedureDate')}</label>
             <input
               className="form-control"
               disabled={isSaving}
@@ -76,35 +80,36 @@ const ProcedureModal = ({ isOpen, onClose, onModalSubmit, procedure }: Procedure
               onChange={(event) => setDate(event.target.value)}
               onClick={openDatePicker}
               type="date"
+              lang={localeByLanguage[currentLanguage]}
               value={date}
             />
           </div>
 
           <div className="form-field">
             <label className="form-label" htmlFor="procedure-notes">
-              Notas <span className="form-label__optional">(opcional)</span>
+              {translate('healthNotes')} <span className="form-label__optional">({translate('optional')})</span>
             </label>
             <textarea
               className="form-control"
               disabled={isSaving}
               id="procedure-notes"
               onChange={(event) => setNotes(event.target.value)}
-              placeholder="Añadir notas…"
+              placeholder={translate('procedureNotesPlaceholder')}
               rows={3}
               value={notes}
             />
           </div>
         </div>
 
-        {submitError && <p className="form-alert" role="alert">{submitError}</p>}
+        {submitError && <p className="form-alert" role="alert">{translateMessage(submitError, translate)}</p>}
 
         <div className="modal-form__actions">
           <button className="ui-button ui-button--secondary" disabled={isSaving} onClick={onClose} type="button">
-            Cancelar
+            {translate('cancel')}
           </button>
           <button aria-busy={isSaving || undefined} className="ui-button" disabled={isSaving} type="submit">
             {isSaving && <span aria-hidden="true" className="ui-spinner" />}
-            {isSaving ? 'Guardando…' : 'Guardar cambios'}
+            {isSaving ? translate('saving') : translate('saveChanges')}
           </button>
         </div>
       </form>

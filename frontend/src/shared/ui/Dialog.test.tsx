@@ -1,10 +1,16 @@
 // @vitest-environment jsdom
+
+import type { ReactElement } from 'react';
+import { TestLanguageProvider } from '../../test/language';
+
 import '@testing-library/jest-dom/vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render as rtlRender, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { useState } from 'react';
 import { Dialog } from './Dialog';
+
+const render = (ui: ReactElement) => rtlRender(ui, { wrapper: TestLanguageProvider });
 
 beforeAll(() => {
   HTMLDialogElement.prototype.showModal = function showModal() {
@@ -15,7 +21,7 @@ beforeAll(() => {
   };
 });
 
-afterEach(cleanup);
+afterEach(() => { cleanup(); localStorage.clear(); });
 
 function DialogHarness({ preventClose = false }: { preventClose?: boolean }) {
   const [isOpen, setIsOpen] = useState(false);

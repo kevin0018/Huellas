@@ -38,22 +38,22 @@ const AboutUs: React.FC = () => {
               <div className="text-center">
                 <img src="/media/AboutUs/dalmata.png" alt="" className="mx-auto mb-2 size-[120px] md:size-[140px]" />
                 <p className="font-semibold">Kevin Hernandez</p>
-                <p className="text-sm md:text-base">Desarrollador Full-Stack</p>
+                <p className="text-sm md:text-base">{translate('developerMale')}</p>
               </div>
               <div className="text-center">
                 <img src="/media/AboutUs/labrador.png" alt="" className="mx-auto mb-2 size-[120px] md:size-[140px]" />
                 <p className="font-semibold">Adriana Elias</p>
-                <p className="text-sm md:text-base">Desarrolladora Full-Stack</p>
+                <p className="text-sm md:text-base">{translate('developerFemale')}</p>
               </div>
               <div className="text-center">
                 <img src="/media/AboutUs/chihuahua.png" alt="" className="mx-auto mb-2 size-[120px] md:size-[140px]" />
                 <p className="font-semibold">Aroa Granja</p>
-                <p className="text-sm md:text-base">Desarrolladora Full-Stack</p>
+                <p className="text-sm md:text-base">{translate('developerFemale')}</p>
               </div>
               <div className="text-center">
                 <img src="/media/AboutUs/galgo.png" alt="" className="mx-auto mb-2 size-[120px] md:size-[140px]" />
                 <p className="font-semibold">Fernanda Montalvan</p>
-                <p className="text-sm md:text-base">Desarrolladora Full-Stack</p>
+                <p className="text-sm md:text-base">{translate('developerFemale')}</p>
               </div>
             </div>
 

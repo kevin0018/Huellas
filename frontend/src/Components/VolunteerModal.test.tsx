@@ -1,10 +1,15 @@
 // @vitest-environment jsdom
 
+import type { ReactElement } from 'react';
+import { TestLanguageProvider } from '../test/language';
+
 import '@testing-library/jest-dom/vitest';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render as rtlRender, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import VolunteerModal from './VolunteerModal';
+
+const render = (ui: ReactElement) => rtlRender(ui, { wrapper: TestLanguageProvider });
 
 beforeEach(() => {
   HTMLDialogElement.prototype.showModal = vi.fn(function showModal(this: HTMLDialogElement) {
@@ -15,7 +20,7 @@ beforeEach(() => {
   });
 });
 
-afterEach(cleanup);
+afterEach(() => { cleanup(); localStorage.clear(); });
 
 describe('VolunteerModal', () => {
   it('focuses and validates the description when becoming a volunteer', async () => {

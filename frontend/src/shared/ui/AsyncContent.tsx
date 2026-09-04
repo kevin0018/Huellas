@@ -1,3 +1,4 @@
+import { useTranslation } from '../../i18n/hooks/hook';
 import type { ReactNode } from 'react';
 
 type AsyncContentProps = {
@@ -21,6 +22,7 @@ export function AsyncContent({
   onRetry,
   children,
 }: AsyncContentProps) {
+  const { translate } = useTranslation();
   if (loading) {
     return (
       <div className="flex items-center justify-center gap-3 py-12 text-[var(--color-ink)]" role="status" aria-live="polite">
@@ -36,7 +38,7 @@ export function AsyncContent({
         <p>{error}</p>
         {onRetry && (
           <button className="ui-hover-surface mt-3 min-h-11 rounded-[var(--radius-control)] border border-current px-3 py-2 text-sm font-semibold" onClick={() => void onRetry()} type="button">
-            Reintentar
+            {translate('retryAction')}
           </button>
         )}
       </div>

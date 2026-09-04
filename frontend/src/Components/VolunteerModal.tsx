@@ -1,3 +1,5 @@
+import { LocalizedError, translateMessage, type LocalizedMessage } from '../i18n/message';
+import { useTranslation } from '../i18n/hooks/hook';
 import { useEffect, useId, useState } from 'react';
 import { Dialog } from '../shared/ui/Dialog';
 
@@ -16,8 +18,9 @@ export default function VolunteerModal({
   onCancel,
   isLoading = false,
 }: VolunteerModalProps) {
+  const { translate } = useTranslation();
   const [description, setDescription] = useState('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState<LocalizedMessage>('');
   const helpId = useId();
   const errorId = useId();
 
@@ -32,7 +35,7 @@ export default function VolunteerModal({
 
     const normalizedDescription = description.trim();
     if (!isCurrentlyVolunteer && !normalizedDescription) {
-      setError('La descripción es obligatoria para ser voluntario.');
+      setError({ translationKey: 'volunteerDescriptionRequired' });
       return;
     }
 
@@ -40,7 +43,9 @@ export default function VolunteerModal({
       setError('');
       await onConfirm(isCurrentlyVolunteer ? undefined : normalizedDescription);
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'Ha ocurrido un error.');
+      setError(reason instanceof LocalizedError
+        ? { translationKey: reason.translationKey }
+        : reason instanceof Error ? reason.message : { translationKey: 'volunteerActionError' });
     }
   };
 
@@ -50,11 +55,11 @@ export default function VolunteerModal({
   };
 
   const title = isCurrentlyVolunteer
-    ? '¿Dejar de ser voluntario?'
-    : '¡Conviértete en voluntario!';
+    ? translate('leaveVolunteerTitle')
+    : translate('becomeVolunteerTitle');
   const dialogDescription = isCurrentlyVolunteer
-    ? 'Perderás el acceso a las funciones de voluntariado.'
-    : 'Cuéntanos sobre tu experiencia, motivación y habilidades con animales.';
+    ? translate('leaveVolunteerDescription')
+    : translate('becomeVolunteerDescription');
 
   return (
     <Dialog
@@ -68,7 +73,7 @@ export default function VolunteerModal({
         {!isCurrentlyVolunteer && (
           <div className="form-field">
             <label className="form-label" htmlFor="volunteer-description">
-              Descripción <span aria-hidden="true">*</span>
+              {translate('description')} <span aria-hidden="true">*</span>
             </label>
             <textarea
               aria-describedby={error ? `${helpId} ${errorId}` : helpId}
@@ -81,20 +86,20 @@ export default function VolunteerModal({
                 setDescription(event.target.value);
                 if (error) setError('');
               }}
-              placeholder="Por ejemplo: tengo experiencia cuidando perros y gatos."
+              placeholder={translate('volunteerExperienceExample')}
               required
               rows={4}
               value={description}
             />
             <p className="form-help" id={helpId}>
-              Comparte cualquier experiencia o habilidad relevante.
+              {translate('volunteerExperienceHelp')}
             </p>
           </div>
         )}
 
         {error && (
           <p className="form-alert" id={errorId} role="alert">
-            {error}
+            {translateMessage(error, translate)}
           </p>
         )}
 
@@ -106,7 +111,7 @@ export default function VolunteerModal({
             onClick={handleCancel}
             type="button"
           >
-            Cancelar
+            {translate('cancel')}
           </button>
           <button
             aria-busy={isLoading || undefined}
@@ -116,10 +121,10 @@ export default function VolunteerModal({
           >
             {isLoading && <span aria-hidden="true" className="ui-spinner" />}
             {isLoading
-              ? 'Procesando…'
+              ? translate('processing')
               : isCurrentlyVolunteer
-                ? 'Sí, dejar de ser voluntario'
-                : 'Quiero ser voluntario'}
+                ? translate('confirmLeaveVolunteer')
+                : translate('confirmBecomeVolunteer')}
           </button>
         </div>
       </form>

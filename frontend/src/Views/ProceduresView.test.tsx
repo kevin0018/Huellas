@@ -1,13 +1,18 @@
 // @vitest-environment jsdom
 
+import type { ReactElement } from 'react';
+import { TestLanguageProvider, switchLanguage } from '../test/language';
+
 import '@testing-library/jest-dom/vitest';
-import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { cleanup, fireEvent, render as rtlRender, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { PetSize, PetType, Sex, type Pet } from '../modules/pet/domain/Pet';
 import type { PetProcedure } from '../modules/pet/domain/PetProcedure';
 import { expectNoCriticalAccessibilityViolations } from '../test/accessibility';
 import ProceduresView from './ProceduresView';
+
+const render = (ui: ReactElement) => rtlRender(ui, { wrapper: TestLanguageProvider });
 
 const services = vi.hoisted(() => ({
   checkups: { create: vi.fn(), update: vi.fn() },
@@ -67,7 +72,7 @@ function renderView() {
   );
 }
 
-afterEach(cleanup);
+afterEach(() => { cleanup(); localStorage.clear(); });
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -132,4 +137,40 @@ describe('ProceduresView', () => {
     expect(await screen.findByText('Todavía no hay cuidados preventivos')).toBeInTheDocument();
     expect(screen.getByText(/El plan se genera según el tipo y la edad/i)).toBeInTheDocument();
   });
+});
+
+it('switches filters, counts, card schedules and dates while retaining the selected status', async () => {
+  renderView();
+  await screen.findByRole('button', { name: 'Vencidos: 2' });
+  fireEvent.click(screen.getByRole('button', { name: 'Al día: 1' }));
+  switchLanguage('English');
+  expect(screen.getByRole('heading', { name: 'Prevention for Miso' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Up to date: 1' })).toHaveAttribute('aria-pressed', 'true');
+  expect(screen.getByText('1 result')).toBeInTheDocument();
+  expect(screen.getByText('Every year')).toBeInTheDocument();
+  expect(screen.getByText('10 May 2026')).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Edit record for Revisión anual' })).toBeEnabled();
+  expect(screen.getByText('Fecha calculada desde el último registro.')).toBeInTheDocument();
+
+  switchLanguage('Català');
+  expect(screen.getByRole('button', { name: 'Al dia: 1' })).toHaveAttribute('aria-pressed', 'true');
+  expect(screen.getByText('1 resultat')).toBeInTheDocument();
+  expect(screen.getByText('Cada any')).toBeInTheDocument();
+  expect(screen.getByText(/10 de maig del? 2026/)).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Tots: 5' }));
+  expect(screen.getByText('5 resultats')).toBeInTheDocument();
+  expect(services.pets.getPetProcedures).toHaveBeenCalledOnce();
+});
+
+it('uses singular age and recurrence labels across languages', async () => {
+  services.pets.getPetProcedures.mockResolvedValue([procedure({ age: 1, recurrenceDays: 7 })]);
+  renderView();
+  await screen.findByText('Cada semana');
+  expect(screen.getByText('Desde 1 semana de edad')).toBeInTheDocument();
+  switchLanguage('English');
+  expect(screen.getByText('Every week')).toBeInTheDocument();
+  expect(screen.getByText('From 1 week')).toBeInTheDocument();
+  switchLanguage('Català');
+  expect(screen.getByText('Cada setmana')).toBeInTheDocument();
+  expect(screen.getByText("A partir de 1 setmana d'edat")).toBeInTheDocument();
 });
