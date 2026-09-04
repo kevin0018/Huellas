@@ -1,7 +1,7 @@
-/* Hallmark · pre-emit critique: P5 H5 E4 S5 R5 V4 · genre: playful · macrostructure: Split Studio · theme: Huellas · nav/footer: preserved */
 import { useTranslation } from '../i18n/hooks/hook';
 import NavBar from '../Components/NavBar';
 import Footer from '../Components/footer';
+import '../Styles/about.css';
 
 const team = [
   { name: 'Kevin Hernandez', image: 'dalmata.png', role: 'developerMale' },
@@ -16,46 +16,60 @@ export default function AboutUs() {
   return (
     <>
       <NavBar />
-      <main className="public-page">
-        <header className="public-shell pt-12 md:pt-20">
-          <p className="public-eyebrow">{translate('aboutUs')}</p>
-          <h1 className="public-title mt-4 max-w-4xl">{translate('aboutTitle')}</h1>
-        </header>
-
-        <section className="public-shell grid items-center gap-8 py-12 md:grid-cols-2 md:gap-20 md:py-16" aria-labelledby="mission-title">
-          <div>
-            <h2 className="public-heading" id="mission-title">{translate('ourMission')}</h2>
-            <p className="public-intro mt-5">{translate('ourMissionText')}</p>
-          </div>
-          <div className="rounded-[var(--radius-card)] bg-[var(--color-paper-2)] p-6 sm:p-10">
-            <img src="/media/AboutUs/SkateDog.png" alt="" className="public-illustration mx-auto w-full max-w-96" width="483" height="421" />
-          </div>
-        </section>
-
-        <section className="bg-[var(--color-paper-2)] py-12 md:py-16" aria-labelledby="vision-title">
-          <div className="public-shell grid items-center gap-8 md:grid-cols-2 md:gap-20">
-            <div className="md:col-start-2 md:row-start-1">
-              <h2 className="public-heading" id="vision-title">{translate('ourVision')}</h2>
-              <p className="public-intro mt-5">{translate('ourVisionText')}</p>
+      <main className="public-page about-page">
+        <div className="public-shell">
+          <header className="about-cover">
+            <div className="about-cover__words">
+              <p className="public-eyebrow">{translate('aboutUs')}</p>
+              <h1 className="public-title">{translate('aboutTitle')}</h1>
+              <p className="about-cover__belief">{translate('aboutBelief')}</p>
             </div>
-            <img src="/media/AboutUs/allPets.png" alt="" className="public-illustration mx-auto w-full max-w-72 md:col-start-1 md:row-start-1" width="324" height="290" loading="lazy" />
+            <div className="about-cover__drawing" aria-hidden="true">
+              <svg className="about-cover__orbit" viewBox="0 0 360 360" fill="none" focusable="false">
+                <path d="M305 78C258 9 111 13 49 98C-7 176 28 303 133 333C245 365 341 283 337 181C335 129 321 104 294 76" />
+                <path d="m289 62 5 14 15-4M44 53l-6-14M25 68l-15-3M320 306l13 8" />
+              </svg>
+              <img src="/media/AboutUs/allPets.png" alt="" className="public-illustration" width="324" height="290" />
+            </div>
+          </header>
+
+          <section className="about-mission" aria-labelledby="mission-title">
+            <div className="about-mission__heading">
+              <h2 className="public-heading" id="mission-title">{translate('ourMission')}</h2>
+              <img src="/media/AboutUs/SkateDog.png" alt="" className="public-illustration" width="483" height="421" loading="lazy" />
+            </div>
+            <p className="public-intro">{translate('ourMissionText')}</p>
+          </section>
+        </div>
+
+        <section className="about-vision" aria-labelledby="vision-title">
+          <div className="public-shell about-vision__inner">
+            <h2 id="vision-title">{translate('ourVision')}</h2>
+            <p className="about-vision__statement">{translate('aboutVisionStatement')}</p>
+            <svg className="about-vision__flourish" viewBox="0 0 240 24" fill="none" aria-hidden="true" focusable="false">
+              <path d="M3 16C65 3 165 3 236 12M59 21C111 14 151 14 186 18" />
+            </svg>
+            <p className="about-vision__text">{translate('ourVisionText')}</p>
           </div>
         </section>
 
-        <section className="public-shell py-12 md:py-20" aria-labelledby="team-title">
-          <div className="grid gap-6 md:grid-cols-2 md:gap-20">
-            <div><p className="public-eyebrow">Huellas</p><h2 className="public-heading mt-4" id="team-title">{translate('meetTheTeam')}</h2></div>
-            <div className="space-y-4 text-[var(--color-ink-soft)]"><p>{translate('meetTheTeamText')}</p><p>{translate('meetTheTeamText2')}</p></div>
+        <section className="public-shell about-team" aria-labelledby="team-title">
+          <div className="about-team__intro">
+            <h2 className="public-heading" id="team-title">{translate('meetTheTeam')}</h2>
+            <p>{translate('meetTheTeamText')}</p>
           </div>
-          <ul className="mt-10 grid grid-cols-2 gap-x-5 gap-y-10 lg:mt-14 lg:grid-cols-4 lg:gap-8">
+          <ul className="about-team__portraits">
             {team.map(member => (
-              <li key={member.name} className="min-w-0 border-t border-[var(--color-rule-strong)] pt-5">
-                <img src={`/media/AboutUs/${member.image}`} alt="" className="public-illustration mb-5 size-28 object-contain sm:size-36" width="140" height="140" loading="lazy" />
-                <h3 className="text-lg">{member.name}</h3>
-                <p className="mt-1 text-sm text-[var(--color-muted)]">{translate(member.role)}</p>
+              <li key={member.name}>
+                <div className="about-team__portrait">
+                  <img src={`/media/AboutUs/${member.image}`} alt="" className="public-illustration" width="200" height="200" loading="lazy" />
+                </div>
+                <h3>{member.name}</h3>
+                <p>{translate(member.role)}</p>
               </li>
             ))}
           </ul>
+          <p className="about-team__closing">{translate('meetTheTeamText2')}</p>
         </section>
       </main>
       <Footer />

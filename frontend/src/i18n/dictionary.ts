@@ -407,6 +407,8 @@ export const en = {
   homeTogetherTitle: "Care brings us together.",
   homeTogetherDescription: "We built Huellas from something we share: wanting to take better care of our pets. Meet the people behind the project.",
   aboutTitle: "More time together. Better care.",
+  aboutBelief: "They’re family. That’s where it all begins.",
+  aboutVisionStatement: "A better life, by your side.",
 
   huellas: "Huellas",
   appDescription:
@@ -1035,6 +1037,8 @@ export const es: LocaleMap = {
   homeTogetherTitle: "Cuidar nos une.",
   homeTogetherDescription: "Creamos Huellas a partir de algo que compartimos: querer cuidar mejor de nuestras mascotas. Conoce a las personas detrás del proyecto.",
   aboutTitle: "Más tiempo juntos. Más cuidado.",
+  aboutBelief: "Son familia. Y por ahí empieza todo.",
+  aboutVisionStatement: "Una vida mejor, a tu lado.",
 
   huellas: "Huellas",
   appDescription:
@@ -1658,6 +1662,8 @@ export const ca: LocaleMap = {
   homeTogetherTitle: "Cuidar ens uneix.",
   homeTogetherDescription: "Vam crear Huellas a partir d’una cosa que compartim: voler cuidar millor les nostres mascotes. Coneix les persones darrere del projecte.",
   aboutTitle: "Més temps junts. Més cura.",
+  aboutBelief: "Són família. I tot comença aquí.",
+  aboutVisionStatement: "Una vida millor, al teu costat.",
 
   huellas: "Huellas",
   appDescription:
