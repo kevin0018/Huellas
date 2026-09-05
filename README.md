@@ -8,7 +8,7 @@ A full-stack pet care application that brings health records, appointments and
 upcoming preventive care together. Keep each pet's history and critical details
 in one place, with an interface in English, Spanish and Catalan.
 
-[Run the local demo](#local-demo-with-docker) · [Interface gallery](#interface) · [API operations](docs/OPERATIONS.md)
+[Watch the tour](docs/media/huellas-tour.mp4) · [Run the local demo](#local-demo-with-docker) · [Interface gallery](#interface) · [API operations](docs/OPERATIONS.md)
 
 [![Huellas health record: event history, private documents and sharing controls](docs/huellas-preview.png)](docs/huellas-preview.png)
 
@@ -28,12 +28,21 @@ demo URL is configured in this repository; the instructions below run the app lo
 
 ## Interface
 
-[![Huellas home page and care notebook](docs/huellas-home.png)](docs/huellas-home.png)
+[![Watch the current Huellas tour with Juan and his pets](docs/huellas-tour-preview.png)](docs/media/huellas-tour.mp4)
+
+[Watch the guided tour (MP4 · 3:10 · 12.2 MB)](docs/media/huellas-tour.mp4): Home, About, the
+interactive login cat, care dashboard, pet profile, health book, preventive plan,
+appointments, registration, user profile, community and chat. Recorded in Spanish,
+with light/dark themes and live switches to English and Catalan.
+
+The recording uses Juan's local account and the pets' existing photos. It shows
+the running application; the visible password example belongs only to the cat
+demonstration, and the account password remains hidden.
 
 [Health record in English](docs/huellas-preview.png) · [Cartilla en español](docs/huellas-preview-es.png) · [Original prototype video](docs/media/legacy-demo.mp4)
 
-The video preserves the earlier prototype and does not represent the current UI.
-The screenshots were captured from a production frontend build against the real
+The original prototype video is kept as a historical reference.
+The health-record screenshots were captured from a production frontend build against the real
 API using disposable demonstration data; their medical entries are fictional.
 
 ## Architecture
@@ -251,7 +260,7 @@ Current reminders are in-app; email delivery, email password recovery, clinic an
 insurer integrations are not implemented. Community/chat features do not imply
 a staffed moderation service or a trusted-caregiver permission workflow.
 
-Screenshots and tests use synthetic data. Use a disposable account when exploring
+The health-record screenshots and tests use synthetic data. Use a disposable account when exploring
 the project. Shared summaries can be read by anyone holding an unexpired link;
 choose sections deliberately and revoke access when finished. Session tokens are
 stored in browser localStorage. This project does not claim a privacy or security

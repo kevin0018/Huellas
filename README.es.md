@@ -8,7 +8,7 @@ Aplicación full-stack para cuidar de tus mascotas: reúne su historial de salud
 citas y próximos cuidados preventivos. Conserva los datos importantes de cada
 mascota en un solo lugar, con una interfaz en español, inglés y catalán.
 
-[Ejecutar la demo local](#demo-local-con-docker) · [Galería de la interfaz](#interfaz) · [Operación de la API](docs/OPERATIONS.md)
+[Ver el tour](docs/media/huellas-tour.mp4) · [Ejecutar la demo local](#demo-local-con-docker) · [Galería de la interfaz](#interfaz) · [Operación de la API](docs/OPERATIONS.md)
 
 [![Cartilla de Huellas: historial, documentos privados y controles para compartir](docs/huellas-preview-es.png)](docs/huellas-preview-es.png)
 
@@ -29,12 +29,21 @@ permiten ejecutar la aplicación en local.
 
 ## Interfaz
 
-[![Inicio de Huellas y cuaderno de cuidados](docs/huellas-home.png)](docs/huellas-home.png)
+[![Ver el tour actual de Huellas con Juan y sus mascotas](docs/huellas-tour-preview.png)](docs/media/huellas-tour.mp4)
+
+[Ver el recorrido guiado (MP4 · 3:10 · 12,2 MB)](docs/media/huellas-tour.mp4): Inicio, Nosotros,
+el gato del login, panel de cuidados, perfil de mascota, cartilla, plan preventivo,
+citas, registro, perfil de usuario, comunidad y chat. Grabado en español, con
+temas claro/oscuro y cambios reales a inglés y catalán.
+
+La grabación usa la cuenta local de Juan y las fotos existentes de sus mascotas.
+Muestra la aplicación en funcionamiento; el texto visible en el campo de contraseña
+es solo un ejemplo para enseñar el gato y la contraseña de la cuenta queda oculta.
 
 [Cartilla en español](docs/huellas-preview-es.png) · [Health record in English](docs/huellas-preview.png) · [Vídeo del prototipo original](docs/media/legacy-demo.mp4)
 
-El vídeo conserva el prototipo anterior y no representa la interfaz actual.
-Las capturas proceden de una compilación de producción del frontend conectada
+El vídeo del prototipo original se conserva como referencia histórica.
+Las capturas de la cartilla proceden de una compilación de producción del frontend conectada
 a la API real con datos de demostración desechables; los registros médicos
 son ficticios.
 
@@ -265,7 +274,7 @@ recuperación de contraseña por email ni integraciones con clínicas o asegurad
 El tablón y el chat no implican un servicio de moderación atendido ni un flujo de
 permisos para cuidadores de confianza.
 
-Las capturas y las pruebas usan datos sintéticos. Usa una cuenta desechable para
+Las capturas de la cartilla y las pruebas usan datos sintéticos. Usa una cuenta desechable para
 explorar el proyecto. Cualquier persona que tenga un enlace de resumen no caducado
 puede leerlo; elige las secciones y revoca el acceso cuando termines. Los tokens de
 sesión se guardan en localStorage del navegador. El proyecto no declara una
