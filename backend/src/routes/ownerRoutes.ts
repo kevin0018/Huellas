@@ -1,49 +1,24 @@
 import { Router } from 'express';
-import { RegisterOwnerController } from '../contexts/owner/infra/controllers/RegisterOwnerController.js';
-import { RegisterOwnerCommandHandler } from '../contexts/owner/app/commands/registerOwner/RegisterOwnerCommandHandler.js';
-import { DeleteOwnerController } from '../contexts/owner/infra/controllers/DeleteOwnerController.js';
-import { DeleteOwnerCommandHandler } from '../contexts/owner/app/commands/delete/DeleteOwnerCommandHandler.js';
-import { PrismaOwnerRepository } from '../contexts/owner/infra/persistence/PrismaOwnerRepository.js';
 import { AuthenticatedRequest, JwtMiddleware } from '../contexts/auth/infra/middleware/JwtMiddleware.js';
-import { GetMyPetsController } from '../contexts/pet/infra/controllers/GetMyPetsController.js';
-import { PetRepository } from '../contexts/pet/infra/persistence/PetRepository.js';
+import type { PetCareModule } from '../contexts/pet/index.js';
+import type { IdentityModule } from '../contexts/auth/index.js';
+import { Capability } from '../contexts/auth/domain/AccessControl.js';
 
-export function createOwnerRoutes(): Router {
-  console.log('Creating owner routes...');
+export function createOwnerRoutes({ pets }: PetCareModule, { ownerAccounts }: IdentityModule): Router {
   const router = Router();
 
-  // Dependency injection setup
-  console.log('Setting up dependencies...');
-  const ownerRepository = new PrismaOwnerRepository();
-  const petRepository = new PetRepository();
-
-  // Register dependencies
-  const registerCommandHandler = new RegisterOwnerCommandHandler(ownerRepository);
-  const registerController = new RegisterOwnerController(registerCommandHandler);
-
-  // Delete dependencies
-  const deleteCommandHandler = new DeleteOwnerCommandHandler(ownerRepository);
-  const deleteController = new DeleteOwnerController(deleteCommandHandler);
-
-  // Get my pets dependencies
-  const getMyPetsController = new GetMyPetsController(petRepository);
-
   // Routes
-  console.log('Registering POST /register route...');
   router.post('/register', async (req, res) => {
-    console.log('POST /register endpoint');
-    await registerController.handle(req, res);
+    await ownerAccounts.register.handle(req, res);
   });
 
-  console.log('Registering DELETE /:id route...');
-  router.delete('/:id', ...JwtMiddleware.requireOwner(), async (req, res) => {
-    console.log('DELETE /:id endpoint');
-    await deleteController.handle(req, res);
+  router.delete('/:id', ...JwtMiddleware.requireCapability(Capability.MANAGE_PETS), async (req, res) => {
+    await ownerAccounts.delete.handle(req, res);
   });
 
   //GET My Pets Route
-  router.get('/my-pets', ...JwtMiddleware.requireOwner(), async (req: AuthenticatedRequest, res) => {
-    await getMyPetsController.handle(req, res);
+  router.get('/my-pets', ...JwtMiddleware.requireCapability(Capability.MANAGE_PETS), async (req: AuthenticatedRequest, res) => {
+    await pets.listMine.handle(req, res);
   });
 
   return router;

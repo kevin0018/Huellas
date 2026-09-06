@@ -1,6 +1,7 @@
 import { AuthRepository } from '../../../domain/repositories/AuthRepository.js';
 import { GetCurrentProfileQuery } from './GetCurrentProfileQuery.js';
 import { UserType } from '../../../domain/entities/UserAuth.js';
+import { accessForProfiles, type Capability, type UserRole } from '../../../domain/AccessControl.js';
 
 export interface UserProfileResult {
   id: number;
@@ -9,6 +10,8 @@ export interface UserProfileResult {
   email: string;
   type: UserType;
   description?: string;
+  roles: UserRole[];
+  capabilities: Capability[];
 }
 
 export class GetCurrentProfileQueryHandler {
@@ -21,13 +24,18 @@ export class GetCurrentProfileQueryHandler {
       return null;
     }
 
+    const access = accessForProfiles({
+      owner: userWithDescription.hasOwnerProfile,
+      volunteer: userWithDescription.hasVolunteerProfile,
+    });
     return {
       id: userWithDescription.user.id,
       name: userWithDescription.user.name,
       lastName: userWithDescription.user.lastName,
       email: userWithDescription.user.email,
       type: userWithDescription.user.type,
-      description: userWithDescription.description
+      description: userWithDescription.description,
+      ...access,
     };
   }
 }

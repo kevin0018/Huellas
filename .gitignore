@@ -1,0 +1,26 @@
+# Local planning documents
+/ROADMAP*.md
+/roadmap*.md
+/TODO*.md
+/todo*.md
+/docs/ROADMAP*.md
+/docs/roadmap*.md
+/docs/TODO*.md
+/docs/todo*.md
+
+# Local design audit artifacts
+/.hallmark/
+
+# pnpm is the only supported package manager
+package-lock.json
+npm-shrinkwrap.json
+yarn.lock
+
+# Local encrypted recovery artifacts and keys
+/backups/
+*.huellas-backup
+*.backup-key
+
+# OS metadata
+.DS_Store
+Thumbs.db

@@ -41,6 +41,41 @@ enum AppointmentReason {
   OTHERS
 }
 
+enum AppointmentStatus {
+  scheduled
+  completed
+  cancelled
+  no_show
+}
+
+enum HealthEventType {
+  VACCINATION
+  GENERAL_CHECKUP
+  MEDICATION
+  TREATMENT
+  TEST
+  SURGERY
+  WEIGHT
+  OTHER
+}
+
+enum HealthEventSource {
+  OWNER
+  LEGACY_CHECKUP
+  APPOINTMENT
+}
+
+enum ReminderStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+}
+
+enum ReminderSource {
+  APPOINTMENT
+  PREVENTIVE_PLAN
+}
+
 enum ConversationStatus {
   ACTIVE
   ARCHIVED
@@ -94,15 +129,20 @@ model User {
 
   // Volunteer post relations
   authored_posts VolunteerPost[] @relation("AuthoredPosts")
+  entered_health_events  HealthEvent[] @relation("EnteredHealthEvents")
+  verified_health_events HealthEvent[] @relation("VerifiedHealthEvents")
+  created_health_shares  HealthShare[]
 
   @@index([type])
   @@index([email])
 }
 
 model Owner {
-  id   Int   @id
-  user User  @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  pets Pet[]
+  id                    Int     @id
+  notifications_enabled Boolean @default(true)
+  reminder_lead_days    Int     @default(14)
+  user                  User    @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  pets                  Pet[]
 }
 
 model Volunteer {
@@ -114,21 +154,29 @@ model Volunteer {
 model Pet {
   id                Int      @id @default(autoincrement())
   name              String
-  race              String
+  race              String?
   type              PetType
   owner_id          Int
   birth_date        DateTime @db.Date
   size              PetSize
-  microchip_code    String   @unique
+  microchip_code    String?  @unique
   sex               Sex
   has_passport      Boolean
   country_of_origin String?
   passport_number   String?
   notes             String?
+  allergies         String?  @db.Text
+  active_medications String? @db.Text
+  medical_conditions String? @db.Text
+  profile_image_url String? @db.VarChar(512)
 
   owner        Owner         @relation(fields: [owner_id], references: [id], onDelete: Cascade, onUpdate: Restrict)
   checkups     Checkup[]
   appointments Appointment[]
+  health_events HealthEvent[]
+  health_documents HealthDocument[]
+  reminders Reminder[]
+  health_shares HealthShare[]
 
   @@index([owner_id])
   @@index([type])
@@ -156,15 +204,66 @@ model Checkup {
 model Appointment {
   id     Int               @id @default(autoincrement())
   pet_id Int
-  date   DateTime          @db.Date
+  date   DateTime
   reason AppointmentReason
+  status AppointmentStatus @default(scheduled)
   notes  String?
 
   pet Pet @relation(fields: [pet_id], references: [id], onDelete: Cascade, onUpdate: Restrict)
+  health_events HealthEvent[]
 
   @@index([pet_id])
   @@index([date])
   @@index([pet_id, date])
+}
+
+model HealthEvent {
+  id                    Int               @id @default(autoincrement())
+  pet_id                Int
+  type                  HealthEventType
+  occurred_at           DateTime
+  title                 String
+  notes                 String?           @db.Text
+  provider              String?
+  result                String?           @db.Text
+  dose                  String?
+  lot_number            String?
+  expires_at            DateTime?
+  entered_by            Int
+  verified_by           Int?
+  source                HealthEventSource @default(OWNER)
+  source_appointment_id Int?
+  legacy_checkup_id     Int?              @unique
+  created_at            DateTime          @default(now())
+  updated_at            DateTime          @updatedAt
+
+  pet                Pet          @relation(fields: [pet_id], references: [id], onDelete: Cascade, onUpdate: Restrict)
+  enteredBy          User         @relation("EnteredHealthEvents", fields: [entered_by], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  verifiedBy         User?        @relation("VerifiedHealthEvents", fields: [verified_by], references: [id], onDelete: SetNull, onUpdate: Restrict)
+  sourceAppointment Appointment? @relation(fields: [source_appointment_id], references: [id], onDelete: SetNull, onUpdate: Restrict)
+  attachments       HealthDocument[]
+
+  @@index([pet_id, occurred_at])
+  @@index([type])
+  @@index([expires_at])
+  @@index([source_appointment_id])
+}
+
+model HealthDocument {
+  id              Int      @id @default(autoincrement())
+  pet_id          Int
+  health_event_id Int?
+  file_name       String
+  mime_type       String
+  size_bytes      Int
+  content         Bytes    @db.LongBlob
+  created_at      DateTime @default(now())
+
+  pet         Pet          @relation(fields: [pet_id], references: [id], onDelete: Cascade, onUpdate: Restrict)
+  healthEvent HealthEvent? @relation(fields: [health_event_id], references: [id], onDelete: Cascade, onUpdate: Restrict)
+
+  @@index([pet_id])
+  @@index([health_event_id])
 }
 
 model ProcedureSchedule {
@@ -172,13 +271,63 @@ model ProcedureSchedule {
   animal_type              PetType
   procedure_name           String
   recommended_vaccines_age Int
+  procedure_type           HealthEventType @default(OTHER)
+  recurrence_days          Int?
+  due_window_before_days   Int             @default(14)
+  due_window_after_days    Int             @default(14)
+  region                   String          @default("ES")
+  source                   String          @default("Huellas MVP guidance")
+  version                  String          @default("2026.1")
   notes                    String?
 
   checkups Checkup[]
+  reminders Reminder[]
 
   @@unique([animal_type, procedure_name])
   @@index([animal_type])
   @@index([procedure_name])
+}
+
+model Reminder {
+  id                      Int            @id @default(autoincrement())
+  pet_id                  Int
+  source                  ReminderSource
+  source_key              String         @unique
+  preventive_procedure_id Int?
+  title                   String
+  due_at                  DateTime
+  status                  ReminderStatus @default(PENDING)
+  snoozed_until           DateTime?
+  completed_at            DateTime?
+  cancelled_at            DateTime?
+  generated_action_at     DateTime?
+  created_at              DateTime       @default(now())
+  updated_at              DateTime       @updatedAt
+
+  pet Pet @relation(fields: [pet_id], references: [id], onDelete: Cascade, onUpdate: Restrict)
+  preventiveProcedure ProcedureSchedule? @relation(fields: [preventive_procedure_id], references: [id], onDelete: Cascade, onUpdate: Restrict)
+
+  @@index([pet_id, status, due_at])
+  @@index([preventive_procedure_id])
+}
+
+model HealthShare {
+  id          Int      @id @default(autoincrement())
+  pet_id      Int
+  token_hash  String   @unique
+  sections    Json
+  period_from DateTime?
+  period_to   DateTime?
+  expires_at  DateTime
+  revoked_at  DateTime?
+  created_by  Int
+  created_at  DateTime @default(now())
+
+  pet     Pet  @relation(fields: [pet_id], references: [id], onDelete: Cascade, onUpdate: Restrict)
+  creator User @relation(fields: [created_by], references: [id], onDelete: Cascade, onUpdate: Restrict)
+
+  @@index([pet_id, expires_at])
+  @@index([created_by])
 }
 
 model Conversation {

@@ -52,7 +52,7 @@ describe("DeletePetController", () => {
 
         // Check results
         expect(mockResponse.status).toHaveBeenCalledWith(204);
-        expect(mockResponse.send).not.toHaveBeenCalled();
+        expect(mockResponse.send).toHaveBeenCalledWith();
     });
 
     it("should return 500 Internal Server Error if repository fails", async () => {
@@ -87,4 +87,3 @@ describe("DeletePetController", () => {
         expect(mockResponse.send).toHaveBeenCalledWith({ error: 'Internal server error' });
     });
 })
-

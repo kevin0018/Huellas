@@ -1,14 +1,10 @@
-import { RegisterOwnerCommand } from '../modules/owner/application/commands/RegisterOwnerCommand';
-import { RegisterOwnerCommandHandler } from '../modules/owner/application/commands/RegisterOwnerCommandHandler';
-import { ApiOwnerRepository } from '../modules/owner/infra/ApiOwnerRepository';
-import { RegisterVolunteerCommand } from '../modules/volunteer/application/commands/RegisterVolunteerCommand';
-import { RegisterVolunteerCommandHandler } from '../modules/volunteer/application/commands/RegisterVolunteerCommandHandler';
-import { ApiVolunteerRepository } from '../modules/volunteer/infra/ApiVolunteerRepository';
+import PasswordInput, { PasswordCompanion } from '../shared/ui/PasswordInput';
+import type { TranslationKey } from '../i18n/dictionary';
+import { ClientError } from '../shared/errors/ClientError';
+import { registerUser } from '../features/registration/registerUser';
 import { useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
-import ThemeProvider from '../Components/theme/ThemeProvider';
-import LanguageProvider from '../i18n/LanguageProvider';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from '../i18n/hooks/hook';
 import NavBar from '../Components/NavBar';
 import GoBackButton from '../Components/GoBackButton';
@@ -29,227 +25,232 @@ function RegisterForm() {
   });
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<TranslationKey | null>(null);
+  const [errorTarget, setErrorTarget] = useState<'terms' | null>(null);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+    if (error) setError(null);
   };
 
   const handleUserTypeChange = (e: ChangeEvent<HTMLInputElement>) => {
     setUserType(e.target.value as UserType);
     setForm((prev) => ({ ...prev, description: '' }));
+    if (error) setError(null);
+    setErrorTarget(null);
   };
 
   const handleTermsChange = (e: ChangeEvent<HTMLInputElement>) => {
     setAcceptTerms(e.target.checked);
+    if (errorTarget === 'terms') {
+      setError(null);
+      setErrorTarget(null);
+    }
   };
 
-  const getErrorMessage = (error: string): string => {
+  const getErrorKey = (error: string): TranslationKey => {
     // Extract the main error message from API response
     const errorMessage = error.toLowerCase();
 
     if (errorMessage.includes('owner with this email already exists') ||
       errorMessage.includes('volunteer with this email already exists') ||
       errorMessage.includes('email already exists')) {
-      return translate('emailAlreadyExists');
+      return 'emailAlreadyExists';
     }
 
     if (errorMessage.includes('network error') ||
       errorMessage.includes('fetch') ||
       errorMessage.includes('connection')) {
-      return translate('networkError');
+      return 'networkError';
     }
 
     if (errorMessage.includes('server error') ||
       errorMessage.includes('internal server error') ||
       errorMessage.includes('http 5')) {
-      return translate('serverError');
+      return 'serverError';
     }
 
     if (errorMessage.includes('missing required fields') ||
       errorMessage.includes('validation') ||
       errorMessage.includes('invalid')) {
-      return translate('registrationError');
+      return 'registrationError';
     }
 
     // Default fallback
-    return translate('registrationError');
+    return 'registrationError';
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!acceptTerms) {
-      setError(translate('acceptTerms') + '.');
+      setError('acceptTermsError');
+      setErrorTarget('terms');
       return;
     }
     setLoading(true);
     setError(null);
+    setErrorTarget(null);
     try {
-      if (userType === 'owner') {
-        const repo = new ApiOwnerRepository();
-        const handler = new RegisterOwnerCommandHandler(repo);
-        const command = new RegisterOwnerCommand(
-          form.name,
-          form.lastName,
-          form.email,
-          form.password
-        );
-        await handler.execute(command);
-
-        navigate('/login?registered=true');
-      } else if (userType === 'volunteer') {
-        const repo = new ApiVolunteerRepository();
-        const handler = new RegisterVolunteerCommandHandler(repo);
-        const command = new RegisterVolunteerCommand(
-          form.name,
-          form.lastName,
-          form.email,
-          form.password,
-          form.description
-        );
-        await handler.execute(command);
-
-        navigate('/login?registered=true');
-      } else {
-        setError(translate('registrationError'));
-      }
+      await registerUser(userType, form);
+      navigate('/login?registered=true');
     } catch (err) {
-      if (err instanceof Error) {
-        setError(getErrorMessage(err.message));
+      if (err instanceof ClientError) {
+        setError(err.code === 'NETWORK' ? 'networkError' : 'registrationError');
+      } else if (err instanceof Error) {
+        setError(getErrorKey(err.message));
       } else {
-        setError(translate('registrationError'));
+        setError('registrationError');
       }
+      setErrorTarget(null);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center background-primary px-2 sm:px-0 overflow-hidden" style={{ minHeight: 'calc(100vh - 200px)' }}>
-      {/* Background */}
+    <main className="form-page">
       <div className="fixed inset-0 z-0 w-full h-full bg-repeat bg-[url('/media/bg_phone_userhome.png')] md:bg-[url('/media/bg_tablet_userhome.png')] lg:bg-[url('/media/bg_desktop_userhome.png')] opacity-60 pointer-events-none select-none" aria-hidden="true" />
-      <div className="w-full text-left mt-10 max-w-6xl xl:max-w-6xl 3xl:max-w-[1600px]">
-        <GoBackButton variant="outline" hideIfNoHistory className="bg-white" />
-      </div>
-      <div className="relative z-10 w-full flex flex-col items-center max-w-lg">
-        <h1 className="h1 font-caprasimo mb-8 text-4xl md:text-5xl text-[#51344D] drop-shadow-lg dark:text-[#FDF2DE]">{translate('register') || 'Únete'}</h1>
-        <form className="w-full max-w-xs sm:max-w-md md:max-w-lg p-6 sm:p-8 bg-white/90 dark:bg-[#51344D]/90 rounded-xl shadow-lg border border-[#51344D] flex flex-col gap-4" onSubmit={handleSubmit}>
-          <div className="flex justify-center gap-4 mb-2">
-            <div className="flex items-center w-1/2 justify-center">
-              <label className="inline-flex items-center text-xl md:text-xl">
+      <div className="form-page__content relative z-10">
+        <GoBackButton variant="outline" hideIfNoHistory />
+        <header className="form-page__header">
+          <h1 className="form-page__title">{translate('register') || 'Únete'}</h1>
+        </header>
+
+        <form className="form-surface" onSubmit={handleSubmit} aria-busy={loading || undefined}>
+          <fieldset className="form-choice-set">
+            <legend className="form-legend">{translate('owner')} / {translate('volunteer')}</legend>
+            <div className="form-choice-grid">
+              <label className="form-choice">
                 <input
                   type="radio"
                   name="userType"
                   value="owner"
                   checked={userType === 'owner'}
                   onChange={handleUserTypeChange}
-                  className="accent-eggplant"
                 />
-                <span className="ml-2">{translate('owner') || 'Titular'}</span>
+                <span>{translate('owner') || 'Titular'}</span>
               </label>
-            </div>
-            <div className="w-px bg-gray-300 h-6 mx-2"></div>
-            <div className="flex items-center w-1/2 justify-center">
-              <label className="inline-flex items-center text-xl md:text-xl">
+              <label className="form-choice">
                 <input
                   type="radio"
                   name="userType"
                   value="volunteer"
                   checked={userType === 'volunteer'}
                   onChange={handleUserTypeChange}
-                  className="accent-eggplant"
                 />
-                <span className="ml-2">{translate('volunteer') || 'Voluntario'}</span>
+                <span>{translate('volunteer') || 'Voluntario'}</span>
               </label>
             </div>
+          </fieldset>
+
+          <div className="form-stack">
+            <div className="form-field">
+              <label className="form-label" htmlFor="register-name">{translate('name')}</label>
+              <input
+                autoComplete="given-name"
+                className="form-control"
+                id="register-name"
+                name="name"
+                type="text"
+                value={form.name}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="form-field">
+              <label className="form-label" htmlFor="register-last-name">{translate('lastName') || 'Apellido'}</label>
+              <input
+                autoComplete="family-name"
+                className="form-control"
+                id="register-last-name"
+                name="lastName"
+                type="text"
+                value={form.lastName}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="form-field">
+              <label className="form-label" htmlFor="register-email">{translate('email')}</label>
+              <input
+                autoComplete="email"
+                className="form-control"
+                id="register-email"
+                name="email"
+                type="email"
+                value={form.email}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <PasswordCompanion>
+              <div className="form-field">
+                <label className="form-label" htmlFor="register-password">{translate('password')}</label>
+                <PasswordInput
+                  autoComplete="new-password"
+                  className="form-control"
+                  id="register-password"
+                  name="password"
+                  value={form.password}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </PasswordCompanion>
+            {userType === 'volunteer' && (
+              <div className="form-field">
+                <label className="form-label" htmlFor="register-description">{translate('description')}</label>
+                <textarea
+                  className="form-control"
+                  id="register-description"
+                  name="description"
+                  value={form.description}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            )}
           </div>
-          <input
-            type="text"
-            name="name"
-            placeholder={translate('name')}
-            value={form.name}
-            onChange={handleChange}
-            className="input bg-[#FDF2DE] border-2 border-[#51344D] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9886AD] dark:bg-[#BAA9CB] dark:text-white"
-            required
-          />
-          <input
-            type="text"
-            name="lastName"
-            placeholder={translate('lastName') || 'Apellido'}
-            value={form.lastName}
-            onChange={handleChange}
-            className="input bg-[#FDF2DE] border-2 border-[#51344D] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9886AD] dark:bg-[#BAA9CB] dark:text-white"
-            required
-          />
-          <input
-            type="email"
-            name="email"
-            placeholder={translate('email')}
-            value={form.email}
-            onChange={handleChange}
-            className="input bg-[#FDF2DE] border-2 border-[#51344D] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9886AD] dark:bg-[#BAA9CB] dark:text-white"
-            required
-          />
-          <input
-            type="password"
-            name="password"
-            placeholder={translate('password')}
-            value={form.password}
-            onChange={handleChange}
-            className="input bg-[#FDF2DE] border-2 border-[#51344D] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9886AD] dark:bg-[#BAA9CB] dark:text-white"
-            required
-          />
-          {userType === 'volunteer' && (
-            <textarea
-              name="description"
-              placeholder={translate('description') || 'Descripción'}
-              value={form.description}
-              onChange={handleChange}
-              className="input min-h-[80px] bg-[#FDF2DE] border-2 border-[#51344D] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9886AD] dark:bg-[#BAA9CB] dark:text-white"
-              required
-            />
-          )}
-          {/* Terms and conditions checkbox and link */}
-          <div className="flex flex-col gap-0 mt-2 mb-1">
-            <label className="flex flex-col items-start gap-0">
-              <span className="flex flex-row items-center gap-2">
+
+          <div className="form-meta">
+            <label className="form-check" htmlFor="acceptTerms">
                 <input
                   type="checkbox"
                   id="acceptTerms"
                   checked={acceptTerms}
                   onChange={handleTermsChange}
-                  className="accent-eggplant w-4 h-4"
-                  required
+                  aria-describedby={error && errorTarget === 'terms' ? 'register-error' : undefined}
+                  aria-invalid={error && errorTarget === 'terms' ? true : undefined}
+                  aria-required="true"
                 />
-                <span className="text-sm select-none dark:text-[#FDF2DE] 3xl:!text-[1.5rem]">{translate('acceptTerms')}</span>
-              </span>
-              <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-xs underline text-[#51344D] hover:opacity-80 dark:text-[#FDF2DE] mt-1 ml-0">
-                {translate('readTerms')}
-              </a>
+              <span>{translate('acceptTerms')}</span>
             </label>
+              <Link to="/terms" className="form-link">
+                {translate('readTerms')}
+              </Link>
           </div>
+
+          {error && <div className="form-alert" id="register-error" role="alert">{error && translate(error)}</div>}
           <button
             type="submit"
-            className="btn font-bold py-2 rounded-md mt-2 transition-colors w-full"
-            style={{ background: '#51344D', color: '#fff' }}
+            className="ui-button form-submit"
             disabled={loading}
+            aria-busy={loading || undefined}
           >
+            {loading && <span className="ui-spinner" aria-hidden="true" />}
             {loading ? translate('loading') : (translate('register') || 'Registrarme')}
           </button>
-          {error && <div className="text-red-600 text-center text-sm">{error}</div>}
         </form>
       </div>
-    </div>
+    </main>
   );
 };
 
 export default function Register() {
   return (
-    <LanguageProvider>
-      <ThemeProvider>
-        <NavBar />
-        <RegisterForm />
-      </ThemeProvider>
-    </LanguageProvider>
+    <>
+      <NavBar />
+      <RegisterForm />
+    </>
   );
 }

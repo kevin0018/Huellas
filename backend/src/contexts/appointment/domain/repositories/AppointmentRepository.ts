@@ -1,17 +1,19 @@
-import { Appointment, AppointmentReason } from '../entities/Appointment.js';
+import { Appointment, AppointmentReason, AppointmentStatus } from '../entities/Appointment.js';
 
 export interface AppointmentCreateData {
   petId: number;
   date: Date;
   reason: AppointmentReason;
-  notes?: string;
+  notes?: string | null;
+  status?: AppointmentStatus;
 }
 
 export interface AppointmentUpdateData {
   petId?: number;
   date?: Date;
   reason?: AppointmentReason;
-  notes?: string;
+  notes?: string | null;
+  status?: AppointmentStatus;
 }
 
 export interface AppointmentRepository {

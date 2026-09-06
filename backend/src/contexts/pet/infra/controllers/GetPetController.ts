@@ -15,7 +15,7 @@ export class GetPetController {
             const pet = await this.petRepository.findById(parseInt(petId));
 
             return res.send(pet);
-        } catch (error) {
+        } catch {
             return res.status(500).send({ error: 'Internal server error' });
         }
     }

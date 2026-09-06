@@ -1,0 +1,132 @@
+/* Hallmark · macrostructure: Manifesto · tone: playful · anchor hue: plum
+ * Huellas tokens: Caprasimo + Geist, cream paper, original pet illustrations.
+ * Pre-emit critique: P5 H5 E4 S5 R4 V4. */
+.about-page :is(h1, h2, h3, .about-vision__statement) { min-width: 0; overflow-wrap: anywhere; }
+.about-cover {
+  display: grid;
+  grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-10);
+  padding-block: var(--space-16);
+}
+.about-cover .public-title {
+  max-width: 16ch;
+  margin-top: var(--space-5);
+  font-size: clamp(2.75rem, 6vw, 4.75rem);
+  line-height: 1.12;
+}
+.about-cover__belief {
+  margin-top: var(--space-6);
+  color: var(--color-ink-soft);
+  font-size: var(--text-md);
+  text-wrap: balance;
+}
+.about-cover__drawing {
+  position: relative;
+  isolation: isolate;
+  background: var(--color-paper);
+  padding: var(--space-8);
+  transform: rotate(4deg);
+}
+.about-cover__drawing img { width: 100%; height: auto; }
+.about-cover__orbit {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  stroke: var(--color-rule-strong);
+  stroke-width: 1.5;
+  z-index: -1;
+}
+.about-mission {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+  gap: var(--space-16);
+  padding-block: var(--space-10) var(--space-12);
+  border-top: var(--rule-hairline) solid var(--color-rule-strong);
+}
+.about-mission__heading img {
+  width: 10rem;
+  height: auto;
+  margin: var(--space-5) 0 0 var(--space-8);
+  transform: rotate(-6deg);
+}
+.about-mission .public-intro { max-width: none; }
+.about-vision {
+  background: var(--color-ink);
+  color: var(--color-paper);
+  padding-block: var(--space-16);
+  border-radius: 50% 50% 0 0 / var(--space-6) var(--space-6) 0 0;
+}
+.about-vision__inner { text-align: center; }
+.dark .about-vision { background: var(--color-paper-3); color: var(--color-ink); }
+.about-vision h2 { color: inherit; font-size: var(--text-base); font-weight: 600; }
+.about-vision__statement {
+  max-width: 22ch;
+  margin: var(--space-6) auto 0;
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 4.5vw, 3.5rem);
+  line-height: 1.15;
+  text-wrap: balance;
+}
+.about-vision__flourish {
+  width: 12rem;
+  height: var(--space-6);
+  margin: var(--space-3) auto var(--space-6);
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+.about-vision__text { max-width: 65ch; margin-inline: auto; line-height: 1.8; }
+.about-team { padding-block: var(--space-16); }
+.about-team__intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+  gap: var(--space-16);
+}
+.about-team__intro .public-heading { max-width: 10ch; }
+.about-team__intro > p { color: var(--color-ink-soft); line-height: 1.8; }
+.about-team__portraits {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-8);
+  margin-block: var(--space-12) var(--space-16);
+}
+.about-team__portraits li { min-width: 0; text-align: center; }
+.about-team__portraits li:nth-child(even) { padding-top: var(--space-8); }
+.about-team__portrait { padding: var(--space-4); }
+.about-team__portrait img {
+  width: 100%;
+  max-width: 13rem;
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: contain;
+  margin-inline: auto;
+  transform: rotate(-7deg);
+}
+.about-team__portraits li:nth-child(even) img { transform: rotate(7deg); }
+.about-team__portraits h3 { margin-top: var(--space-5); font-size: var(--text-md); font-weight: 600; line-height: 1.35; }
+.about-team__portraits li > p { margin-top: var(--space-2); font-size: var(--text-sm); color: var(--color-muted); }
+.about-team__closing {
+  max-width: 52ch;
+  margin-inline: auto;
+  padding-top: var(--space-8);
+  border-top: var(--rule-hairline) solid var(--color-rule-strong);
+  color: var(--color-ink-soft);
+  text-align: center;
+  line-height: 1.8;
+}
+@media (max-width: 47.99rem) {
+  .about-cover { grid-template-columns: minmax(0, 1fr); gap: var(--space-6); padding-block: var(--space-10) var(--space-8); }
+  .about-cover .public-title { max-width: 16ch; }
+  .about-cover__belief { font-size: var(--text-base); }
+  .about-cover__drawing { width: min(75%, 17rem); justify-self: end; padding: var(--space-6); margin-right: var(--space-3); }
+  .about-mission, .about-team__intro { grid-template-columns: minmax(0, 1fr); gap: var(--space-6); }
+  .about-mission__heading { display: flex; align-items: center; gap: var(--space-4); }
+  .about-mission__heading img { width: 5rem; margin: 0 0 0 auto; }
+  .about-vision, .about-team { padding-block: var(--space-12); }
+  .about-team__intro .public-heading { max-width: none; }
+  .about-team__portraits { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-8) var(--space-4); margin-block: var(--space-8) var(--space-12); }
+  .about-team__portrait { padding: var(--space-2); }
+  .about-team__portraits h3 { font-size: var(--text-base); margin-top: var(--space-3); }
+}

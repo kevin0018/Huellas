@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import NavBar from "../Components/NavBar";
-import GoBackButton from "../Components/GoBackButton";
 import { useChat } from "../modules/chat/application/useChat";
 import { AuthService } from "../modules/auth/infra/AuthService";
 import type { ConversationListItem, Message } from "../modules/chat/domain/Conversation";
+import { useTranslation } from '../i18n/hooks/hook';
+import { localeByLanguage } from '../i18n/locale';
 
 interface ChatMessageProps {
   message: Message;
@@ -12,31 +13,25 @@ interface ChatMessageProps {
 }
 
 function ChatMessage({ message, isCurrentUser }: ChatMessageProps) {
+  const { currentLanguage } = useTranslation();
 
   return (
     <div className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'} mb-4`}>
       <div
         className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
           isCurrentUser
-            ? 'bg-[#51344D] !text-white'
-            : 'bg-gray-200 text-gray-800'
+            ? 'ui-chat-bubble--own'
+            : 'ui-chat-bubble--other'
         }`}
-        style={isCurrentUser ? { backgroundColor: '#51344D', color: 'white' } : {}}
       >
-        <p 
-          className={`text-sm ${isCurrentUser ? '!text-white' : ''}`}
-          style={isCurrentUser ? { color: 'white !important' } : {}}
-        >
+        <p className="text-sm text-inherit">
           {message.content}
         </p>
-        <p 
-          className={`text-xs mt-1 opacity-70 ${isCurrentUser ? '!text-white' : ''}`}
-          style={isCurrentUser ? { color: 'rgba(255, 255, 255, 0.7) !important' } : {}}
-        >
-          {new Date(message.createdAt).toLocaleTimeString('es-ES', {
+        <p className="text-xs mt-1 opacity-70 text-inherit">
+          {new Intl.DateTimeFormat(localeByLanguage[currentLanguage], {
             hour: '2-digit',
             minute: '2-digit'
-          })}
+          }).format(new Date(message.createdAt))}
         </p>
       </div>
     </div>
@@ -46,7 +41,7 @@ function ChatMessage({ message, isCurrentUser }: ChatMessageProps) {
 interface ConversationListProps {
   conversations: ConversationListItem[];
   selectedConversation: number | null;
-  onSelectConversation: (conversation: ConversationListItem) => void;
+  onSelectConversation: (conversation: ConversationListItem) => void | Promise<void>;
   loading: boolean;
 }
 
@@ -56,78 +51,59 @@ function ConversationList({
   onSelectConversation, 
   loading 
 }: ConversationListProps) {
+  const { translate } = useTranslation();
+
   if (loading) {
-    return <div className="text-gray-500">Cargando conversaciones...</div>;
+    return <div className="ui-text-muted">{translate('loadingConversations')}</div>;
   }
 
   if (!conversations.length) {
-    return <div className="text-gray-500">No hay conversaciones</div>;
+    return <div className="ui-text-muted">{translate('noConversations')}</div>;
   }
 
   return (
     <div className="space-y-3">
       {conversations.map((conversation, index) => 
         conversation ? (
-          <div
+          <button
+            type="button"
             key={conversation?.id || `conversation-${index}`}
             onClick={() => onSelectConversation(conversation)}
-            className={`p-3 rounded-lg cursor-pointer transition-all duration-200 ${
+            aria-pressed={selectedConversation === conversation?.id}
+            className={`ui-conversation w-full p-3 rounded-lg cursor-pointer text-left ${
               selectedConversation === conversation?.id
-                ? 'bg-[#51344D] shadow-md !text-white'
-                : 'bg-white hover:bg-gray-50 border border-gray-200 text-gray-800'
+                ? 'ui-conversation--selected shadow-md'
+                : ''
             }`}
-            style={selectedConversation === conversation?.id ? { 
-              backgroundColor: '#51344D',
-              color: 'white'
-            } : {}}
           >
             <div className="flex justify-between items-start">
               <h3 
-                className={`font-normal text-sm ${
-                  selectedConversation === conversation?.id
-                    ? '!text-white'
-                    : 'text-gray-800'
-                }`}
-                style={selectedConversation === conversation?.id ? { color: 'white !important' } : {}}
+                className="font-semibold text-sm text-inherit"
               >
-                {conversation?.title || 'Sin título'}
+                {conversation?.title || translate('untitled')}
               </h3>
               {conversation?.unreadCount && conversation.unreadCount > 0 && (
-              <span className="bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center">
+              <span className="ui-status ui-status--error text-xs min-w-[20px] text-center">
                 {conversation.unreadCount}
               </span>
             )}
           </div>
           <p 
-            className={`text-xs mt-1 ${
-              selectedConversation === conversation?.id
-                ? '!text-white'
-                : 'text-gray-600'
-            }`}
-            style={selectedConversation === conversation?.id ? { 
-              color: 'rgba(255, 255, 255, 0.8) !important' 
-            } : {}}
+            className="text-xs mt-1 text-inherit opacity-80"
           >
             {conversation.participants
               ?.filter(p => p?.name && p?.lastName)
               ?.map(p => `${p.name} ${p.lastName}`)
-              ?.join(', ') || 'Sin participantes'}
+              ?.join(', ') || translate('noParticipants')}
           </p>
           {conversation?.lastMessage && (
             <p 
-              className={`text-xs mt-2 truncate ${
-                selectedConversation === conversation?.id
-                  ? '!text-white'
-                  : 'text-gray-500'
-              }`}
-              style={selectedConversation === conversation?.id ? { 
-                color: 'rgba(255, 255, 255, 0.7) !important' 
-              } : {}}
+              className="text-xs mt-2 truncate text-inherit opacity-70"
             >
               {conversation.lastMessage.content}
             </p>
           )}
-          </div>
+          </button>
         ) : null
       )}
     </div>
@@ -135,6 +111,7 @@ function ConversationList({
 }
 
 export default function ChatView() {
+  const { translate } = useTranslation();
   const [searchParams] = useSearchParams();
   const postId = searchParams.get('postId');
   const withUserId = searchParams.get('with');
@@ -152,6 +129,7 @@ export default function ChatView() {
   } = useChat();
 
   const [newMessage, setNewMessage] = useState('');
+  const [mobilePanel, setMobilePanel] = useState<'list' | 'thread'>('list');
   const hasTriedCreation = useRef(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -165,6 +143,10 @@ export default function ChatView() {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, 100);
   }, [messages, selectedConversation]);
+
+  useEffect(() => {
+    if (selectedConversation) setMobilePanel('thread');
+  }, [selectedConversation]);
 
   // Reset creation flag when URL params change
   useEffect(() => {
@@ -215,125 +197,128 @@ export default function ChatView() {
     }
   };
 
+  const handleConversationSelect = async (conversation: ConversationListItem) => {
+    setMobilePanel('thread');
+    await selectConversation(conversation);
+  };
+
   return (
-    <div className="min-h-screen flex flex-col">
+    <>
       <NavBar />
-      <div className="background-primary flex-1">
-          <div className="container mx-auto px-4 py-4 lg:py-8">
+      <main className="workspace-page">
+        <div className="workspace-shell">
+          <header className="workspace-header workspace-header--primary">
+            <div className="workspace-header__copy">
+              <h1 className="workspace-header__title">{translate('messagesTitle')}</h1>
+              <p className="workspace-header__description">
+                {translate('messagesDescription')}
+              </p>
+            </div>
+          </header>
+
           {error && (
-            <div className="mb-4 p-4 bg-red-100 border border-red-300 text-red-700 rounded-md">
+            <div className="workspace-alert ui-status--error mt-6" role="alert">
               {error}
-              <button 
+              <button
+                type="button"
                 onClick={() => setError(null)}
-                className="ml-2 text-red-500 hover:text-red-700"
+                className="ui-action ml-2 px-2 py-1"
+                aria-label={translate('closeError')}
               >
                 ✕
               </button>
             </div>
           )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 h-[500px] md:h-[600px] max-h-[500px] md:max-h-[600px]">
-            
-            <div className="flex flex-col lg:col-span-1 h-full">
-              <div className="mb-2 lg:mb-4">
-                <GoBackButton />
-              </div>
-              
-              <div className="bg-gray-50 rounded-lg p-3 lg:p-4 overflow-y-auto flex-1">
-                <h2 className="font-caprasimo text-base lg:text-lg text-[#51344D] mb-3 lg:mb-4">
-                  Conversaciones
-                </h2>
+          <div className="chat-workspace mt-8">
+            <aside className="chat-sidebar" aria-label={translate('conversations')} data-mobile-hidden={mobilePanel === 'thread'}>
+              <header className="chat-sidebar__header">
+                <h2 className="chat-sidebar__title">{translate('conversations')}</h2>
+                <span className="chat-sidebar__count">{conversations.length}</span>
+              </header>
+              <div className="chat-conversation-list">
                 <ConversationList
                   conversations={conversations || []}
                   selectedConversation={selectedConversation?.id || null}
-                  onSelectConversation={selectConversation}
+                  onSelectConversation={handleConversationSelect}
                   loading={loading}
                 />
               </div>
-            </div>
+            </aside>
 
-            <div className="flex flex-col lg:col-span-2 h-full">
-              <div className="mb-2 lg:mb-4 text-center">
-                <h1 className="font-caprasimo text-xl lg:text-2xl text-[#51344D]">
-                  Mensajes
-                </h1>
-              </div>
-              
-
-              <div className="bg-white rounded-lg shadow-md flex flex-col flex-1 min-h-0">
-                {selectedConversation ? (
-                  <>
-                    {/* Chat Header */}
-                    <div className="p-3 lg:p-4 border-b border-gray-200">
-                      <h3 className="font-normal text-[#51344D] text-sm lg:text-base">
+            <section className="chat-thread" aria-label={translate('activeConversation')} data-mobile-hidden={mobilePanel === 'list'}>
+              {selectedConversation ? (
+                <>
+                  <header className="chat-thread__header">
+                    <button
+                      type="button"
+                      className="chat-mobile-back ui-action ui-action--secondary px-3 py-2"
+                      onClick={() => setMobilePanel('list')}
+                    >
+                      {translate('conversations')}
+                    </button>
+                    <div className="chat-thread__identity">
+                      <h2 className="chat-thread__title">
                         {selectedConversation.title}
-                      </h3>
-                      <p className="text-xs lg:text-sm text-gray-600">
+                      </h2>
+                      <p className="chat-thread__participants">
                         {selectedConversation.participants
                           ?.filter(p => p?.id !== currentUserId)
                           ?.map(p => `${p?.name} ${p?.lastName}`)
                           ?.join(', ')}
                       </p>
                     </div>
+                  </header>
 
-                    {/* Messages */}
-                    <div className="flex-1 p-3 lg:p-4 overflow-y-auto min-h-0 max-h-[350px] md:max-h-[450px]">
-                      {loading && messages.length === 0 ? (
-                        <div className="flex items-center justify-center h-full">
-                          <div className="text-gray-500">Cargando mensajes...</div>
-                        </div>
-                      ) : messages.length === 0 ? (
-                        <div className="flex items-center justify-center h-full">
-                          <div className="text-gray-500">No hay mensajes</div>
-                        </div>
-                      ) : (
-                        <div className="space-y-4">
-                          {messages?.map((message) => (
-                            <ChatMessage
-                              key={message?.id}
-                              message={message}
-                              isCurrentUser={message.senderId === currentUserId}
-                            />
-                          ))}
-                          <div ref={messagesEndRef} />
-                        </div>
-                      )}
-                    </div>
+                  <div className="chat-thread__messages" aria-live="polite">
+                    {loading && messages.length === 0 ? (
+                      <div className="chat-empty">{translate('loadingMessages')}</div>
+                    ) : messages.length === 0 ? (
+                      <div className="chat-empty">{translate('noMessagesYet')}</div>
+                    ) : (
+                      <div>
+                        {messages.map((message) => (
+                          <ChatMessage
+                            key={message.id}
+                            message={message}
+                            isCurrentUser={message.senderId === currentUserId}
+                          />
+                        ))}
+                        <div ref={messagesEndRef} />
+                      </div>
+                    )}
+                  </div>
 
-                    {/* Message Input */}
-                    <form onSubmit={handleSendMessage} className="p-3 lg:p-4 border-t border-gray-200">
-                      <div className="flex gap-2">
+                  <form onSubmit={handleSendMessage} className="chat-thread__composer">
+                    <div className="chat-thread__composer-row">
                         <input
                           type="text"
                           value={newMessage}
                           onChange={(e) => setNewMessage(e.target.value)}
-                          placeholder="Escribe tu mensaje..."
-                          className="flex-1 px-3 py-2 text-sm lg:text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#51344D]"
+                        placeholder={translate('messagePlaceholder')}
+                        aria-label={translate('message')}
+                        className="ui-control px-3 py-2"
                           disabled={loading}
                         />
                         <button
                           type="submit"
                           disabled={!newMessage.trim() || loading}
-                          className="px-3 lg:px-4 py-2 text-sm lg:text-base bg-[#51344D] text-white rounded-md hover:bg-[#6a4f66] disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="ui-action ui-action--primary px-5 py-2"
                         >
-                          Enviar
+                          {translate('send')}
                         </button>
                       </div>
-                    </form>
-                  </>
-                ) : (
-                  <div className="flex items-center justify-center h-full">
-                    <div className="text-gray-500">
-                      Selecciona una conversación para comenzar
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-            
+                  </form>
+                </>
+              ) : (
+                <div className="chat-empty">
+                  {translate('selectConversation')}
+                </div>
+              )}
+            </section>
           </div>
         </div>
-      </div>
-    </div>
+      </main>
+    </>
   );
 }

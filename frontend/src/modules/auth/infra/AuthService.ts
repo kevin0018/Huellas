@@ -7,6 +7,7 @@ export class AuthService {
   static saveAuth(token: string, user: User): void {
     localStorage.setItem(this.TOKEN_KEY, token);
     localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+    if (typeof window !== 'undefined') window.dispatchEvent(new Event('auth-changed'));
   }
 
   static getToken(): string | null {
@@ -25,6 +26,7 @@ export class AuthService {
   static logout(): void {
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
+    if (typeof window !== 'undefined') window.dispatchEvent(new Event('auth-changed'));
   }
 
   static getAuthHeaders(): Record<string, string> {

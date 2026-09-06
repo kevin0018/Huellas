@@ -1,3 +1,4 @@
+import { logger } from '../../../../observability/logger.js';
 import { RedisService } from '../../../../config/RedisService.js';
 
 export class JwtBlacklist {
@@ -18,7 +19,7 @@ export class JwtBlacklist {
         this.fallbackTokens.add(token);
       }
     } catch (error) {
-      console.error('Error adding token to blacklist:', error);
+      logger.error('Error adding token to blacklist:', error);
       // Fallback to memory on error
       this.fallbackTokens.add(token);
     }
@@ -38,7 +39,7 @@ export class JwtBlacklist {
         return this.fallbackTokens.has(token);
       }
     } catch (error) {
-      console.error('Error checking blacklist:', error);
+      logger.error('Error checking blacklist:', error);
       // Fallback to memory on error
       return this.fallbackTokens.has(token);
     }
@@ -57,7 +58,7 @@ export class JwtBlacklist {
         return this.fallbackTokens.size;
       }
     } catch (error) {
-      console.error('Error getting blacklist size:', error);
+      logger.error('Error getting blacklist size:', error);
       return this.fallbackTokens.size;
     }
   }

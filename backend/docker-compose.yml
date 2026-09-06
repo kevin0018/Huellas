@@ -1,11 +1,52 @@
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "5m"
+    max-file: "2"
+
 services:
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile.dev
+    container_name: Huellas_frontend
+    environment:
+      API_PROXY_TARGET: http://api:3000
+      CHOKIDAR_USEPOLLING: "true"
+      VITE_API_URL: /api
+      VITE_SOCKET_URL: /
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    volumes:
+      - ../frontend:/app:cached
+      - /app/node_modules
+    depends_on:
+      api:
+        condition: service_healthy
+    cpus: 0.50
+    mem_limit: 512m
+    pids_limit: 150
+    logging: *default-logging
   api:
     build:
       context: .
       dockerfile: Dockerfile.dev
     container_name: Huellas_api
-    env_file:
-      - .env
+    environment:
+      CORS_ORIGINS: "${CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}"
+      DATABASE_URL: mysql://appuser:apppass@mysql:3306/huellas
+      DB_HOST: mysql
+      DB_NAME: huellas
+      DB_PASSWORD: apppass
+      DB_PORT: "3306"
+      DB_USER: appuser
+      JWT_SECRET: "${JWT_SECRET:-huellas-local-development-only}"
+      FRONTEND_PORT: "${FRONTEND_PORT:-5173}"
+      METRICS_TOKEN: "${METRICS_TOKEN:-}"
+      NODE_ENV: development
+      PORT: "3000"
+      REDIS_URL: redis://redis:6379
+      SHADOW_DATABASE_URL: mysql://root:root@mysql:3306/huellas_shadow
     ports:
       - "${PORT:-3000}:3000"
       - "5555:5555"
@@ -13,9 +54,21 @@ services:
       - .:/app:cached
       - /app/node_modules
     depends_on:
-      - mysql
-      - redis
-    command: ["npm","run","dev"]
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: ["sh", "-c", "pnpm prisma:deploy && pnpm dev"]
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/ready', {signal: AbortSignal.timeout(2000)}).then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      start_period: 30s
+      retries: 5
+    cpus: 1.00
+    mem_limit: 768m
+    pids_limit: 200
+    logging: *default-logging
   mysql:
     image: mysql:8.4
     container_name: Huellas_db
@@ -31,7 +84,12 @@ services:
     healthcheck:
       test: ["CMD","mysqladmin","ping","-h","localhost","-u","root","-proot"]
       interval: 5s
+      timeout: 5s
       retries: 10
+    cpus: 1.00
+    mem_limit: 768m
+    pids_limit: 200
+    logging: *default-logging
   redis:
     image: redis:7-alpine
     container_name: Huellas_redis
@@ -42,7 +100,12 @@ services:
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
+      timeout: 3s
       retries: 10
+    cpus: 0.25
+    mem_limit: 128m
+    pids_limit: 100
+    logging: *default-logging
   adminer:
     image: adminer:latest
     container_name: huellas_adminer
@@ -50,6 +113,10 @@ services:
       - "8080:8080"
     depends_on:
       - mysql
+    cpus: 0.25
+    mem_limit: 128m
+    pids_limit: 100
+    logging: *default-logging
 volumes:
   mysql_data:
   redis_data:

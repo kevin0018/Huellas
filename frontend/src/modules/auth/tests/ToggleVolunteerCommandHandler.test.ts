@@ -59,7 +59,7 @@ describe('ToggleVolunteerCommandHandler', () => {
       description: 'I love animals and want to help'
     });
     expect(result).toEqual(mockUpdatedUser);
-    expect(localStorageMock.setItem).toHaveBeenCalledWith('userData', JSON.stringify(mockUpdatedUser));
+    expect(localStorageMock.setItem).toHaveBeenCalledWith('auth_user', JSON.stringify(mockUpdatedUser));
   });
 
   it('should delete volunteer profile successfully', async () => {
@@ -82,7 +82,7 @@ describe('ToggleVolunteerCommandHandler', () => {
     // Assert
     expect(mockRepository.toggleVolunteer).toHaveBeenCalledWith('valid-token', undefined);
     expect(result).toEqual(mockUpdatedUser);
-    expect(localStorageMock.setItem).toHaveBeenCalledWith('userData', JSON.stringify(mockUpdatedUser));
+    expect(localStorageMock.setItem).toHaveBeenCalledWith('auth_user', JSON.stringify(mockUpdatedUser));
   });
 
   it('should throw error when no auth token is found', async () => {
@@ -91,7 +91,7 @@ describe('ToggleVolunteerCommandHandler', () => {
     localStorageMock.getItem.mockReturnValue(null);
 
     // Act & Assert
-    await expect(handler.handle(command)).rejects.toThrow('No authentication token found');
+    await expect(handler.handle(command)).rejects.toMatchObject({ code: 'AUTH_REQUIRED' });
     expect(mockRepository.toggleVolunteer).not.toHaveBeenCalled();
   });
 
@@ -101,7 +101,7 @@ describe('ToggleVolunteerCommandHandler', () => {
     localStorageMock.getItem.mockReturnValue('valid-token');
 
     // Act & Assert
-    await expect(handler.handle(command)).rejects.toThrow('Description is required to become a volunteer');
+    await expect(handler.handle(command)).rejects.toMatchObject({ code: 'VOLUNTEER_DESCRIPTION_REQUIRED' });
     expect(mockRepository.toggleVolunteer).not.toHaveBeenCalled();
   });
 
@@ -111,7 +111,7 @@ describe('ToggleVolunteerCommandHandler', () => {
     localStorageMock.getItem.mockReturnValue('valid-token');
 
     // Act & Assert
-    await expect(handler.handle(command)).rejects.toThrow('Description is required to become a volunteer');
+    await expect(handler.handle(command)).rejects.toMatchObject({ code: 'VOLUNTEER_DESCRIPTION_REQUIRED' });
     expect(mockRepository.toggleVolunteer).not.toHaveBeenCalled();
   });
 

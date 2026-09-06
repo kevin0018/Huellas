@@ -1,3 +1,4 @@
+import { logger } from '../../../../observability/logger.js';
 import { Response } from 'express';
 import { AuthenticatedRequest } from '../middleware/JwtMiddleware.js';
 import { UpdateUserProfileCommand } from '../../app/commands/updateProfile/UpdateUserProfileCommand.js';
@@ -35,7 +36,7 @@ export class ProfileController {
       });
 
     } catch (error) {
-      console.error('Error getting current profile:', error);
+      logger.error('Error getting current profile:', error);
       response.status(500).json({ error: 'Internal server error' });
     }
   }

@@ -3,17 +3,21 @@ import { PetSize, PetType, Sex } from "@prisma/client";
 export class Pet {
   private id: number;
   private name: string;
-  private race: string;
+  private race: string | null;
   private type: PetType;
   private ownerId: number;
   private birthDate: Date;
   private size: PetSize;
-  private microchipCode: string;
+  private microchipCode: string | null;
   private sex: Sex;
   private hasPassport: boolean;
   private countryOfOrigin: string | null;
   private passportNumber: string | null;
   private notes: string | null;
+  private allergies: string | null;
+  private activeMedications: string | null;
+  private medicalConditions: string | null;
+  private profileImageUrl: string | null;
 
   public getId(): number {
     return this.id;
@@ -31,11 +35,11 @@ export class Pet {
     this.name = name;
   }
 
-  public getRace(): string {
+  public getRace(): string | null {
     return this.race;
   }
 
-  public setRace(race: string): void {
+  public setRace(race: string | null): void {
     this.race = race;
   }
 
@@ -71,11 +75,11 @@ export class Pet {
     this.size = size;
   }
 
-  public getMicrochipCode(): string {
+  public getMicrochipCode(): string | null {
     return this.microchipCode;
   }
 
-  public setMicrochipCode(microchipCode: string): void {
+  public setMicrochipCode(microchipCode: string | null): void {
     this.microchipCode = microchipCode;
   }
 
@@ -119,20 +123,29 @@ export class Pet {
     this.notes = notes;
   }
 
+  public getAllergies(): string | null { return this.allergies; }
+  public getActiveMedications(): string | null { return this.activeMedications; }
+  public getMedicalConditions(): string | null { return this.medicalConditions; }
+  public getProfileImageUrl(): string | null { return this.profileImageUrl; }
+
   constructor(
     id: number,
     name: string,
-    race: string,
+    race: string | null,
     type: PetType,
     ownerId: number,
     birthDate: Date,
     size: PetSize,
-    microchipCode: string,
+    microchipCode: string | null,
     sex: Sex,
     hasPassport: boolean,
     countryOfOrigin: string | null,
     passportNumber: string | null,
-    notes: string | null
+    notes: string | null,
+    allergies: string | null = null,
+    activeMedications: string | null = null,
+    medicalConditions: string | null = null,
+    profileImageUrl: string | null = null
   ) {
     this.id = id;
     this.name = name;
@@ -147,5 +160,9 @@ export class Pet {
     this.countryOfOrigin = countryOfOrigin;
     this.passportNumber = passportNumber;
     this.notes = notes;
+    this.allergies = allergies;
+    this.activeMedications = activeMedications;
+    this.medicalConditions = medicalConditions;
+    this.profileImageUrl = profileImageUrl;
   }
 }

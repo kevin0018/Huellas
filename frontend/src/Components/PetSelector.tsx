@@ -1,5 +1,7 @@
+import type { RefObject } from 'react';
 import type { Pet } from '../modules/pet/domain/Pet.js';
-import { getPetTypeLabel } from '../modules/pet/domain/Pet.js';
+import { useTranslation } from '../i18n/hooks/hook.js';
+import { petTypeTranslationKeys } from '../features/pets/petPresentation.js';
 
 interface PetSelectorProps {
   pets: Pet[];
@@ -7,6 +9,9 @@ interface PetSelectorProps {
   onPetSelect: (petId: number) => void;
   loading?: boolean;
   error?: string;
+  disabled?: boolean;
+  required?: boolean;
+  inputRef?: RefObject<HTMLSelectElement | null>;
 }
 
 function PetSelector({
@@ -14,58 +19,47 @@ function PetSelector({
   selectedPetId,
   onPetSelect,
   loading = false,
-  error
+  error,
+  disabled = false,
+  required = false,
+  inputRef,
 }: PetSelectorProps) {
+  const { translate } = useTranslation();
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-4">
-        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#51344D] dark:border-[#FDF2DE]"></div>
-        <span className="ml-2 text-[#51344D] dark:text-[#FDF2DE]">Cargando mascotas...</span> {/* TODO: Add to translation dictionary */}
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-200 px-4 py-3 rounded">
-        Error: {error} {/* TODO: Add to translation dictionary */}
-      </div>
-    );
+    return <div aria-live="polite" className="form-help">{translate('loadingPets')}</div>;
   }
 
   if (pets.length === 0) {
     return (
-      <div className="text-center py-4 text-[#928d8e] dark:text-[#BAA9CB]">
-        No tienes mascotas registradas. {/* TODO: Add to translation dictionary */}
-        <br />
-        <span className="text-sm">Registra una mascota primero para poder crear citas.</span> {/* TODO: Add to translation dictionary */}
+      <div className="form-alert" role="status">
+        {translate('noPetsForAppointments')}
       </div>
     );
   }
 
   return (
-    <div className="space-y-2">
-      <label className="block text-sm font-medium text-[#51344D] dark:text-[#FDF2DE] font-caprasimo">
-        Selecciona tu mascota: {/* TODO: Add to translation dictionary */}
-      </label>
+    <div className="form-field">
+      <label className="form-label" htmlFor="appointment-pet">{translate('appointmentPet')}</label>
       <select
+        aria-describedby={error ? 'appointment-pet-error' : undefined}
+        aria-invalid={Boolean(error) || undefined}
+        className="form-control"
+        disabled={disabled}
+        id="appointment-pet"
+        onChange={(event) => onPetSelect(Number(event.target.value))}
+        ref={inputRef}
+        required={required}
         value={selectedPetId || ''}
-        onChange={(e) => onPetSelect(Number(e.target.value))}
-        className="
-          w-full px-3 py-2 border border-gray-300 dark:border-gray-600 
-          rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#51344D] 
-          focus:border-[#51344D] bg-white dark:bg-[#51344D] 
-          text-[#51344D] dark:text-[#FDF2DE]
-          font-nunito
-        "
       >
-        <option value="">Selecciona una mascota...</option> {/* TODO: Add to translation dictionary */}
+        <option value="">{translate('selectPet')}</option>
         {pets.map((pet) => (
           <option key={pet.id} value={pet.id}>
-            {pet.name} - {getPetTypeLabel(pet.type)} ({pet.race})
+            {pet.name} · {translate(petTypeTranslationKeys[pet.type])}{pet.race ? ` · ${pet.race}` : ''}
           </option>
         ))}
       </select>
+      {disabled && <span className="form-help">{translate('petCannotChange')}</span>}
+      {error && <span className="form-error" id="appointment-pet-error">{error}</span>}
     </div>
   );
 }

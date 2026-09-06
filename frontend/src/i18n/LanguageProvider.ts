@@ -5,7 +5,7 @@
  * - Provides a translate function with simple `{{var}}` interpolation.
 */
 
-import { useState, createElement, useMemo, useCallback } from 'react';
+import { useState, createElement, useMemo, useCallback, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { translations, type Language, type TranslationKey} from './dictionary';
 import { TranslatorContext } from './TranslatorContext';
@@ -39,6 +39,13 @@ const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
   const [currentLanguage, setCurrentLanguage] = useState<Language>(
     () => readInitialLanguage()
   );
+
+  /** Keep the document language aligned for assistive technologies and browsers. */
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.lang = currentLanguage;
+    }
+  }, [currentLanguage]);
 
   /** Change language and persist to storage. */
   const changeLanguage = useCallback((language: Language) => {

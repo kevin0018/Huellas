@@ -1,13 +1,13 @@
 import { CreatePetRequest, EditPetRequest } from "../../../../types/pet.js";
 import { Pet } from "../../domain/entities/Pet.js";
 import { IPetRepository } from "../../domain/repositories/IPetRepository.js";
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import type { PrismaClient } from '@prisma/client';
 
 export class PetRepository implements IPetRepository {
+  constructor(private readonly database: PrismaClient) {}
+
   async findById(id: number): Promise<Pet | null> {
-    const pet = await prisma.pet.findUnique({
+    const pet = await this.database.pet.findUnique({
       where: { id: id },
     });
 
@@ -28,25 +28,28 @@ export class PetRepository implements IPetRepository {
       pet.has_passport,
       pet.country_of_origin,
       pet.passport_number,
-      pet.notes
+      pet.notes, pet.allergies, pet.active_medications, pet.medical_conditions, pet.profile_image_url
     );
   }
 
   async save(pet: CreatePetRequest): Promise<Pet> {
-    const savedPet = await prisma.pet.create({
+    const savedPet = await this.database.pet.create({
       data: {
         name: pet.name,
-        race: pet.race,
+        race: pet.race ?? null,
         type: pet.type,
         owner_id: pet.ownerId,
         birth_date: pet.birthDate,
         size: pet.size,
-        microchip_code: pet.microchipCode,
+        microchip_code: pet.microchipCode ?? null,
         sex: pet.sex,
         has_passport: pet.hasPassport,
         country_of_origin: pet.countryOfOrigin,
         passport_number: pet.passportNumber,
-        notes: pet.notes
+        notes: pet.notes,
+        allergies: pet.allergies,
+        active_medications: pet.activeMedications,
+        medical_conditions: pet.medicalConditions
 
       }
     })
@@ -64,14 +67,14 @@ export class PetRepository implements IPetRepository {
       savedPet.has_passport,
       savedPet.country_of_origin,
       savedPet.passport_number,
-      savedPet.notes
+      savedPet.notes, savedPet.allergies, savedPet.active_medications, savedPet.medical_conditions, savedPet.profile_image_url
     );
 
     return newPet;
   }
 
   async delete(id: number): Promise<void> {
-    await prisma.pet.delete({
+    await this.database.pet.delete({
       where: {
         id: id
       }
@@ -79,32 +82,25 @@ export class PetRepository implements IPetRepository {
   }
 
   async update(id: number, data: EditPetRequest): Promise<Pet> {
-    const editData: EditPetRequest = {};
-
-    if (data.name !== undefined) editData.name = data.name;
-    if (data.race !== undefined) editData.race = data.race;
-    if (data.birthDate !== undefined) editData.birthDate = data.birthDate;
-    if (data.size !== undefined) editData.size = data.size;
-    if (data.sex !== undefined) editData.sex = data.sex;
-    if (data.hasPassport !== undefined) editData.hasPassport = data.hasPassport;
-    if (data.countryOfOrigin !== undefined) editData.countryOfOrigin = data.countryOfOrigin;
-    if (data.passportNumber !== undefined) editData.passportNumber = data.passportNumber;
-    if (data.notes !== undefined) editData.notes = data.notes;
-
-    const editedPet = await prisma.pet.update({
+    const editedPet = await this.database.pet.update({
       where: {
         id: id
       },
       data: {
-        name: data.name,
-        race: data.race,
-        birth_date: data.birthDate,
-        size: data.size,
-        sex: data.sex,
-        has_passport: data.hasPassport,
-        country_of_origin: data.countryOfOrigin,
-        passport_number: data.passportNumber,
-        notes: data.notes
+        ...(data.name !== undefined && { name: data.name }),
+        ...(data.race !== undefined && { race: data.race }),
+        ...(data.type !== undefined && { type: data.type }),
+        ...(data.birthDate !== undefined && { birth_date: data.birthDate }),
+        ...(data.size !== undefined && { size: data.size }),
+        ...(data.microchipCode !== undefined && { microchip_code: data.microchipCode }),
+        ...(data.sex !== undefined && { sex: data.sex }),
+        ...(data.hasPassport !== undefined && { has_passport: data.hasPassport }),
+        ...(data.countryOfOrigin !== undefined && { country_of_origin: data.countryOfOrigin }),
+        ...(data.passportNumber !== undefined && { passport_number: data.passportNumber }),
+        ...(data.notes !== undefined && { notes: data.notes }),
+        ...(data.allergies !== undefined && { allergies: data.allergies }),
+        ...(data.activeMedications !== undefined && { active_medications: data.activeMedications }),
+        ...(data.medicalConditions !== undefined && { medical_conditions: data.medicalConditions })
       },
     })
 
@@ -121,14 +117,14 @@ export class PetRepository implements IPetRepository {
       editedPet.has_passport,
       editedPet.country_of_origin,
       editedPet.passport_number,
-      editedPet.notes
+      editedPet.notes, editedPet.allergies, editedPet.active_medications, editedPet.medical_conditions, editedPet.profile_image_url
     )
 
     return pet;
   }
 
   async findByOwnerId(ownerId: number): Promise<Pet[]> {
-    const results = await prisma.pet.findMany({
+    const results = await this.database.pet.findMany({
       where: {
         owner_id: ownerId
       }
@@ -147,7 +143,7 @@ export class PetRepository implements IPetRepository {
       item.has_passport,
       item.country_of_origin,
       item.passport_number,
-      item.notes
+      item.notes, item.allergies, item.active_medications, item.medical_conditions, item.profile_image_url
     ))
 
     return pets;

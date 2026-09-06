@@ -1,10 +1,10 @@
+import { logger } from '../../../../observability/logger.js';
 import { Response } from "express";
-import { VolunteerPostRepository } from "../persistence/VolunteerPostRepository.js";
 import { DeleteVolunteerPostUseCase } from "../../app/usecases/DeleteVolunteerPostUseCase.js";
 import { AuthenticatedRequest } from "../../../auth/infra/middleware/JwtMiddleware.js";
 
 export class DeleteVolunteerPostController {
-  private readonly useCase = new DeleteVolunteerPostUseCase(new VolunteerPostRepository());
+  constructor(private readonly useCase: DeleteVolunteerPostUseCase) {}
 
   // DELETE /volunteers/posts/:id   (requireVolunteer)
   async handle(req: AuthenticatedRequest, res: Response): Promise<void> {
@@ -25,7 +25,7 @@ export class DeleteVolunteerPostController {
 
       res.status(204).send(); // No Content
     } catch (err: any) {
-      console.error("[DeleteVolunteerPostController] Error:", err);
+      logger.error("[DeleteVolunteerPostController] Error:", err);
       // El repo lanza "VOLUNTEER_POST_NOT_FOUND_OR_FORBIDDEN" si no existe o no es autor
       if (err?.message === "VOLUNTEER_POST_NOT_FOUND_OR_FORBIDDEN") {
         // Para no filtrar información: puedes elegir 404 genérico

@@ -1,71 +1,62 @@
 import { Router, Response } from 'express';
 import { AuthenticatedRequest, JwtMiddleware } from '../contexts/auth/infra/middleware/JwtMiddleware.js';
-import { PetRepository } from '../contexts/pet/infra/persistence/PetRepository.js';
-import { DeletePetController } from '../contexts/pet/infra/controllers/DeletePetController.js';
-import { GetPetController } from '../contexts/pet/infra/controllers/GetPetController.js';
-import { PatchPetController } from '../contexts/pet/infra/controllers/PatchPetController.js';
-import { PostPetController } from '../contexts/pet/infra/controllers/PostPetController.js';
-import { CheckupRepository } from '../contexts/checkup/infra/persistence/CheckupRepository.js';
-import { PostCheckupController } from '../contexts/checkup/infra/controllers/PostCheckupController.js';
-import { ProcedureRepository } from '../contexts/procedure/infra/persistence/ProcedureRepository.js';
-import { GetPetCheckupsController } from '../contexts/checkup/infra/controllers/GetPetCheckupsController.js';
-import { GetPetProceduresStatusController } from '../contexts/procedure/infra/controllers/GetPetProceduresStatusController.js';
+import type { PetCareModule } from '../contexts/pet/index.js';
+import type { HealthModule } from '../contexts/health/index.js';
+import { Capability } from '../contexts/auth/domain/AccessControl.js';
 
-export function createPetRoutes(): Router {
-  console.log('Creating pet routes...');
+export function createPetRoutes({ pets, checkups, procedures }: PetCareModule, health: HealthModule): Router {
   const router = Router();
-
-  // Dependency injection setup
-  console.log('Setting up dependencies...');
-  const petRepository = new PetRepository();
-  const checkupRepository = new CheckupRepository();
-  const procedureRepository = new ProcedureRepository();
-
-  // Controllers
-  const getPetController = new GetPetController(petRepository);
-  const deletePetController = new DeletePetController(petRepository);
-  const createPetController = new PostPetController(petRepository);
-  const editPetController = new PatchPetController(petRepository);
-  const createCheckupController = new PostCheckupController(checkupRepository, petRepository, procedureRepository);
-  const getPetCheckupsController = new GetPetCheckupsController(checkupRepository);
-  const getPetProceduresStatusController = new GetPetProceduresStatusController(procedureRepository, petRepository, checkupRepository);
 
   // Routes
   // GET Pet Route
   router.get('/:id', ...JwtMiddleware.requireOwnPet(), async (req: AuthenticatedRequest, res: Response) => {
-    await getPetController.handle(req, res);
+    await pets.get.handle(req, res);
   });
 
   // DELETE Pet Route
   router.delete('/:id', ...JwtMiddleware.requireOwnPet(), async (req: AuthenticatedRequest, res: Response) => {
-    await deletePetController.handle(req, res);
+    await pets.delete.handle(req, res);
   });
 
   // POST Pet Route
-  router.post('/', ...JwtMiddleware.requireOwner(), async (req: AuthenticatedRequest, res: Response) => {
-    await createPetController.handle(req, res);
+  router.post('/', ...JwtMiddleware.requireCapability(Capability.MANAGE_PETS), async (req: AuthenticatedRequest, res: Response) => {
+    await pets.create.handle(req, res);
   });
 
   // PATCH Pet Route
   router.patch('/:id', ...JwtMiddleware.requireOwnPet(), async (req: AuthenticatedRequest, res: Response) => {
-    await editPetController.handle(req, res);
+    await pets.update.handle(req, res);
   });
 
  // POST Checkup Route
-  router.post('/:id/checkup', ...JwtMiddleware.requireOwnPet(), async (req: AuthenticatedRequest, res: Response) => {
-    await createCheckupController.handle(req, res);
+  router.post('/:id/checkup', ...JwtMiddleware.requireOwnPet(Capability.MANAGE_HEALTH), async (req: AuthenticatedRequest, res: Response) => {
+    await checkups.create.handle(req, res);
   });
 
   // Get Pet Checkups Route 
-  router.get('/:id/checkups', ...JwtMiddleware.requireOwnPet(), async (req: AuthenticatedRequest, res: Response) => {
-    await getPetCheckupsController.handle(req, res);
+  router.get('/:id/checkups', ...JwtMiddleware.requireOwnPet(Capability.MANAGE_HEALTH), async (req: AuthenticatedRequest, res: Response) => {
+    await checkups.listByPet.handle(req, res);
   });
 
   //Get Pet Procedures Status Route
-  router.get('/:id/procedures', ... JwtMiddleware.requireOwnPet(), async (req: AuthenticatedRequest, res: Response) => {
-    await getPetProceduresStatusController.handle(req, res);
+  router.get('/:id/procedures', ... JwtMiddleware.requireOwnPet(Capability.MANAGE_HEALTH), async (req: AuthenticatedRequest, res: Response) => {
+    await procedures.getStatusByPet.handle(req, res);
   });
+
+  router.get('/:id/health-events', ...JwtMiddleware.requireOwnPet(Capability.MANAGE_HEALTH), async (req: AuthenticatedRequest, res: Response) => {
+    await health.events.list(req, res);
+  });
+
+  router.post('/:id/health-events', ...JwtMiddleware.requireOwnPet(Capability.MANAGE_HEALTH), async (req: AuthenticatedRequest, res: Response) => {
+    await health.events.create(req, res);
+  });
+
+  router.post('/:id/health-documents', ...JwtMiddleware.requireOwnPet(Capability.MANAGE_HEALTH), async (req: AuthenticatedRequest, res: Response) => {
+    await health.documents.create(req, res);
+  });
+  router.post('/:id/health-export', ...JwtMiddleware.requireOwnPet(Capability.MANAGE_HEALTH), (req: AuthenticatedRequest, res: Response) => health.shares.export(req, res));
+  router.post('/:id/health-shares', ...JwtMiddleware.requireOwnPet(Capability.MANAGE_HEALTH), (req: AuthenticatedRequest, res: Response) => health.shares.create(req, res));
+  router.get('/:id/health-shares', ...JwtMiddleware.requireOwnPet(Capability.MANAGE_HEALTH), (req: AuthenticatedRequest, res: Response) => health.shares.list(req, res));
 
   return router;
 }
-

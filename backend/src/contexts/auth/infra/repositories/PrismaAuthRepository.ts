@@ -1,9 +1,7 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../../../../db/prisma.js';
 import bcrypt from 'bcrypt';
 import { AuthRepository } from '../../domain/repositories/AuthRepository.js';
 import { UserAuth, UserType } from '../../domain/entities/UserAuth.js';
-
-const prisma = new PrismaClient();
 
 export class PrismaAuthRepository implements AuthRepository {
   async findByEmail(email: string): Promise<UserAuth | null> {
@@ -42,11 +40,12 @@ export class PrismaAuthRepository implements AuthRepository {
     );
   }
 
-  async getUserWithDescription(id: number): Promise<{ user: UserAuth; description?: string } | null> {
+  async getUserWithDescription(id: number) {
     const user = await prisma.user.findUnique({
       where: { id },
       include: {
-        volunteer: true
+        volunteer: true,
+        owner: true,
       }
     });
 
@@ -65,7 +64,9 @@ export class PrismaAuthRepository implements AuthRepository {
 
     return {
       user: userAuth,
-      description: user.volunteer?.description
+      description: user.volunteer?.description,
+      hasOwnerProfile: user.owner !== null,
+      hasVolunteerProfile: user.volunteer !== null,
     };
   }
 

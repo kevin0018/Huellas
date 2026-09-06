@@ -1,14 +1,12 @@
 import { Request, Response } from 'express';
 import { RegisterVolunteerCommand } from '../../app/commands/register/RegisterVolunteerCommand.js';
 import { RegisterVolunteerCommandHandler } from '../../app/commands/register/RegisterVolunteerCommandHandler.js';
-import { PrismaVolunteerRepository } from '../persistence/PrismaVolunteerRepository.js';
 
 export class RegisterVolunteerController {
   private commandHandler: RegisterVolunteerCommandHandler;
 
-  constructor() {
-    const volunteerRepository = new PrismaVolunteerRepository();
-    this.commandHandler = new RegisterVolunteerCommandHandler(volunteerRepository);
+  constructor(commandHandler: RegisterVolunteerCommandHandler) {
+    this.commandHandler = commandHandler;
   }
 
   async handle(req: Request, res: Response): Promise<void> {

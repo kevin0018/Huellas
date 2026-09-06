@@ -1,14 +1,13 @@
 import { Response } from "express";
 import { AuthenticatedRequest } from "../../../auth/infra/middleware/JwtMiddleware.js";
 import { FindProceduresByPetTypeUseCase } from "../../app/FindProceduresByPetTypeUseCase.js";
-import { IProcedureRepository } from "../../domain/repositories/IProcedureRepository.js";
 import { PetType } from "@prisma/client";
 
 export class GetProceduresController {
   private findProceduresByPetTypeUseCase: FindProceduresByPetTypeUseCase;
 
-  constructor(procedureRepository: IProcedureRepository) {
-    this.findProceduresByPetTypeUseCase = new FindProceduresByPetTypeUseCase(procedureRepository);
+  constructor(findProceduresByPetTypeUseCase: FindProceduresByPetTypeUseCase) {
+    this.findProceduresByPetTypeUseCase = findProceduresByPetTypeUseCase;
   }
 
   async handle(req: AuthenticatedRequest, res: Response) {

@@ -27,12 +27,6 @@ export class MemoryConversationRepository implements ConversationRepository {
 
   async create(conversation: Conversation): Promise<Conversation> {
     // For memory repository, create a new conversation
-    const newConversation = Conversation.create(
-      conversation.title,
-      conversation.createdBy,
-      conversation.participantIds
-    );
-    
     // Since we can't set the ID directly, we'll use a Map with our own counter
     // and create a mock conversation for storage
     const conversationData = {
@@ -42,7 +36,16 @@ export class MemoryConversationRepository implements ConversationRepository {
       created_at: new Date(),
       updated_at: new Date(),
       created_by: conversation.createdBy,
-      participants: conversation.participantIds.map(id => ({ user_id: id }))
+      participants: conversation.participantIds.map(id => ({
+        user_id: id,
+        user: {
+          id,
+          name: '',
+          last_name: '',
+          email: '',
+          type: 'owner'
+        }
+      }))
     };
     
     const storedConversation = Conversation.fromDatabase(conversationData);

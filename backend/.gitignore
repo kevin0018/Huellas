@@ -50,7 +50,6 @@ mysql_data/
 # Lock files
 package-lock.json
 yarn.lock
-pnpm-lock.yaml
 bun.lockb
 
 # Misc caches

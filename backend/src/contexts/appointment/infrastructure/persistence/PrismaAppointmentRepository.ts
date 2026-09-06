@@ -1,5 +1,5 @@
 import { AppointmentRepository, AppointmentCreateData, AppointmentUpdateData } from '../../domain/repositories/AppointmentRepository.js';
-import { Appointment, AppointmentReason } from '../../domain/entities/Appointment.js';
+import { Appointment, AppointmentReason, AppointmentStatus } from '../../domain/entities/Appointment.js';
 import { PrismaClient } from '@prisma/client';
 
 export class PrismaAppointmentRepository implements AppointmentRepository {
@@ -24,7 +24,8 @@ export class PrismaAppointmentRepository implements AppointmentRepository {
       appointment.pet_id,
       appointment.date,
       appointment.reason as AppointmentReason,
-      appointment.notes || undefined
+      appointment.notes,
+      appointment.status as AppointmentStatus
     );
   }
 
@@ -40,7 +41,8 @@ export class PrismaAppointmentRepository implements AppointmentRepository {
         appointment.pet_id,
         appointment.date,
         appointment.reason as AppointmentReason,
-        appointment.notes || undefined
+        appointment.notes,
+        appointment.status as AppointmentStatus
       )
     );
   }
@@ -64,7 +66,8 @@ export class PrismaAppointmentRepository implements AppointmentRepository {
         appointment.pet_id,
         appointment.date,
         appointment.reason as AppointmentReason,
-        appointment.notes || undefined
+        appointment.notes,
+        appointment.status as AppointmentStatus
       )
     );
   }
@@ -75,7 +78,8 @@ export class PrismaAppointmentRepository implements AppointmentRepository {
         pet_id: data.petId,
         date: data.date,
         reason: data.reason,
-        notes: data.notes
+        notes: data.notes,
+        status: data.status
       }
     });
 
@@ -84,7 +88,8 @@ export class PrismaAppointmentRepository implements AppointmentRepository {
       appointment.pet_id,
       appointment.date,
       appointment.reason as AppointmentReason,
-      appointment.notes || undefined
+      appointment.notes,
+      appointment.status as AppointmentStatus
     );
   }
 
@@ -95,7 +100,8 @@ export class PrismaAppointmentRepository implements AppointmentRepository {
         ...(data.petId !== undefined && { pet_id: data.petId }),
         ...(data.date !== undefined && { date: data.date }),
         ...(data.reason !== undefined && { reason: data.reason }),
-        ...(data.notes !== undefined && { notes: data.notes })
+        ...(data.notes !== undefined && { notes: data.notes }),
+        ...(data.status !== undefined && { status: data.status })
       }
     });
 
@@ -104,7 +110,8 @@ export class PrismaAppointmentRepository implements AppointmentRepository {
       appointment.pet_id,
       appointment.date,
       appointment.reason as AppointmentReason,
-      appointment.notes || undefined
+      appointment.notes,
+      appointment.status as AppointmentStatus
     );
   }
 

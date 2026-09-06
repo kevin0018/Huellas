@@ -1,3 +1,4 @@
+import { ClientError } from '../../../../shared/errors/ClientError';
 import type { AuthRepository } from '../../domain/AuthRepository';
 import { ChangePasswordCommand } from './ChangePasswordCommand';
 import { AuthService } from '../../infra/AuthService';
@@ -12,12 +13,12 @@ export class ChangePasswordCommandHandler {
   async handle(command: ChangePasswordCommand): Promise<void> {
     const token = AuthService.getToken();
     if (!token) {
-      throw new Error('No authentication token found');
+      throw new ClientError('AUTH_REQUIRED');
     }
 
     // Validate that passwords are different
     if (command.currentPassword === command.newPassword) {
-      throw new Error('New password must be different from current password');
+      throw new ClientError('PASSWORD_UNCHANGED');
     }
 
     await this.authRepository.changePassword(token, {

@@ -1,10 +1,8 @@
 import { VolunteerRepository } from '../../domain/repositories/VolunteerRepository.js';
 import { Volunteer } from '../../domain/entities/Volunteer.js';
 import { VolunteerId } from '../../domain/value-objects/VolunteerId.js';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../../../../db/prisma.js';
 import bcrypt from 'bcrypt';
-
-const prisma = new PrismaClient();
 
 export class PrismaVolunteerRepository implements VolunteerRepository {
   async findById(id: VolunteerId): Promise<Volunteer | null> {

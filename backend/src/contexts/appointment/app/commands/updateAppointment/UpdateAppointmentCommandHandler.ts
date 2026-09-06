@@ -21,6 +21,7 @@ export class UpdateAppointmentCommandHandler {
     if (command.date !== undefined) updateData.date = command.date;
     if (command.reason !== undefined) updateData.reason = command.reason;
     if (command.notes !== undefined) updateData.notes = command.notes;
+    if (command.status !== undefined) updateData.status = command.status;
 
     return await this.appointmentRepository.update(command.appointmentId, updateData);
   }

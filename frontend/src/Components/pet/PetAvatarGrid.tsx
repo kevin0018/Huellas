@@ -1,66 +1,39 @@
-import { Link } from 'react-router-dom';
-import type { Pet } from '../../modules/pet/domain/Pet';
-
-// Función para obtener imagen aleatoria según tipo
-function getPetImage(type: string, index: number): string {
-  const dogImages = [
-    "/pets/dog1.jpg",
-    "/pets/dog2.jpg",
-    "/pets/dog3.jpg",
-    "/pets/dog4.jpg",
-    "/pets/dog5.jpg",
-    "/pets/dog6.jpg",
-    "/pets/dog7.jpg",
-    "/pets/dog8.jpg",
-    "/pets/dog9.jpg"
-  ];
-  const catImages = [
-    "/pets/cat1.jpg",
-    "/pets/cat2.jpg",
-    "/pets/cat3.jpg",
-    "/pets/cat4.jpg",
-    "/pets/cat5.jpg",
-    "/pets/cat6.jpg",
-    "/pets/cat7.jpg",
-    "/pets/cat8.jpg"
-  ];
-  const ferretImages = [
-    "/pets/ferret1.jpg",
-    "/pets/ferret2.jpg",
-    "/pets/ferret3.jpg"
-  ];
-
-  let images: string[] = [];
-  if (type === "dog") images = dogImages;
-  else if (type === "cat") images = catImages;
-  else if (type === "ferret") images = ferretImages;
-  else return "/pets/default.svg";
-
-  // Asigna una imagen según el índice, sin repetir hasta agotar el array
-  return images[index % images.length];
-}
+import { useTranslation } from '../../i18n/hooks/hook';
+import { Link } from "react-router-dom";
+import { type Pet } from "../../modules/pet/domain/Pet";
+import { petTypeTranslationKeys } from "../../features/pets/petPresentation";
+import { getPetImageUrl } from "./petImage";
 
 export function PetAvatarGrid({ pets }: { pets: Pet[] }) {
-  if (!pets.length) return <p className="opacity-80">Aún no tienes mascotas.</p>;
+  const { translate } = useTranslation();
+  if (!pets.length) return <p className="text-sm text-[var(--color-ink-soft)]">{translate('emptyPetGrid')}</p>;
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      {pets.map((p, i) => (
-        <div key={p.id} className="flex flex-col items-center">
+    <ul className="pet-grid grid gap-3" aria-label={translate('yourPets')}>
+      {pets.map((pet) => (
+        <li key={pet.id}>
           <Link
-            to={`/pets/${p.id}`}
-            className="avatar-shadow mx-auto transition-transform hover:scale-105"
+            to={`/pets/${pet.id}`}
+            aria-label={translate('openPetProfile', { pet: pet.name })}
+            className="pet-card-link grid min-h-20 grid-cols-[4rem_minmax(0,1fr)_auto] items-center gap-3 rounded-[var(--radius-card)] border border-[var(--color-rule-strong)] bg-[var(--color-surface-raised)] p-2 text-[var(--color-ink)] shadow-[var(--shadow-card)] no-underline"
           >
-            <span className="avatar-circle block size-28 md:size-36">
+            <span className="size-16 overflow-hidden rounded-[var(--radius-control)] bg-[var(--color-paper-2)]" aria-hidden="true">
               <img
-                src={getPetImage(p.type, i)}
-                alt={p.name}
-                className="size-full object-contain"
+                src={getPetImageUrl(pet)}
+                alt=""
+                className="size-full object-cover"
               />
             </span>
+            <span className="min-w-0">
+              <span className="block truncate font-bold text-[var(--color-ink)]">{pet.name}</span>
+              <span className="mt-1 block text-sm text-[var(--color-ink-soft)]">{translate(petTypeTranslationKeys[pet.type])}</span>
+            </span>
+            <svg className="pet-card-arrow size-5 text-[var(--color-accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m9 18 6-6-6-6" />
+            </svg>
           </Link>
-          <p className="mt-2 font-semibold">{p.name}</p>
-        </div>
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }

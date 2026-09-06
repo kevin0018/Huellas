@@ -1,30 +1,32 @@
 import { Router } from 'express';
-import { ChatController } from '../contexts/chat/infra/controllers/ChatController.js';
 import { JwtMiddleware } from '../contexts/auth/infra/middleware/JwtMiddleware.js';
+import type { ChatModule } from '../contexts/chat/index.js';
+import { Capability } from '../contexts/auth/domain/AccessControl.js';
 
-const router = Router();
-const chatController = new ChatController();
-const requireAuthenticated = JwtMiddleware.requireAuthenticated;
+export function createChatRoutes({ controller }: ChatModule): Router {
+  const router = Router();
+  const requireChat = () => JwtMiddleware.requireCapability(Capability.USE_CHAT);
 
 // GET /conversations - Lista conversaciones del usuario
-router.get('/conversations', requireAuthenticated(), (req, res) => chatController.getConversations(req, res));
+  router.get('/conversations', ...requireChat(), (req, res) => controller.getConversations(req, res));
 
 // POST /conversations - Crear nueva conversación
-router.post('/conversations', requireAuthenticated(), (req, res) => chatController.createConversation(req, res));
+  router.post('/conversations', ...requireChat(), (req, res) => controller.createConversation(req, res));
 
 // GET /conversations/:id/messages - Obtener mensajes de conversación
-router.get('/conversations/:id/messages', requireAuthenticated(), (req, res) => chatController.getMessages(req, res));
+  router.get('/conversations/:id/messages', ...requireChat(), (req, res) => controller.getMessages(req, res));
 
 // POST /conversations/:id/messages - Enviar mensaje
-router.post('/conversations/:id/messages', requireAuthenticated(), (req, res) => chatController.sendMessage(req, res));
+  router.post('/conversations/:id/messages', ...requireChat(), (req, res) => controller.sendMessage(req, res));
 
 // PUT /messages/:id/read - Marcar mensaje como leído
-router.put('/messages/:id/read', requireAuthenticated(), (req, res) => chatController.markAsRead(req, res));
+  router.put('/messages/:id/read', ...requireChat(), (req, res) => controller.markAsRead(req, res));
 
 // GET /messages/unread/count - Contar mensajes no leídos
-router.get('/messages/unread/count', requireAuthenticated(), (req, res) => chatController.getUnreadCount(req, res));
+  router.get('/messages/unread/count', ...requireChat(), (req, res) => controller.getUnreadCount(req, res));
 
 // PUT /conversations/:id/archive - Archivar conversación
-router.put('/conversations/:id/archive', requireAuthenticated(), (req, res) => chatController.archiveConversation(req, res));
+  router.put('/conversations/:id/archive', ...requireChat(), (req, res) => controller.archiveConversation(req, res));
 
-export default router;
+  return router;
+}

@@ -21,7 +21,7 @@ export class MemoryAuthRepository implements AuthRepository {
     return user || null;
   }
 
-  async getUserWithDescription(id: number): Promise<{ user: UserAuth; description?: string } | null> {
+  async getUserWithDescription(id: number) {
     const user = this.users.find(u => u.id === id);
     if (!user) {
       return null;
@@ -30,7 +30,9 @@ export class MemoryAuthRepository implements AuthRepository {
     const volunteerProfile = this.volunteerProfiles.find(v => v.userId === id);
     return {
       user,
-      description: volunteerProfile?.description
+      description: volunteerProfile?.description,
+      hasOwnerProfile: user.type === UserType.OWNER,
+      hasVolunteerProfile: user.type === UserType.VOLUNTEER || volunteerProfile !== undefined,
     };
   }
 

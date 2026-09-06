@@ -1,40 +1,25 @@
-import { Request, Response } from 'express';
-import { ICheckupRepository } from '../../domain/repositories/ICheckupRepository.js';
-import { IPetRepository } from '../../../pet/domain/repositories/IPetRepository.js';
+import { Response } from 'express';
+import { AuthenticatedRequest } from '../../../auth/infra/middleware/JwtMiddleware.js';
+import { CheckupAccessService } from '../../app/CheckupAccessService.js';
 
 export class GetCheckupByIdController {
-  private checkupRepository: ICheckupRepository;
-  private petRepository: IPetRepository;
+  private accessService: CheckupAccessService;
 
-  constructor(checkupRepository: ICheckupRepository, petRepository: IPetRepository,) {
-    this.checkupRepository = checkupRepository;
-    this.petRepository = petRepository;
+  constructor(accessService: CheckupAccessService) {
+    this.accessService = accessService;
   }
 
-  async handle(req: Request, res: Response) {
+  async handle(req: AuthenticatedRequest, res: Response) {
     try {
       // Check access to the pet
       const userId = req.user.userId;
 
       const checkupId = parseInt(req.params.id);
-      const checkup = await this.checkupRepository.findById(checkupId);
-
-      if(!checkup){
-        return res.status(404).send({ error: "This checkup does not exist" })
-      }
-
-      const petId = checkup?.getPetId() as number;
-      const pet = await this.petRepository.findById(petId);
-  
-      const petOwnerId = pet?.getOwnerId() as number;
-
-      if (petOwnerId !== userId) {
-        return res.status(403).send({ error: "You cannot get chekups for this pet" })
-      }
+      const { checkup } = await this.accessService.requireOwnedCheckup(checkupId, userId);
 
       return res.send(checkup);
-    } catch (error) {
-      return res.status(500).send({ error: 'Internal server error' });
+    } catch {
+      return res.status(404).send({ error: 'Resource not found' });
     }
   }
 }

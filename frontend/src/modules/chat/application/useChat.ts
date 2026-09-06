@@ -1,8 +1,9 @@
+import { messageFromError, translateMessage, type LocalizedMessage } from '../../../i18n/message';
+import { useTranslation } from '../../../i18n/hooks/hook';
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import type { ConversationListItem, Message, Conversation } from '../domain/Conversation';
 import { ApiChatRepository } from '../infra/ApiChatRepository';
 import { socketService } from '../infra/SocketService';
-import { AuthService } from '../../auth/infra/AuthService';
 import { GetConversationsQueryHandler } from '../application/queries/GetConversationsQueryHandler';
 import { GetMessagesQueryHandler } from '../application/queries/GetMessagesQueryHandler';
 import { CreateConversationCommandHandler } from '../application/commands/CreateConversationCommandHandler';
@@ -13,11 +14,12 @@ import { CreateConversationCommand } from '../application/commands/CreateConvers
 import { SendMessageCommand } from '../application/commands/SendMessageCommand';
 
 export function useChat() {
+  const { translate } = useTranslation();
   const [conversations, setConversations] = useState<ConversationListItem[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<LocalizedMessage | null>(null);
 
   // Initialize handlers
   const repository = useMemo(() => new ApiChatRepository(), []);
@@ -46,7 +48,7 @@ export function useChat() {
       const result = await getConversationsHandler.handle(new GetConversationsQuery());
       setConversations(result);
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : 'Error loading conversations';
+      const errorMsg = messageFromError(err, 'loadConversationsError');
       console.error('[useChat] ❌ Failed to load conversations:', errorMsg);
       setError(errorMsg);
     } finally {
@@ -62,7 +64,7 @@ export function useChat() {
       const result = await getMessagesHandler.handle(new GetMessagesQuery(conversationId));
       setMessages(result);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error loading messages');
+      setError(messageFromError(err, 'loadMessagesError'));
     } finally {
       setLoading(false);
     }
@@ -80,7 +82,7 @@ export function useChat() {
       return conversation;
     } catch (err) {
       console.error('[useChat] ❌ Error creating conversation:', err);
-      setError(err instanceof Error ? err.message : 'Error creating conversation');
+      setError(messageFromError(err, 'chatStartError'));
       throw err;
     } finally {
       setLoading(false);
@@ -110,7 +112,7 @@ export function useChat() {
       
       return message;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error sending message');
+      setError(messageFromError(err, 'sendMessageError'));
       throw err;
     }
   };
@@ -131,11 +133,9 @@ export function useChat() {
   // Mark message as read
   const markAsRead = async (messageId: number) => {
     try {
-      const currentUser = AuthService.getUser();
-      
       // Send via Socket.IO for real-time update
-      if (socketService.isConnected() && currentUser) {
-        socketService.markMessageAsRead(messageId, currentUser.id);
+      if (socketService.isConnected()) {
+        socketService.markMessageAsRead(messageId);
       }
       
       // Also send via API
@@ -150,7 +150,7 @@ export function useChat() {
       // Refresh conversations to update unread count
       await loadConversations();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error marking message as read');
+      setError(messageFromError(err, 'markMessageReadError'));
     }
   };
 
@@ -160,7 +160,7 @@ export function useChat() {
       await repository.archiveConversation(conversationId);
       await loadConversations(); // Refresh conversations list
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error archiving conversation');
+      setError(messageFromError(err, 'archiveConversationError'));
       throw err;
     }
   };
@@ -223,10 +223,7 @@ export function useChat() {
   // Join/leave conversation rooms when selected conversation changes
   useEffect(() => {
     if (selectedConversation) {
-      const currentUser = AuthService.getUser();
-      if (currentUser) {
-        socketService.joinConversation(selectedConversation.id, currentUser.id);
-      }
+      socketService.joinConversation(selectedConversation.id);
       
       return () => {
         socketService.leaveConversation(selectedConversation.id);
@@ -240,7 +237,7 @@ export function useChat() {
     selectedConversation,
     messages,
     loading,
-    error,
+    error: translateMessage(error, translate),
     
     // Actions
     loadConversations,

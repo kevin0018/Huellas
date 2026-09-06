@@ -1,171 +1,205 @@
 /**
- * Barra de navegación responsive con menú hamburguesa.
- * LanguageSwitcher visible en la barra (desktop + móvil topbar).
- * ThemeSwitcher solo dentro del menú móvil.
- * Navegación SPA con react-router-dom (Link).
-*/
+ * Responsive primary navigation.
+ * Routes are filtered by the capabilities of the authenticated user.
+ */
 
-import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import ThemeSwitcher from './theme/ThemeSwitcher';
 import LanguageSwitcher from '../i18n/LanguageSwitcher';
 import { useTranslation } from '../i18n/hooks/hook';
 import { AuthService } from '../modules/auth/infra/AuthService';
-import { LogoutCommand } from '../modules/auth/application/commands/LogoutCommand';
-import { LogoutCommandHandler } from '../modules/auth/application/commands/LogoutCommandHandler';
-import { ApiAuthRepository } from '../modules/auth/infra/ApiAuthRepository';
-import { UserType, type User } from '../modules/auth/domain/User';
+import { Capability, hasCapability, type User } from '../modules/auth/domain/User';
+import { authActions } from '../features/auth/authActions';
+
+const navLinkClass = ({ isActive }: { isActive: boolean }) =>
+  [
+    'inline-flex min-h-11 items-center justify-center rounded-[var(--radius-control)] px-3 py-2',
+    'ui-hover-surface text-sm font-semibold no-underline outline-offset-2',
+    'transition-[color,background-color] duration-[var(--duration-short)]',
+    isActive
+      ? 'ui-contrast-action bg-[var(--color-accent)]'
+      : 'text-[var(--color-ink-soft)]',
+  ].join(' ');
+
+const mobileNavLinkClass = ({ isActive }: { isActive: boolean }) =>
+  [
+    'ui-hover-surface flex min-h-11 w-full items-center rounded-[var(--radius-control)] px-4 py-2 text-base font-semibold no-underline',
+    'transition-[color,background-color] duration-[var(--duration-short)]',
+    isActive
+      ? 'ui-contrast-action bg-[var(--color-accent)]'
+      : 'text-[var(--color-ink)]',
+  ].join(' ');
 
 export default function NavBar() {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [isOpen, setIsOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userType, setUserType] = useState<UserType | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const { translate } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
 
-useEffect(() => {
-  const checkAuthStatus = () => {
-    const authenticated = AuthService.isAuthenticated();
-    setIsLoggedIn(authenticated);
-    if (authenticated) {
-      const user: User | null = AuthService.getUser();
-      setUserType(user ? user.type : null);
-    } else {
-      setUserType(null);
-    }
-  };
+  useEffect(() => {
+    const checkAuthStatus = () => {
+      const authenticated = AuthService.isAuthenticated();
+      setIsLoggedIn(authenticated);
+      setUser(authenticated ? AuthService.getUser() : null);
+    };
 
-  checkAuthStatus();
-  window.addEventListener('storage', checkAuthStatus);
-  return () => window.removeEventListener('storage', checkAuthStatus);
-}, []);
+    checkAuthStatus();
+    window.addEventListener('storage', checkAuthStatus);
+    window.addEventListener('auth-changed', checkAuthStatus);
 
-  const toggleMenu = (): void => setIsOpen(!isOpen);
+    return () => {
+      window.removeEventListener('storage', checkAuthStatus);
+      window.removeEventListener('auth-changed', checkAuthStatus);
+    };
+  }, []);
 
-  const closeMenu = () => {
+  useEffect(() => {
     setIsOpen(false);
-  };
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsOpen(false);
+    };
+
+    document.addEventListener('keydown', closeOnEscape);
+    return () => document.removeEventListener('keydown', closeOnEscape);
+  }, [isOpen]);
 
   const handleLogout = async () => {
     try {
-      const authRepository = new ApiAuthRepository();
-      const logoutHandler = new LogoutCommandHandler(authRepository);
-      const logoutCommand = new LogoutCommand();
-      
-      await logoutHandler.handle(logoutCommand);
-      setIsLoggedIn(false);
-      navigate('/login');
-      closeMenu();
+      await authActions.logout();
     } catch (error) {
       console.error('Error during logout:', error);
-      // Even if logout fails, clear local state
       AuthService.logout();
+    } finally {
       setIsLoggedIn(false);
-      setUserType(null); 
+      setUser(null);
+      setIsOpen(false);
       navigate('/login');
-      closeMenu();
     }
   };
 
-  return (
-    <nav className="bg-[#A89B9D] dark:bg-[#928d8e] text-white p-4 shadow-md w-full sticky top-0 z-50 rounded-xs 3xl:max-w-80%">
-      <div className="container mx-auto flex justify-between items-center ">
-        {/* Logo + brand */}
-        <Link to="/" className="flex items-center text-eggplant text-xl text-[#51344D] 3xl:!text-[3rem]">
-          <img src="/media/logotipo.svg" alt="Logotipo-huellas" className="h-14 w-auto" />
-          Huellas
-        </Link>
+  const canManagePets = hasCapability(user, Capability.MANAGE_PETS);
+  const canPublishVolunteerPosts = hasCapability(user, Capability.PUBLISH_VOLUNTEER_POSTS);
 
-        {/* Menú Desktop */}
-        <div className="hidden md:flex items-center space-x-6 text-[#51344D]">
+  const authenticatedLinks = (
+    <>
+      {canManagePets && <NavLink to="/user-home" className={navLinkClass}>{translate('home')}</NavLink>}
+      {canPublishVolunteerPosts && <NavLink to="/volunteer-home" className={navLinkClass}>{translate('volunteering')}</NavLink>}
+      <NavLink to="/volunteer-board" className={navLinkClass}>{translate('findVolunteers')}</NavLink>
+      <NavLink to="/chat" className={navLinkClass}>{translate('myChats')}</NavLink>
+    </>
+  );
+
+  const publicLinks = (
+    <>
+      <NavLink to="/" end className={navLinkClass}>{translate('home')}</NavLink>
+      <NavLink to="/about" className={navLinkClass}>{translate('aboutUs')}</NavLink>
+      <NavLink to="/register" className={navLinkClass}>{translate('register')}</NavLink>
+    </>
+  );
+
+  return (
+    <nav
+      aria-label={translate('mainNavigation')}
+      className="sticky top-0 z-50 w-full border-b border-[var(--color-rule)] bg-[var(--color-surface-raised)]/95 px-[var(--page-gutter)] shadow-[var(--shadow-nav)] backdrop-blur-sm"
+    >
+      <div className="mx-auto grid min-h-[calc(var(--nav-height)-var(--rule-hairline))] max-w-[var(--page-max)] grid-cols-[1fr_auto] items-center gap-4 lg:grid-cols-[auto_1fr_auto]">
+        <NavLink
+          to={isLoggedIn && canManagePets ? '/user-home' : '/'}
+          end={!isLoggedIn}
+          className="inline-flex min-h-11 w-fit items-center gap-2 rounded-[var(--radius-control)] pr-2 font-[var(--font-display)] text-xl leading-none text-[var(--color-accent)] no-underline"
+          aria-label={translate('brandHomeLabel')}
+        >
+          <img src="/media/logotipo.svg" alt="" className="h-11 w-11 object-contain" />
+          <span>Huellas</span>
+        </NavLink>
+
+        <div className="hidden items-center justify-center gap-1 lg:flex">
+          {isLoggedIn ? authenticatedLinks : publicLinks}
+        </div>
+
+        <div className="hidden items-center justify-end gap-2 lg:flex">
           {isLoggedIn ? (
             <>
-              {/* Hide "Inicio" for pure volunteer users (VOLUNTEER type) */}
-              {userType !== UserType.VOLUNTEER && (
-                <Link to="/user-home" className="3xl:!text-[2rem]">{translate('home')}</Link>
-              )}
-              <Link to="/user-profile" className="3xl:!text-[2rem]">{translate('profile')}</Link>
-              {(userType === UserType.VOLUNTEER) && (
-                <Link to="/volunteer-home" className="3xl:!text-[2rem]">Voluntariado</Link>
-              )}
-
-              <Link to="/volunteer-board" className="3xl:!text-[2rem]">Buscar voluntarios</Link>
-              <Link to="/chat" className="3xl:!text-[2rem]">Mis Chats</Link>
-              <button 
+              <NavLink to="/user-profile" className={navLinkClass}>{translate('profile')}</NavLink>
+              <button
+                type="button"
                 onClick={handleLogout}
-                className="3xl:!text-[2rem]"
+                className="ui-hover-surface inline-flex min-h-11 items-center rounded-[var(--radius-control)] px-3 py-2 text-sm font-semibold text-[var(--color-ink-soft)] transition-[color,background-color] duration-[var(--duration-short)]"
               >
                 {translate('logout')}
               </button>
             </>
           ) : (
-            <>
-              <Link to="/register" className="3xl:!text-[2rem]">{translate('register')}</Link>
-              <Link to="/login" className="3xl:!text-[2rem]">{translate('login')}</Link>
-              <Link to="/about" className="3xl:!text-[2rem]">{translate('aboutUs')}</Link>
-            </>
+            <NavLink to="/login" className={navLinkClass}>{translate('login')}</NavLink>
           )}
-          <LanguageSwitcher className="select-huellas" />
-          <ThemeSwitcher />
+          <LanguageSwitcher className="[&>button]:!h-11 [&>button]:!w-11" />
+          <ThemeSwitcher className="!h-11 !w-[4.5rem]" />
         </div>
 
-        {/* Mobile topbar (LanguageSwitcher + burger) */}
-        <div className="md:hidden flex items-center gap-3">
-          <LanguageSwitcher className="select-huellas" />
+        <div className="flex items-center justify-end gap-2 lg:hidden">
+          <LanguageSwitcher className="[&>button]:!h-11 [&>button]:!w-11" />
           <button
-            onClick={toggleMenu}
-            aria-label="Toggle Menu"
-            className="text-[--huellas-eggplant]"
+            type="button"
+            onClick={() => setIsOpen((open) => !open)}
+            aria-expanded={isOpen}
+            aria-controls="primary-navigation-mobile"
+            aria-label={isOpen ? translate('closeMenu') : translate('openMenu')}
+            className="ui-hover-surface inline-flex h-11 w-11 items-center justify-center rounded-[var(--radius-control)] text-[var(--color-accent)] transition-[color,background-color] duration-[var(--duration-short)]"
           >
             {isOpen ? (
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-6 w-6">
+                <path strokeLinecap="round" d="M6 6l12 12M18 6 6 18" />
               </svg>
             ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-6 w-6">
+                <path strokeLinecap="round" d="M4 7h16M4 12h16M4 17h16" />
               </svg>
             )}
           </button>
         </div>
       </div>
 
-      {/* Menú desplegable móvil */}
-      <div className={`md:hidden ${isOpen ? 'block' : 'hidden'}`}>
-        <div className="flex flex-col items-center space-y-4 pt-4 pb-2">
-          {isLoggedIn ? (
-            <>
-              {/* Hide "Inicio" for pure volunteer users (VOLUNTEER type) */}
-              {userType !== UserType.VOLUNTEER && (
-                <Link to="/user-home" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">{translate('home')}</Link>
-              )}
-              <Link to="/user-profile" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">{translate('profile')}</Link>
-              {(userType === UserType.VOLUNTEER || userType === UserType.OWNER) && (
-                <Link to="/volunteer-home" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">Voluntariado</Link>
-              )}
-              <Link to="/volunteer-board" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">Buscar voluntarios</Link>
-              <Link to="/chat" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">Mis Chats</Link>
-              <button
-                onClick={handleLogout}
-                className="hover:text-[--huellas-eggplant]"
-              >
-                {translate('logout')}
-              </button>
-            </>
-          ) : (
-            <>
-              <Link to="/" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">{translate('home')}</Link>
-              <Link to="/login" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">{translate('login')}</Link>
-              <Link to="/register" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">{translate('register')}</Link>
-            </>
-          )}
-          <Link to="/about" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">{translate('aboutUs')}</Link>
-          <Link to="/contact" onClick={closeMenu} className="hover:text-[--huellas-eggplant]">{translate('contact')}</Link>
-          <div className="flex items-center gap-3">
-            <ThemeSwitcher />
+      {isOpen && (
+        <div id="primary-navigation-mobile" className="mx-auto max-w-[var(--page-max)] border-t border-[var(--color-rule)] py-3 lg:hidden">
+          <div className="flex flex-col gap-1">
+            {isLoggedIn ? (
+              <>
+                {canManagePets && <NavLink to="/user-home" className={mobileNavLinkClass}>{translate('home')}</NavLink>}
+                {canPublishVolunteerPosts && <NavLink to="/volunteer-home" className={mobileNavLinkClass}>{translate('volunteering')}</NavLink>}
+                <NavLink to="/volunteer-board" className={mobileNavLinkClass}>{translate('findVolunteers')}</NavLink>
+                <NavLink to="/chat" className={mobileNavLinkClass}>{translate('myChats')}</NavLink>
+                <NavLink to="/user-profile" className={mobileNavLinkClass}>{translate('profile')}</NavLink>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="ui-hover-surface flex min-h-11 w-full items-center rounded-[var(--radius-control)] px-4 py-2 text-left text-base font-semibold text-[var(--color-ink)] transition-[color,background-color] duration-[var(--duration-short)]"
+                >
+                  {translate('logout')}
+                </button>
+              </>
+            ) : (
+              <>
+                <NavLink to="/" end className={mobileNavLinkClass}>{translate('home')}</NavLink>
+                <NavLink to="/about" className={mobileNavLinkClass}>{translate('aboutUs')}</NavLink>
+                <NavLink to="/register" className={mobileNavLinkClass}>{translate('register')}</NavLink>
+                <NavLink to="/login" className={mobileNavLinkClass}>{translate('login')}</NavLink>
+              </>
+            )}
+            <div className="mt-2 flex min-h-11 items-center justify-between border-t border-[var(--color-rule)] px-4 pt-3 text-sm font-semibold text-[var(--color-ink-soft)]">
+              <span>{translate('theme')}</span>
+              <ThemeSwitcher className="!h-11 !w-[4.5rem]" />
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </nav>
   );
-};
+}

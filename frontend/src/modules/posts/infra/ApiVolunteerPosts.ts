@@ -1,3 +1,5 @@
+import { ClientError } from '../../../shared/errors/ClientError';
+import { ensureResponseOk, fetchResponse } from '../../../shared/api/response';
 // Cliente API para Volunteer Posts (listado + creación).
 // Usa el token centralizado en AuthService (igual que el resto del módulo de auth).
 
@@ -7,8 +9,7 @@ import type {
   PostCategory,
 } from "../domain/types";
 import { AuthService } from "../../auth/infra/AuthService";
-
-const API_BASE = import.meta.env.VITE_API_URL || ""; // e.g. http://localhost:3000/api
+import { API_BASE_URL } from '../../../shared/api/apiConfig';
 
 export interface ListParams {
   page?: number;
@@ -27,12 +28,12 @@ export class ApiVolunteerPosts {
 
   constructor() {
     // En el backend montamos /api/volunteers/posts
-    this.baseUrl = `${API_BASE}/volunteers/posts`;
+    this.baseUrl = `${API_BASE_URL}/volunteers/posts`;
   }
 
   private getAuthHeaders(): HeadersInit {
     const token = AuthService.getToken();
-    if (!token) throw new Error("Not authenticated: missing token");
+    if (!token) throw new ClientError('AUTH_REQUIRED');
     return {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
@@ -40,7 +41,7 @@ export class ApiVolunteerPosts {
   }
 
   async list(params: ListParams = {}): Promise<VolunteerPostListResult> {
-    const url = new URL(this.baseUrl);
+    const url = new URL(this.baseUrl, window.location.origin);
     // Defaults de paginación
     url.searchParams.set("page", String(params.page ?? 1));
     url.searchParams.set("pageSize", String(params.pageSize ?? 12));
@@ -60,15 +61,12 @@ export class ApiVolunteerPosts {
     if (params.from) url.searchParams.set("from", params.from);
     if (params.to) url.searchParams.set("to", params.to);
 
-    const resp = await fetch(url.toString(), {
+    const resp = await fetchResponse(url.toString(), {
       method: "GET",
       headers: this.getAuthHeaders(),
     });
 
-    if (!resp.ok) {
-      const text = await resp.text().catch(() => "");
-      throw new Error(`Failed to fetch posts: ${resp.status} ${text}`);
-    }
+    await ensureResponseOk(resp);
 
     const data = (await resp.json()) as VolunteerPostListResult;
     return data;
@@ -80,7 +78,7 @@ export class ApiVolunteerPosts {
     category: PostCategory;
     expiresAt?: string | null; // ISO string opcional
   }): Promise<VolunteerPost> {
-    const resp = await fetch(this.baseUrl, {
+    const resp = await fetchResponse(this.baseUrl, {
       method: "POST",
       headers: this.getAuthHeaders(),
       body: JSON.stringify({
@@ -92,10 +90,7 @@ export class ApiVolunteerPosts {
       }),
     });
 
-    if (!resp.ok) {
-      const text = await resp.text().catch(() => "");
-      throw new Error(`Failed to create post: ${resp.status} ${text}`);
-    }
+    await ensureResponseOk(resp);
 
     const created = (await resp.json()) as VolunteerPost;
     return created;
@@ -103,9 +98,9 @@ export class ApiVolunteerPosts {
 
     async delete(id: number): Promise<void> {
     const token = AuthService.getToken();
-    if (!token) throw new Error("Not authenticated: missing token");
+    if (!token) throw new ClientError('AUTH_REQUIRED');
 
-    const resp = await fetch(`${this.baseUrl}/${id}`, {
+    const resp = await fetchResponse(`${this.baseUrl}/${id}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -113,10 +108,7 @@ export class ApiVolunteerPosts {
       },
     });
 
-    if (!resp.ok) {
-      const text = await resp.text().catch(() => "");
-      throw new Error(`Failed to delete post: ${resp.status} ${text}`);
-    }
+    await ensureResponseOk(resp);
   }
 
 }

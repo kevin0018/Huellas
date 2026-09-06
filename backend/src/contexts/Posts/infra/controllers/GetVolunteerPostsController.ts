@@ -1,5 +1,5 @@
+import { logger } from '../../../../observability/logger.js';
 import { Request, Response } from "express";
-import { VolunteerPostRepository } from "../persistence/VolunteerPostRepository.js";
 import { ListVolunteerPostsUseCase } from "../../app/usecases/ListVolunteerPostsUseCase.js";
 import { VolunteerPostListFilters } from "../../../../types/volunteerPost.js";
 
@@ -21,8 +21,7 @@ function parseDate(v: any): Date | undefined {
 }
 
 export class GetVolunteerPostsController {
-  // Inyectamos repositorio vía use case
-  private readonly useCase = new ListVolunteerPostsUseCase(new VolunteerPostRepository());
+  constructor(private readonly useCase: ListVolunteerPostsUseCase) {}
 
   // GET /volunteers/posts
   async handle(req: Request, res: Response): Promise<void> {
@@ -49,7 +48,7 @@ export class GetVolunteerPostsController {
 
       res.status(200).json(result);
     } catch (err) {
-      console.error("[GetVolunteerPostsController] Error:", err);
+      logger.error("[GetVolunteerPostsController] Error:", err);
       res.status(500).json({ error: "Internal server error" });
     }
   }

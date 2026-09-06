@@ -1,4 +1,4 @@
-import { AppointmentReason } from '../../../domain/entities/Appointment.js';
+import { AppointmentReason, AppointmentStatus } from '../../../domain/entities/Appointment.js';
 
 export class UpdateAppointmentCommand {
   constructor(
@@ -6,6 +6,7 @@ export class UpdateAppointmentCommand {
     public readonly ownerId: number,
     public readonly date?: Date,
     public readonly reason?: AppointmentReason,
-    public readonly notes?: string
+    public readonly notes?: string | null,
+    public readonly status?: AppointmentStatus
   ) {}
 }

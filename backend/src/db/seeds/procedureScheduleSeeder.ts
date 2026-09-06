@@ -233,5 +233,14 @@ export async function seedProcedureSchedules(prisma: PrismaClient) {
         }),
     ]);
 
+    await Promise.all([
+        prisma.procedureSchedule.updateMany({ where: { procedure_name: { contains: 'Vacuna' } }, data: { procedure_type: 'VACCINATION' } }),
+        prisma.procedureSchedule.updateMany({ where: { procedure_name: { contains: 'Test' } }, data: { procedure_type: 'TEST' } }),
+        prisma.procedureSchedule.updateMany({ where: { procedure_name: { contains: 'Chequeo' } }, data: { procedure_type: 'GENERAL_CHECKUP' } }),
+        prisma.procedureSchedule.updateMany({ where: { procedure_name: { contains: 'Desparasitación' } }, data: { procedure_type: 'TREATMENT' } }),
+        prisma.procedureSchedule.updateMany({ where: { notes: { contains: 'cada 2 semanas' } }, data: { recurrence_days: 14 } }),
+        prisma.procedureSchedule.updateMany({ where: { notes: { contains: 'anual' } }, data: { recurrence_days: 365 } }),
+    ]);
+
     return procedures;
 }

@@ -1,9 +1,7 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../../../../db/prisma.js';
 import { OwnerRepository } from '../../domain/repositories/OwnerRepository.js';
 import { Owner } from '../../domain/entities/Owner.js';
 import { OwnerId } from '../../domain/value-objects/OwnerId.js';
-
-const prisma = new PrismaClient();
 
 export class PrismaOwnerRepository implements OwnerRepository {
   async findById(id: OwnerId): Promise<Owner | null> {
@@ -62,8 +60,11 @@ export class PrismaOwnerRepository implements OwnerRepository {
   }
 
   async delete(id: OwnerId): Promise<void> {
-    await prisma.user.delete({
-      where: { id: id.getValue() }
+    // HealthEvent.entered_by restricts user deletion before the pet cascade.
+    // Keep both deletions atomic so unrelated references cannot leave a partial account.
+    await prisma.$transaction(async (database) => {
+      await database.pet.deleteMany({ where: { owner_id: id.getValue() } });
+      await database.user.delete({ where: { id: id.getValue() } });
     });
   }
 }

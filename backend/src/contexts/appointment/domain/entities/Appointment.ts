@@ -6,13 +6,21 @@ export enum AppointmentReason {
   OTHERS = 'OTHERS'
 }
 
+export enum AppointmentStatus {
+  SCHEDULED = 'scheduled',
+  COMPLETED = 'completed',
+  CANCELLED = 'cancelled',
+  NO_SHOW = 'no_show'
+}
+
 export class Appointment {
   private constructor(
     private readonly _id: number,
     private readonly _petId: number,
     private readonly _date: Date,
     private readonly _reason: AppointmentReason,
-    private readonly _notes?: string
+    private readonly _notes: string | null = null,
+    private readonly _status: AppointmentStatus = AppointmentStatus.SCHEDULED
   ) {}
 
   // Getters
@@ -32,8 +40,12 @@ export class Appointment {
     return this._reason;
   }
 
-  get notes(): string | undefined {
+  get notes(): string | null {
     return this._notes;
+  }
+
+  get status(): AppointmentStatus {
+    return this._status;
   }
 
   // Factory method for creating instances
@@ -42,7 +54,8 @@ export class Appointment {
     petId: number,
     date: Date,
     reason: AppointmentReason,
-    notes?: string
+    notes?: string | null,
+    status: AppointmentStatus = AppointmentStatus.SCHEDULED
   ): Appointment {
     // Domain validations
     if (id <= 0) {
@@ -66,7 +79,7 @@ export class Appointment {
       throw new Error('Invalid appointment reason');
     }
 
-    return new Appointment(id, petId, date, reason, notes);
+    return new Appointment(id, petId, date, reason, notes ?? null, status);
   }
 
   // Factory method for existing appointments (from database)
@@ -75,8 +88,9 @@ export class Appointment {
     petId: number,
     date: Date,
     reason: AppointmentReason,
-    notes?: string
+    notes?: string | null,
+    status: AppointmentStatus = AppointmentStatus.SCHEDULED
   ): Appointment {
-    return new Appointment(id, petId, date, reason, notes);
+    return new Appointment(id, petId, date, reason, notes ?? null, status);
   }
 }

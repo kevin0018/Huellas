@@ -1,19 +1,22 @@
 FROM node:22-alpine
 WORKDIR /app
 
-# Copy only package.json and package-lock.json first
-COPY package*.json ./
+# Pin the package manager used locally and in CI
+RUN corepack enable && corepack prepare pnpm@10.10.0 --activate
+
+# Copy dependency manifests first for Docker layer caching
+COPY package.json pnpm-lock.yaml ./
 
 # Install dependencies (cached if package files don't change)
-RUN npm install
+RUN pnpm install --frozen-lockfile
 
 # Copy the rest of the code
 COPY . .
 
 # Generate Prisma client after copying the schema
-RUN npm run prisma:generate
+RUN pnpm prisma:generate
 
 # Expose the port
 EXPOSE 3000
 
-CMD ["npm", "run", "dev"]
+CMD ["pnpm", "dev"]

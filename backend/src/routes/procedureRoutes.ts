@@ -1,25 +1,16 @@
 import { Router, Response } from 'express';
 import { AuthenticatedRequest, JwtMiddleware } from '../contexts/auth/infra/middleware/JwtMiddleware.js';
-import { ProcedureRepository } from '../contexts/procedure/infra/persistence/ProcedureRepository.js';
-import { GetProceduresController } from '../contexts/procedure/infra/controllers/GetProceduresController.js';
+import type { PetCareModule } from '../contexts/pet/index.js';
+import { Capability } from '../contexts/auth/domain/AccessControl.js';
 
-export function createProcedureRoutes(): Router {
-  console.log('Creating procedure routes...');
+export function createProcedureRoutes({ procedures }: PetCareModule): Router {
   const router = Router();
-
-  // Dependency injection setup
-  console.log('Setting up dependencies...');
-  const procedureRepository = new ProcedureRepository();
-
-  // Controllers
-  const getProceduresController = new GetProceduresController(procedureRepository);
 
   // Routes
   // GET Procedure Route
-  router.get('/:type', ...JwtMiddleware.requireOwner(), async (req: AuthenticatedRequest, res: Response) => {
-    await getProceduresController.handle(req, res);
+  router.get('/:type', ...JwtMiddleware.requireCapability(Capability.MANAGE_HEALTH), async (req: AuthenticatedRequest, res: Response) => {
+    await procedures.getByType.handle(req, res);
   });
 
   return router;
 }
-

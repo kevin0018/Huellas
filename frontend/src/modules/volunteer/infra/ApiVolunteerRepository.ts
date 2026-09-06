@@ -1,16 +1,17 @@
+import { correlatedFetch } from '../../../shared/api/requestId';
 import { Volunteer } from '../domain/Volunteer';
 import type { VolunteerRepository } from '../domain/VolunteerRepository';
+import { API_BASE_URL } from '../../../shared/api/apiConfig';
 
 export class ApiVolunteerRepository implements VolunteerRepository {
   private readonly baseUrl: string;
 
   constructor() {
-    const apiUrl = import.meta.env.VITE_API_URL || '';
-    this.baseUrl = `${apiUrl}/volunteers/register`;
+    this.baseUrl = `${API_BASE_URL}/volunteers/register`;
   }
 
   async register(volunteer: Volunteer): Promise<void> {
-    const response = await fetch(this.baseUrl, {
+    const response = await correlatedFetch(this.baseUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

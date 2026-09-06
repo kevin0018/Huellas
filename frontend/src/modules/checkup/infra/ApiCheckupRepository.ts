@@ -1,15 +1,25 @@
+import { ensureResponseOk, fetchResponse } from '../../../shared/api/response';
 import type { CheckupRepository } from '../domain/CheckupRepository';
 import { Checkup } from '../domain/Checkup';
 import { AuthService } from '../../auth/infra/AuthService.js';
+import { API_BASE_URL } from '../../../shared/api/apiConfig.js';
 
 export type AuthHeaderProvider = () => HeadersInit | Promise<HeadersInit>;
+
+type ApiCheckup = {
+  id?: number;
+  petId: number;
+  procedureId: number;
+  date: string;
+  notes?: string | null;
+};
 
 export class ApiCheckupRepository implements CheckupRepository {
   private readonly baseUrl: string;
   private readonly apiUrl: string;
 
   constructor() {
-    this.apiUrl = import.meta.env.VITE_API_URL || '';
+    this.apiUrl = API_BASE_URL;
     this.baseUrl = `${this.apiUrl}/checkups`;
   }
 
@@ -21,21 +31,21 @@ export class ApiCheckupRepository implements CheckupRepository {
       'Authorization': `Bearer ${token}`
     };
 
-    const res = await fetch(url, { ...init, headers });
+    const res = await fetchResponse(url, { ...init, headers });
 
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    await ensureResponseOk(res);
     if (res.status === 204) return undefined as unknown as T;
 
     return (await res.json()) as T;
   }
 
   async listByPet(petId: number): Promise<Checkup[]> {
-    const data = await this.request<any[]>(`${this.baseUrl}?petId=${petId}`, { method: 'GET' });
+    const data = await this.request<ApiCheckup[]>(`${this.baseUrl}?petId=${petId}`, { method: 'GET' });
     return data.map(d => Checkup.create({ ...d, date: new Date(d.date) }));
   }
 
   async findLatestByPetAndProcedure(petId: number, procedureId: number): Promise<Checkup | null> {
-    const data = await this.request<any[]>(
+    const data = await this.request<ApiCheckup[]>(
       `${this.baseUrl}?petId=${petId}&procedureId=${procedureId}&_sort=date&_order=desc&_limit=1`,
       { method: 'GET' }
     ).catch(() => null);
@@ -50,7 +60,7 @@ export class ApiCheckupRepository implements CheckupRepository {
       notes: checkupData.notes
     });
 
-    const data = await this.request<any>(`${this.apiUrl}/pets/${petId}/checkup`, { method: 'POST', body });
+    const data = await this.request<ApiCheckup>(`${this.apiUrl}/pets/${petId}/checkup`, { method: 'POST', body });
 
     return Checkup.create({ ...data, date: new Date(data.date) });
   }
@@ -63,7 +73,7 @@ export class ApiCheckupRepository implements CheckupRepository {
       notes: checkupData.notes
     });
 
-    const data = await this.request<any>(`${this.apiUrl}/checkups/${checkupId}`, { method: 'PATCH', body });
+    const data = await this.request<ApiCheckup>(`${this.apiUrl}/checkups/${checkupId}`, { method: 'PATCH', body });
 
     return Checkup.create({ ...data, date: new Date(data.date) });
 

@@ -1,18 +1,25 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { UserType } from '../../domain/entities/UserAuth.js';
+import { accessForProfiles, Capability, type UserRole } from '../../domain/AccessControl.js';
 import { JwtBlacklist } from '../services/JwtBlacklist.js';
-import { PetRepository } from '../../../pet/infra/persistence/PetRepository.js';
 
-// Simple cache for owner profile checks to avoid repeated DB queries
-const ownerProfileCache = new Map<number, boolean>();
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+export interface JwtDataSource {
+  findUserAccess(userId: number): Promise<{
+    type: UserType;
+    owner: { id: number } | null;
+    volunteer: { id: number } | null;
+  } | null>;
+  findPetOwner(petId: number): Promise<{ owner_id: number } | null>;
+}
 
 export interface AuthenticatedRequest extends Request {
   user: {
     userId: number;
     email: string;
     type: UserType;
+    roles: UserRole[];
+    capabilities: Capability[];
   };
 }
 
@@ -20,11 +27,24 @@ export interface JwtPayload {
   userId: number;
   email: string;
   type: UserType;
+  roles?: UserRole[];
+  capabilities?: Capability[];
   iat: number;
   exp: number;
 }
 
 export class JwtMiddleware {
+  private static dataSource: JwtDataSource | null = null;
+
+  static configure(dataSource: JwtDataSource): void {
+    JwtMiddleware.dataSource = dataSource;
+  }
+
+  private static getDataSource(): JwtDataSource {
+    if (!JwtMiddleware.dataSource) throw new Error('JWT middleware data source is not configured');
+    return JwtMiddleware.dataSource;
+  }
+
   static authenticate() {
     return async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
       try {
@@ -58,11 +78,21 @@ export class JwtMiddleware {
 
         const decoded = jwt.verify(token, jwtSecret) as JwtPayload;
 
-        // Add user info to request
+        const currentUser = await JwtMiddleware.getDataSource().findUserAccess(decoded.userId);
+        if (!currentUser) {
+          res.status(401).json({ error: 'User no longer exists' });
+          return;
+        }
+        const access = accessForProfiles({
+          owner: currentUser.owner !== null,
+          volunteer: currentUser.volunteer !== null,
+        });
+
         req.user = {
           userId: decoded.userId,
           email: decoded.email,
-          type: decoded.type
+          type: currentUser.type as UserType,
+          ...access,
         };
 
         next();
@@ -79,78 +109,27 @@ export class JwtMiddleware {
     };
   }
 
-  // Middleware to require authentication first, then check owner role
-  static requireOwner() {
+  static requireCapability(capability: Capability) {
     return [
       JwtMiddleware.authenticate(),
-      async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
-        // Allow if user type is OWNER
-        if (req.user.type === UserType.OWNER) {
+      (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
+        if (req.user.capabilities.includes(capability)) {
           next();
           return;
         }
-
-        // If user is VOLUNTEER, check if they also have an owner profile
-        if (req.user.type === UserType.VOLUNTEER) {
-          try {
-            const userId = req.user.userId;
-            
-            // Check cache first
-            const cached = ownerProfileCache.get(userId);
-            if (cached !== undefined) {
-              if (cached) {
-                next();
-                return;
-              } else {
-                res.status(403).json({ error: 'Access denied. Owner role required.' });
-                return;
-              }
-            }
-
-            // Cache miss - check database
-            const { PrismaClient } = await import('@prisma/client');
-            const prisma = new PrismaClient();
-            
-            const ownerProfile = await prisma.owner.findUnique({
-              where: { id: userId }
-            });
-
-            const hasOwnerProfile = !!ownerProfile;
-            
-            // Cache the result
-            ownerProfileCache.set(userId, hasOwnerProfile);
-            
-            // Clear cache after TTL
-            setTimeout(() => {
-              ownerProfileCache.delete(userId);
-            }, CACHE_TTL);
-
-            if (hasOwnerProfile) {
-              next();
-              return;
-            }
-          } catch (error) {
-            console.error('Error checking owner profile:', error);
-          }
-        }
-
-        res.status(403).json({ error: 'Access denied. Owner role required.' });
+        res.status(403).json({ error: `Access denied. Missing capability: ${capability}.` });
       }
     ];
   }
 
+  // Legacy alias retained while consumers migrate to explicit capabilities.
+  static requireOwner() {
+    return JwtMiddleware.requireCapability(Capability.MANAGE_PETS);
+  }
+
   // Middleware to require authentication first, then check volunteer role
   static requireVolunteer() {
-    return [
-      JwtMiddleware.authenticate(),
-      (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
-        if (req.user.type !== UserType.VOLUNTEER) {
-          res.status(403).json({ error: 'Access denied. Volunteer role required.' });
-          return;
-        }
-        next();
-      }
-    ];
+    return JwtMiddleware.requireCapability(Capability.PUBLISH_VOLUNTEER_POSTS);
   }
 
   // Middleware to just require any authenticated user
@@ -158,9 +137,9 @@ export class JwtMiddleware {
     return JwtMiddleware.authenticate();
   }
 
-  static requireOwnPet() {
+  static requireOwnPet(capability: Capability = Capability.MANAGE_PETS) {
     return [
-      JwtMiddleware.requireOwner(),
+      JwtMiddleware.requireCapability(capability),
       async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
         const ownerId = req.user.userId;
         const petId = req.params.id;
@@ -171,15 +150,14 @@ export class JwtMiddleware {
           return
         }
 
-        const petRepository = new PetRepository();
-        const pet = await petRepository.findById(parsedPetId);
+        const pet = await JwtMiddleware.getDataSource().findPetOwner(parsedPetId);
 
         if (!pet) {
           res.status(404).send({ error: "Pet not found" });
           return
         }
 
-        if (pet.getOwnerId() !== ownerId) {
+        if (pet.owner_id !== ownerId) {
           res.status(403).send({ error: "You don't have access to this pet" });
           return
         }

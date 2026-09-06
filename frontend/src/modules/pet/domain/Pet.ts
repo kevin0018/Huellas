@@ -24,56 +24,22 @@ export type Sex = typeof Sex[keyof typeof Sex];
 export interface Pet {
   id: number;
   name: string;
-  race: string;
+  race?: string | null;
   type: PetType;
   ownerId: number;
   birthDate: string; // ISO date string
   size: PetSize;
-  microchipCode: string;
+  microchipCode?: string | null;
   sex: Sex;
   hasPassport: boolean;
-  countryOfOrigin?: string;
-  passportNumber?: string;
-  notes?: string;
+  countryOfOrigin?: string | null;
+  passportNumber?: string | null;
+  notes?: string | null;
+  allergies?: string | null;
+  activeMedications?: string | null;
+  medicalConditions?: string | null;
+  profileImageUrl?: string | null;
 }
-
-// Helper functions
-export const getPetTypeLabel = (type: PetType): string => {
-  switch (type) {
-    case PetType.DOG:
-      return 'Perro'; // TODO: Add to translation dictionary
-    case PetType.CAT:
-      return 'Gato'; // TODO: Add to translation dictionary
-    case PetType.FERRET:
-      return 'Hurón'; // TODO: Add to translation dictionary
-    default:
-      return type;
-  }
-};
-
-export const getPetSizeLabel = (size: PetSize): string => {
-  switch (size) {
-    case PetSize.SMALL:
-      return 'Pequeño'; // TODO: Add to translation dictionary
-    case PetSize.MEDIUM:
-      return 'Mediano'; // TODO: Add to translation dictionary
-    case PetSize.LARGE:
-      return 'Grande'; // TODO: Add to translation dictionary
-    default:
-      return size;
-  }
-};
-
-export const getSexLabel = (sex: Sex): string => {
-  switch (sex) {
-    case Sex.MALE:
-      return 'Macho'; // TODO: Add to translation dictionary
-    case Sex.FEMALE:
-      return 'Hembra'; // TODO: Add to translation dictionary
-    default:
-      return sex;
-  }
-};
 
 export const clone = (pet: Pet): Pet => {
   return {
@@ -89,6 +55,10 @@ export const clone = (pet: Pet): Pet => {
     hasPassport: pet.hasPassport,
     countryOfOrigin: pet.countryOfOrigin,
     passportNumber: pet.passportNumber,
-    notes: pet.notes
+    notes: pet.notes,
+    allergies: pet.allergies,
+    activeMedications: pet.activeMedications,
+    medicalConditions: pet.medicalConditions,
+    profileImageUrl: pet.profileImageUrl
   };
 };

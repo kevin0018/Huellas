@@ -1,39 +1,37 @@
 import { Router } from 'express';
-import { PrismaClient } from '@prisma/client';
 import { JwtMiddleware } from '../contexts/auth/infra/middleware/JwtMiddleware.js';
-import { AppointmentController } from '../contexts/appointment/infrastructure/controllers/AppointmentController.js';
+import type { AppointmentModule } from '../contexts/appointment/index.js';
+import { Capability } from '../contexts/auth/domain/AccessControl.js';
 
-export function createAppointmentRoutes(): Router {
+export function createAppointmentRoutes({ controller }: AppointmentModule): Router {
   const router = Router();
-  const prisma = new PrismaClient();
-  const appointmentController = new AppointmentController(prisma);
 
   // All appointment routes require owner authentication
-  router.use(JwtMiddleware.requireOwner());
+  router.use(JwtMiddleware.requireCapability(Capability.MANAGE_APPOINTMENTS));
 
   // GET /appointments - list owner appointments
   router.get('/', async (req, res) => {
-    return appointmentController.getAppointmentsByOwner(req, res);
+    return controller.getAppointmentsByOwner(req, res);
   });
 
   // GET /appointments/:id
   router.get('/:id', async (req, res) => {
-    return appointmentController.getAppointmentById(req, res);
+    return controller.getAppointmentById(req, res);
   });
 
   // POST /appointments
   router.post('/', async (req, res) => {
-    return appointmentController.createAppointment(req, res);
+    return controller.createAppointment(req, res);
   });
 
   // PUT /appointments/:id
   router.put('/:id', async (req, res) => {
-    return appointmentController.updateAppointment(req, res);
+    return controller.updateAppointment(req, res);
   });
 
   // DELETE /appointments/:id
   router.delete('/:id', async (req, res) => {
-    return appointmentController.deleteAppointment(req, res);
+    return controller.deleteAppointment(req, res);
   });
 
   return router;

@@ -16,8 +16,9 @@ export default [
       '@typescript-eslint': ts
     },
     rules: {
-      'no-console': 'off',
+      'no-console': 'error',
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }]
     }
-  }
+  },
+  { files: ['src/db/seed.ts'], rules: { 'no-console': 'off' } }
 ];

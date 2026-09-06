@@ -1,26 +1,24 @@
-import { useState, useEffect, useMemo } from "react";
+import PasswordInput, { PasswordCompanion } from '../shared/ui/PasswordInput';
+import { LocalizedError, messageFromError, translateMessage, type LocalizedMessage } from '../i18n/message';
+import { useTranslation } from '../i18n/hooks/hook';
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import NavBar from "../Components/NavBar";
 import Footer from "../Components/footer";
 import GoBackButton from "../Components/GoBackButton";
 import VolunteerModal from "../Components/VolunteerModal";
-import { ApiAuthRepository } from '../modules/auth/infra/ApiAuthRepository';
-import { UpdateProfileCommandHandler } from '../modules/auth/application/commands/UpdateProfileCommandHandler';
-import { ChangePasswordCommandHandler } from '../modules/auth/application/commands/ChangePasswordCommandHandler';
-import { ToggleVolunteerCommandHandler } from '../modules/auth/application/commands/ToggleVolunteerCommandHandler';
-import { UpdateProfileCommand } from '../modules/auth/application/commands/UpdateProfileCommand';
-import { ChangePasswordCommand } from '../modules/auth/application/commands/ChangePasswordCommand';
-import { ToggleVolunteerCommand } from '../modules/auth/application/commands/ToggleVolunteerCommand';
+import { authActions } from '../features/auth/authActions';
 import type { User } from '../modules/auth/domain/User';
 import { isVolunteer, isOwner } from '../modules/auth/domain/User';
 
 export default function UserProfile() {
+  const { translate } = useTranslation();
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isVolunteerModalOpen, setIsVolunteerModalOpen] = useState(false);
   const [pendingVolunteerChange, setPendingVolunteerChange] = useState<boolean | null>(null);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<LocalizedMessage | null>('');
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -33,16 +31,10 @@ export default function UserProfile() {
     confirmPassword: ''
   });
 
-  // Initialize command handlers with useMemo to avoid recreation on every render
-  const authRepository = useMemo(() => new ApiAuthRepository(), []);
-  const updateProfileHandler = useMemo(() => new UpdateProfileCommandHandler(authRepository), [authRepository]);
-  const changePasswordHandler = useMemo(() => new ChangePasswordCommandHandler(authRepository), [authRepository]);
-  const toggleVolunteerHandler = useMemo(() => new ToggleVolunteerCommandHandler(authRepository), [authRepository]);
-
   useEffect(() => {
     const loadUserProfile = async () => {
       try {
-        const userSession = await authRepository.getCurrentUser();
+        const userSession = await authActions.currentUser();
         if (userSession) {
           setUser(userSession);
           setFormData({
@@ -65,7 +57,7 @@ export default function UserProfile() {
     };
 
     loadUserProfile();
-  }, [navigate, authRepository]);
+  }, [navigate]);
 
   // Helper function to show toast message
   const showToastMessage = () => {
@@ -92,14 +84,7 @@ export default function UserProfile() {
     setError('');
 
     try {
-      const command = new UpdateProfileCommand(
-        formData.name,
-        formData.lastName,
-        formData.email,
-        formData.description
-      );
-
-      const updatedUser = await updateProfileHandler.handle(command);
+      const updatedUser = await authActions.updateProfile(formData);
 
       // Update local user state with the complete user data from backend
       setUser(updatedUser);
@@ -110,12 +95,9 @@ export default function UserProfile() {
         email: updatedUser.email,
         description: updatedUser.description || ''
       }));
-
-      // TODO: Add translation
       showToastMessage();
     } catch (error) {
-      // TODO: Add translation
-      setError(error instanceof Error ? error.message : 'Error al actualizar el perfil');
+      setError(messageFromError(error, 'updateProfileError'));
     } finally {
       setIsLoading(false);
     }
@@ -125,14 +107,12 @@ export default function UserProfile() {
     e.preventDefault();
 
     if (formData.newPassword !== formData.confirmPassword) {
-      // TODO: Add translation
-      setError('Las contraseñas no coinciden');
+      setError({ translationKey: 'passwordMismatch' });
       return;
     }
 
     if (formData.newPassword.length < 6) {
-      // TODO: Add translation
-      setError('La contraseña debe tener al menos 6 caracteres');
+      setError({ translationKey: 'passwordTooShort' });
       return;
     }
 
@@ -140,12 +120,7 @@ export default function UserProfile() {
     setError('');
 
     try {
-      const command = new ChangePasswordCommand(
-        formData.currentPassword,
-        formData.newPassword
-      );
-
-      await changePasswordHandler.handle(command);
+      await authActions.changePassword(formData.currentPassword, formData.newPassword);
 
       // Clear password fields
       setFormData(prev => ({
@@ -154,12 +129,9 @@ export default function UserProfile() {
         newPassword: '',
         confirmPassword: ''
       }));
-
-      // TODO: Add translation
       showToastMessage();
     } catch (error) {
-      // TODO: Add translation
-      setError(error instanceof Error ? error.message : 'Error al cambiar la contraseña');
+      setError(messageFromError(error, 'changePasswordError'));
     } finally {
       setIsLoading(false);
     }
@@ -182,8 +154,7 @@ export default function UserProfile() {
     setError('');
 
     try {
-      const command = new ToggleVolunteerCommand(becomesVolunteer, description);
-      const updatedUser = await toggleVolunteerHandler.handle(command);
+      const updatedUser = await authActions.toggleVolunteer(becomesVolunteer, description);
 
       // Update local user state with the complete user data from backend
       setUser(updatedUser);
@@ -192,22 +163,20 @@ export default function UserProfile() {
         isVolunteer: becomesVolunteer,
         description: updatedUser.description || ''
       }));
-
-      // TODO: Add translation
       showToastMessage();
     } catch (error) {
-      // TODO: Add translation
-      setError(error instanceof Error ? error.message : 'Error al actualizar el estado de voluntario');
+      setError(messageFromError(error, 'volunteerStatusError'));
+      throw error instanceof Error ? error : new LocalizedError('volunteerStatusError');
     } finally {
       setIsLoading(false);
-      setPendingVolunteerChange(null);
     }
   };
 
   const handleVolunteerModalSubmit = async (description?: string) => {
-    setIsVolunteerModalOpen(false);
     if (pendingVolunteerChange !== null) {
       await executeVolunteerToggle(pendingVolunteerChange, description);
+      setIsVolunteerModalOpen(false);
+      setPendingVolunteerChange(null);
     }
   };
 
@@ -217,236 +186,223 @@ export default function UserProfile() {
   };
 
   if (!user) {
-    return <div className="flex justify-center items-center min-h-screen">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-    </div>;
+    return (
+      <main className="workspace-page grid place-items-center" aria-live="polite">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--color-accent)]" aria-hidden="true" />
+        <span className="sr-only">{translate('loadingProfile')}</span>
+      </main>
+    );
   }
 
   return (
     <>
       <NavBar />
-      <div className="flex flex-col items-center justify-center background-primary px-2 sm:px-0 overflow-hidden" style={{ minHeight: 'calc(100vh - 80px)' }}>
-        {/* Responsive background with dogs */}
-        <div className="fixed inset-0 z-0 w-full h-full bg-repeat bg-[url('/media/bg_phone_userhome.png')] md:bg-[url('/media/bg_tablet_userhome.png')] lg:bg-[url('/media/bg_desktop_userhome.png')] opacity-60 pointer-events-none select-none" aria-hidden="true" />
-
-        {/* Content overlay */}
-        <div className="relative z-10 w-full flex flex-col items-center max-w-6xl py-4 ">
-          <div className="w-full text-left mt-20 max-w-6xl xl:max-w-7xl 3xl:max-w-[1600px] 3xl:mt-0">
-            <GoBackButton variant="outline" hideIfNoHistory className="bg-white" />
-          </div>
-          <h1 className="h1 font-caprasimo mb-4 text-4xl md:text-5xl text-[#51344D] drop-shadow-lg dark:text-[#FDF2DE]">Mi Perfil</h1>
-
-          <div className="avatar-shadow mx-auto m-8">
-            <div className="avatar-circle size-24 sm:size-28 md:size-36">
-              <img src="/media/pfp_sample.svg" alt="Perfil" className="size-full object-contain" />
+      <main className="workspace-page">
+        <div className="workspace-shell">
+          <header className="workspace-header">
+            <GoBackButton hideIfNoHistory />
+            <div className="workspace-header__copy">
+              <h1 className="workspace-header__title">{translate('yourProfile')}</h1>
+              <p className="workspace-header__description">
+                {translate('profileDescription')}
+              </p>
             </div>
-          </div>
+          </header>
 
-          {/* Error and Success Messages */}
-          {error && (
-            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-              {error}
-            </div>
-          )}
+          <div className="workspace-layout">
+            <aside className="workspace-rail" aria-label={translate('profileIdentity')}>
+              <div className="workspace-rail__group profile-identity">
+                <div className="profile-identity__avatar">
+                  <img src="/media/pfp_sample.svg" alt={translate('profileAvatar')} />
+                </div>
+                <div>
+                  <p className="profile-identity__name">{user.name} {user.lastName}</p>
+                  <p className="profile-identity__email">{user.email}</p>
+                </div>
+              </div>
 
-          {/* Profile Update Form */}
-          <div className="bg-gray-100 dark:bg-[#51344D] flex items-center justify-center mb-6 3xl:max-w-[90%] 3xl:!text-[1rem] ">
-            <div className="bg-[#FFFAF0]/90 dark:bg-[#51344D]/90 p-8 rounded-lg shadow-lg w-full max-w-6xl themed-card-invL">
-              <form onSubmit={handleUpdateProfile} className="grid grid-cols-1 md:grid-cols-2 gap-6 justify-center text-left text-[#51344D] dark:text-[#FDF2DE]">
-                <div className="md:col-span-1">
-                  <label htmlFor="name" className="block text-sm font-medium">
-                    {/* TODO: Add translation */}
-                    Nombre
-                  </label>
+              <div className="workspace-rail__group profile-role">
+                <p className="workspace-rail__label">{translate('participation')}</p>
+                <span className={`ui-status w-fit ${isVolunteer(user) ? 'ui-status--success' : 'ui-status--neutral'}`}>
+                  {isVolunteer(user) ? translate('volunteerRole') : translate('ownerRole')}
+                </span>
+                {isOwner(user) && (
+                  <button
+                    type="button"
+                    onClick={handleVolunteerToggle}
+                    disabled={isLoading}
+                    className={`ui-action px-4 py-2 ${isVolunteer(user) ? 'ui-action--danger' : 'ui-action--primary'}`}
+                  >
+                    {isLoading ? translate('processing') : isVolunteer(user) ? translate('leaveVolunteering') : translate('enableVolunteering')}
+                  </button>
+                )}
+              </div>
+            </aside>
+
+            <div className="workspace-main">
+              {error && (
+                <div className="workspace-alert ui-status--error" role="alert">
+                  {translateMessage(error, translate)}
+                </div>
+              )}
+
+              <section className="workspace-section" aria-labelledby="profile-data-title">
+                <header className="workspace-section__header">
+                  <div>
+                    <h2 id="profile-data-title" className="workspace-section__title">{translate('personalDetails')}</h2>
+                    <p className="workspace-section__description">{translate('personalDetailsDescription')}</p>
+                  </div>
+                </header>
+
+                <form onSubmit={handleUpdateProfile} className="workspace-form-grid">
+                  <div className="workspace-field">
+                  <label htmlFor="name" className="workspace-field__label">{translate('name')}</label>
                   <input
                     type="text"
                     name="name"
                     id="name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full px-3 py-2 bg-white dark:bg-[#51344D] dark:text-[#FDF2DE] border border-gray-300 dark:border-[#FDF2DE] rounded-md shadow-sm placeholder-gray-400 dark:placeholder-[#FDF2DE] focus:outline-none focus:ring-indigo-500 focus:border-[#51344D] dark:focus:border-[#FDF2DE]"
+                    className="ui-control"
                     required
-                    placeholder="Nombre"
+                    placeholder={translate('name')}
                     disabled={isLoading}
                   />
-                </div>
+                  </div>
 
-                <div className="md:col-span-1">
-                  <label htmlFor="lastName" className="block text-sm font-medium">
-                    {/* TODO: Add translation */}
-                    Apellidos
-                  </label>
+                  <div className="workspace-field">
+                  <label htmlFor="lastName" className="workspace-field__label">{translate('lastNameLabel')}</label>
                   <input
                     type="text"
                     name="lastName"
                     id="lastName"
                     value={formData.lastName}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full px-3 py-2 bg-white dark:bg-[#51344D] dark:text-[#FDF2DE] border border-gray-300 dark:border-[#FDF2DE] rounded-md shadow-sm placeholder-gray-400 dark:placeholder-[#FDF2DE] focus:outline-none focus:ring-indigo-500 focus:border-[#51344D] dark:focus:border-[#FDF2DE]"
+                    className="ui-control"
                     required
-                    placeholder="Apellidos"
+                    placeholder={translate('lastNameLabel')}
                     disabled={isLoading}
                   />
-                </div>
+                  </div>
 
-                <div className="md:col-span-2">
-                  <label htmlFor="email" className="block text-sm font-medium">
-                    {/* TODO: Add translation */}
-                    Correo electrónico
-                  </label>
+                  <div className="workspace-field workspace-field--full">
+                  <label htmlFor="email" className="workspace-field__label">{translate('emailLabel')}</label>
                   <input
                     type="email"
                     name="email"
                     id="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full px-3 py-2 bg-white dark:bg-[#51344D] dark:text-[#FDF2DE] border border-gray-300 dark:border-[#FDF2DE] rounded-md shadow-sm placeholder-gray-400 dark:placeholder-[#FDF2DE] focus:outline-none focus:ring-indigo-500 focus:border-[#51344D] dark:focus:border-[#FDF2DE]"
+                    className="ui-control"
                     required
-                    placeholder="correo@ejemplo.com"
+                    placeholder={translate('emailExample')}
                     disabled={isLoading}
                   />
-                </div>
-
-                {/* Volunteer Status - Only shown for OWNERS who can toggle their volunteer status */}
-                {isOwner(user) && (
-                  <div className="md:col-span-2 flex items-center justify-between p-4 bg-gray-50 dark:bg-[#51344D] rounded-lg border-2 border-[#BCAAA4] dark:border-[#FDF2DE]">
-                    <div>
-                      <span className="text-sm font-medium">Estado de voluntario:</span>
-                      <span className={`ml-2 px-2 py-1 rounded text-xs ${isVolunteer(user) ? 'bg-green-100 text-green-800 dark:bg-green-700 dark:text-green-100' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-100'}`}>
-                        {/* TODO: Add translation */}
-                        {isVolunteer(user) ? 'Voluntario' : 'Propietario'}
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={handleVolunteerToggle}
-                      disabled={isLoading}
-                      className={`px-4 py-2 rounded-md font-medium transition-colors ${isVolunteer(user)
-                          ? 'bg-red-800 hover:bg-red-600 text-white !px-2 !py-0'
-                          : 'bg-[#51344D] hover:bg-[#A89B9D] text-white'
-                        } disabled:opacity-50 disabled:cursor-not-allowed`}
-                    >
-                      {/* TODO: Add translation */}
-                      {isLoading ? 'Procesando...' : isVolunteer(user) ? 'Dejar de ser voluntario' : 'Ser voluntario'}
-                    </button>
                   </div>
-                )}
 
-                {/* Volunteer Description - Shown for all volunteers (OWNER volunteers can edit, VOLUNTEER users see read-only) */}
-                {isVolunteer(user) && (
-                  <div className="md:col-span-2">
-                    <label htmlFor="description" className="block text-sm font-medium mb-2">
-                      {/* TODO: Add translation */}
-                      Descripción del voluntario
-                    </label>
+                  {isVolunteer(user) && (
+                  <div className="workspace-field workspace-field--full">
+                    <label htmlFor="description" className="workspace-field__label">{translate('volunteerDescriptionLabel')}</label>
                     <textarea
                       id="description"
                       name="description"
                       rows={3}
                       value={formData.description}
                       onChange={handleInputChange}
-                      placeholder="Describe tu experiencia, habilidades y motivación como voluntario..."
-                      className="w-full px-3 py-2 bg-white dark:bg-[#51344D] border border-gray-300 dark:border-[#FDF2DE] rounded-md shadow-sm focus:outline-none focus:ring-[#BCAAA4] focus:border-[#BCAAA4] text-[#51344D] dark:text-[#FDF2DE] placeholder-gray-400 dark:placeholder-gray-300 resize-vertical min-h-[80px]"
+                      placeholder={translate('volunteerDescriptionPlaceholder')}
+                      className="ui-control"
                       disabled={isLoading || !isOwner(user)}
                       readOnly={!isOwner(user)}
                     />
                     {!isOwner(user) && (
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                        {/* TODO: Add translation */}
-                        Los voluntarios puros no pueden editar su descripción desde aquí.
-                      </p>
+                      <p className="ui-text-muted text-xs">{translate('volunteerDescriptionReadOnly')}</p>
                     )}
                   </div>
-                )}
+                  )}
 
-                <div className="md:col-span-2 flex justify-end">
+                  <div className="workspace-form-actions">
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="py-2 px-4 bg-[#51344D] hover:bg-[#A89B9D] mx-auto text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="ui-action ui-action--primary px-5 py-3"
                   >
-                    {/* TODO: Add translation */}
-                    {isLoading ? 'Guardando...' : 'Guardar cambios'}
+                    {isLoading ? translate('saving') : translate('saveChanges')}
                   </button>
-                </div>
-              </form>
-            </div>
-          </div>
+                  </div>
+                </form>
+              </section>
 
-          {/* Password Change Form */}
-          <div className="bg-gray-100 dark:bg-[#51344D] flex items-center justify-center mb-6 3xl:max-w-[70%] 3xl:!text-[1rem] themed-card-invL rounded-xl">
-            <div className="bg-[#FFFAF0]/90 dark:bg-[#51344D]/90 p-8 rounded-lg shadow-lg w-full max-w-6xl">
-              <h3 className="text-lg font-semibold mb-4 text-[#51344D] dark:text-[#FDF2DE] 3xl:!text-[1.7rem]">
-                {/* TODO: Add translation */}
-                Cambiar contraseña
-              </h3>
-              <form onSubmit={handleChangePassword} className="grid grid-cols-1 md:grid-cols-2 gap-6 justify-center text-left text-[#51344D] dark:text-[#FDF2DE]">
-                <div className="md:col-span-2">
-                  <label htmlFor="currentPassword" className="block text-sm font-medium 3xl:!text-[1.3rem]">
-                    {/* TODO: Add translation */}
-                    Contraseña actual
-                  </label>
-                  <input
-                    type="password"
-                    name="currentPassword"
-                    id="currentPassword"
-                    value={formData.currentPassword}
-                    onChange={handleInputChange}
-                    className="mt-1 block w-full px-3 py-2 bg-white dark:bg-[#51344D] dark:text-[#FDF2DE] border border-gray-300 dark:border-[#FDF2DE] rounded-md shadow-sm placeholder-gray-400 dark:placeholder-[#FDF2DE] focus:outline-none focus:ring-indigo-500 focus:border-[#51344D] dark:focus:border-[#FDF2DE]"
-                    placeholder="Introduce tu contraseña actual"
-                    disabled={isLoading}
-                  />
-                </div>
+              <section className="workspace-section" aria-labelledby="profile-security-title">
+                <header className="workspace-section__header">
+                  <div>
+                    <h2 id="profile-security-title" className="workspace-section__title">{translate('security')}</h2>
+                    <p className="workspace-section__description">{translate('passwordChangeDescription')}</p>
+                  </div>
+                </header>
 
-                <div className="md:col-span-1">
-                  <label htmlFor="newPassword" className="block text-sm font-medium 3xl:!text-[1.3rem]">
-                    {/* TODO: Add translation */}
-                    Nueva contraseña
-                  </label>
-                  <input
-                    type="password"
-                    name="newPassword"
-                    id="newPassword"
-                    value={formData.newPassword}
-                    onChange={handleInputChange}
-                    className="mt-1 block w-full px-3 py-2 bg-white dark:bg-[#51344D] dark:text-[#FDF2DE] border border-gray-300 dark:border-[#FDF2DE] rounded-md shadow-sm placeholder-gray-400 dark:placeholder-[#FDF2DE] focus:outline-none focus:ring-indigo-500 focus:border-[#51344D] dark:focus:border-[#FDF2DE]"
-                    placeholder="Introduce nueva contraseña"
-                    disabled={isLoading}
-                  />
-                </div>
+                <form onSubmit={handleChangePassword} className="workspace-form-grid">
+                  <PasswordCompanion>
+                    <div className="workspace-field workspace-field--full">
+                    <label htmlFor="currentPassword" className="workspace-field__label">{translate('currentPassword')}</label>
+                    <PasswordInput
+                      name="currentPassword"
+                      toggleLabel={translate('currentPassword')}
+                      autoComplete="current-password"
+                      id="currentPassword"
+                      value={formData.currentPassword}
+                      onChange={handleInputChange}
+                      className="ui-control"
+                      placeholder={translate('currentPasswordPlaceholder')}
+                      disabled={isLoading}
+                    />
+                    </div>
 
-                <div className="md:col-span-1">
-                  <label htmlFor="confirmPassword" className="block text-sm font-medium 3xl:!text-[1.3rem]">
-                    {/* TODO: Add translation */}
-                    Confirmar nueva contraseña
-                  </label>
-                  <input
-                    type="password"
-                    name="confirmPassword"
-                    id="confirmPassword"
-                    value={formData.confirmPassword}
-                    onChange={handleInputChange}
-                    className="mt-1 block w-full px-3 py-2 bg-white dark:bg-[#51344D] dark:text-[#FDF2DE] border border-gray-300 dark:border-[#FDF2DE] rounded-md shadow-sm placeholder-gray-400 dark:placeholder-[#FDF2DE] focus:outline-none focus:ring-indigo-500 focus:border-[#51344D] dark:focus:border-[#FDF2DE]"
-                    placeholder="Confirma la nueva contraseña"
-                    disabled={isLoading}
-                  />
-                </div>
+                    <div className="workspace-field">
+                    <label htmlFor="newPassword" className="workspace-field__label">{translate('newPassword')}</label>
+                    <PasswordInput
+                      name="newPassword"
+                      toggleLabel={translate('newPassword')}
+                      autoComplete="new-password"
+                      id="newPassword"
+                      value={formData.newPassword}
+                      onChange={handleInputChange}
+                      className="ui-control"
+                      placeholder={translate('newPasswordPlaceholder')}
+                      disabled={isLoading}
+                    />
+                    </div>
 
-                <div className="md:col-span-2 flex justify-end">
-                  <button
-                    type="submit"
-                    disabled={isLoading || !formData.currentPassword || !formData.newPassword}
-                    className="py-2 px-4 bg-[#51344D] hover:bg-[#A89B9D] mx-auto text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {/* TODO: Add translation */}
-                    {isLoading ? 'Cambiando...' : 'Cambiar contraseña'}
-                  </button>
-                </div>
-              </form>
+                    <div className="workspace-field">
+                    <label htmlFor="confirmPassword" className="workspace-field__label">{translate('confirmPasswordLabel')}</label>
+                    <PasswordInput
+                      name="confirmPassword"
+                      toggleLabel={translate('confirmPasswordLabel')}
+                      autoComplete="new-password"
+                      id="confirmPassword"
+                      value={formData.confirmPassword}
+                      onChange={handleInputChange}
+                      className="ui-control"
+                      placeholder={translate('confirmNewPasswordPlaceholder')}
+                      disabled={isLoading}
+                    />
+                    </div>
+
+                    <div className="workspace-form-actions">
+                    <button
+                      type="submit"
+                      disabled={isLoading || !formData.currentPassword || !formData.newPassword}
+                      className="ui-action ui-action--primary px-5 py-3"
+                    >
+                      {isLoading ? translate('changingPassword') : translate('changePassword')}
+                    </button>
+                    </div>
+                  </PasswordCompanion>
+                </form>
+              </section>
             </div>
           </div>
         </div>
-      </div>
+      </main>
 
       {/* Volunteer Modal */}
       <VolunteerModal
@@ -457,14 +413,12 @@ export default function UserProfile() {
         isLoading={isLoading}
       />
 
-      {/* Success Toast */}
       {showSuccessToast && (
-        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-fade-in">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="ui-toast--success fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-fade-in" role="status">
+          <svg aria-hidden="true" className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
-          {/* TODO: Add translation */}
-          <span className="font-medium">Acción completada correctamente</span>
+          <span className="font-medium">{translate('changesSaved')}</span>
         </div>
       )}
 

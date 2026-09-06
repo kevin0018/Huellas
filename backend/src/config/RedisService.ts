@@ -1,29 +1,28 @@
 import { createClient, RedisClientType } from 'redis';
+import { logger } from '../observability/logger.js';
 
 export class RedisService {
   private static instance: RedisService;
   private client: RedisClientType;
-  private isConnected = false;
 
   private constructor() {
     this.client = createClient({
-      url: process.env.REDIS_URL || 'redis://redis:6379'
+      url: process.env.REDIS_URL || 'redis://redis:6379',
+      disableOfflineQueue: true,
+      socket: { connectTimeout: 1500 },
     });
 
     // Error handling
     this.client.on('error', (err) => {
-      console.error('Redis Client Error:', err);
-      this.isConnected = false;
+      logger.error('redis.error', err);
     });
 
-    this.client.on('connect', () => {
-      console.log('Redis connected successfully');
-      this.isConnected = true;
+    this.client.on('ready', () => {
+      logger.info('redis.ready');
     });
 
-    this.client.on('disconnect', () => {
-      console.log('Redis disconnected');
-      this.isConnected = false;
+    this.client.on('end', () => {
+      logger.info('redis.closed');
     });
   }
 
@@ -41,7 +40,7 @@ export class RedisService {
    * Connect to Redis
    */
   async connect(): Promise<void> {
-    if (!this.isConnected) {
+    if (!this.client.isOpen) {
       await this.client.connect();
     }
   }
@@ -50,7 +49,7 @@ export class RedisService {
    * Disconnect from Redis
    */
   async disconnect(): Promise<void> {
-    if (this.isConnected) {
+    if (this.client.isOpen) {
       await this.client.disconnect();
     }
   }
@@ -66,6 +65,6 @@ export class RedisService {
    * Check if Redis is connected
    */
   isRedisConnected(): boolean {
-    return this.isConnected;
+    return this.client.isReady;
   }
 }

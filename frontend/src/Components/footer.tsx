@@ -5,18 +5,24 @@ export default function Footer() {
   const { translate } = useTranslation();
 
   return (
-    <footer className="bg-[#A89B9D] dark:bg-[#928d8e] text-[#51344D] p-4 shadow-md w-full sticky top-0 z-50 rounded-xs">
-      <div className="container mx-auto py-4 flex flex-col justify-center items-center md:flex-row md:justify-between 3xl:max-w-80%">
-        <div className="flex justify-center space-x-4 py-1.5">
-          <img src="/media/sm/facebook.png" alt="facebook" className="w-7 h-7 3xl:w-8 3xl:h-8" />
-          <img src="/media/sm/instagram.png" alt="instagram" className="w-7 h-7 3xl:w-8 3xl:h-8" />
-          <img src="/media/sm/linkedin.png" alt="linkedin" className="w-7 h-7 3xl:w-8 3xl:h-8" />
-        </div>
-        <div className="flex flex-row items-center space-x-4 py-1.5">
-          <Link to="/about" className="text-sm 3xl:!text-[2rem]">{translate('aboutUs')}</Link>
-          <Link to="/contact" className="text-sm 3xl:!text-[2rem]">{translate('contact')}</Link>
-        </div>
+    <footer className="mt-auto w-full border-t border-[var(--color-rule)] bg-[var(--color-paper-2)] text-[var(--color-ink)]">
+      <div className="mx-auto flex w-full max-w-[var(--page-max)] flex-col items-start gap-3 px-[var(--page-gutter)] py-6 sm:flex-row sm:items-center sm:justify-between">
+        <Link
+          to="/"
+          className="inline-flex min-h-11 items-center font-[var(--font-display)] text-lg no-underline"
+        >
+          {translate('huellas')}
+        </Link>
+
+        <nav aria-label={`${translate('huellas')} · ${translate('aboutUs')}`}>
+          <Link
+            to="/about"
+            className="ui-hover-accent inline-flex min-h-11 items-center font-semibold text-[var(--color-accent)] underline decoration-[var(--color-rule-strong)]"
+          >
+            {translate('aboutUs')}
+          </Link>
+        </nav>
       </div>
     </footer>
   );
-};
+}

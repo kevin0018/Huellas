@@ -1,6 +1,5 @@
 // userSeeder.ts
 import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcrypt';
 
 export async function seedUsers(prisma: PrismaClient) {
   // password: huellas123

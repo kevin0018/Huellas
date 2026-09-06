@@ -1,245 +1,197 @@
-import { useState, useEffect } from 'react';
+/* Hallmark · genre: playful · macrostructure: Index-First · theme: Huellas · enrichment: existing pattern · nav/footer: preserved · critique: P5 H5 E4 S5 R5 V5 */
+import { useState } from 'react';
 import NavBar from '../Components/NavBar';
 import Footer from '../Components/footer';
 import GoBackButton from '../Components/GoBackButton.js';
 import AppointmentCard from '../Components/AppointmentCard';
 import AppointmentModal from '../Components/AppointmentModal';
-import type { Appointment, AppointmentReason } from '../modules/appointment/domain/Appointment.js';
-import type { Pet } from '../modules/pet/domain/Pet.js';
+import { AppointmentStatus, type Appointment } from '../modules/appointment/domain/Appointment.js';
+import { useAppointments, type SaveAppointment } from '../features/appointments/useAppointments.js';
+import { AsyncContent } from '../shared/ui/AsyncContent.js';
+import { useTranslation } from '../i18n/hooks/hook.js';
 
-// Appointment imports
-import { ApiAppointmentRepository } from '../modules/appointment/infra/ApiAppointmentRepository.js';
-import { GetAppointmentsQuery } from '../modules/appointment/application/queries/GetAppointmentsQuery.js';
-import { GetAppointmentsQueryHandler } from '../modules/appointment/application/queries/GetAppointmentsQueryHandler.js';
-import { CreateAppointmentCommand } from '../modules/appointment/application/commands/CreateAppointmentCommand.js';
-import { CreateAppointmentCommandHandler } from '../modules/appointment/application/commands/CreateAppointmentCommandHandler.js';
-
-// Pet imports
-import { ApiPetRepository } from '../modules/pet/infra/ApiPetRepository.js';
-import { GetUserPetsQuery } from '../modules/pet/application/GetUserPetsQuery.js';
-import { GetUserPetsQueryHandler } from '../modules/pet/application/GetUserPetsQueryHandler.js';
+function AddIcon() {
+  return (
+    <svg aria-hidden="true" className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v14m7-7H5" />
+    </svg>
+  );
+}
 
 function AppointmentsView() {
-  // State
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [pets, setPets] = useState<Pet[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { translate } = useTranslation();
+  const { appointments, pets, loading, actionLoading, error, clearError, reload, save, remove, petById } = useAppointments();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAppointment, setEditingAppointment] = useState<Appointment | undefined>();
-  const [actionLoading, setActionLoading] = useState(false);
 
-  // Load initial data
-  const loadData = async () => {
+  const handleSaveAppointment = async (appointmentData: SaveAppointment) => {
     try {
-      setLoading(true);
-      setError(null);
-      
-      // Create handlers on demand
-      const appointmentRepository = new ApiAppointmentRepository();
-      const petRepository = new ApiPetRepository();
-      const getAppointmentsHandler = new GetAppointmentsQueryHandler(appointmentRepository);
-      const getPetsHandler = new GetUserPetsQueryHandler(petRepository);
-      
-      const [appointmentsResult, petsResult] = await Promise.all([
-        getAppointmentsHandler.execute(new GetAppointmentsQuery()),
-        getPetsHandler.execute(new GetUserPetsQuery())
-      ]);
-      
-      setAppointments(appointmentsResult);
-      setPets(petsResult);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error desconocido'); // TODO: Add to translation dictionary
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const handleCreateAppointment = async (appointmentData: {
-    petId: number;
-    date: string;
-    reason: AppointmentReason;
-    notes?: string;
-  }) => {
-    try {
-      setActionLoading(true);
-      
-      const appointmentRepository = new ApiAppointmentRepository();
-      const createAppointmentHandler = new CreateAppointmentCommandHandler(appointmentRepository);
-      
-      const command = new CreateAppointmentCommand(
-        appointmentData.petId,
-        appointmentData.date,
-        appointmentData.reason,
-        appointmentData.notes
-      );
-      
-      const newAppointment = await createAppointmentHandler.execute(command);
-      setAppointments(prev => [...prev, newAppointment]);
+      await save(appointmentData, editingAppointment);
       setIsModalOpen(false);
       setEditingAppointment(undefined);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al crear la cita'); // TODO: Add to translation dictionary
-    } finally {
-      setActionLoading(false);
+    } catch {
+      // The feature hook owns and exposes the user-facing error state.
     }
   };
 
   const handleEditAppointment = (appointment: Appointment) => {
+    clearError();
     setEditingAppointment(appointment);
     setIsModalOpen(true);
   };
 
   const handleDeleteAppointment = async (appointmentId: number) => {
-    if (!confirm('¿Estás seguro de que quieres eliminar esta cita?')) { // TODO: Add to translation dictionary
+    if (!confirm(translate('confirmDeleteAppointment'))) {
       return;
     }
-    
+
     try {
-      setActionLoading(true);
-      const appointmentRepository = new ApiAppointmentRepository();
-      await appointmentRepository.deleteAppointment(appointmentId);
-      setAppointments(prev => prev.filter(app => app.id !== appointmentId));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al eliminar la cita'); // TODO: Add to translation dictionary
-    } finally {
-      setActionLoading(false);
+      await remove(appointmentId);
+    } catch {
+      // The feature hook owns and exposes the user-facing error state.
     }
   };
 
   const handleCloseModal = () => {
+    if (actionLoading) return;
+    clearError();
     setIsModalOpen(false);
     setEditingAppointment(undefined);
   };
 
-  const getPetById = (petId: number): Pet | undefined => {
-    return pets.find(pet => pet.id === petId);
+  const handleOpenModal = () => {
+    clearError();
+    setEditingAppointment(undefined);
+    setIsModalOpen(true);
   };
 
-  // Sort appointments by date (newest first)
-  const sortedAppointments = [...appointments].sort((a, b) => 
-    new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
+  const now = Date.now();
+  const upcomingAppointments = appointments
+    .filter((appointment) => appointment.status === AppointmentStatus.SCHEDULED && new Date(appointment.date).getTime() >= now)
+    .sort((left, right) => new Date(left.date).getTime() - new Date(right.date).getTime());
+  const upcomingIds = new Set(upcomingAppointments.map((appointment) => appointment.id));
+  const historyAppointments = appointments
+    .filter((appointment) => !upcomingIds.has(appointment.id))
+    .sort((left, right) => new Date(right.date).getTime() - new Date(left.date).getTime());
 
   return (
     <>
       <NavBar />
-      <div className="min-h-screen bg-[#FDF2DE] dark:bg-[#51344D] relative">
-        {/* Background pattern */}
-        <div className="fixed inset-0 z-0 w-full h-full bg-repeat bg-[url('/media/bg_phone_userhome.png')] md:bg-[url('/media/bg_tablet_userhome.png')] lg:bg-[url('/media/bg_desktop_userhome.png')] opacity-60 pointer-events-none select-none" aria-hidden="true" />
-        
-        {/* Content */}
-        <div className="relative z-10 container mx-auto px-4 py-8">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <div className="w-full text-left max-w-4xl mx-auto">
-              <GoBackButton variant="outline" hideIfNoHistory className="bg-white" />
-            </div>
-            <h1 className="text-4xl md:text-5xl font-caprasimo mb-4 text-[#51344D] dark:text-[#FDF2DE] drop-shadow-lg">
-              Mis Citas {/* TODO: Add to translation dictionary */}
-            </h1>
-            <p className="text-lg text-[#928d8e] dark:text-[#BAA9CB] mb-6">
-              Gestiona las citas médicas de tus mascotas {/* TODO: Add to translation dictionary */}
-            </p>
-            
-            {/* Create appointment button */}
-            <button
-              onClick={() => setIsModalOpen(true)}
-              disabled={pets.length === 0 || actionLoading}
-              className="
-                inline-flex items-center gap-3 px-6 py-3
-                bg-[#51344D] dark:bg-[#FDF2DE] text-[#FDF2DE] dark:text-[#51344D] 
-                font-semibold rounded-lg shadow-lg
-                hover:bg-[#9886AD] dark:hover:bg-[#BAA9CB] 
-                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#51344D]
-                transition-all duration-300 ease-in-out transform hover:scale-105
-                disabled:bg-gray-400 disabled:cursor-not-allowed disabled:transform-none
-                font-nunito
-              "
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              Nueva Cita {/* TODO: Add to translation dictionary */}
-            </button>
-            
-            {pets.length === 0 && (
-              <p className="mt-2 text-sm text-orange-600 dark:text-orange-400">
-                Necesitas registrar al menos una mascota para crear citas {/* TODO: Add to translation dictionary */}
+      <main className="relative min-h-[calc(100dvh-var(--nav-height))] bg-[var(--color-paper)] text-[var(--color-ink)]">
+        <div aria-hidden="true" className="bg-dogs-userhome-mobile pointer-events-none fixed inset-0 bg-repeat opacity-60 md:bg-dogs-userhome-tablet lg:bg-dogs-userhome-desktop" />
+
+        <div className="relative z-10 mx-auto w-full max-w-[var(--page-max)] px-[var(--page-gutter)] py-8 sm:py-12">
+          <GoBackButton className="w-fit bg-[var(--color-surface-raised)]" variant="outline" hideIfNoHistory />
+
+          <header className="mt-6 flex flex-col gap-5 border-b border-[var(--color-rule-strong)] pb-6 sm:flex-row sm:items-end sm:justify-between">
+            <div className="min-w-0">
+              <h1 className="font-caprasimo text-4xl text-[var(--color-ink)] sm:text-5xl">{translate('appointmentsTitle')}</h1>
+              <p className="mt-2 max-w-[65ch] text-[var(--color-ink-soft)]">
+                {translate('appointmentsDescription')}
               </p>
-            )}
-          </div>
-
-          {/* Loading state */}
-          {loading && (
-            <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#51344D] dark:border-[#FDF2DE]"></div>
-              <span className="ml-3 text-[#51344D] dark:text-[#FDF2DE]">Cargando citas...</span> {/* TODO: Add to translation dictionary */}
             </div>
-          )}
 
-          {/* Error state */}
-          {error && (
-            <div className="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-200 px-4 py-3 rounded-lg mb-6">
-              <div className="flex items-center">
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                {error}
-              </div>
+            <div className="shrink-0">
               <button
-                onClick={() => setError(null)}
-                className="mt-2 text-sm underline hover:no-underline"
+                aria-describedby={pets.length === 0 ? 'appointment-create-help' : undefined}
+                className="ui-button w-full whitespace-nowrap sm:w-auto"
+                disabled={pets.length === 0 || actionLoading}
+                onClick={handleOpenModal}
+                type="button"
               >
-                Cerrar {/* TODO: Add to translation dictionary */}
+                <AddIcon />
+                {translate('newAppointment')}
               </button>
+              {pets.length === 0 && (
+                <p className="mt-2 max-w-72 text-sm text-[var(--color-warning)]" id="appointment-create-help">
+                  {translate('addPetBeforeAppointment')}
+                </p>
+              )}
             </div>
-          )}
+          </header>
 
-          {/* Empty state */}
-          {!loading && appointments.length === 0 && !error && (
-            <div className="text-center py-12">
-              <h3 className="text-xl font-caprasimo text-[#51344D] dark:text-[#FDF2DE] mb-2">
-                No tienes citas programadas {/* TODO: Add to translation dictionary */}
-              </h3>
-              <p className="text-[#928d8e] dark:text-[#BAA9CB]">
-                {pets.length > 0 
-                  ? "Crea tu primera cita médica para tus mascotas" 
-                  : "Necesitas registrar una mascota antes de poder crear citas"} {/* TODO: Add to translation dictionary */}
-              </p>
-            </div>
-          )}
+          <div className="mt-8">
+            <AsyncContent
+              loading={loading}
+              error={error}
+              empty={appointments.length === 0}
+              loadingLabel={translate('loadingAppointments')}
+              emptyTitle={translate('noAppointmentsTitle')}
+              emptyDescription={pets.length > 0
+                ? translate('noAppointmentsWithPets')
+                : translate('noAppointmentsWithoutPets')}
+              onRetry={reload}
+            >
+              <div className="grid gap-10">
+                <section aria-labelledby="upcoming-appointments-title">
+                  <div className="flex flex-wrap items-end justify-between gap-3">
+                    <div>
+                      <h2 className="font-nunito text-2xl font-bold tracking-normal" id="upcoming-appointments-title">{translate('upcomingAppointments')}</h2>
+                      <p className="mt-1 text-sm text-[var(--color-ink-soft)]">{translate('upcomingAppointmentsDescription')}</p>
+                    </div>
+                    <p className="text-sm font-bold tabular-nums text-[var(--color-muted)]">{translate(upcomingAppointments.length === 1 ? 'appointmentCountOne' : 'appointmentCountMany', { count: upcomingAppointments.length })}</p>
+                  </div>
 
-          {/* Appointments grid */}
-          {!loading && appointments.length > 0 && (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {sortedAppointments.map((appointment) => (
-                <AppointmentCard
-                  key={appointment.id}
-                  appointment={appointment}
-                  pet={getPetById(appointment.petId)}
-                  onEdit={handleEditAppointment}
-                  onDelete={handleDeleteAppointment}
-                />
-              ))}
-            </div>
-          )}
+                  {upcomingAppointments.length > 0 ? (
+                    <div className="mt-4 overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-rule-strong)] shadow-[var(--shadow-card)]">
+                      {upcomingAppointments.map((appointment, index) => (
+                        <AppointmentCard
+                          actionsDisabled={actionLoading}
+                          appointment={appointment}
+                          emphasis={index === 0}
+                          key={appointment.id}
+                          onDelete={handleDeleteAppointment}
+                          onEdit={handleEditAppointment}
+                          pet={petById(appointment.petId)}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="mt-4 rounded-[var(--radius-control)] border border-dashed border-[var(--color-rule-strong)] bg-[var(--color-surface)] p-5 text-sm text-[var(--color-ink-soft)]" role="status">
+                      {translate('noUpcomingAppointments')}
+                    </p>
+                  )}
+                </section>
+
+                {historyAppointments.length > 0 && (
+                  <section aria-labelledby="appointment-history-title">
+                    <div className="flex flex-wrap items-end justify-between gap-3">
+                      <div>
+                        <h2 className="font-nunito text-2xl font-bold tracking-normal" id="appointment-history-title">{translate('appointmentHistory')}</h2>
+                        <p className="mt-1 text-sm text-[var(--color-ink-soft)]">{translate('appointmentHistoryDescription')}</p>
+                      </div>
+                      <p className="text-sm font-bold tabular-nums text-[var(--color-muted)]">{translate(historyAppointments.length === 1 ? 'appointmentCountOne' : 'appointmentCountMany', { count: historyAppointments.length })}</p>
+                    </div>
+
+                    <div className="mt-4 overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-rule)]">
+                      {historyAppointments.map((appointment) => (
+                        <AppointmentCard
+                          actionsDisabled={actionLoading}
+                          appointment={appointment}
+                          key={appointment.id}
+                          onDelete={handleDeleteAppointment}
+                          onEdit={handleEditAppointment}
+                          pet={petById(appointment.petId)}
+                        />
+                      ))}
+                    </div>
+                  </section>
+                )}
+              </div>
+            </AsyncContent>
+          </div>
         </div>
 
-        {/* Modal */}
         <AppointmentModal
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-          onSubmit={handleCreateAppointment}
-          pets={pets}
           appointment={editingAppointment}
+          error={error ?? undefined}
+          isOpen={isModalOpen}
           loading={actionLoading}
+          onClose={handleCloseModal}
+          onSubmit={handleSaveAppointment}
+          pets={pets}
         />
-      </div>
+      </main>
       <Footer />
     </>
   );

@@ -1,12 +1,12 @@
-import { PetType, PrismaClient } from "@prisma/client";
+import { PetType, type PrismaClient } from "@prisma/client";
 import { Procedure } from "../../domain/entities/Procedure.js";
 import { IProcedureRepository } from "../../domain/repositories/IProcedureRepository.js";
 
-const prisma = new PrismaClient();
-
 export class ProcedureRepository implements IProcedureRepository {
+  constructor(private readonly database: PrismaClient) {}
+
   async findByPetType(type: PetType): Promise<Procedure[]> {
-    const results = await prisma.procedureSchedule.findMany({
+    const results = await this.database.procedureSchedule.findMany({
       where: {
         animal_type: type,
       },
@@ -15,7 +15,6 @@ export class ProcedureRepository implements IProcedureRepository {
       }
     })
 
-    console.log(results[0]);
 
     const procedures = results.map((item) => new Procedure(
       item.id,
@@ -29,7 +28,7 @@ export class ProcedureRepository implements IProcedureRepository {
   }
 
   async findById(id: number): Promise<Procedure | null> {
-    const procedure = await prisma.procedureSchedule.findUnique({
+    const procedure = await this.database.procedureSchedule.findUnique({
       where: { id: id },
     });
 

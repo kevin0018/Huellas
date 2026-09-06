@@ -5,14 +5,14 @@
 //  - Borrado: hard delete y SÓLO si author_id coincide con el userId del JWT.
 //  - Incluimos autor básico (id, name, last_name) para evitar N+1 en el front.
 
-import { PrismaClient, VolunteerPost as PrismaVolunteerPost, PostStatus} from "@prisma/client";
+import { VolunteerPost as PrismaVolunteerPost, PostStatus, type PrismaClient } from "@prisma/client";
 import { IVolunteerPostRepository } from "../../domain/repositories/IVolunteerPostRepository.js";
 import { VolunteerPost } from "../../domain/entities/VolunteerPost.js";
 import { CreateVolunteerPostRequest, VolunteerPostListFilters, VolunteerPostListItem, VolunteerPostListResult} from "../../../../types/volunteerPost.js";
 
-const prisma = new PrismaClient();
-
 export class VolunteerPostRepository implements IVolunteerPostRepository {
+  constructor(private readonly prisma: PrismaClient) {}
+
   // Mapeo de fila Prisma → entidad de dominio
   private mapToEntity(row: PrismaVolunteerPost): VolunteerPost {
     return new VolunteerPost(
@@ -32,7 +32,7 @@ export class VolunteerPostRepository implements IVolunteerPostRepository {
   // --- CRUD ---
 
   async findById(id: number): Promise<VolunteerPost | null> {
-    const row = await prisma.volunteerPost.findUnique({ where: { id } });
+    const row = await this.prisma.volunteerPost.findUnique({ where: { id } });
     if (!row) return null;
     return this.mapToEntity(row);
   }
@@ -40,7 +40,7 @@ export class VolunteerPostRepository implements IVolunteerPostRepository {
   async create(data: CreateVolunteerPostRequest): Promise<VolunteerPost> {
     const now = new Date();
 
-    const row = await prisma.volunteerPost.create({
+    const row = await this.prisma.volunteerPost.create({
       data: {
         title: data.title,
         content: data.content,
@@ -57,15 +57,12 @@ export class VolunteerPostRepository implements IVolunteerPostRepository {
 
   async deleteById(id: number, authorId: number): Promise<void> {
     // Seguridad: borramos SOLO si el autor coincide (hard delete).
-    const result = await prisma.volunteerPost.deleteMany({
+    const result = await this.prisma.volunteerPost.deleteMany({
       where: { id, author_id: authorId },
     });
 
     if (result.count === 0) {
       // Si no se borró nada: o no existe, o el user no es el autor.
-      console.warn(
-        `[VolunteerPostRepository] deleteById -> not found or forbidden (id=${id}, authorId=${authorId})`
-      );
       // Lanzamos error controlado para que el controller responda 404/403 según convenga.
       throw new Error("VOLUNTEER_POST_NOT_FOUND_OR_FORBIDDEN");
     }
@@ -111,8 +108,8 @@ export class VolunteerPostRepository implements IVolunteerPostRepository {
 
     // Consulta en paralelo: total y filas (incluyendo autor básico para el front)
     const [total, rows] = await Promise.all([
-      prisma.volunteerPost.count({ where }),
-      prisma.volunteerPost.findMany({
+      this.prisma.volunteerPost.count({ where }),
+      this.prisma.volunteerPost.findMany({
         where,
         include: {
           author: { select: { id: true, name: true, last_name: true } },

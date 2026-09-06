@@ -1,8 +1,6 @@
+import { logger } from '../../../../observability/logger.js';
 import { Response } from 'express';
 import { AuthenticatedRequest } from '../../../auth/infra/middleware/JwtMiddleware.js';
-import { PrismaClient } from '@prisma/client';
-import { PrismaConversationRepository } from '../repositories/PrismaConversationRepository.js';
-import { PrismaMessageRepository } from '../repositories/PrismaMessageRepository.js';
 import { CreateConversationCommandHandler } from '../../app/commands/CreateConversationCommandHandler.js';
 import { SendMessageCommandHandler } from '../../app/commands/SendMessageCommandHandler.js';
 import { MarkMessageAsReadCommandHandler } from '../../app/commands/MarkMessageAsReadCommandHandler.js';
@@ -11,26 +9,33 @@ import { GetConversationsQueryHandler } from '../../app/queries/GetConversations
 import { GetMessagesQueryHandler } from '../../app/queries/GetMessagesQueryHandler.js';
 import { GetUnreadMessagesCountQueryHandler } from '../../app/queries/GetUnreadMessagesCountQueryHandler.js';
 import { SocketIOService } from '../websocket/SocketIOService.js';
+import type { ConversationRepository } from '../../domain/repositories/ConversationRepository.js';
 
-const prisma = new PrismaClient();
-const conversationRepo = new PrismaConversationRepository(prisma);
-const messageRepo = new PrismaMessageRepository(prisma);
-
-const createConversationHandler = new CreateConversationCommandHandler(conversationRepo);
-const sendMessageHandler = new SendMessageCommandHandler(messageRepo, conversationRepo);
-const markAsReadHandler = new MarkMessageAsReadCommandHandler(messageRepo, conversationRepo);
-const archiveConversationHandler = new ArchiveConversationCommandHandler(conversationRepo);
-const getConversationsHandler = new GetConversationsQueryHandler(conversationRepo);
-const getMessagesHandler = new GetMessagesQueryHandler(messageRepo);
-const getUnreadCountHandler = new GetUnreadMessagesCountQueryHandler(messageRepo);
+export interface ChatControllerDependencies {
+  conversationRepository: ConversationRepository;
+  createConversation: CreateConversationCommandHandler;
+  sendMessage: SendMessageCommandHandler;
+  markAsRead: MarkMessageAsReadCommandHandler;
+  archiveConversation: ArchiveConversationCommandHandler;
+  getConversations: GetConversationsQueryHandler;
+  getMessages: GetMessagesQueryHandler;
+  getUnreadCount: GetUnreadMessagesCountQueryHandler;
+}
 
 export class ChatController {
+  constructor(private readonly dependencies: ChatControllerDependencies) {}
+
+  private async canAccessConversation(conversationId: number, userId: number): Promise<boolean> {
+    const conversation = await this.dependencies.conversationRepository.findById(conversationId);
+    return conversation?.isParticipant(userId) ?? false;
+  }
+
   // GET /conversations - List user conversations
 
   async getConversations(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const userId = req.user.userId;
-      const conversations = await getConversationsHandler.handle({ userId });
+      const conversations = await this.dependencies.getConversations.handle({ userId });
       
       // Transform entities to DTOs using getters
       const conversationDTOs = conversations.map(conv => ({
@@ -47,8 +52,8 @@ export class ChatController {
       }));
       
       res.json({ success: true, data: conversationDTOs });
-    } catch (err) {
-      res.status(500).json({ success: false, message: 'Error al obtener conversaciones', error: err });
+    } catch {
+      res.status(500).json({ success: false, message: 'Error al obtener conversaciones' });
     }
   }
 
@@ -58,7 +63,16 @@ export class ChatController {
     try {
       const { participantIds, title } = req.body;
       const createdBy = req.user.userId;
-      const conversation = await createConversationHandler.handle({ participantIds, title, createdBy });
+      if (!Array.isArray(participantIds) || participantIds.length === 0 || participantIds.length > 20) {
+        res.status(400).json({ success: false, message: 'Invalid participants' });
+        return;
+      }
+      const uniqueParticipantIds = [...new Set(participantIds.map(Number))];
+      if (uniqueParticipantIds.some((id) => !Number.isInteger(id) || id <= 0)) {
+        res.status(400).json({ success: false, message: 'Invalid participants' });
+        return;
+      }
+      const conversation = await this.dependencies.createConversation.handle({ participantIds: uniqueParticipantIds, title, createdBy });
       
       // Transform entity to DTO using getters
       const conversationDTO = {
@@ -75,8 +89,8 @@ export class ChatController {
       };
       
       res.status(201).json({ success: true, data: conversationDTO });
-    } catch (err) {
-      res.status(500).json({ success: false, message: 'Error al crear conversación', error: err });
+    } catch {
+      res.status(400).json({ success: false, message: 'Unable to create conversation' });
     }
   }
 
@@ -85,7 +99,11 @@ export class ChatController {
   async getMessages(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const conversationId = Number(req.params.id);
-      const messages = await getMessagesHandler.handle({ conversationId });
+      if (!Number.isInteger(conversationId) || !await this.canAccessConversation(conversationId, req.user.userId)) {
+        res.status(404).json({ success: false, message: 'Conversation not found' });
+        return;
+      }
+      const messages = await this.dependencies.getMessages.handle({ conversationId, userId: req.user.userId });
       
       // Transform entities to DTOs using getters
       const messageDTOs = messages.map(msg => ({
@@ -101,8 +119,8 @@ export class ChatController {
       }));
       
       res.json({ success: true, data: messageDTOs });
-    } catch (err) {
-      res.status(500).json({ success: false, message: 'Error al obtener mensajes', error: err });
+    } catch {
+      res.status(500).json({ success: false, message: 'Error al obtener mensajes' });
     }
   }
 
@@ -113,8 +131,12 @@ export class ChatController {
       const conversationId = Number(req.params.id);
       const { content, type } = req.body;
       const senderId = req.user.userId;
+      if (typeof content !== 'string' || content.trim().length === 0 || content.length > 5000) {
+        res.status(400).json({ success: false, message: 'Message content must contain between 1 and 5000 characters' });
+        return;
+      }
       
-      const message = await sendMessageHandler.handle({ conversationId, senderId, content, type });
+      const message = await this.dependencies.sendMessage.handle({ conversationId, senderId, content: content.trim(), type });
       
       // Transform entity to DTO using getters
       const messageDTO = {
@@ -131,20 +153,19 @@ export class ChatController {
 
       // Notify via Socket.IO to all conversation participants
       try {
-        const conversation = await conversationRepo.findById(conversationId);
+        const conversation = await this.dependencies.conversationRepository.findById(conversationId);
         if (conversation) {
           const socketService = SocketIOService.getInstance();
           socketService.emitNewMessage(conversationId, conversation.participantIds, messageDTO);
         }
       } catch (socketError) {
-        console.warn('[ChatController] Failed to broadcast via Socket.IO:', socketError);
+        logger.warn('[ChatController] Failed to broadcast via Socket.IO:', socketError);
         // Don't fail the request if socket broadcast fails
       }
       
       res.status(201).json({ success: true, data: messageDTO });
-    } catch (err) {
-      console.error('[ChatController] Error sending message:', err);
-      res.status(500).json({ success: false, message: 'Error al enviar mensaje', error: err instanceof Error ? err.message : 'Unknown error' });
+    } catch {
+      res.status(404).json({ success: false, message: 'Conversation not found' });
     }
   }
 
@@ -155,11 +176,10 @@ export class ChatController {
       const messageId = Number(req.params.id);
       const userId = req.user.userId;
       
-      await markAsReadHandler.handle({ messageId, userId });
+      await this.dependencies.markAsRead.handle({ messageId, userId });
       res.json({ success: true, message: 'Message marked as read' });
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-      res.status(400).json({ success: false, message: 'Error marking message as read', error: errorMessage });
+    } catch {
+      res.status(404).json({ success: false, message: 'Message not found' });
     }
   }
 
@@ -168,10 +188,10 @@ export class ChatController {
   async getUnreadCount(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const userId = req.user.userId;
-      const unreadCount = await getUnreadCountHandler.handle({ userId });
-      res.json({ success: true, data: { unreadCount } });
-    } catch (err) {
-      res.status(500).json({ success: false, message: 'Error al obtener cantidad de mensajes no leídos', error: err });
+      const unreadCount = await this.dependencies.getUnreadCount.handle({ userId });
+      res.json({ success: true, data: { count: unreadCount } });
+    } catch {
+      res.status(500).json({ success: false, message: 'Error al obtener cantidad de mensajes no leídos' });
     }
   }
 
@@ -182,11 +202,10 @@ export class ChatController {
       const conversationId = Number(req.params.id);
       const userId = req.user.userId;
       
-      const conversation = await archiveConversationHandler.handle({ conversationId, userId });
+      const conversation = await this.dependencies.archiveConversation.handle({ conversationId, userId });
       res.json({ success: true, data: { conversation, message: 'Conversation archived successfully' } });
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-      res.status(400).json({ success: false, message: 'Error archiving conversation', error: errorMessage });
+    } catch {
+      res.status(404).json({ success: false, message: 'Conversation not found' });
     }
   }
 }

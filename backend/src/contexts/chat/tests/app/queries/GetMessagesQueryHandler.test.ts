@@ -15,7 +15,7 @@ describe('GetMessagesQueryHandler', () => {
   beforeEach(() => {
     messageRepository = new MemoryMessageRepository();
     conversationRepository = new MemoryConversationRepository();
-    handler = new GetMessagesQueryHandler(messageRepository);
+    handler = new GetMessagesQueryHandler(messageRepository, conversationRepository);
   });
 
   describe('handle', () => {
@@ -39,6 +39,7 @@ describe('GetMessagesQueryHandler', () => {
 
       const query: GetMessagesQuery = {
         conversationId: conversation.id,
+        userId: 1,
         limit: 10,
         offset: 0
       };
@@ -70,6 +71,7 @@ describe('GetMessagesQueryHandler', () => {
 
       const query: GetMessagesQuery = {
         conversationId: conversation.id,
+        userId: 1,
         limit: 10,
         offset: 0
       };
@@ -91,6 +93,7 @@ describe('GetMessagesQueryHandler', () => {
 
       const query: GetMessagesQuery = {
         conversationId: conversation.id,
+        userId: 1,
         limit: 10,
         offset: 0
       };
@@ -117,6 +120,7 @@ describe('GetMessagesQueryHandler', () => {
 
       const query: GetMessagesQuery = {
         conversationId: conversation.id,
+        userId: 1,
         limit: 2,
         offset: 1
       };
@@ -140,6 +144,7 @@ describe('GetMessagesQueryHandler', () => {
 
       const query: GetMessagesQuery = {
         conversationId: conversation.id,
+        userId: 1,
         limit: 10,
         offset: 0
       };
@@ -155,6 +160,17 @@ describe('GetMessagesQueryHandler', () => {
       expect(msg.senderId).toBe(1);
       expect(msg.type).toBe(MessageType.TEXT);
       expect(msg.conversationId).toBe(conversation.id);
+    });
+
+    it('should reject a user who is not a conversation participant', async () => {
+      const conversation = await conversationRepository.create(
+        Conversation.create('Private Chat', 1, [1, 2])
+      );
+
+      await expect(handler.handle({
+        conversationId: conversation.id,
+        userId: 99,
+      })).rejects.toThrow('Conversation not found');
     });
   });
 });
