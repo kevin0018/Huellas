@@ -13,7 +13,8 @@ export const test = base.extend<{ accounts: Accounts }>({
     try {
       await provide({ create: async () => {
         const email = `e2e-${randomUUID()}@example.com`;
-        const password = 'Huellas-e2e-123!';
+        // Generated per disposable account; never reuse a local account credential.
+        const password = randomUUID();
         const registration = await anonymous.post('owners/register', {
           data: { name: 'E2E', lastName: 'Owner', email, password },
         });

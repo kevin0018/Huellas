@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { ApiAuthRepository } from '../infra/ApiAuthRepository';
 import { AuthService } from '../infra/AuthService';
@@ -28,6 +29,7 @@ describe('ApiAuthRepository', () => {
 
   describe('login', () => {
     it('normalizes the email and preserves the API response', async () => {
+      const password = randomUUID();
       const responseBody = {
         token: 'token',
         user: { id: 24, name: 'Juan', lastName: 'García', email: 'juan@email.com', type: UserType.OWNER },
@@ -38,11 +40,11 @@ describe('ApiAuthRepository', () => {
       }));
       vi.stubGlobal('fetch', fetchMock);
 
-      await expect(repository.login('  JUAN@EMAIL.COM ', 'huellas123')).resolves.toEqual(responseBody);
+      await expect(repository.login('  JUAN@EMAIL.COM ', password)).resolves.toEqual(responseBody);
 
       expect(fetchMock).toHaveBeenCalledWith(expect.stringMatching(/\/api\/auth\/login$/), expect.objectContaining({
         method: 'POST',
-        body: JSON.stringify({ email: 'juan@email.com', password: 'huellas123' }),
+        body: JSON.stringify({ email: 'juan@email.com', password }),
       }));
     });
 

@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 
+import { randomUUID } from 'node:crypto';
 import '@testing-library/jest-dom/vitest';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -105,7 +106,7 @@ describe('Login', () => {
     renderLogin();
 
     await user.type(screen.getByLabelText('Correo Electrónico'), 'juan@email.com');
-    await user.type(screen.getByLabelText('Contraseña'), 'huellas123');
+    await user.type(screen.getByLabelText('Contraseña'), randomUUID());
     await user.click(screen.getByRole('button', { name: 'Iniciar Sesión' }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Demasiados intentos de acceso');

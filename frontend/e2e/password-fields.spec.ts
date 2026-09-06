@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { test, expect } from '@playwright/test';
 
 for (const width of [320, 1440]) {
@@ -5,12 +6,13 @@ for (const width of [320, 1440]) {
     test(`password companion on ${path} at ${width}px`, async ({ page }, testInfo) => {
       await page.setViewportSize({ width, height: 900 });
       await page.goto(path);
+      const password = randomUUID();
       const input = page.locator('input[name="password"]');
       const cat = page.locator('.password-companion .huellas-cat');
       const paw = cat.locator('.huellas-cat__paw--left');
       await expect(cat).toHaveAttribute('data-mood', 'idle');
       await expect(cat.locator('.huellas-cat__eye').first()).toHaveCSS('animation-name', 'cat-blink');
-      await input.fill('Miso-test-123!');
+      await input.fill(password);
       await expect(cat).toHaveAttribute('data-mood', 'hiding');
       // Verify that the paw actually moves over the eye, beyond the data attribute.
       await expect.poll(async () => {
@@ -38,7 +40,7 @@ for (const width of [320, 1440]) {
         await page.getByRole('button', { name: language, exact: true }).click();
         await expect(page.locator('html')).toHaveAttribute('lang', code);
         await expect(page.getByRole('button', { name: action, exact: true })).toHaveAttribute('aria-pressed', 'true');
-        await expect(input).toHaveValue('Miso-test-123!');
+        await expect(input).toHaveValue(password);
       }
       await input.focus();
       await page.keyboard.press('Tab');
@@ -68,7 +70,7 @@ for (const width of [320, 1440]) {
         const paper = luminance(getComputedStyle(element.previousElementSibling!).backgroundColor);
         return (Math.max(ink, paper) + 0.05) / (Math.min(ink, paper) + 0.05);
       })).toBeGreaterThanOrEqual(3);
-      await input.fill('Miso-test-123!');
+      await input.fill(password);
       await expect(cat).toHaveAttribute('data-mood', 'hiding');
       await page.screenshot({ path: testInfo.outputPath('dark-reduced-motion.png'), fullPage: true });
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -99,6 +101,7 @@ test('the large desktop cat follows the cursor, prioritizes passwords and respec
   await page.goto('/login');
   const cat = page.locator('.password-companion .huellas-cat');
   const form = page.locator('.form-surface');
+  const password = randomUUID();
   const input = page.locator('#login-password');
   const bounds = (await cat.boundingBox())!;
   const formBounds = (await form.boundingBox())!;
@@ -114,7 +117,7 @@ test('the large desktop cat follows the cursor, prioritizes passwords and respec
   await page.mouse.move(1900, 950);
   await expect.poll(() => gaze.evaluate(element => new DOMMatrix(getComputedStyle(element).transform).m41)).toBeGreaterThan(3);
   await expect.poll(() => head.evaluate(element => new DOMMatrix(getComputedStyle(element).transform).m12)).toBeGreaterThan(0);
-  await input.fill('Miso-test-123!');
+  await input.fill(password);
   await page.mouse.move(20, 120);
   await expect(cat).toHaveAttribute('data-mood', 'hiding');
   await expect.poll(() => gaze.evaluate(element => new DOMMatrix(getComputedStyle(element).transform).m41)).toBe(0);

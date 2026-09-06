@@ -1,9 +1,10 @@
+import { randomUUID } from 'node:crypto';
 import { test, expect } from './fixtures';
 
 for (const width of [375, 1440]) {
   test(`independent password controls still change the real account password at ${width}px`, async ({ page, accounts }, testInfo) => {
     const account = await accounts.create();
-    const nextPassword = 'Miso-new-password-456!';
+    const nextPassword = randomUUID();
     await page.setViewportSize({ width, height: 900 });
     await page.goto('/login');
     await page.getByLabel('Correo Electrónico', { exact: true }).fill(account.email);
