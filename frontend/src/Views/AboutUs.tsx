@@ -4,10 +4,10 @@ import Footer from '../Components/footer';
 import '../Styles/about.css';
 
 const team = [
-  { name: 'Kevin Hernandez', image: 'dalmata.png', role: 'developerMale' },
-  { name: 'Adriana Elias', image: 'labrador.png', role: 'developerFemale' },
-  { name: 'Aroa Granja', image: 'chihuahua.png', role: 'developerFemale' },
-  { name: 'Fernanda Montalvan', image: 'galgo.png', role: 'developerFemale' },
+  { name: 'Kevin Hernandez', image: 'dalmata.png', role: 'developerMale', github: 'https://github.com/kevin0018', linkedin: 'https://www.linkedin.com/in/kevin-hernandez-deras/' },
+  { name: 'Adriana Elias', image: 'labrador.png', role: 'developerFemale', github: 'https://github.com/adriElias', linkedin: 'https://www.linkedin.com/in/adriana-elias-vigabriel/' },
+  { name: 'Aroa Granja', image: 'chihuahua.png', role: 'developerFemale', github: 'https://github.com/MissAruru', linkedin: 'https://www.linkedin.com/in/aroa-granja-iglesias/' },
+  { name: 'Fernanda Montalvan', image: 'galgo.png', role: 'developerFemale', github: 'https://github.com/FerMon98', linkedin: 'https://www.linkedin.com/in/fernandamontalvan/' },
 ] as const;
 
 export default function AboutUs() {
@@ -66,6 +66,19 @@ export default function AboutUs() {
                 </div>
                 <h3>{member.name}</h3>
                 <p>{translate(member.role)}</p>
+                <div className="mt-3 flex flex-wrap justify-center gap-x-4">
+                  {(['GitHub', 'LinkedIn'] as const).map(platform => (
+                    <a
+                      key={platform}
+                      href={platform === 'GitHub' ? member.github : member.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-[var(--color-accent)] underline decoration-[var(--color-rule-strong)] underline-offset-4 hover:decoration-current"
+                    >
+                      {platform}<span className="sr-only"> · {member.name}</span><span aria-hidden="true">↗</span>
+                    </a>
+                  ))}
+                </div>
               </li>
             ))}
           </ul>
