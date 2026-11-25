@@ -11,9 +11,9 @@ interface ProcedureCardProps {
 }
 
 const statusInfo = {
-  DONE: { className: 'border-[var(--color-success)] text-[var(--color-success)]', label: 'planCurrent' },
-  MISSING: { className: 'border-[var(--color-error)] text-[var(--color-error)]', label: 'procedureOverdue' },
-  UPCOMING: { className: 'border-[var(--color-warning)] text-[var(--color-warning)]', label: 'procedureUpcoming' },
+  DONE: { symbol: '✓', label: 'planCurrent' },
+  MISSING: { symbol: '!', label: 'procedureOverdue' },
+  UPCOMING: { symbol: '◷', label: 'procedureUpcoming' },
 } as const;
 
 function formatDate(value: string | null | undefined, locale: string) {
@@ -29,11 +29,11 @@ const ProcedureCard = ({ compact = false, emphasis = false, procedure, onEdit }:
   const action = procedure.status === 'DONE' ? translate('editProcedureRecord') : translate('recordProcedure');
 
   return (
-    <article className={`grid min-w-0 gap-5 border-b border-[var(--color-rule)] py-6 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start ${compact ? 'sm:py-5' : 'sm:py-7'}`}>
+    <article className="care-procedure" data-status={procedure.status}>
       <div className="min-w-0">
-        <div className="flex min-w-0 flex-wrap items-center gap-3">
-          <span className={`inline-flex min-h-8 shrink-0 items-center rounded-[var(--radius-pill)] border px-3 text-xs font-bold ${status.className}`}>
-            {translate(status.label)}
+        <div className="care-procedure__heading">
+          <span className="care-status">
+            <span aria-hidden="true">{status.symbol}</span><span>{translate(status.label)}</span>
           </span>
           <h3 className="min-w-0 break-words font-nunito text-xl font-bold tracking-normal">{procedure.name}</h3>
         </div>
@@ -41,7 +41,7 @@ const ProcedureCard = ({ compact = false, emphasis = false, procedure, onEdit }:
         <p className="mt-3 max-w-[65ch] text-sm leading-6 text-[var(--color-ink-soft)]">{procedure.explanation}</p>
         {!compact && procedure.description && <p className="mt-2 max-w-[65ch] text-sm leading-6 text-[var(--color-muted)]">{procedure.description}</p>}
 
-        <dl className="mt-5 grid gap-x-7 gap-y-3 text-sm sm:grid-cols-3">
+        <dl className="care-procedure__details">
           {dueAt && <div><dt className="font-bold text-[var(--color-muted)]">{translate('estimatedDate')}</dt><dd className="mt-1 tabular-nums"><time dateTime={procedure.dueAt ?? undefined}>{dueAt}</time></dd></div>}
           {lastOccurredAt && <div><dt className="font-bold text-[var(--color-muted)]">{translate('lastRecord')}</dt><dd className="mt-1 tabular-nums"><time dateTime={procedure.lastOccurredAt ?? procedure.checkupDate}>{lastOccurredAt}</time></dd></div>}
           <div><dt className="font-bold text-[var(--color-muted)]">{translate('careSchedule')}</dt><dd className="mt-1">{procedureRecurrenceLabel(procedure.recurrenceDays, translate)}</dd></div>
@@ -58,7 +58,7 @@ const ProcedureCard = ({ compact = false, emphasis = false, procedure, onEdit }:
 
       <button
         aria-label={translate('procedureActionName', { action, procedure: procedure.name })}
-        className={`ui-button w-full whitespace-nowrap sm:w-auto ${emphasis ? '' : 'ui-button--secondary'}`}
+        className={`ui-button care-procedure__action whitespace-nowrap ${emphasis ? '' : 'ui-button--secondary'}`}
         onClick={() => onEdit(procedure)}
         type="button"
       >

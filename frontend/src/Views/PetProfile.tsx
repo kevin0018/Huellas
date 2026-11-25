@@ -116,15 +116,13 @@ function PetProfile() {
   return (
     <>
       <NavBar />
-      <main className="relative min-h-[calc(100dvh-var(--nav-height))] bg-[var(--color-paper)] px-[var(--page-gutter)] py-8 text-[var(--color-ink)] sm:py-12">
-        <div aria-hidden="true" className="bg-dogs-userhome-mobile pointer-events-none fixed inset-0 bg-repeat opacity-45 dark:opacity-10 md:bg-dogs-userhome-tablet lg:bg-dogs-userhome-desktop" />
-
-        <div className="relative z-10 mx-auto w-full max-w-[var(--page-max)]">
-          <header className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-[var(--color-rule-strong)] pb-6 sm:gap-5">
-            <div className="min-w-0">
+      <main className="care-page">
+        <div className="care-shell">
+          <header className="care-hero care-hero--pet">
+            <div className="care-hero__copy">
               <nav aria-label={translate('breadcrumbs')}>
                 <Link
-                  className="inline-flex min-h-11 items-center gap-2 rounded-[var(--radius-control)] pr-3 text-sm font-bold text-[var(--color-accent)] no-underline transition-colors hover:text-[var(--color-accent-hover)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus)]"
+                  className="care-hero__back"
                   to="/user-home"
                 >
                   <ArrowLeftIcon className="size-4" />
@@ -132,10 +130,10 @@ function PetProfile() {
                 </Link>
               </nav>
 
-              <h1 className="mt-1 font-caprasimo text-[clamp(2.25rem,7vw,4.25rem)] text-[var(--color-ink)]">
+              <h1 className="care-hero__title">
                 {pet?.name || translate('petProfile')}
               </h1>
-              <p className="mt-2 max-w-[65ch] text-[var(--color-ink-soft)]">
+              <p className="care-hero__description">
                 {pet
                   ? `${translate(petTypeTranslationKeys[pet.type])} · ${pet.race || translate('unrecordedBreed')} · ${translate(petSexTranslationKeys[pet.sex])}`
                   : translate('petProfileDescription')}
@@ -143,13 +141,13 @@ function PetProfile() {
             </div>
 
             {pet && (
-              <span aria-hidden="true" className="avatar-circle size-20 shrink-0 bg-[var(--color-surface-raised)] shadow-[var(--shadow-card)] sm:size-28 lg:size-32">
+              <span aria-hidden="true" className="care-hero__portrait">
                 <img alt="" className="size-full object-cover" height="128" src={getPetImageUrl(pet)} width="128" />
               </span>
             )}
           </header>
 
-          <div className="mt-8">
+          <div>
             <AsyncContent
               empty={!pet}
               emptyDescription={translate('petNotFoundDescription')}
@@ -160,7 +158,18 @@ function PetProfile() {
               onRetry={() => setReloadVersion((current) => current + 1)}
             >
               {pet && (
-                <div className="grid gap-10">
+                <div className="grid gap-8">
+                  <section aria-labelledby="pet-actions-title" className="care-profile-links">
+                    <div>
+                      <h2 className="care-section-title" id="pet-actions-title">{translate('petActionsTitle')}</h2>
+                      <p className="care-section-description">{translate('petHealthBookDescription')}</p>
+                    </div>
+                    <div className="care-profile-links__actions">
+                      <Link className="ui-button no-underline" to={`/pets/${pet.id}/health`}>{translate('openHealthBook')}</Link>
+                      <Link className="ui-button ui-button--secondary no-underline" to={`/procedures-view/${pet.id}`}>{translate('viewProcedures')}</Link>
+                      <Link className="ui-button ui-button--secondary no-underline" to={`/pets/${pet.id}/edit`}>{translate('editPetDetails')}</Link>
+                    </div>
+                  </section>
                   <section aria-labelledby="critical-information-title" className="rounded-[var(--radius-card)] border border-[var(--color-rule-strong)] bg-[var(--color-surface)] px-5 shadow-[var(--shadow-card)] sm:px-6">
                     <div className="pt-5">
                       <h2 className="font-nunito text-xl font-bold tracking-normal" id="critical-information-title">
@@ -197,26 +206,7 @@ function PetProfile() {
                       </dl>
                     </section>
 
-                    <aside className="grid gap-8" aria-label={translate('petActionsAndNotes')}>
-                      <section className="rounded-[var(--radius-card)] border border-[var(--color-rule-strong)] bg-[var(--color-surface-raised)] p-5 shadow-[var(--shadow-card)] sm:p-6" aria-labelledby="pet-actions-title">
-                        <h2 className="font-nunito text-xl font-bold tracking-normal" id="pet-actions-title">{translate('petActionsTitle')}</h2>
-                        <p className="mt-2 text-sm text-[var(--color-ink-soft)]">
-                          {translate('petHealthBookDescription')}
-                        </p>
-
-                        <div className="mt-5 grid gap-3">
-                          <Link className="ui-button no-underline" to={`/pets/${pet.id}/health`}>
-                            {translate('openHealthBook')}
-                          </Link>
-                          <Link className="ui-button ui-button--secondary no-underline" to={`/procedures-view/${pet.id}`}>
-                            {translate('viewProcedures')}
-                          </Link>
-                          <Link className="ui-button ui-button--secondary no-underline" to={`/pets/${pet.id}/edit`}>
-                            {translate('editPetDetails')}
-                          </Link>
-                        </div>
-                      </section>
-
+                    <aside aria-label={translate('healthNotes')}>
                       <section className="rounded-[var(--radius-card)] border border-[var(--color-rule-strong)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-card)] sm:p-6" aria-labelledby="pet-notes-title">
                         <h2 className="font-nunito text-xl font-bold tracking-normal" id="pet-notes-title">{translate('healthNotes')}</h2>
                         <p className={`mt-3 whitespace-pre-wrap ${pet.notes ? "text-[var(--color-ink-soft)]" : "text-[var(--color-muted)]"}`}>
