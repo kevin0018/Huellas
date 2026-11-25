@@ -67,7 +67,7 @@ for (const width of [320, 375, 414, 768, 1440]) {
 test('home links lead to registration and the team without a full-page navigation', async ({ page }) => {
   await page.goto('/');
   await page.evaluate(() => { document.documentElement.dataset.navigationProbe = 'same-document'; });
-  await page.getByRole('link', { name: 'Empieza ahora', exact: true }).click();
+  await page.getByRole('link', { name: 'Crear mi primera cartilla', exact: true }).click();
   await expect(page).toHaveURL(/\/register$/);
   await expect(page.locator('html')).toHaveAttribute('data-navigation-probe', 'same-document');
   await page.goto('/');

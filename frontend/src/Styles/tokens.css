@@ -1,4 +1,4 @@
-/* Hallmark · genre: playful · macrostructure: Workbench · theme: Huellas · enrichment: typography-only · nav: N1b */
+/* Paper, ink and cloth covers for the animal health books. */
 @import url("https://fonts.googleapis.com/css2?family=Caprasimo&family=Geist:wght@400;600;700&display=swap");
 
 :root {
@@ -12,21 +12,21 @@
   --text-2xl: 2.441rem;
   --text-display: clamp(2.25rem, 5vw + 0.5rem, 4.25rem);
 
-  --color-paper: oklch(97% 0.018 82);
-  --color-paper-2: oklch(94% 0.021 82);
-  --color-paper-3: oklch(91% 0.022 326);
-  --color-surface: oklch(98.5% 0.011 82);
-  --color-surface-raised: oklch(99% 0.008 82);
-  --color-rule: oklch(82% 0.025 326);
-  --color-rule-strong: oklch(68% 0.035 326);
-  --color-neutral: oklch(48% 0.025 326);
-  --color-muted: oklch(39% 0.028 326);
-  --color-ink: oklch(28% 0.07 326);
-  --color-ink-soft: oklch(36% 0.055 326);
-  --color-accent: oklch(39% 0.095 326);
-  --color-accent-hover: oklch(34% 0.09 326);
-  --color-accent-ink: oklch(97% 0.018 82);
-  --color-focus: oklch(65% 0.08 326);
+  --color-paper: #fbf8ef;
+  --color-paper-2: #eeeade;
+  --color-paper-3: #dce8d8;
+  --color-surface: #fffdf6;
+  --color-surface-raised: #fffef8;
+  --color-rule: #d3d8c9;
+  --color-rule-strong: #9da996;
+  --color-neutral: #526357;
+  --color-muted: #4a5b51;
+  --color-ink: #203a30;
+  --color-ink-soft: #41594b;
+  --color-accent: #285f49;
+  --color-accent-hover: #194b37;
+  --color-accent-ink: #fffdf2;
+  --color-focus: #527954;
   --color-success: oklch(42% 0.105 151);
   --color-success-soft: oklch(93% 0.04 151);
   --color-success-text: oklch(31% 0.09 151);
@@ -45,6 +45,30 @@
   --color-success-ink: oklch(97% 0.018 82);
   --color-backdrop: oklch(16% 0.04 326 / 0.7);
 
+
+  --cat-line: #38362d;
+  --cat-fur: #edaa65;
+  --cat-stripe: #b96535;
+  --cat-cream: #fff3d9;
+  --cat-pink: #ecab90;
+  --cat-scarf: #598873;
+  --art-book: #39745b;
+  --art-book-dark: #244e3e;
+  --art-gold: #f0d89c;
+  --art-tab: #c2b6d3;
+  --art-leaf: #749372;
+  --art-star: #a67d3d;
+  --art-yarn: #915d49;
+  --art-halo: #f2dfad;
+  --art-shadow: #d8be87;
+  --cover-paper: #f7edd4;
+  --cover-edge: #d1c7a9;
+  --cover-ink: #223c30;
+  --cover-accent: #3f6444;
+  --cover-stitch: #bfb393;
+  --folder-peach: #f3ddc2;
+  --folder-lilac: #e6dff0;
+
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -57,11 +81,11 @@
   --space-16: 4rem;
 
   --radius-control: 0.5rem;
-  --radius-card: 0.75rem;
+  --radius-card: 1rem;
   --radius-pill: 9999px;
   --page-gutter: clamp(1rem, 4vw, 2rem);
   --page-max: 76rem;
-  --nav-height: 5rem;
+  --nav-height: 4.5rem;
   --rule-hairline: 0.0625rem;
   --shadow-card: 0 0.5rem 1.5rem -0.75rem oklch(28% 0.07 326 / 0.28);
   --shadow-card-hover: 0 0.75rem 2rem -0.75rem oklch(28% 0.07 326 / 0.34);
@@ -86,21 +110,30 @@
 }
 
 .dark {
-  --color-paper: oklch(18% 0.04 326);
-  --color-paper-2: oklch(21% 0.045 326);
-  --color-paper-3: oklch(25% 0.05 326);
-  --color-surface: oklch(23% 0.042 326);
-  --color-surface-raised: oklch(27% 0.045 326);
-  --color-rule: oklch(38% 0.035 326);
-  --color-rule-strong: oklch(52% 0.035 326);
-  --color-neutral: oklch(72% 0.025 326);
-  --color-muted: oklch(80% 0.022 326);
-  --color-ink: oklch(95% 0.012 82);
-  --color-ink-soft: oklch(88% 0.018 82);
-  --color-accent: oklch(80% 0.075 326);
-  --color-accent-hover: oklch(86% 0.06 326);
-  --color-accent-ink: oklch(19% 0.045 326);
-  --color-focus: oklch(51% 0.06 326);
+  --cover-paper: #2e3e32;
+  --cover-edge: #65725c;
+  --cover-ink: #fff4d7;
+  --cover-accent: #c0d7a9;
+  --cover-stitch: #697964;
+  --art-halo: #536656;
+  --art-shadow: #21382a;
+  --folder-peach: #4b3a2b;
+  --folder-lilac: #423a4b;
+  --color-paper: #17251e;
+  --color-paper-2: #213128;
+  --color-paper-3: #304639;
+  --color-surface: #25372c;
+  --color-surface-raised: #293c31;
+  --color-rule: #445a49;
+  --color-rule-strong: #748875;
+  --color-neutral: #bac8b8;
+  --color-muted: #c1cfbd;
+  --color-ink: #f4f2df;
+  --color-ink-soft: #d7dfcd;
+  --color-accent: #a7d5b1;
+  --color-accent-hover: #c1e6c7;
+  --color-accent-ink: #183122;
+  --color-focus: #d6b86e;
   --color-success: oklch(76% 0.1 151);
   --color-success-soft: oklch(27% 0.055 151);
   --color-success-text: oklch(86% 0.075 151);

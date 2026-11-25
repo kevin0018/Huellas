@@ -32,9 +32,9 @@ export function useCatGaze(ref: RefObject<SVGSVGElement | null>, mood: CatMood, 
       if (!frame) frame = window.requestAnimationFrame(aim);
     }
     function move(event: PointerEvent) {
-      if (event.pointerType === 'touch' || mood !== 'idle' || !followPointer || reducedMotion.matches || !finePointer.matches) return;
+      if (event.pointerType === 'touch' || mood !== 'idle' || !followPointer) return;
       pointer = { x: event.clientX, y: event.clientY };
-      schedule();
+      if (!reducedMotion.matches && finePointer.matches) schedule();
     }
     function rest() { pointer = null; schedule(); }
     function leave(event: PointerEvent) { if (!event.relatedTarget) rest(); }
@@ -46,8 +46,8 @@ export function useCatGaze(ref: RefObject<SVGSVGElement | null>, mood: CatMood, 
     window.addEventListener('blur', rest);
     window.addEventListener('resize', schedule, { passive: true });
     window.addEventListener('scroll', schedule, { passive: true, capture: true });
-    reducedMotion.addEventListener('change', rest);
-    finePointer.addEventListener('change', rest);
+    reducedMotion.addEventListener('change', schedule);
+    finePointer.addEventListener('change', schedule);
     return () => {
       if (frame) window.cancelAnimationFrame(frame);
       window.removeEventListener('pointermove', move);
@@ -55,8 +55,8 @@ export function useCatGaze(ref: RefObject<SVGSVGElement | null>, mood: CatMood, 
       window.removeEventListener('blur', rest);
       window.removeEventListener('resize', schedule);
       window.removeEventListener('scroll', schedule, true);
-      reducedMotion.removeEventListener('change', rest);
-      finePointer.removeEventListener('change', rest);
+      reducedMotion.removeEventListener('change', schedule);
+      finePointer.removeEventListener('change', schedule);
     };
   }, [ref, mood, followPointer, lookAt]);
 }

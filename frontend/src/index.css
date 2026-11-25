@@ -296,3 +296,23 @@ fieldset:disabled {
     transition-duration: 0.01ms !important;
   }
 }
+
+.care-icon { width: 1.15rem; height: 1.15rem; flex: none; }
+.nav-paw {
+  display: grid; place-items: center; width: 2.45rem; height: 2.45rem;
+  border-radius: .85rem .85rem .85rem .28rem; background: var(--color-accent); color: var(--color-accent-ink);
+  transform: rotate(-5deg);
+}
+.nav-paw .care-icon { width: 1.5rem; height: 1.5rem; }
+.nav-wordmark { font: 700 1.65rem/1 Georgia, serif; letter-spacing: -.065em; }
+.ui-action, .ui-button {
+  border-radius: 1.15rem 1.15rem 1.15rem .35rem;
+  box-shadow: 0 2px 0 color-mix(in srgb, var(--color-ink) 30%, transparent);
+}
+.ui-action:active, .ui-button:active:not(:disabled) { transform: translateY(2px); box-shadow: none; }
+
+@media (hover: hover) and (pointer: fine) {
+  body { cursor: url("/media/cat-cursor.svg") 2 2, auto; }
+  a, button:not(:disabled), [role="tab"], select:not(:disabled), label[for], input[type="checkbox"]:enabled { cursor: pointer; }
+  input:not([type]), input:is([type="text"], [type="search"], [type="password"], [type="email"], [type="number"]), textarea { cursor: text; }
+}

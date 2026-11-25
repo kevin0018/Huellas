@@ -1,3 +1,4 @@
+import { PetBookNavigation } from '../Components/pet/PetBookNavigation';
 import { messageFromError, translateMessage, type LocalizedMessage } from '../i18n/message';
 import type { TranslationKey } from '../i18n/dictionary';
 import { useTranslation } from '../i18n/hooks/hook';
@@ -143,8 +144,8 @@ function ProceduresView() {
           <header className="care-hero care-hero--pet">
             <div className="care-hero__copy">
               <nav aria-label={translate('breadcrumbs')}>
-                <Link className="care-hero__back" to={`/pets/${petId}`}>
-                  <ArrowLeftIcon className="size-4" />{translate('petProfile')}
+                <Link className="care-hero__back" to="/user-home">
+                  <ArrowLeftIcon className="size-4" />{translate('yourPets')}
                 </Link>
               </nav>
               <h1 className="care-hero__title">{pet ? translate('preventionForPet', { pet: pet.name }) : translate('prevention')}
@@ -158,10 +159,8 @@ function ProceduresView() {
                 <img alt="" className="size-full object-cover" height="128" src={getPetImageUrl(pet)} width="128" />
               </span>
             )}
-            <div className="care-hero__actions">
-              <Link className="care-hero__link" to={`/pets/${petId}/health`}>{translate('openHealthBook')}</Link>
-            </div>
           </header>
+          {pet && <PetBookNavigation petId={pet.id} />}
 
           <AsyncContent
             empty={procedures.length === 0}

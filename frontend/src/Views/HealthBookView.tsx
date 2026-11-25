@@ -1,3 +1,4 @@
+import { PetBookNavigation } from '../Components/pet/PetBookNavigation';
 import { LocalizedError, messageFromError, translateMessage, type LocalizedMessage } from '../i18n/message';
 import type { TranslationKey } from '../i18n/dictionary';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -179,8 +180,8 @@ export default function HealthBookView() {
         <header className="care-hero care-hero--pet">
           <div className="care-hero__copy">
             <nav aria-label={translate('breadcrumbNavigation')}>
-              <Link className="care-hero__back" to={`/pets/${petId}`}>
-                <ArrowLeftIcon className="size-4" /> {translate('petProfile')}
+              <Link className="care-hero__back" to="/user-home">
+                <ArrowLeftIcon className="size-4" /> {translate('yourPets')}
               </Link>
             </nav>
             <h1 className="care-hero__title">{translate('healthBookTitle')}</h1>
@@ -195,9 +196,9 @@ export default function HealthBookView() {
             <button aria-controls="health-event-form" aria-expanded={showForm} className="ui-button whitespace-nowrap" onClick={showForm ? closeEventForm : startCreating} type="button">
               <span aria-hidden="true">{showForm ? '×' : '+'}</span>{showForm ? (editingEventId === null ? translate('closeHealthForm') : translate('cancelHealthEdit')) : translate('addHealthEvent')}
             </button>
-            <Link className="care-hero__link" to={`/procedures-view/${petId}`}>{translate('viewProcedures')}</Link>
           </div>
         </header>
+        {pet && <PetBookNavigation petId={pet.id} />}
 
         {showForm && <form className="grid scroll-mt-24 gap-5 rounded-[var(--radius-card)] border border-[var(--color-rule-strong)] bg-[var(--color-surface-raised)] p-5 shadow-[var(--shadow-card)] sm:p-6" id="health-event-form" onSubmit={submit} ref={eventFormRef}>
           <div><h2 className="font-nunito text-xl font-bold tracking-normal">{editingEventId === null ? translate('newHealthEvent') : translate('editHealthEvent')}</h2><p className="mt-1 max-w-[65ch] text-sm text-[var(--color-muted)]">{editingEventId === null ? translate('newHealthEventDescription') : translate('editHealthEventDescription')}</p></div>

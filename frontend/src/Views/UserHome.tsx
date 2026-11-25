@@ -3,6 +3,8 @@ import { localeByLanguage } from '../i18n/locale';
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import NavBar from "../Components/NavBar";
+import HuellasCat from "../shared/ui/HuellasCat";
+import CareIcon from "../shared/ui/CareIcon";
 import Footer from "../Components/footer";
 import { PetAvatarGrid } from "../Components/pet/PetAvatarGrid";
 import { applicationServices, type ReminderFeed } from "../composition/applicationServices.js";
@@ -13,18 +15,6 @@ import type { Pet } from "../modules/pet/domain/Pet";
 import { AsyncContent } from "../shared/ui/AsyncContent.js";
 
 const { pets: petRepository, reminders: reminderRepository } = applicationServices;
-
-function PawIcon() {
-  return <img src="/media/paw_icon.svg" alt="" className="size-5" aria-hidden="true" />;
-}
-
-function CalendarIcon() {
-  return (
-    <svg className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2Z" />
-    </svg>
-  );
-}
 
 function UserHomeContent() {
   const { translate, currentLanguage } = useTranslation();
@@ -132,10 +122,11 @@ function UserHomeContent() {
         <div className="care-shell">
           <header className="care-hero care-hero--dashboard">
             <div className="care-hero__copy">
-              <p className="care-hero__label">{translate('careAgenda')}</p>
-              <h1 className="care-hero__title">{translate('hello')}, {user.name}</h1>
+              <p className="care-hero__label">{translate('hello')}, {user.name}</p>
+              <h1 className="care-hero__title">{translate('careAgenda')}</h1>
               <p className="care-hero__description">{translate('homePageSubtitle')}</p>
             </div>
+            <div className="care-hero__companion"><HuellasCat /></div>
             {!loading && !error && (
               <section className="care-today" aria-labelledby="now-title" data-attention={urgentCount > 0}>
                 <p className="care-today__label">
@@ -150,7 +141,7 @@ function UserHomeContent() {
                   {translate(urgentCount > 0 ? 'urgentCareDescription' : 'currentCareDescription')}
                 </p>
                 <Link className="care-today__link" to="/appointments">
-                  <CalendarIcon />{translate('myAppointmentsLink')}
+                  <CareIcon name="calendar" />{translate('myAppointmentsLink')}
                 </Link>
               </section>
             )}
@@ -172,7 +163,7 @@ function UserHomeContent() {
                     <p className="care-section-description">{translate('familyDescription')}</p>
                   </div>
                   <Link className="ui-button ui-button--secondary whitespace-nowrap no-underline" to="/pet-register">
-                    <PawIcon />{translate('addPetTitle')}
+                    <CareIcon name="paw" />{translate('addPetTitle')}
                   </Link>
                 </div>
                 {pets.length > 0 ? <PetAvatarGrid pets={pets} /> : (

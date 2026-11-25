@@ -1,4 +1,4 @@
-/* Hallmark · pre-emit critique: P5 H5 E4 S5 R5 V5 · genre: playful · macrostructure: Split Studio · theme: Huellas · enrichment: existing pet avatar · nav/footer: preserved · contrast: pass (40–41) · slop: pass (42–57) */
+import { PetBookNavigation } from '../Components/pet/PetBookNavigation';
 import { messageFromError, translateMessage, type LocalizedMessage } from '../i18n/message';
 import { localeByLanguage } from '../i18n/locale';
 import { useTranslation } from '../i18n/hooks/hook';
@@ -145,7 +145,13 @@ function PetProfile() {
                 <img alt="" className="size-full object-cover" height="128" src={getPetImageUrl(pet)} width="128" />
               </span>
             )}
+            {pet && (
+              <div className="care-hero__actions">
+                <Link className="ui-button no-underline" to={`/pets/${pet.id}/edit`}>{translate('editPetDetails')}</Link>
+              </div>
+            )}
           </header>
+          {pet && <PetBookNavigation petId={pet.id} />}
 
           <div>
             <AsyncContent
@@ -159,17 +165,6 @@ function PetProfile() {
             >
               {pet && (
                 <div className="grid gap-8">
-                  <section aria-labelledby="pet-actions-title" className="care-profile-links">
-                    <div>
-                      <h2 className="care-section-title" id="pet-actions-title">{translate('petActionsTitle')}</h2>
-                      <p className="care-section-description">{translate('petHealthBookDescription')}</p>
-                    </div>
-                    <div className="care-profile-links__actions">
-                      <Link className="ui-button no-underline" to={`/pets/${pet.id}/health`}>{translate('openHealthBook')}</Link>
-                      <Link className="ui-button ui-button--secondary no-underline" to={`/procedures-view/${pet.id}`}>{translate('viewProcedures')}</Link>
-                      <Link className="ui-button ui-button--secondary no-underline" to={`/pets/${pet.id}/edit`}>{translate('editPetDetails')}</Link>
-                    </div>
-                  </section>
                   <section aria-labelledby="critical-information-title" className="rounded-[var(--radius-card)] border border-[var(--color-rule-strong)] bg-[var(--color-surface)] px-5 shadow-[var(--shadow-card)] sm:px-6">
                     <div className="pt-5">
                       <h2 className="font-nunito text-xl font-bold tracking-normal" id="critical-information-title">
