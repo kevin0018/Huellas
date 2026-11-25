@@ -77,3 +77,30 @@ test('home links lead to registration and the team without a full-page navigatio
   await page.reload();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Más tiempo juntos. Más cuidado.');
 });
+
+test('interface sounds are opt-in and follow the user across pages and reloads', async ({ page }) => {
+  await page.addInitScript(() => {
+    const start = OscillatorNode.prototype.start;
+    OscillatorNode.prototype.start = function (when) {
+      document.documentElement.dataset.chimes = String(Number(document.documentElement.dataset.chimes || 0) + 1);
+      start.call(this, when);
+    };
+  });
+  await page.goto('/');
+  const sound = page.getByRole('button', { name: 'Sonidos de la interfaz' });
+  const chimes = () => page.evaluate(() => Number(document.documentElement.dataset.chimes || 0));
+  await expect(sound).toHaveAttribute('aria-pressed', 'false');
+  await page.getByRole('tab', { name: 'Su cartilla' }).click();
+  expect(await chimes()).toBe(0);
+  await sound.click();
+  await expect.poll(chimes).toBe(1);
+  await page.getByRole('tab', { name: 'Lo que viene' }).click();
+  await expect.poll(chimes).toBe(2);
+  await page.getByRole('link', { name: 'Crear mi primera cartilla' }).click();
+  await expect(page).toHaveURL(/\/register$/);
+  await expect(sound).toHaveAttribute('aria-pressed', 'true');
+  await page.reload();
+  await sound.click();
+  await expect(sound).toHaveAttribute('aria-pressed', 'false');
+  expect(await chimes()).toBe(0);
+});

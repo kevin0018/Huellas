@@ -5,6 +5,7 @@
 
 import { useEffect, useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import SoundControl from './SoundControl';
 import CareIcon from '../shared/ui/CareIcon';
 import ThemeSwitcher from './theme/ThemeSwitcher';
 import LanguageSwitcher from '../i18n/LanguageSwitcher';
@@ -109,6 +110,7 @@ export default function NavBar() {
         </div>
 
         <div className="flex items-center justify-end gap-1">
+          <SoundControl />
           <div className="hidden items-center gap-1 lg:flex">
             {isLoggedIn ? (
               <>

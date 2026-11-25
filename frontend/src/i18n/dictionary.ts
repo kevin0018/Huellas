@@ -4,6 +4,7 @@
 */
 
 export const en = {
+  interfaceSounds: "Interface sounds",
   showPassword: "Show password",
   hidePassword: "Hide password",
   homeTitleAccent: "in one book.",
@@ -634,6 +635,7 @@ export type TranslationKey = keyof typeof en;
 export type LocaleMap = Record<TranslationKey, string>;
 
 export const es: LocaleMap = {
+  interfaceSounds: "Sonidos de la interfaz",
   showPassword: "Mostrar contraseña",
   hidePassword: "Ocultar contraseña",
   homeTitleAccent: "en una cartilla.",
@@ -1259,6 +1261,7 @@ export const es: LocaleMap = {
 };
 
 export const ca: LocaleMap = {
+  interfaceSounds: "Sons de la interfície",
   showPassword: "Mostra la contrasenya",
   hidePassword: "Amaga la contrasenya",
   homeTitleAccent: "en una cartilla.",

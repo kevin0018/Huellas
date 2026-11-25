@@ -305,6 +305,11 @@ fieldset:disabled {
 }
 .nav-paw .care-icon { width: 1.5rem; height: 1.5rem; }
 .nav-wordmark { font: 700 1.65rem/1 Georgia, serif; letter-spacing: -.065em; }
+.nav-sound {
+  display: grid; place-items: center; width: 2.75rem; height: 2.75rem;
+  color: var(--color-accent); border-radius: var(--radius-pill);
+}
+.nav-sound:hover, .nav-sound[aria-pressed="true"] { background: var(--color-paper-3); }
 .ui-action, .ui-button {
   border-radius: 1.15rem 1.15rem 1.15rem .35rem;
   box-shadow: 0 2px 0 color-mix(in srgb, var(--color-ink) 30%, transparent);
