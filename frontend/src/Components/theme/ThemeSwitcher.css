@@ -1,0 +1,83 @@
+.theme-switch {
+  --track-width: 4rem;
+  --track-height: 2rem;
+  --thumb-inset: .1875rem;
+  --switch-time: 440ms;
+  --day-sky: #ecdcb7;
+  --night-sky: #324c58;
+  --day-disc: #fff9e8;
+  --night-disc: #e3edf1;
+  --sun-ink: #94631b;
+  --moon-ink: #375064;
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: var(--track-width);
+  min-height: 2.75rem;
+  padding: 0;
+  border-radius: var(--radius-pill);
+}
+.theme-switch__track {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  width: 100%;
+  height: var(--track-height);
+  border-radius: inherit;
+  background: var(--day-sky);
+}
+.theme-switch__track::before {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background: var(--night-sky);
+  transform: translateX(-100%);
+  transition: transform var(--switch-time) var(--ease-in-out);
+}
+.theme-switch[aria-checked="true"] .theme-switch__track::before { transform: translateX(0); }
+.theme-switch__sky { position: absolute; inset: 0; width: 100%; height: 100%; }
+.theme-switch__thumb {
+  position: absolute;
+  inset: var(--thumb-inset) auto var(--thumb-inset) var(--thumb-inset);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--day-disc);
+  box-shadow: 0 1px 3px #28372e40;
+  transition: transform var(--switch-time) var(--ease-in-out), background-color var(--switch-time);
+}
+.theme-switch[aria-checked="true"] .theme-switch__thumb {
+  transform: translateX(calc(var(--track-width) - var(--track-height)));
+  background: var(--night-disc);
+}
+.theme-switch__thumb svg { width: 69%; height: 69%; }
+.theme-switch__sun { color: var(--sun-ink); }
+.theme-switch__clouds { color: var(--day-disc); }
+.theme-switch__stars { color: var(--night-disc); }
+.theme-switch__moon { color: var(--moon-ink); }
+.theme-switch__sun, .theme-switch__moon { transform-origin: center; transition: transform var(--switch-time), opacity var(--switch-time); }
+.theme-switch__clouds, .theme-switch__stars { transition: opacity var(--switch-time); }
+.theme-switch__moon, .theme-switch__stars,
+.theme-switch[aria-checked="true"] :is(.theme-switch__sun, .theme-switch__clouds) { opacity: 0; }
+.theme-switch__moon { transform: rotate(-40deg); }
+.theme-switch[aria-checked="true"] .theme-switch__sun { transform: rotate(45deg); }
+.theme-switch[aria-checked="true"] :is(.theme-switch__stars, .theme-switch__moon) { opacity: 1; transform: none; }
+
+/* Reveal the live theme from its switch while the previous page stays underneath. */
+:root[data-theme-reveal]::view-transition { pointer-events: none; }
+:root[data-theme-reveal]::view-transition-old(root),
+:root[data-theme-reveal]::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-theme-reveal]::view-transition-new(root) {
+    animation: theme-reveal 500ms var(--ease-in-out) both;
+  }
+  @keyframes theme-reveal {
+    from { clip-path: circle(0 at var(--theme-origin)); }
+    to { clip-path: circle(145vmax at var(--theme-origin)); }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-switch *, .theme-switch__track::before { transition-property: none; }
+}

@@ -127,7 +127,7 @@ export default function NavBar() {
               <NavLink to="/login" className={navLinkClass}>{translate('login')}</NavLink>
             )}
             <LanguageSwitcher className="[&>button]:!h-11 [&>button]:!w-11" />
-            <ThemeSwitcher className="!h-11 !w-[4.5rem]" />
+            <ThemeSwitcher />
           </div>
 
           <div className="flex items-center justify-end gap-1 lg:hidden">
@@ -182,7 +182,7 @@ export default function NavBar() {
             )}
             <div className="mt-2 flex min-h-11 items-center justify-between border-t border-[var(--color-rule)] px-4 pt-3 text-sm font-semibold text-[var(--color-ink-soft)]">
               <span>{translate('theme')}</span>
-              <ThemeSwitcher className="!h-11 !w-[4.5rem]" />
+              <ThemeSwitcher />
             </div>
           </div>
         </div>

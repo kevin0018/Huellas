@@ -104,3 +104,30 @@ test('interface sounds are opt-in and follow the user across pages and reloads',
   await expect(sound).toHaveAttribute('aria-pressed', 'false');
   expect(await chimes()).toBe(0);
 });
+
+test('keeps the theme thumb evenly inset at both ends and preserves keyboard selection', async ({ page }) => {
+  await page.goto('/');
+  const control = page.getByRole('switch', { name: 'Modo oscuro' });
+  const aligned = (dark: boolean) => control.evaluate((button, night) => {
+    const track = button.querySelector('.theme-switch__track')!.getBoundingClientRect();
+    const thumb = button.querySelector('.theme-switch__thumb')!.getBoundingClientRect();
+    const above = thumb.top - track.top;
+    const below = track.bottom - thumb.bottom;
+    const end = night ? track.right - thumb.right : thumb.left - track.left;
+    return above > 0 && Math.abs(above - below) < 1 && Math.abs(above - end) < 1;
+  }, dark);
+
+  await expect(control).toHaveAttribute('aria-checked', 'false');
+  expect(await aligned(false)).toBe(true);
+  await control.focus();
+  await page.keyboard.press('Space');
+  await expect(control).toHaveAttribute('aria-checked', 'true');
+  await expect.poll(() => aligned(true)).toBe(true);
+  await page.reload();
+  await expect(control).toHaveAttribute('aria-checked', 'true');
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await control.click();
+  await expect(control).toHaveAttribute('aria-checked', 'false');
+  expect(await aligned(false)).toBe(true);
+  await expect(page.locator('html')).not.toHaveAttribute('data-theme-reveal', '');
+});
