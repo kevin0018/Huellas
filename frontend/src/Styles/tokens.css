@@ -46,19 +46,16 @@
   --color-backdrop: oklch(16% 0.04 326 / 0.7);
 
 
-  --cat-line: #38362d;
-  --cat-fur: #edaa65;
-  --cat-stripe: #b96535;
-  --cat-cream: #fff3d9;
-  --cat-pink: #ecab90;
-  --cat-scarf: #598873;
+  --art-ink: #38362d;
+  --art-apricot: #edaa65;
+  --art-paper: #fff3d9;
+  --art-ribbon: #ecab90;
   --art-book: #39745b;
   --art-book-dark: #244e3e;
   --art-gold: #f0d89c;
   --art-tab: #c2b6d3;
   --art-leaf: #749372;
   --art-star: #a67d3d;
-  --art-yarn: #915d49;
   --art-halo: #f2dfad;
   --art-shadow: #d8be87;
   --cover-paper: #f7edd4;

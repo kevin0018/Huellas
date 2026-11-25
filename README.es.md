@@ -25,7 +25,7 @@ permiten ejecutar la aplicación en local.
 - Enlaces de resumen de salud con caducidad y revocación; las secciones y el intervalo de fechas seleccionados determinan qué se comparte.
 - Capacidades de propietario y voluntario, tablón comunitario y chat autenticado con Socket.IO.
 - Interfaz en español, inglés y catalán, fechas localizadas, temas claro/oscuro, diálogos accesibles con teclado y soporte de movimiento reducido.
-- Controles para mostrar contraseñas con un gato SVG propio que sigue el cursor y reacciona a la escritura.
+- Controles para mostrar contraseñas con Tinta, un hurón que sigue el cursor y reacciona a la escritura.
 
 ## Interfaz
 

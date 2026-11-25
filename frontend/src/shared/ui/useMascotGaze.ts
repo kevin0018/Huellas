@@ -1,11 +1,11 @@
 import { useEffect, type RefObject } from 'react';
-import type { CatMood } from './HuellasCat';
+import type { MascotMood } from './Tinta';
 
 /** Aim with geometry only. Pointer frames update the SVG, never the form state. */
-export function useCatGaze(ref: RefObject<SVGSVGElement | null>, mood: CatMood, followPointer: boolean, lookAt: HTMLElement | null) {
+export function useMascotGaze(ref: RefObject<SVGSVGElement | null>, mood: MascotMood, followPointer: boolean, lookAt: HTMLElement | null) {
   useEffect(() => {
-    const cat = ref.current;
-    if (!cat || typeof window.matchMedia !== 'function') return;
+    const mascot = ref.current;
+    if (!mascot || typeof window.matchMedia !== 'function') return;
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const finePointer = window.matchMedia('(any-pointer: fine)');
     let frame = 0;
@@ -13,8 +13,8 @@ export function useCatGaze(ref: RefObject<SVGSVGElement | null>, mood: CatMood, 
 
     function aim() {
       frame = 0;
-      if (!cat) return;
-      const bounds = cat.getBoundingClientRect();
+      if (!mascot) return;
+      const bounds = mascot.getBoundingClientRect();
       let target = mood === 'idle' && followPointer && finePointer.matches && !reducedMotion.matches ? pointer : null;
       if (mood === 'watching' && lookAt) {
         const field = lookAt.getBoundingClientRect();
@@ -22,11 +22,11 @@ export function useCatGaze(ref: RefObject<SVGSVGElement | null>, mood: CatMood, 
       }
       const x = target ? Math.max(-1, Math.min(1, (target.x - bounds.left - bounds.width / 2) / Math.max(1, bounds.width))) : 0;
       const y = target ? Math.max(-1, Math.min(1, (target.y - bounds.top - bounds.height * 0.46) / Math.max(1, bounds.height))) : 0;
-      cat.style.setProperty('--cat-look-x', `${x * 7}px`);
-      cat.style.setProperty('--cat-look-y', `${y * 6}px`);
-      cat.style.setProperty('--cat-head-x', `${x * 3}px`);
-      cat.style.setProperty('--cat-head-y', `${y * 2}px`);
-      cat.style.setProperty('--cat-head-turn', `${x * 5}deg`);
+      mascot.style.setProperty('--gaze-x', `${x * 7}px`);
+      mascot.style.setProperty('--gaze-y', `${y * 6}px`);
+      mascot.style.setProperty('--head-x', `${x * 3}px`);
+      mascot.style.setProperty('--head-y', `${y * 2}px`);
+      mascot.style.setProperty('--head-turn', `${x * 5}deg`);
     }
     function schedule() {
       if (!frame) frame = window.requestAnimationFrame(aim);

@@ -39,7 +39,7 @@
 .book-art > svg { width: 100%; height: auto; }
 .book-art__wordmark { font: 700 26px Georgia, serif; }
 .book-art__caption { font: 700 8px var(--font-body); letter-spacing: .11em; text-transform: uppercase; }
-.book-art__cat { position: absolute; width: 41%; right: 6%; bottom: 9%; transform: rotate(3deg); }
+.book-art__mascot { position: absolute; width: 43%; right: 3%; bottom: 7%; }
 .home-care { padding-block: clamp(2.5rem, 5vw, 4.5rem) 2.25rem; }
 .home-care__header { display: flex; align-items: center; gap: 1.5rem; margin-bottom: 1.6rem; }
 .home-care__rule { display: flex; align-items: center; gap: 1rem; flex: 1; color: var(--color-rule-strong); }

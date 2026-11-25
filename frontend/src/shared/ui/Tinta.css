@@ -1,0 +1,54 @@
+.tinta {
+  --fur-ink: #302b28;
+  --fur-mask: #53403a;
+  --fur-shadow: #805c46;
+  --fur-sable: #ba8559;
+  --fur-light: #edc99a;
+  --fur-cream: #fff1d5;
+  --ear: #e89880;
+  --nose-glint: #a59a89;
+  --paw-light: #ab8970;
+  --strap: #cd9647;
+  --book: #477761;
+  --cover-dark: #254c40;
+  --seal: #f7d996;
+  --ribbon: #cc5948;
+  --gaze-x: 0px;
+  --gaze-y: 0px;
+  --head-x: 0px;
+  --head-y: 0px;
+  --head-turn: 0deg;
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.tinta__signature { font: 700 5px var(--font-body); letter-spacing: 1.15px; }
+.tinta__shadow { fill: var(--fur-ink); opacity: .13; }
+.tinta__head {
+  transform-origin: 123px 117px;
+  transform: translate(var(--head-x), var(--head-y)) rotate(var(--head-turn));
+  transition: transform var(--duration-medium) var(--ease-out);
+}
+.tinta__gaze {
+  transform: translate(var(--gaze-x), var(--gaze-y));
+  transition: transform var(--duration-short) var(--ease-out);
+}
+.tinta__eye, .tinta__pupils { transform-box: fill-box; transform-origin: center; }
+.tinta[data-mood="idle"] :is(.tinta__eye, .tinta__pupils) {
+  animation: tinta-blink 6s var(--ease-in-out) infinite;
+}
+@keyframes tinta-blink {
+  0%, 47%, 51%, 100% { transform: scaleY(1); }
+  49% { transform: scaleY(.05); }
+}
+.tinta__arm { transition: transform 460ms var(--ease-in-out); }
+.tinta__arm--left { transform-origin: 93px 122px; }
+.tinta__arm--right { transform-origin: 146px 125px; }
+.tinta[data-mood="hiding"] .tinta__head { transform: none; }
+.tinta[data-mood="hiding"] .tinta__arm--left { transform: rotate(90deg); }
+.tinta[data-mood="hiding"] .tinta__arm--right { transform: rotate(150deg); transition-delay: 45ms; }
+@media (prefers-reduced-motion: reduce) {
+  .tinta[data-mood="idle"] :is(.tinta__eye, .tinta__pupils) { animation: none; }
+  .tinta .tinta__head, .tinta .tinta__gaze, .tinta .tinta__arm { transition: none; }
+}

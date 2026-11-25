@@ -8,16 +8,16 @@ for (const width of [320, 1440]) {
       await page.goto(path);
       const password = randomUUID();
       const input = page.locator('input[name="password"]');
-      const cat = page.locator('.password-companion .huellas-cat');
-      const paw = cat.locator('.huellas-cat__paw--left');
-      await expect(cat).toHaveAttribute('data-mood', 'idle');
-      await expect(cat.locator('.huellas-cat__eye').first()).toHaveCSS('animation-name', 'cat-blink');
+      const mascot = page.locator('.password-companion .tinta');
+      const paw = mascot.locator('.tinta__paw--left');
+      await expect(mascot).toHaveAttribute('data-mood', 'idle');
+      await expect(mascot.locator('.tinta__eye').first()).toHaveCSS('animation-name', 'tinta-blink');
       await input.fill(password);
-      await expect(cat).toHaveAttribute('data-mood', 'hiding');
+      await expect(mascot).toHaveAttribute('data-mood', 'hiding');
       // Verify that the paw actually moves over the eye, beyond the data attribute.
       await expect.poll(async () => {
         const hand = await paw.boundingBox();
-        const eye = await cat.locator('.huellas-cat__eye').first().boundingBox();
+        const eye = await mascot.locator('.tinta__eye').first().boundingBox();
         return !!hand && !!eye && hand.y < eye.y && hand.y + hand.height > eye.y + eye.height;
       }).toBe(true);
       await page.screenshot({ path: testInfo.outputPath('hidden.png'), fullPage: true });
@@ -29,8 +29,8 @@ for (const width of [320, 1440]) {
       await expect(input).toHaveAttribute('type', 'text');
       await expect(input).toBeFocused();
       expect(await input.evaluate((element: HTMLInputElement) => [element.selectionStart, element.selectionEnd])).toEqual(selection);
-      await expect(cat).toHaveAttribute('data-mood', 'watching');
-      await expect.poll(() => cat.locator('.huellas-cat__gaze').evaluate(element => {
+      await expect(mascot).toHaveAttribute('data-mood', 'watching');
+      await expect.poll(() => mascot.locator('.tinta__gaze').evaluate(element => {
         const gaze = new DOMMatrix(getComputedStyle(element).transform);
         return gaze.m42 > 0 && (innerWidth >= 1280 ? gaze.m41 < 0 : Math.abs(gaze.m41) < 1);
       })).toBe(true);
@@ -47,13 +47,13 @@ for (const width of [320, 1440]) {
       await page.keyboard.press('Space');
       await expect(input).toHaveAttribute('type', 'password');
       await page.keyboard.press('Tab');
-      await expect(cat).toHaveAttribute('data-mood', 'idle');
+      await expect(mascot).toHaveAttribute('data-mood', 'idle');
       await page.emulateMedia({ reducedMotion: 'reduce', colorScheme: 'dark' });
       await page.evaluate(() => localStorage.setItem('theme', 'dark'));
       await page.reload();
       await expect(page.locator('html')).toHaveClass(/dark/);
-      await expect(cat.locator('.huellas-cat__eye').first()).toHaveCSS('animation-name', 'none');
-      await expect(cat.locator('.huellas-cat__arm').first()).toHaveCSS('transition-property', 'none');
+      await expect(mascot.locator('.tinta__eye').first()).toHaveCSS('animation-name', 'none');
+      await expect(mascot.locator('.tinta__arm').first()).toHaveCSS('transition-property', 'none');
       // Check the actual icon contrast, including any theme transition in progress.
       await expect.poll(() => page.locator('.password-input__toggle').evaluate(element => {
         const context = document.createElement('canvas').getContext('2d')!;
@@ -71,7 +71,7 @@ for (const width of [320, 1440]) {
         return (Math.max(ink, paper) + 0.05) / (Math.min(ink, paper) + 0.05);
       })).toBeGreaterThanOrEqual(3);
       await input.fill(password);
-      await expect(cat).toHaveAttribute('data-mood', 'hiding');
+      await expect(mascot).toHaveAttribute('data-mood', 'hiding');
       await page.screenshot({ path: testInfo.outputPath('dark-reduced-motion.png'), fullPage: true });
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       const field = await input.boundingBox();
@@ -96,20 +96,20 @@ test('the care notebook supports keyboard navigation and keeps the chosen page a
 });
 
 
-test('the large desktop cat follows the cursor, prioritizes passwords and respects reduced motion', async ({ page }, testInfo) => {
+test('the large desktop mascot follows the cursor, prioritizes passwords and respects reduced motion', async ({ page }, testInfo) => {
   await page.setViewportSize({ width: 1920, height: 1080 });
   await page.goto('/login');
-  const cat = page.locator('.password-companion .huellas-cat');
+  const mascot = page.locator('.password-companion .tinta');
   const form = page.locator('.form-surface');
   const password = randomUUID();
   const input = page.locator('#login-password');
-  const bounds = (await cat.boundingBox())!;
+  const bounds = (await mascot.boundingBox())!;
   const formBounds = (await form.boundingBox())!;
   expect(bounds.width).toBeGreaterThan(400);
   expect(bounds.x).toBeGreaterThan(formBounds.x + formBounds.width);
   expect(bounds.x + bounds.width).toBeLessThanOrEqual(1920);
-  const gaze = cat.locator('.huellas-cat__gaze');
-  const head = cat.locator('.huellas-cat__head');
+  const gaze = mascot.locator('.tinta__gaze');
+  const head = mascot.locator('.tinta__head');
   await page.mouse.move(20, 120);
   await expect.poll(() => gaze.evaluate(element => new DOMMatrix(getComputedStyle(element).transform).m41)).toBeLessThan(-3);
   await expect.poll(() => head.evaluate(element => new DOMMatrix(getComputedStyle(element).transform).m12)).toBeLessThan(0);
@@ -119,11 +119,11 @@ test('the large desktop cat follows the cursor, prioritizes passwords and respec
   await expect.poll(() => head.evaluate(element => new DOMMatrix(getComputedStyle(element).transform).m12)).toBeGreaterThan(0);
   await input.fill(password);
   await page.mouse.move(20, 120);
-  await expect(cat).toHaveAttribute('data-mood', 'hiding');
+  await expect(mascot).toHaveAttribute('data-mood', 'hiding');
   await expect.poll(() => gaze.evaluate(element => new DOMMatrix(getComputedStyle(element).transform).m41)).toBe(0);
   for (const side of ['left', 'right']) {
-    const eye = cat.locator('.huellas-cat__eye').nth(side === 'left' ? 0 : 1);
-    const paw = cat.locator(`.huellas-cat__paw--${side}`);
+    const eye = mascot.locator('.tinta__eye').nth(side === 'left' ? 0 : 1);
+    const paw = mascot.locator(`.tinta__paw--${side}`);
     await expect.poll(async () => {
       const e = (await eye.boundingBox())!;
       const p = (await paw.boundingBox())!;
@@ -137,7 +137,7 @@ test('the large desktop cat follows the cursor, prioritizes passwords and respec
   await page.screenshot({ path: testInfo.outputPath('watching-password.png'), fullPage: true });
   await page.getByRole('button', { name: 'Ocultar contraseña', exact: true }).click();
   await page.locator('#login-email').focus();
-  await expect(cat).toHaveAttribute('data-mood', 'idle');
+  await expect(mascot).toHaveAttribute('data-mood', 'idle');
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.mouse.move(1900, 950);
   await expect.poll(() => gaze.evaluate(element => new DOMMatrix(getComputedStyle(element).transform).m41)).toBe(0);
@@ -147,6 +147,6 @@ test('the large desktop cat follows the cursor, prioritizes passwords and respec
   await page.mouse.move(20, 120);
   await expect.poll(() => gaze.evaluate(element => new DOMMatrix(getComputedStyle(element).transform).m41)).toBeLessThan(-3);
   await page.setViewportSize({ width: 320, height: 900 });
-  await expect.poll(async () => (await cat.boundingBox())!.width).toBeLessThan(260);
+  await expect.poll(async () => (await mascot.boundingBox())!.width).toBeLessThan(260);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });

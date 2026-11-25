@@ -1,7 +1,7 @@
 /* Cloth-bound health books, pet portraits and dated care records. */
 .care-page {
   --care-cover: var(--art-book-dark);
-  --care-cover-ink: var(--cat-cream);
+  --care-cover-ink: var(--art-paper);
   --care-cover-muted: #e0e8d5;
   --care-cover-rule: #849981;
   --care-cover-focus: var(--art-gold);
@@ -90,7 +90,7 @@
   width: clamp(3.25rem, 16vw, 9.5rem);
   aspect-ratio: 1;
   padding: .25rem .25rem .65rem;
-  background: var(--cat-cream);
+  background: var(--art-paper);
   transform: rotate(3deg);
   border-radius: .25rem;
 }

@@ -3,7 +3,7 @@ import { localeByLanguage } from '../i18n/locale';
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import NavBar from "../Components/NavBar";
-import HuellasCat from "../shared/ui/HuellasCat";
+import Tinta from "../shared/ui/Tinta";
 import CareIcon from "../shared/ui/CareIcon";
 import Footer from "../Components/footer";
 import { PetAvatarGrid } from "../Components/pet/PetAvatarGrid";
@@ -126,7 +126,7 @@ function UserHomeContent() {
               <h1 className="care-hero__title">{translate('careAgenda')}</h1>
               <p className="care-hero__description">{translate('homePageSubtitle')}</p>
             </div>
-            <div className="care-hero__companion"><HuellasCat /></div>
+            <div className="care-hero__companion"><Tinta /></div>
             {!loading && !error && (
               <section className="care-today" aria-labelledby="now-title" data-attention={urgentCount > 0}>
                 <p className="care-today__label">

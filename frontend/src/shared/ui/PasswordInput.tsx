@@ -1,21 +1,21 @@
 import { createContext, useContext, useLayoutEffect, useRef, useState, type InputHTMLAttributes, type ReactNode } from 'react';
 import { useTranslation } from '../../i18n/hooks/hook';
-import HuellasCat, { type CatMood } from './HuellasCat';
+import Tinta, { type MascotMood } from './Tinta';
 import './PasswordInput.css';
 
-const CompanionContext = createContext<((mood: CatMood, input: HTMLInputElement | null) => void) | null>(null);
+const CompanionContext = createContext<((mood: MascotMood, input: HTMLInputElement | null) => void) | null>(null);
 
 /** One companion can respond to several independent password fields. */
 export function PasswordCompanion({ children }: { children: ReactNode }) {
-  const [pose, setPose] = useState<{ mood: CatMood; lookAt: HTMLInputElement | null }>({ mood: 'idle', lookAt: null });
+  const [pose, setPose] = useState<{ mood: MascotMood; lookAt: HTMLInputElement | null }>({ mood: 'idle', lookAt: null });
 
-  function reactToInput(mood: CatMood, input: HTMLInputElement | null) {
+  function reactToInput(mood: MascotMood, input: HTMLInputElement | null) {
     setPose({ mood, lookAt: mood === 'watching' ? input : null });
   }
 
   return (
     <CompanionContext.Provider value={reactToInput}>
-      <div className="password-companion"><HuellasCat {...pose} followPointer /></div>
+      <div className="password-companion"><Tinta {...pose} followPointer /></div>
       {children}
     </CompanionContext.Provider>
   );

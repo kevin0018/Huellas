@@ -24,7 +24,7 @@ demo URL is configured in this repository; the instructions below run the app lo
 - Health summary links with expiry and revocation; selected sections and date ranges control what is shared.
 - Owner and volunteer capabilities, a community board and authenticated Socket.IO chat.
 - English, Spanish and Catalan UI, localized dates, light/dark themes, keyboard-accessible dialogs and reduced-motion support.
-- Password visibility controls with a custom SVG cat that follows the cursor and reacts to password entry.
+- Password visibility controls with Tinta, a ferret mascot that follows the cursor and reacts to password entry.
 
 ## Interface
 

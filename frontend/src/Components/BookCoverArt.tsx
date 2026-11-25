@@ -1,5 +1,5 @@
 import { useTranslation } from '../i18n/hooks/hook';
-import HuellasCat from '../shared/ui/HuellasCat';
+import Tinta from '../shared/ui/Tinta';
 import CareIcon from '../shared/ui/CareIcon';
 
 /** A cloth-bound record and its companion share the same coordinate system at every size. */
@@ -11,13 +11,13 @@ export default function BookCoverArt() {
       <ellipse cx="231" cy="295" rx="174" ry="12" fill="var(--art-shadow)"/>
       <g strokeLinecap="round" strokeLinejoin="round">
         <g transform="rotate(-10 195 157)">
-          <rect x="96" y="39" width="188" height="242" rx="11" fill="var(--art-book-dark)" stroke="var(--cat-line)" strokeWidth="2.5"/>
-          <rect x="94" y="35" width="185" height="242" rx="9" fill="var(--cat-cream)" stroke="var(--cat-line)" strokeWidth="2"/>
+          <rect x="96" y="39" width="188" height="242" rx="11" fill="var(--art-book-dark)" stroke="var(--art-ink)" strokeWidth="2.5"/>
+          <rect x="94" y="35" width="185" height="242" rx="9" fill="var(--art-paper)" stroke="var(--art-ink)" strokeWidth="2"/>
           <path d="M102 270h166m-169 3h164" stroke="var(--art-gold)"/>
-          <path d="M248 266v26l-7-6-7 6v-26" fill="var(--cat-pink)" stroke="var(--cat-line)" strokeWidth="1.5"/>
-          <path d="M272 68h12q5 0 5 5v26h-17" fill="var(--cat-fur)" stroke="var(--cat-line)" strokeWidth="1.7"/>
-          <path d="M272 106h12q5 0 5 5v26h-17" fill="var(--art-tab)" stroke="var(--cat-line)" strokeWidth="1.7"/>
-          <rect x="90" y="30" width="185" height="238" rx="9" fill="var(--art-book)" stroke="var(--cat-line)" strokeWidth="2.5"/>
+          <path d="M248 266v26l-7-6-7 6v-26" fill="var(--art-ribbon)" stroke="var(--art-ink)" strokeWidth="1.5"/>
+          <path d="M272 68h12q5 0 5 5v26h-17" fill="var(--art-apricot)" stroke="var(--art-ink)" strokeWidth="1.7"/>
+          <path d="M272 106h12q5 0 5 5v26h-17" fill="var(--art-tab)" stroke="var(--art-ink)" strokeWidth="1.7"/>
+          <rect x="90" y="30" width="185" height="238" rx="9" fill="var(--art-book)" stroke="var(--art-ink)" strokeWidth="2.5"/>
           <path d="M106 31v235" stroke="var(--art-book-dark)" strokeWidth="4"/>
           <rect x="116" y="42" width="148" height="213" rx="4" stroke="var(--art-gold)" strokeWidth="1.2" strokeDasharray="3 3"/>
           <g fill="var(--art-gold)" textAnchor="middle">
@@ -39,13 +39,8 @@ export default function BookCoverArt() {
           <path d="m56 62 3 10 10 3-10 3-3 10-3-10-10-3 10-3Zm291-17 2 6 7 2-7 2-2 7-2-7-6-2 6-2Z"/>
           <path d="m393 100 4-7m2 14 9-1M43 148l-6-3" fill="none"/>
         </g>
-        <g stroke="var(--art-yarn)" strokeWidth="2" fill="none">
-          <path d="M395 284c33-1 24 22 2 22-26 0-41-9-65-1-18 6-33 7-41 1"/>
-          <circle cx="393" cy="277" r="16" fill="var(--cat-pink)"/>
-          <path d="M383 265q8 3 19 22m-15-24q12 6 19 20m-14-22q10 5 16 14m-31 4q7-8 12-8m-10 14q4-6 13-10m-10 14q6-8 13-10m-8 12 11-9"/>
-        </g>
       </g>
     </svg>
-    <div className="book-art__cat"><HuellasCat followPointer /></div>
+    <div className="book-art__mascot"><Tinta followPointer /></div>
   </div>;
 }
