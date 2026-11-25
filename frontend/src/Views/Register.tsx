@@ -109,7 +109,6 @@ function RegisterForm() {
 
   return (
     <main className="form-page">
-      <div className="fixed inset-0 z-0 w-full h-full bg-repeat bg-[url('/media/bg_phone_userhome.png')] md:bg-[url('/media/bg_tablet_userhome.png')] lg:bg-[url('/media/bg_desktop_userhome.png')] opacity-60 pointer-events-none select-none" aria-hidden="true" />
       <div className="form-page__content relative z-10">
         <GoBackButton variant="outline" hideIfNoHistory />
         <header className="form-page__header">

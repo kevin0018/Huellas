@@ -1,5 +1,5 @@
 /* Shared Huellas public pages: established tokens, existing illustrations. */
-.public-page { background: var(--color-paper); color: var(--color-ink); }
+.public-page { color: var(--color-ink); }
 .public-shell { width: 100%; max-width: var(--page-max); margin-inline: auto; padding-inline: var(--page-gutter); }
 .public-eyebrow { font-size: var(--text-sm); font-weight: 700; color: var(--color-accent); }
 .public-title { font-family: var(--font-display); font-weight: 400; font-size: clamp(2.5rem, 5.5vw, 4.75rem); line-height: 1.08; letter-spacing: -0.035em; text-wrap: balance; }

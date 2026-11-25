@@ -8,7 +8,6 @@
   --care-radius: 1.25rem;
   min-height: calc(100dvh - var(--nav-height));
   padding: clamp(1.25rem, 4vw, 3rem) var(--page-gutter) 4rem;
-  background: linear-gradient(color-mix(in srgb, var(--color-paper) 94%, transparent), var(--color-paper) 38rem), url("/media/bg_desktop_userhome.png") center top / 60rem auto;
 }
 
 .care-shell {

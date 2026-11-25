@@ -77,9 +77,7 @@ function AppointmentsView() {
   return (
     <>
       <NavBar />
-      <main className="relative min-h-[calc(100dvh-var(--nav-height))] bg-[var(--color-paper)] text-[var(--color-ink)]">
-        <div aria-hidden="true" className="bg-dogs-userhome-mobile pointer-events-none fixed inset-0 bg-repeat opacity-60 md:bg-dogs-userhome-tablet lg:bg-dogs-userhome-desktop" />
-
+      <main className="relative min-h-[calc(100dvh-var(--nav-height))] text-[var(--color-ink)]">
         <div className="relative z-10 mx-auto w-full max-w-[var(--page-max)] px-[var(--page-gutter)] py-8 sm:py-12">
           <GoBackButton className="w-fit bg-[var(--color-surface-raised)]" variant="outline" hideIfNoHistory />
 

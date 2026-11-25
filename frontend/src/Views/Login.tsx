@@ -92,11 +92,6 @@ function LoginContent() {
   }, [searchParams, setSearchParams]);
   return (
     <main className="form-page relative overflow-hidden">
-      <div
-        className="pointer-events-none absolute inset-0 bg-[url('/media/bg_phone_userhome.png')] bg-repeat opacity-60 md:bg-[url('/media/bg_tablet_userhome.png')] lg:bg-[url('/media/bg_desktop_userhome.png')]"
-        aria-hidden="true"
-      />
-
       <div className="form-page__content form-page__content--compact relative z-10">
         <div>
           <GoBackButton variant="outline" hideIfNoHistory className="ui-button ui-button--secondary" />

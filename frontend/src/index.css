@@ -122,9 +122,26 @@ a { color: inherit; text-decoration-thickness: 0.08em; text-underline-offset: 0.
 
 .ui-contrast-action { color: var(--color-accent-ink); }
 
-.ui-page {
-  background: var(--color-paper);
-  color: var(--color-ink);
+main {
+  --animal-pattern: url("/media/bg_phone_userhome.png");
+  --paper-wash: color-mix(in srgb, var(--color-paper) 40%, transparent);
+  background-color: var(--color-paper);
+  background-image: linear-gradient(var(--paper-wash), var(--paper-wash)), var(--animal-pattern);
+  background-position: center top;
+}
+
+.dark main {
+  --paper-wash: color-mix(in srgb, var(--color-paper) 54%, transparent);
+  background-color: white;
+  background-blend-mode: normal, difference;
+}
+
+@media (min-width: 48rem) {
+  main { --animal-pattern: url("/media/bg_tablet_userhome.png"); }
+}
+
+@media (min-width: 64rem) {
+  main { --animal-pattern: url("/media/bg_desktop_userhome.png"); }
 }
 
 .ui-panel,
@@ -250,12 +267,6 @@ fieldset:disabled {
 @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
 .animate-fade-in { animation: fade-in var(--duration-medium) var(--ease-out); }
 
-/* Compatibility layer for screens that will migrate in later Phase 4 checkpoints. */
-.bg-dogs-userhome-mobile,
-.dark .bg-dogs-userhome-mobile {
-  background-image: url("/media/bg_phone_userhome.png");
-}
-
 .themed-card-invL {
   box-shadow: var(--shadow-card);
 }
@@ -275,18 +286,6 @@ fieldset:disabled {
 }
 
 .register-link { color: var(--color-accent); }
-
-@media (min-width: 48rem) {
-  .md\:bg-dogs-userhome-tablet {
-    background-image: url("/media/bg_tablet_userhome.png");
-  }
-}
-
-@media (min-width: 64rem) {
-  .lg\:bg-dogs-userhome-desktop {
-    background-image: url("/media/bg_desktop_userhome.png");
-  }
-}
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

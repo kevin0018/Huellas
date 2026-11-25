@@ -161,7 +161,7 @@ const PetRegister: React.FC = () => {
   return (
     <>
       <NavBar />
-      <main className="form-page bg-dogs-userhome-mobile bg-cover bg-center md:bg-dogs-userhome-tablet lg:bg-dogs-userhome-desktop dark:bg-dogs-userhome-mobile">
+      <main className="form-page">
         <div className="form-page__content form-page__content--wide">
           <header className="form-page__header relative justify-items-center text-center">
             <GoBackButton

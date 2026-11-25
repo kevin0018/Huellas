@@ -1,6 +1,5 @@
 .home-page {
   padding-block: clamp(1rem, 2.5vw, 2.2rem) 0;
-  background: linear-gradient(color-mix(in srgb, var(--color-paper) 77%, transparent), var(--color-paper) 54rem), url("/media/bg_desktop_userhome.png") center top / 60rem auto;
 }
 .home-cover {
   position: relative;
