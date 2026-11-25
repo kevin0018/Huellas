@@ -50,6 +50,7 @@
   max-width: 49ch;
   margin-top: .65rem;
   color: var(--care-cover-muted);
+  overflow-wrap: anywhere;
 }
 
 .care-hero__label {
