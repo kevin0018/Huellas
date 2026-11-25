@@ -150,3 +150,37 @@ test('the large desktop mascot follows the cursor, prioritizes passwords and res
   await expect.poll(async () => (await mascot.boundingBox())!.width).toBeLessThan(260);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
+
+test('Tinta waves once on entry, intermittently swishes its tail and gives password poses priority', async ({ page }) => {
+  await page.goto('/login', { waitUntil: 'domcontentloaded' });
+  const mascot = page.locator('.password-companion .tinta');
+  const wave = mascot.locator('.tinta__hello');
+  const tail = mascot.locator('.tinta__tail');
+  await expect(wave).toHaveCSS('animation-iteration-count', '1');
+  await wave.evaluate(element => {
+    const animation = element.getAnimations()[0];
+    animation.pause();
+    animation.currentTime = 500;
+  });
+  await expect.poll(() => wave.evaluate(el => new DOMMatrix(getComputedStyle(el).transform).m12)).toBeGreaterThan(.2);
+  await page.locator('#login-password').fill('test-password');
+  await expect.poll(() => wave.evaluate(el => new DOMMatrix(getComputedStyle(el).transform).m12)).toBe(0);
+  await mascot.evaluate(el => el.getAnimations({ subtree: true }).forEach(animation => {
+    if (animation instanceof CSSAnimation && ['tinta-wave', 'tinta-hello'].includes(animation.animationName)) animation.finish();
+  }));
+  await page.locator('#login-email').focus();
+  expect(await wave.evaluate(el => el.getAnimations().length)).toBe(0);
+
+  const tailAngleAt = (fraction: number) => tail.evaluate((el, progress) => {
+    const animation = el.getAnimations()[0];
+    animation.pause();
+    animation.currentTime = Number(animation.effect!.getTiming().duration) * progress;
+    return new DOMMatrix(getComputedStyle(el).transform).m12;
+  }, fraction);
+  expect(await tailAngleAt(.2)).toBe(0);
+  expect(await tailAngleAt(.49)).toBeLessThan(-.08);
+  expect(await tailAngleAt(.8)).toBe(0);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await expect(wave).toHaveCSS('animation-name', 'none');
+  await expect(tail).toHaveCSS('animation-name', 'none');
+});

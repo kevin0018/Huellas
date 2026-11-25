@@ -25,7 +25,7 @@
 }
 .tinta__signature { font: 700 5px var(--font-body); letter-spacing: 1.15px; }
 .tinta__shadow { fill: var(--fur-ink); opacity: .13; }
-.tinta__head {
+.tinta__head-pose {
   transform-origin: 123px 117px;
   transform: translate(var(--head-x), var(--head-y)) rotate(var(--head-turn));
   transition: transform var(--duration-medium) var(--ease-out);
@@ -45,10 +45,37 @@
 .tinta__arm { transition: transform 460ms var(--ease-in-out); }
 .tinta__arm--left { transform-origin: 93px 122px; }
 .tinta__arm--right { transform-origin: 146px 125px; }
-.tinta[data-mood="hiding"] .tinta__head { transform: none; }
+.tinta[data-mood="hiding"] .tinta__head-pose { transform: none; }
 .tinta[data-mood="hiding"] .tinta__arm--left { transform: rotate(90deg); }
 .tinta[data-mood="hiding"] .tinta__arm--right { transform: rotate(150deg); transition-delay: 45ms; }
+/* The greeting timeline belongs to the mounted illustration. Password poses take
+   over both joints without restarting the greeting when focus returns. */
+.tinta[data-mood="idle"] { --hello-amount: 1; }
+.tinta__hello { transform-origin: 93px 122px; }
+.tinta__paw--left { transform-origin: 56px 149px; }
+.tinta__tail { transform-origin: 166px 210px; }
+@media (prefers-reduced-motion: no-preference) {
+  .tinta__hello { animation: tinta-hello 1.45s .14s ease-in-out; }
+  .tinta__paw--left { animation: tinta-wave 1.45s .14s ease-in-out; }
+  .tinta__tail { animation: tinta-tail 8.5s ease-in-out infinite; }
+}
+@keyframes tinta-hello {
+  0%, 100% { transform: rotate(0deg); }
+  24%, 68% { transform: rotate(calc(24deg * var(--hello-amount, 0))); }
+  45%, 82% { transform: rotate(calc(12deg * var(--hello-amount, 0))); }
+}
+@keyframes tinta-wave {
+  0%, 100% { transform: rotate(0deg); }
+  28%, 64% { transform: rotate(calc(20deg * var(--hello-amount, 0))); }
+  46%, 80% { transform: rotate(calc(-12deg * var(--hello-amount, 0))); }
+}
+@keyframes tinta-tail {
+  0%, 44%, 65%, 100% { transform: none; }
+  49% { transform: rotate(-8deg) scaleX(.97) skewX(-2deg); }
+  54% { transform: rotate(4deg) scaleX(1.015); }
+  59% { transform: rotate(-3deg); }
+}
 @media (prefers-reduced-motion: reduce) {
   .tinta[data-mood="idle"] :is(.tinta__eye, .tinta__pupils) { animation: none; }
-  .tinta .tinta__head, .tinta .tinta__gaze, .tinta .tinta__arm { transition: none; }
+  .tinta .tinta__head-pose, .tinta .tinta__gaze, .tinta .tinta__arm { transition: none; }
 }
