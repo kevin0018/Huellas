@@ -317,7 +317,7 @@ fieldset:disabled {
 .ui-action:active, .ui-button:active:not(:disabled) { transform: translateY(2px); box-shadow: none; }
 
 @media (hover: hover) and (pointer: fine) {
-  body { cursor: url("/media/tinta-cursor.svg") 2 2, auto; }
+  body { cursor: url("/media/paw-cursor.svg") 2 2, auto; }
   a, button:not(:disabled), [role="tab"], select:not(:disabled), label[for], input[type="checkbox"]:enabled { cursor: pointer; }
   input:not([type]), input:is([type="text"], [type="search"], [type="password"], [type="email"], [type="number"]), textarea { cursor: text; }
 }
