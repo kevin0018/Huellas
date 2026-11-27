@@ -1,7 +1,5 @@
 import type { PetPose } from './LoginPets';
 
-const ink = '#25382e';
-const paper = '#fff9ed';
 const ground = 292;
 const poses: PetPose[] = ['idle', 'attentive', 'hiding', 'watching'];
 const pets = [
@@ -12,6 +10,42 @@ const pets = [
 
 type Drawing = CanvasRenderingContext2D;
 type Expression = { x: number; y: number; blink: number; hide: number; peek: number; play: number };
+
+function readPalette(canvas: HTMLCanvasElement) {
+  const styles = getComputedStyle(canvas);
+  const color = (name: string) => styles.getPropertyValue(`--pet-${name}`).trim();
+  return {
+    ink: color('ink'),
+    paper: color('paper'),
+    raccoonFur: color('raccoon-fur'),
+    raccoonMask: color('raccoon-mask'),
+    raccoonBelly: color('raccoon-belly'),
+    raccoonEar: color('raccoon-ear'),
+    raccoonMuzzle: color('raccoon-muzzle'),
+    bookCover: color('book-cover'),
+    bookPages: color('book-pages'),
+    bookSpine: color('book-spine'),
+    bookPaw: color('book-paw'),
+    dogFur: color('dog-fur'),
+    dogTail: color('dog-tail'),
+    dogPaw: color('dog-paw'),
+    dogMuzzle: color('dog-muzzle'),
+    dogEar: color('dog-ear'),
+    dogEarHighlight: color('dog-ear-highlight'),
+    catFur: color('cat-fur'),
+    catTail: color('cat-tail'),
+    catEar: color('cat-ear'),
+    catBelly: color('cat-belly'),
+    catPaw: color('cat-paw'),
+    catWhiskers: color('cat-whiskers'),
+    groundShadow: color('ground-shadow'),
+    ballShadow: color('ball-shadow'),
+    ball: color('ball'),
+    ballSeam: color('ball-seam'),
+  };
+}
+
+type Palette = ReturnType<typeof readPalette>;
 
 function oval(ctx: Drawing, x: number, y: number, rx: number, ry: number, color: string) {
   ctx.beginPath();
@@ -35,26 +69,26 @@ function stroke(ctx: Drawing, color: string, width: number) {
   ctx.stroke();
 }
 
-function eye(ctx: Drawing, x: number, y: number, expression: Expression) {
+function eye(ctx: Drawing, x: number, y: number, expression: Expression, palette: Palette) {
   if (expression.blink > 0.82) {
-    rounded(ctx, x - 7, y - 1.5, 14, 3, 1.5, ink);
+    rounded(ctx, x - 7, y - 1.5, 14, 3, 1.5, palette.ink);
     return;
   }
   const openness = 1 - expression.blink;
-  oval(ctx, x, y, 10, 12 * openness, paper);
-  oval(ctx, x + expression.x, y + expression.y * openness, 4.5, 5.5 * openness, ink);
+  oval(ctx, x, y, 10, 12 * openness, palette.paper);
+  oval(ctx, x + expression.x, y + expression.y * openness, 4.5, 5.5 * openness, palette.ink);
 }
 
-function smile(ctx: Drawing, x: number, y: number) {
+function smile(ctx: Drawing, x: number, y: number, palette: Palette) {
   ctx.beginPath();
   ctx.moveTo(x - 5, y);
   ctx.quadraticCurveTo(x, y + 6, x + 5, y);
-  stroke(ctx, ink, 2.6);
+  stroke(ctx, palette.ink, 2.6);
 }
 
-function drawRaccoon(ctx: Drawing, face: Expression) {
-  const fur = '#897cb1';
-  const mask = '#514761';
+function drawRaccoon(ctx: Drawing, face: Expression, palette: Palette) {
+  const fur = palette.raccoonFur;
+  const mask = palette.raccoonMask;
   ctx.beginPath();
   ctx.moveTo(47, -27);
   ctx.bezierCurveTo(90, -20, 104, -51, 95, -72);
@@ -65,63 +99,63 @@ function drawRaccoon(ctx: Drawing, face: Expression) {
   stroke(ctx, fur, 15);
 
   rounded(ctx, -60, -212, 120, 212, [58, 58, 19, 19], fur);
-  oval(ctx, 0, -55, 43, 42, '#a99bc7');
+  oval(ctx, 0, -55, 43, 42, palette.raccoonBelly);
   for (const x of [-39, 39]) {
     oval(ctx, x, -204, 19, 20, fur);
-    oval(ctx, x, -204, 10, 10, '#d8abc3');
+    oval(ctx, x, -204, 10, 10, palette.raccoonEar);
   }
   const glance = face.x * 0.9;
   oval(ctx, glance, -153, 48, 25, mask);
-  eye(ctx, glance - 20, -155, face);
-  eye(ctx, glance + 20, -155, face);
-  oval(ctx, glance, -128, 24, 14, '#c9badb');
-  oval(ctx, glance, -134, 6, 4, ink);
-  smile(ctx, glance, -124);
+  eye(ctx, glance - 20, -155, face, palette);
+  eye(ctx, glance + 20, -155, face, palette);
+  oval(ctx, glance, -128, 24, 14, palette.raccoonMuzzle);
+  oval(ctx, glance, -134, 6, 4, palette.ink);
+  smile(ctx, glance, -124, palette);
 
   ctx.save();
   ctx.translate(3, -76 - face.hide * 66 - face.peek * 42);
   ctx.rotate(-0.1 + face.hide * 0.06 + face.peek * 0.18 + face.play * 0.055);
-  rounded(ctx, -37, -26, 74, 53, 7, '#1e5945');
-  rounded(ctx, -31, -22, 62, 4, 2, '#f7dfab');
-  rounded(ctx, -2, -17, 3, 41, 1.5, '#4c8b6f');
-  oval(ctx, 13, 9, 5.8, 4.5, '#ede0a1');
-  for (const x of [7, 13, 19]) oval(ctx, x, 2, 2.2, 2.8, '#ede0a1');
+  rounded(ctx, -37, -26, 74, 53, 7, palette.bookCover);
+  rounded(ctx, -31, -22, 62, 4, 2, palette.bookPages);
+  rounded(ctx, -2, -17, 3, 41, 1.5, palette.bookSpine);
+  oval(ctx, 13, 9, 5.8, 4.5, palette.bookPaw);
+  for (const x of [7, 13, 19]) oval(ctx, x, 2, 2.2, 2.8, palette.bookPaw);
   oval(ctx, -36, 3, 10, 13, mask);
   oval(ctx, 36, 5, 10, 13, mask);
   ctx.restore();
 }
 
-function drawDog(ctx: Drawing, face: Expression) {
-  const fur = '#cd7049';
+function drawDog(ctx: Drawing, face: Expression, palette: Palette) {
+  const fur = palette.dogFur;
   ctx.beginPath();
   ctx.moveTo(-58, -34);
   ctx.quadraticCurveTo(-91 - face.play * 8, -37, -85 - face.play * 9, -64);
-  stroke(ctx, '#9b4836', 14);
+  stroke(ctx, palette.dogTail, 14);
 
   rounded(ctx, -71, -108, 154, 108, [50, 55, 20, 20], fur);
-  rounded(ctx, -68, -26, 29, 26, [8, 8, 9, 9], '#af5339');
-  rounded(ctx, 48 + face.play * 9, -26 - face.play * 11, 30, 26, [8, 8, 9, 9], '#af5339');
-  oval(ctx, 58, -55, 35, 21, '#f4b991');
+  rounded(ctx, -68, -26, 29, 26, [8, 8, 9, 9], palette.dogPaw);
+  rounded(ctx, 48 + face.play * 9, -26 - face.play * 11, 30, 26, [8, 8, 9, 9], palette.dogPaw);
+  oval(ctx, 58, -55, 35, 21, palette.dogMuzzle);
   const glance = face.x + 2 - face.hide * 12;
-  eye(ctx, 11 + glance, -75, face);
-  eye(ctx, 39 + glance, -75, face);
-  oval(ctx, 82 - face.hide * 10, -60, 12, 8, ink);
-  smile(ctx, 58 - face.hide * 4, -45);
+  eye(ctx, 11 + glance, -75, face, palette);
+  eye(ctx, 39 + glance, -75, face, palette);
+  oval(ctx, 82 - face.hide * 10, -60, 12, 8, palette.ink);
+  smile(ctx, 58 - face.hide * 4, -45, palette);
 
   ctx.save();
   ctx.translate(-36 + 24 * face.hide + 12 * face.peek, -92);
   ctx.rotate(0.21 + face.play * 0.24 - face.hide * 0.86 - face.peek * 0.32);
-  rounded(ctx, -13, -10, 31, 72, [15, 13, 16, 20], '#854234');
-  rounded(ctx, -5, 6, 6, 35, 3, '#a65743');
+  rounded(ctx, -13, -10, 31, 72, [15, 13, 16, 20], palette.dogEar);
+  rounded(ctx, -5, 6, 6, 35, 3, palette.dogEarHighlight);
   ctx.restore();
 }
 
-function drawCat(ctx: Drawing, face: Expression) {
-  const fur = '#e4ad53';
+function drawCat(ctx: Drawing, face: Expression, palette: Palette) {
+  const fur = palette.catFur;
   ctx.beginPath();
   ctx.moveTo(31, -19);
   ctx.bezierCurveTo(83, -4, 98 + face.play * 6, -46, 73 + face.play * 12, -56 - face.play * 15);
-  stroke(ctx, '#b97945', 15);
+  stroke(ctx, palette.catTail, 15);
 
   rounded(ctx, -51, -163, 102, 163, [44, 45, 19, 19], fur);
   for (const side of [-1, 1]) {
@@ -140,20 +174,20 @@ function drawCat(ctx: Drawing, face: Expression) {
     ctx.lineTo(44, -174);
     ctx.lineTo(43, -153);
     ctx.closePath();
-    ctx.fillStyle = '#dc8d66';
+    ctx.fillStyle = palette.catEar;
     ctx.fill();
     ctx.restore();
   }
-  oval(ctx, 1, -49, 32, 36, '#f6d98b');
-  rounded(ctx, -47 - face.play * 9, -21 - face.play * 12, 21, 20, 9, '#d08f43');
+  oval(ctx, 1, -49, 32, 36, palette.catBelly);
+  rounded(ctx, -47 - face.play * 9, -21 - face.play * 12, 21, 20, 9, palette.catPaw);
   const glance = face.x + 13 * face.hide;
-  eye(ctx, -16 + glance, -112, face);
-  eye(ctx, 16 + glance, -112, face);
-  oval(ctx, glance, -94, 4.7, 3.1, ink);
-  smile(ctx, glance, -89);
+  eye(ctx, -16 + glance, -112, face, palette);
+  eye(ctx, 16 + glance, -112, face, palette);
+  oval(ctx, glance, -94, 4.7, 3.1, palette.ink);
+  smile(ctx, glance, -89, palette);
   for (const side of [-1, 1]) {
-    rounded(ctx, side * 33 + glance * 0.25 - 5, -91, 10, 2.5, 1, '#a66f45');
-    rounded(ctx, side * 31 + glance * 0.25 - 4, -85, 8, 2.5, 1, '#a66f45');
+    rounded(ctx, side * 33 + glance * 0.25 - 5, -91, 10, 2.5, 1, palette.catWhiskers);
+    rounded(ctx, side * 31 + glance * 0.25 - 4, -85, 8, 2.5, 1, palette.catWhiskers);
   }
 }
 
@@ -161,6 +195,7 @@ export function animateLoginPets(canvas: HTMLCanvasElement, pose: () => PetPose)
   const context = typeof CanvasRenderingContext2D !== 'undefined' && canvas.getContext('2d');
   if (!context) return;
   const ctx = context;
+  const palette = readPalette(canvas);
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const wide = window.matchMedia('(min-width: 56rem)');
   const weights = pets.map(() => poses.map(state => Number(state === pose())));
@@ -199,7 +234,7 @@ export function animateLoginPets(canvas: HTMLCanvasElement, pose: () => PetPose)
 
     ctx.setTransform(2, 0, 0, 2, 0, 0);
     ctx.clearRect(0, 0, 540, 348);
-    oval(ctx, 270, ground + 7, 219, 15, '#b6c6a3');
+    oval(ctx, 270, ground + 7, 219, 15, palette.groundShadow);
     pets.forEach(({ x, phase, draw: paint }, index) => {
       const [idle, attentive, hide, peek] = weights[index];
       const play = still ? 0 : idle * Math.exp(-(((ballX - x) / 73) ** 2));
@@ -220,15 +255,15 @@ export function animateLoginPets(canvas: HTMLCanvasElement, pose: () => PetPose)
         hide,
         peek,
         play,
-      });
+      }, palette);
       ctx.restore();
     });
-    oval(ctx, ballX, ground + 4, 10, 3, '#94a783');
-    oval(ctx, ballX, ballY, 9, 9, '#f6e4a6');
+    oval(ctx, ballX, ground + 4, 10, 3, palette.ballShadow);
+    oval(ctx, ballX, ballY, 9, 9, palette.ball);
     ctx.beginPath();
     ctx.moveTo(ballX - 6, ballY + 3);
     ctx.quadraticCurveTo(ballX, ballY - 3, ballX + 5, ballY - 4);
-    stroke(ctx, '#437a62', 2);
+    stroke(ctx, palette.ballSeam, 2);
     if (!still && !document.hidden) frame = requestAnimationFrame(draw);
   }
 

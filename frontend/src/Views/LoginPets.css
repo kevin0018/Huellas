@@ -14,6 +14,34 @@
 }
 
 .login-pets {
+  --pet-ink: #25382e;
+  --pet-paper: #fff9ed;
+  --pet-raccoon-fur: #897cb1;
+  --pet-raccoon-mask: #514761;
+  --pet-raccoon-belly: #a99bc7;
+  --pet-raccoon-ear: #d8abc3;
+  --pet-raccoon-muzzle: #c9badb;
+  --pet-book-cover: #1e5945;
+  --pet-book-pages: #f7dfab;
+  --pet-book-spine: #4c8b6f;
+  --pet-book-paw: #ede0a1;
+  --pet-dog-fur: #cd7049;
+  --pet-dog-tail: #9b4836;
+  --pet-dog-paw: #af5339;
+  --pet-dog-muzzle: #f4b991;
+  --pet-dog-ear: #854234;
+  --pet-dog-ear-highlight: #a65743;
+  --pet-cat-fur: #e4ad53;
+  --pet-cat-tail: #b97945;
+  --pet-cat-ear: #dc8d66;
+  --pet-cat-belly: #f6d98b;
+  --pet-cat-paw: #d08f43;
+  --pet-cat-whiskers: #a66f45;
+  --pet-ground-shadow: #b6c6a3;
+  --pet-ball-shadow: #94a783;
+  --pet-ball: #f6e4a6;
+  --pet-ball-seam: #437a62;
+
   display: block;
   width: 100%;
   height: auto;
