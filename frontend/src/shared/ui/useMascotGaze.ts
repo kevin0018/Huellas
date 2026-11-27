@@ -16,7 +16,7 @@ export function useMascotGaze(ref: RefObject<SVGSVGElement | null>, mood: Mascot
       if (!mascot) return;
       const bounds = mascot.getBoundingClientRect();
       let target = mood === 'idle' && followPointer && finePointer.matches && !reducedMotion.matches ? pointer : null;
-      if (mood === 'watching' && lookAt) {
+      if (lookAt && (mood === 'watching' || (mood === 'idle' && !reducedMotion.matches))) {
         const field = lookAt.getBoundingClientRect();
         target = { x: field.left + field.width / 2, y: field.top + field.height / 2 };
       }

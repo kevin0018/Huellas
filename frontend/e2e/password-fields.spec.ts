@@ -1,59 +1,70 @@
-import { randomUUID } from 'node:crypto';
 import { test, expect } from '@playwright/test';
+
+test('the care notebook supports keyboard navigation and keeps the chosen page across languages', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('tab', { name: 'Tu mascota' }).focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(page.getByRole('tab', { name: 'Su cartilla' })).toBeFocused();
+  await expect(page.getByRole('tabpanel', { name: 'Su cartilla' })).toBeVisible();
+  await page.keyboard.press('End');
+  await expect(page.getByRole('heading', { name: 'Mira qué viene después' })).toBeVisible();
+  await page.getByRole('button', { name: 'Cambiar idioma' }).click();
+  await page.getByRole('button', { name: 'Català', exact: true }).click();
+  await expect(page.getByRole('tab', { name: 'El que ve' })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByRole('heading', { name: 'Mira què ve després' })).toBeVisible();
+});
 
 for (const width of [320, 1440]) {
   for (const path of ['/login', '/register']) {
-    test(`password companion on ${path} at ${width}px`, async ({ page }, testInfo) => {
+    test(`${path} integrates the pet scene with the form at ${width}px`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
       await page.goto(path);
-      const password = randomUUID();
-      const input = page.locator('input[name="password"]');
-      const mascot = page.locator('.password-companion .tinta');
-      const paw = mascot.locator('.tinta__paw--left');
-      await expect(mascot).toHaveAttribute('data-mood', 'idle');
-      await expect(mascot.locator('.tinta__eye').first()).toHaveCSS('animation-name', 'tinta-blink');
-      await input.fill(password);
-      await expect(mascot).toHaveAttribute('data-mood', 'hiding');
-      // Verify that the paw actually moves over the eye, beyond the data attribute.
-      await expect.poll(async () => {
-        const hand = await paw.boundingBox();
-        const eye = await mascot.locator('.tinta__eye').first().boundingBox();
-        return !!hand && !!eye && hand.y < eye.y && hand.y + hand.height > eye.y + eye.height;
-      }).toBe(true);
-      await page.screenshot({ path: testInfo.outputPath('hidden.png'), fullPage: true });
-      const selection = await input.evaluate((element: HTMLInputElement) => {
-        element.setSelectionRange(2, 5);
-        return [element.selectionStart, element.selectionEnd];
-      });
-      await page.getByRole('button', { name: 'Mostrar contraseña', exact: true }).click();
-      await expect(input).toHaveAttribute('type', 'text');
-      await expect(input).toBeFocused();
-      expect(await input.evaluate((element: HTMLInputElement) => [element.selectionStart, element.selectionEnd])).toEqual(selection);
-      await expect(mascot).toHaveAttribute('data-mood', 'watching');
-      await expect.poll(() => mascot.locator('.tinta__gaze').evaluate(element => {
-        const gaze = new DOMMatrix(getComputedStyle(element).transform);
-        return gaze.m42 > 0 && (innerWidth >= 1280 ? gaze.m41 < 0 : Math.abs(gaze.m41) < 1);
-      })).toBe(true);
-      await page.screenshot({ path: testInfo.outputPath('visible.png'), fullPage: true });
+      const scene = page.locator('canvas.login-pets');
+      const pixels = () => scene.evaluate((el: HTMLCanvasElement) => el.toDataURL());
+      const email = page.getByLabel('Correo Electrónico', { exact: true });
+      const password = page.locator('input[name="password"]');
+      const toggle = page.locator('.password-input__toggle');
+      await expect(scene).toHaveAttribute('aria-hidden', 'true');
+      await expect(scene).toHaveAttribute('data-pose', 'idle');
+      const first = await pixels();
+      await expect.poll(pixels).not.toBe(first);
+      await email.fill('test@example.com');
+      await expect(scene).toHaveAttribute('data-pose', 'attentive');
+      await page.keyboard.press('Tab');
+      await password.fill('sample-only');
+      await expect(scene).toHaveAttribute('data-pose', 'hiding');
+      await password.evaluate((el: HTMLInputElement) => el.setSelectionRange(1, 4));
+      for (const pose of ['watching', 'hiding', 'watching']) {
+        await toggle.click();
+        await expect(scene).toHaveAttribute('data-pose', pose);
+      }
+      await expect(password).toBeFocused();
+      await expect(password).toHaveAttribute('type', 'text');
+      expect(await password.evaluate((el: HTMLInputElement) => [el.selectionStart, el.selectionEnd])).toEqual([1, 4]);
       for (const [language, code, action] of [['English', 'en', 'Hide password'], ['Català', 'ca', 'Amaga la contrasenya'], ['Español', 'es', 'Ocultar contraseña']]) {
         await page.getByRole('button', { name: /Cambiar idioma|Change language|Canvia l'idioma/ }).click();
         await page.getByRole('button', { name: language, exact: true }).click();
         await expect(page.locator('html')).toHaveAttribute('lang', code);
-        await expect(page.getByRole('button', { name: action, exact: true })).toHaveAttribute('aria-pressed', 'true');
-        await expect(input).toHaveValue(password);
+        await expect(toggle).toHaveAccessibleName(action);
+        await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+        await expect(password).toHaveValue('sample-only');
       }
-      await input.focus();
+      await password.focus();
+      await page.emulateMedia({ reducedMotion: 'reduce' });
+      const peek = await pixels();
       await page.keyboard.press('Tab');
       await page.keyboard.press('Space');
-      await expect(input).toHaveAttribute('type', 'password');
+      await expect(password).toHaveAttribute('type', 'password');
+      await expect.poll(pixels).not.toBe(peek);
+      const hidden = await pixels();
+      await page.waitForTimeout(180);
+      expect(await pixels()).toBe(hidden);
       await page.keyboard.press('Tab');
-      await expect(mascot).toHaveAttribute('data-mood', 'idle');
-      await page.emulateMedia({ reducedMotion: 'reduce', colorScheme: 'dark' });
+      await expect(scene).toHaveAttribute('data-pose', 'idle');
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       await page.evaluate(() => localStorage.setItem('theme', 'dark'));
       await page.reload();
       await expect(page.locator('html')).toHaveClass(/dark/);
-      await expect(mascot.locator('.tinta__eye').first()).toHaveCSS('animation-name', 'none');
-      await expect(mascot.locator('.tinta__arm').first()).toHaveCSS('transition-property', 'none');
       // Check the actual icon contrast, including any theme transition in progress.
       await expect.poll(() => page.locator('.password-input__toggle').evaluate(element => {
         const context = document.createElement('canvas').getContext('2d')!;
@@ -70,128 +81,15 @@ for (const width of [320, 1440]) {
         const paper = luminance(getComputedStyle(element.previousElementSibling!).backgroundColor);
         return (Math.max(ink, paper) + 0.05) / (Math.min(ink, paper) + 0.05);
       })).toBeGreaterThanOrEqual(3);
-      await input.fill(password);
-      await expect(mascot).toHaveAttribute('data-mood', 'hiding');
-      await page.screenshot({ path: testInfo.outputPath('dark-reduced-motion.png'), fullPage: true });
-      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-      const field = await input.boundingBox();
-      const toggle = await page.getByRole('button', { name: 'Mostrar contraseña', exact: true }).boundingBox();
-      expect(field && toggle && toggle.x >= field.x && toggle.x + toggle.width <= field.x + field.width).toBe(true);
+      const form = page.locator('.auth-pet-panel form');
+      const panelBounds = (await page.locator('.auth-pet-panel').boundingBox())!;
+      const formBounds = (await form.boundingBox())!;
+      const bounds = (await scene.boundingBox())!;
+      expect(bounds.x).toBeGreaterThanOrEqual(panelBounds.x);
+      expect(bounds.x + bounds.width).toBeLessThanOrEqual(panelBounds.x + panelBounds.width);
+      if (width >= 896) expect(bounds.x).toBeGreaterThan(formBounds.x + formBounds.width);
+      else expect(bounds.y + bounds.height).toBeLessThan(formBounds.y);
+      expect(bounds.x + bounds.width).toBeLessThanOrEqual(width);
     });
   }
 }
-
-test('the care notebook supports keyboard navigation and keeps the chosen page across languages', async ({ page }) => {
-  await page.goto('/');
-  await page.getByRole('tab', { name: 'Tu mascota' }).focus();
-  await page.keyboard.press('ArrowRight');
-  await expect(page.getByRole('tab', { name: 'Su cartilla' })).toBeFocused();
-  await expect(page.getByRole('tabpanel', { name: 'Su cartilla' })).toBeVisible();
-  await page.keyboard.press('End');
-  await expect(page.getByRole('heading', { name: 'Mira qué viene después' })).toBeVisible();
-  await page.getByRole('button', { name: 'Cambiar idioma' }).click();
-  await page.getByRole('button', { name: 'Català', exact: true }).click();
-  await expect(page.getByRole('tab', { name: 'El que ve' })).toHaveAttribute('aria-selected', 'true');
-  await expect(page.getByRole('heading', { name: 'Mira què ve després' })).toBeVisible();
-});
-
-
-test('the large desktop mascot follows the cursor, prioritizes passwords and respects reduced motion', async ({ page }, testInfo) => {
-  await page.setViewportSize({ width: 1920, height: 1080 });
-  await page.goto('/login');
-  const mascot = page.locator('.password-companion .tinta');
-  const form = page.locator('.form-surface');
-  const password = randomUUID();
-  const input = page.locator('#login-password');
-  const bounds = (await mascot.boundingBox())!;
-  const formBounds = (await form.boundingBox())!;
-  expect(bounds.width).toBeGreaterThan(400);
-  expect(bounds.x).toBeGreaterThan(formBounds.x + formBounds.width);
-  expect(bounds.x + bounds.width).toBeLessThanOrEqual(1920);
-  const gaze = mascot.locator('.tinta__gaze');
-  const head = mascot.locator('.tinta__head');
-  await page.mouse.move(20, 120);
-  await expect.poll(() => gaze.evaluate(element => new DOMMatrix(getComputedStyle(element).transform).m41)).toBeLessThan(-3);
-  await expect.poll(() => head.evaluate(element => new DOMMatrix(getComputedStyle(element).transform).m12)).toBeLessThan(0);
-  await page.screenshot({ path: testInfo.outputPath('following-left.png'), fullPage: true });
-  await page.mouse.move(1900, 950);
-  await expect.poll(() => gaze.evaluate(element => new DOMMatrix(getComputedStyle(element).transform).m41)).toBeGreaterThan(3);
-  await expect.poll(() => head.evaluate(element => new DOMMatrix(getComputedStyle(element).transform).m12)).toBeGreaterThan(0);
-  await input.fill(password);
-  await page.mouse.move(20, 120);
-  await expect(mascot).toHaveAttribute('data-mood', 'hiding');
-  await expect.poll(() => gaze.evaluate(element => new DOMMatrix(getComputedStyle(element).transform).m41)).toBe(0);
-  for (const side of ['left', 'right']) {
-    const eye = mascot.locator('.tinta__eye').nth(side === 'left' ? 0 : 1);
-    const paw = mascot.locator(`.tinta__paw--${side}`);
-    await expect.poll(async () => {
-      const e = (await eye.boundingBox())!;
-      const p = (await paw.boundingBox())!;
-      return p.x <= e.x && p.y <= e.y && p.x + p.width >= e.x + e.width && p.y + p.height >= e.y + e.height;
-    }).toBe(true);
-  }
-  await page.screenshot({ path: testInfo.outputPath('covered.png'), fullPage: true });
-  const arms = mascot.locator('.tinta__arm');
-  const armTransforms = () => arms.evaluateAll(async elements => {
-    await Promise.all(elements.flatMap(element => element.getAnimations().map(animation => animation.finished)));
-    return elements.map(element => getComputedStyle(element).transform);
-  });
-  const raisedArms = await armTransforms();
-  const paw = mascot.locator('.tinta__peeking-paw');
-  const closedPaw = await paw.getAttribute('d');
-  await page.getByRole('button', { name: 'Mostrar contraseña', exact: true }).click();
-  await page.mouse.move(1900, 950);
-  await expect.poll(() => gaze.evaluate(element => new DOMMatrix(getComputedStyle(element).transform).m41)).toBeLessThan(-3);
-  await expect(paw).not.toHaveAttribute('d', closedPaw!);
-  expect(await armTransforms()).toEqual(raisedArms);
-  await page.screenshot({ path: testInfo.outputPath('watching-password.png'), fullPage: true });
-  await page.getByRole('button', { name: 'Ocultar contraseña', exact: true }).click();
-  await expect(paw).toHaveAttribute('d', closedPaw!);
-  await page.locator('#login-email').focus();
-  await expect(mascot).toHaveAttribute('data-mood', 'idle');
-  await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.mouse.move(1900, 950);
-  await expect.poll(() => gaze.evaluate(element => new DOMMatrix(getComputedStyle(element).transform).m41)).toBe(0);
-  await expect(head).toHaveCSS('transition-property', 'none');
-  // Changing the preference while mounted should re-enable tracking.
-  await page.emulateMedia({ reducedMotion: 'no-preference' });
-  await page.mouse.move(20, 120);
-  await expect.poll(() => gaze.evaluate(element => new DOMMatrix(getComputedStyle(element).transform).m41)).toBeLessThan(-3);
-  await page.setViewportSize({ width: 320, height: 900 });
-  await expect.poll(async () => (await mascot.boundingBox())!.width).toBeLessThan(260);
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-});
-
-test('Tinta waves once on entry, intermittently swishes its tail and gives password poses priority', async ({ page }) => {
-  await page.goto('/login', { waitUntil: 'domcontentloaded' });
-  const mascot = page.locator('.password-companion .tinta');
-  const wave = mascot.locator('.tinta__hello');
-  const tail = mascot.locator('.tinta__tail');
-  await expect(wave).toHaveCSS('animation-iteration-count', '1');
-  await wave.evaluate(element => {
-    const animation = element.getAnimations()[0];
-    animation.pause();
-    animation.currentTime = 500;
-  });
-  await expect.poll(() => wave.evaluate(el => new DOMMatrix(getComputedStyle(el).transform).m12)).toBeGreaterThan(.2);
-  await page.locator('#login-password').fill('test-password');
-  await expect.poll(() => wave.evaluate(el => new DOMMatrix(getComputedStyle(el).transform).m12)).toBe(0);
-  await mascot.evaluate(el => el.getAnimations({ subtree: true }).forEach(animation => {
-    if (animation instanceof CSSAnimation && ['tinta-wave', 'tinta-hello'].includes(animation.animationName)) animation.finish();
-  }));
-  await page.locator('#login-email').focus();
-  expect(await wave.evaluate(el => el.getAnimations().length)).toBe(0);
-
-  const tailAngleAt = (fraction: number) => tail.evaluate((el, progress) => {
-    const animation = el.getAnimations()[0];
-    animation.pause();
-    animation.currentTime = Number(animation.effect!.getTiming().duration) * progress;
-    return new DOMMatrix(getComputedStyle(el).transform).m12;
-  }, fraction);
-  expect(await tailAngleAt(.2)).toBe(0);
-  expect(await tailAngleAt(.49)).toBeLessThan(-.08);
-  expect(await tailAngleAt(.8)).toBe(0);
-  await page.emulateMedia({ reducedMotion: 'reduce' });
-  await expect(wave).toHaveCSS('animation-name', 'none');
-  await expect(tail).toHaveCSS('animation-name', 'none');
-});

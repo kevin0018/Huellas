@@ -6,7 +6,10 @@ import './PasswordInput.css';
 const CompanionContext = createContext<((mood: MascotMood, input: HTMLInputElement | null) => void) | null>(null);
 
 /** One companion can respond to several independent password fields. */
-export function PasswordCompanion({ children }: { children: ReactNode }) {
+export function PasswordCompanion({ children, renderCompanion }: {
+  children: ReactNode;
+  renderCompanion?: (pose: { mood: MascotMood; lookAt: HTMLInputElement | null }) => ReactNode;
+}) {
   const [pose, setPose] = useState<{ mood: MascotMood; lookAt: HTMLInputElement | null }>({ mood: 'idle', lookAt: null });
 
   function reactToInput(mood: MascotMood, input: HTMLInputElement | null) {
@@ -15,7 +18,7 @@ export function PasswordCompanion({ children }: { children: ReactNode }) {
 
   return (
     <CompanionContext.Provider value={reactToInput}>
-      <div className="password-companion"><Tinta {...pose} followPointer /></div>
+      <div className="password-companion">{renderCompanion ? renderCompanion(pose) : <Tinta {...pose} followPointer />}</div>
       {children}
     </CompanionContext.Provider>
   );

@@ -1,4 +1,5 @@
-import PasswordInput, { PasswordCompanion } from '../shared/ui/PasswordInput';
+import PasswordInput from '../shared/ui/PasswordInput';
+import AuthPetPanel from './LoginPets';
 import type { TranslationKey } from '../i18n/dictionary';
 import { ClientError } from '../shared/errors/ClientError';
 import { useTranslation } from '../i18n/hooks/hook';
@@ -90,17 +91,14 @@ export default function Login() {
     }
   }, [searchParams, setSearchParams]);
   return (
-    <main className="form-page relative overflow-hidden">
+    <main className="form-page auth-pet-page relative overflow-hidden">
       <div className="form-page__content form-page__content--compact relative z-10">
-        <div>
-          <GoBackButton variant="outline" hideIfNoHistory className="ui-button ui-button--secondary" />
-        </div>
-
-        <header className="form-page__header">
-          <h1 id="login-title" className="form-page__title">{translate('login')}</h1>
-        </header>
-
-        <div className="form-surface">
+        <AuthPetPanel title={(
+          <>
+            <GoBackButton variant="outline" hideIfNoHistory className="ui-button ui-button--secondary justify-self-start" />
+            <h1 id="login-title" className="form-page__title">{translate('login')}</h1>
+          </>
+        )}>
           <form className="form-stack" onSubmit={handleSubmit} aria-labelledby="login-title" aria-busy={loading}>
             <div className="form-field">
               <label htmlFor="login-email" className="form-label">{translate('email')}</label>
@@ -118,23 +116,21 @@ export default function Login() {
                 required
               />
             </div>
-            <PasswordCompanion>
-              <div className="form-field">
-                <label htmlFor="login-password" className="form-label">{translate('password')}</label>
-                <PasswordInput
-                  id="login-password"
-                  name="password"
-                  value={form.password}
-                  onChange={handleInputChange}
-                  placeholder={translate('password')}
-                  autoComplete="current-password"
-                  className="form-control"
-                  aria-invalid={error ? 'true' : undefined}
-                  aria-describedby={error ? 'login-error' : undefined}
-                  required
-                />
-              </div>
-            </PasswordCompanion>
+            <div className="form-field">
+              <label htmlFor="login-password" className="form-label">{translate('password')}</label>
+              <PasswordInput
+                id="login-password"
+                name="password"
+                value={form.password}
+                onChange={handleInputChange}
+                placeholder={translate('password')}
+                autoComplete="current-password"
+                className="form-control"
+                aria-invalid={error ? 'true' : undefined}
+                aria-describedby={error ? 'login-error' : undefined}
+                required
+              />
+            </div>
 
             {error && (
               <div id="login-error" className="form-alert" role="alert">{error && translate(error)}</div>
@@ -162,7 +158,7 @@ export default function Login() {
               </Link>
             </div>
           </div>
-        </div>
+        </AuthPetPanel>
       </div>
 
       {showSuccessToast && (

@@ -1,0 +1,39 @@
+.auth-pet-page .auth-pet-panel .password-companion {
+  position: static;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  transform: none;
+}
+
+.auth-pet-panel__fields,
+.auth-pet-form {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-5);
+}
+
+.login-pets {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #d9e5ca;
+  border-radius: var(--radius-card);
+  pointer-events: none;
+}
+
+@media (min-width: 56rem) {
+  .auth-pet-page { padding-block-end: clamp(var(--space-8), 9dvh, 8rem); }
+  .auth-pet-page .form-page__content { width: min(100%, var(--page-max)); }
+
+  .auth-pet-panel {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.12fr);
+    grid-template-rows: 1fr auto;
+    align-items: center;
+    column-gap: clamp(var(--space-6), 4vw, var(--space-10));
+  }
+
+  .auth-pet-panel .password-companion { grid-area: 1 / 2 / span 2; }
+  .auth-pet-panel__header { grid-area: 1 / 1; align-self: end; }
+  .auth-pet-panel__fields { grid-area: 2 / 1; }
+}
