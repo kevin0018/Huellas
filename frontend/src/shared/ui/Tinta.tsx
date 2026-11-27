@@ -8,6 +8,8 @@ const bodyOutline = 'M86 108c-7 19-9 39-2 59 7 19 22 30 25 44 2 7-3 16-4 21-13 0
 const headOutline = 'M44 79c5-23 25-40 52-45l-8-4q11-6 25-2l-4-8q14-1 24 12c18 4 29 15 36 31 6 14 8 21 17 28l-10 2 7 7c-13 2-20 9-32 16-16 10-33 16-54 12-22-3-50-19-60-36-3-5-4-9-3-13Z';
 const leftEye = 'M66 84c-6-2-7-10-4-16 3-6 9-9 14-6 5 3 6 12 3 18-3 5-8 7-13 4Z';
 const rightEye = 'M104 82c-7-4-8-13-4-21 4-7 12-11 18-7 7 4 8 14 4 22-4 7-12 10-18 6Z';
+const closedPaw = 'M160 177c6 3 8 9 6 16-2 6-5 12-10 15-3 2-6 0-6-3-2 4-7 4-9 1-2 1-5 0-6-3-3-3-1-8 0-12-3 4-7 4-9 1-2-4 4-12 10-16 6-3 9-1 12 1 4-2 8-2 12 0Z';
+const openPaw = 'M160 177c8 3 11 9 9 17-1 7-3 14-7 15-6 1 0-10-5-13-6-4-7 12-16 10-2 1-5 0-6-3-3-3-1-8 0-12-3 4-7 4-9 1-2-4 4-12 10-16 6-3 9-1 12 1 4-2 8-2 12 0Z';
 
 type TintaProps = {
   mood?: MascotMood;
@@ -19,21 +21,15 @@ type TintaProps = {
 export default function Tinta({ mood = 'idle', followPointer = false, lookAt = null }: TintaProps) {
   const illustration = useRef<SVGSVGElement>(null);
   const eyeClip = useId();
-  const bodyMask = useId();
-  const shoulderMask = useId();
+  const farArmMask = useId();
   useMascotGaze(illustration, mood, followPointer, lookAt);
   return (
     <svg ref={illustration} className="tinta" data-mood={mood} viewBox="14 5 260 260" fill="none" aria-hidden="true" focusable="false">
       <defs>
         <clipPath id={eyeClip}><path d={leftEye}/><path d={rightEye}/></clipPath>
-        <mask id={bodyMask} maskUnits="userSpaceOnUse" x="0" y="0" width="300" height="280">
+        <mask id={farArmMask} maskUnits="userSpaceOnUse" x="0" y="0" width="300" height="280">
           <rect width="300" height="280" fill="white"/>
           <path d={bodyOutline} fill="black" stroke="black" strokeWidth="2.7"/>
-          {mood === 'hiding' && <path d={headOutline} fill="white"/>}
-        </mask>
-        <mask id={shoulderMask} maskUnits="userSpaceOnUse" x="0" y="0" width="300" height="280">
-          <rect width="300" height="280" fill="white"/>
-          <path className="tinta__head-pose" d={headOutline} fill="black" stroke="black" strokeWidth="2.7"/>
         </mask>
       </defs>
       <ellipse className="tinta__shadow" cx="132" cy="252" rx="73" ry="4.5"/>
@@ -113,27 +109,24 @@ export default function Tinta({ mood = 'idle', followPointer = false, lookAt = n
             <ellipse cx="113" cy="171" rx="2.3" ry="3.2"/><ellipse cx="119" cy="176" rx="2" ry="3.2" transform="rotate(26 119 176)"/>
           </g>
         </g>
-        {/* Keep the shoulders behind the moving jaw until the paws cover the eyes. */}
-        <g mask={mood === 'hiding' ? undefined : `url(#${shoulderMask})`}>
-          {/* The waving arm emerges from the far side of the chest. */}
-          <g mask={`url(#${bodyMask})`}>
-            <g className="tinta__arm tinta__arm--left">
-              <g className="tinta__hello">
-                <path fill="var(--fur-sable)" d="M92 120c-6 1-8 9-12 17-5 10-15 11-25 7l-6 12c14 11 28 8 39-2 8-7 13-20 12-27 0-5-4-8-8-7Z"/>
-                <path d="M78 144q6-3 8-8" stroke="var(--fur-light)" strokeWidth="1.8"/>
-                <g className="tinta__paw tinta__paw--left">
-                  <path fill="var(--fur-mask)" d="M61 153c2-5 0-12-5-16 5-4 5-10 2-12-4-2-8 4-11 8-7-2-10-6-17-7-6-1-8 4-4 8l6 5c-7-2-11 1-9 5 1 4 7 6 10 8-3 0-5 3-2 6 4 4 11 4 17 5 6 1 11-3 13-10Z"/>
-                  <path d="m32 139 9 4m-7 9 7 2" stroke="var(--paw-light)" strokeWidth="1.8"/>
-                </g>
+        <g mask={`url(#${farArmMask})`}>
+          <g className="tinta__arm tinta__arm--left">
+            <g className="tinta__hello">
+              <path fill="var(--fur-sable)" d="M108 119c-3 11-8 17-19 23-12 7-23 7-34 2l-6 12c17 12 35 6 48-1 11-6 23-19 23-27 1-7-6-11-12-9Z"/>
+              <path d="M77 148q6-2 10-5" stroke="var(--fur-light)" strokeWidth="1.8"/>
+              <g className="tinta__paw tinta__paw--left">
+                <path fill="var(--fur-mask)" d="M61 153c2-5 0-12-5-16 5-4 5-10 2-12-4-2-8 4-11 8-7-2-10-6-17-7-6-1-8 4-4 8l6 5c-7-2-11 1-9 5 1 4 7 6 10 8-3 0-5 3-2 6 4 4 11 4 17 5 6 1 11-3 13-10Z"/>
+                <path d="m32 139 9 4m-7 9 7 2" stroke="var(--paw-light)" strokeWidth="1.8"/>
               </g>
             </g>
           </g>
-          <g className="tinta__arm tinta__arm--right">
-            <path fill="var(--fur-sable)" d="M148 123c12 4 19 18 22 32 3 15-1 29-9 37l-16-6c7-16 7-29-2-42-4-6-8-10-7-15 1-5 6-8 12-6Z"/>
-            <g className="tinta__paw tinta__paw--right">
-              <path fill="var(--fur-mask)" d="M160 177c6 3 8 9 6 16-2 6-5 12-10 15-3 2-6 0-6-3-2 4-7 4-9 1-2 1-5 0-6-3-3-3-1-8 0-12-3 4-7 4-9 1-2-4 4-12 10-16 6-3 9-1 12 1 4-2 8-2 12 0Z"/>
-              <path d="m143 198-3 6m12-5-2 6" stroke="var(--paw-light)" strokeWidth="1.8"/>
-            </g>
+        </g>
+        <g className="tinta__arm tinta__arm--right">
+          <path fill="var(--fur-sable)" d="M148 123c12 4 19 18 22 32 3 15-1 29-9 37l-16-6c7-16 7-29-2-42-4-6-8-10-7-15 1-5 6-8 12-6Z"/>
+          <g className="tinta__paw tinta__paw--right">
+            <path className="tinta__peeking-paw" fill="var(--fur-mask)" d={mood === 'watching' ? openPaw : closedPaw}/>
+            <path d="m143 198-3 6" stroke="var(--paw-light)" strokeWidth="1.8"/>
+            <path className="tinta__peeking-finger" d="m152 199-2 6" stroke="var(--paw-light)" strokeWidth="1.8"/>
           </g>
         </g>
       </g>

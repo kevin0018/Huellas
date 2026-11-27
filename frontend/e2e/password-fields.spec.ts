@@ -131,11 +131,22 @@ test('the large desktop mascot follows the cursor, prioritizes passwords and res
     }).toBe(true);
   }
   await page.screenshot({ path: testInfo.outputPath('covered.png'), fullPage: true });
+  const arms = mascot.locator('.tinta__arm');
+  const armTransforms = () => arms.evaluateAll(async elements => {
+    await Promise.all(elements.flatMap(element => element.getAnimations().map(animation => animation.finished)));
+    return elements.map(element => getComputedStyle(element).transform);
+  });
+  const raisedArms = await armTransforms();
+  const paw = mascot.locator('.tinta__peeking-paw');
+  const closedPaw = await paw.getAttribute('d');
   await page.getByRole('button', { name: 'Mostrar contraseña', exact: true }).click();
   await page.mouse.move(1900, 950);
   await expect.poll(() => gaze.evaluate(element => new DOMMatrix(getComputedStyle(element).transform).m41)).toBeLessThan(-3);
+  await expect(paw).not.toHaveAttribute('d', closedPaw!);
+  expect(await armTransforms()).toEqual(raisedArms);
   await page.screenshot({ path: testInfo.outputPath('watching-password.png'), fullPage: true });
   await page.getByRole('button', { name: 'Ocultar contraseña', exact: true }).click();
+  await expect(paw).toHaveAttribute('d', closedPaw!);
   await page.locator('#login-email').focus();
   await expect(mascot).toHaveAttribute('data-mood', 'idle');
   await page.emulateMedia({ reducedMotion: 'reduce' });
