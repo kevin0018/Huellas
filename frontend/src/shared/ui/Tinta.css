@@ -1,0 +1,96 @@
+@property --tinta-greeting-weight {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+.tinta {
+  --fur-ink: #302b28;
+  --fur-mask: #53403a;
+  --fur-shadow: #805c46;
+  --fur-sable: #ba8559;
+  --fur-light: #edc99a;
+  --fur-cream: #fff1d5;
+  --ear: #e89880;
+  --nose-glint: #a59a89;
+  --paw-light: #ab8970;
+  --strap: #cd9647;
+  --book: #477761;
+  --cover-dark: #254c40;
+  --seal: #f7d996;
+  --ribbon: #cc5948;
+  --neck-offset: 12px;
+  --tinta-greeting-weight: 0;
+  --gaze-x: 0px;
+  --gaze-y: 0px;
+  --head-x: 0px;
+  --head-y: 0px;
+  --head-turn: 0deg;
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.tinta__signature { font: 700 5px var(--font-body); letter-spacing: 1.15px; }
+.tinta__shadow { fill: var(--fur-ink); opacity: .13; }
+.tinta__head-pose {
+  transform-origin: 123px 117px;
+  transform: translate(var(--head-x), calc(var(--neck-offset) + var(--head-y))) rotate(var(--head-turn));
+  transition: transform var(--duration-medium) var(--ease-out);
+}
+.tinta__gaze {
+  transform: translate(var(--gaze-x), var(--gaze-y));
+  transition: transform var(--duration-short) var(--ease-out);
+}
+.tinta__eye, .tinta__pupils { transform-box: fill-box; transform-origin: center; }
+.tinta[data-mood="idle"] :is(.tinta__eye, .tinta__pupils) {
+  animation: tinta-blink 6s var(--ease-in-out) infinite;
+}
+@keyframes tinta-blink {
+  0%, 47%, 51%, 100% { transform: scaleY(1); }
+  49% { transform: scaleY(.05); }
+}
+.tinta__arm { transition: transform 520ms var(--ease-in-out); }
+.tinta__arm--left {
+  transform-origin: 93px 122px;
+  transform: translateY(4px) rotate(0deg);
+}
+.tinta__arm--right { transform-origin: 146px 125px; transform: translateY(var(--neck-offset)) rotate(0deg); }
+.tinta:is([data-mood="hiding"], [data-mood="watching"]) .tinta__head-pose { transform: translateY(var(--neck-offset)); }
+.tinta:is([data-mood="hiding"], [data-mood="watching"]) .tinta__arm--left { transform: translateY(var(--neck-offset)) rotate(90deg); }
+.tinta:is([data-mood="hiding"], [data-mood="watching"]) .tinta__arm--right { transform: translateY(var(--neck-offset)) rotate(150deg); }
+.tinta[data-mood="watching"] .tinta__peeking-finger { transform: translateX(9px); }
+/* The greeting timeline belongs to the mounted illustration. Password poses take
+   over both joints without restarting the greeting when focus returns. */
+.tinta[data-mood="idle"] { --tinta-greeting-weight: 1; }
+.tinta__hello { transform-origin: 93px 122px; }
+.tinta__paw--left { transform-origin: 56px 149px; }
+.tinta__tail { transform-origin: 166px 210px; }
+@media (prefers-reduced-motion: no-preference) {
+  .tinta { transition: --tinta-greeting-weight 160ms ease-out; }
+  .tinta__hello { animation: tinta-hello 1.45s .14s ease-in-out; }
+  .tinta__paw--left { animation: tinta-wave 1.45s .14s ease-in-out; }
+  .tinta__tail { animation: tinta-tail 8.5s ease-in-out infinite; }
+  .tinta__peeking-paw { transition: d 220ms var(--ease-in-out); }
+  .tinta__peeking-finger { transition: transform 220ms var(--ease-in-out); }
+}
+@keyframes tinta-hello {
+  0%, 100% { transform: rotate(0deg); }
+  24%, 68% { transform: rotate(calc(24deg * var(--tinta-greeting-weight))); }
+  45%, 82% { transform: rotate(calc(12deg * var(--tinta-greeting-weight))); }
+}
+@keyframes tinta-wave {
+  0%, 100% { transform: rotate(0deg); }
+  28%, 64% { transform: rotate(calc(20deg * var(--tinta-greeting-weight))); }
+  46%, 80% { transform: rotate(calc(-12deg * var(--tinta-greeting-weight))); }
+}
+@keyframes tinta-tail {
+  0%, 44%, 65%, 100% { transform: none; }
+  49% { transform: rotate(-8deg) scaleX(.97) skewX(-2deg); }
+  54% { transform: rotate(4deg) scaleX(1.015); }
+  59% { transform: rotate(-3deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tinta[data-mood="idle"] :is(.tinta__eye, .tinta__pupils) { animation: none; }
+  .tinta .tinta__head-pose, .tinta .tinta__gaze, .tinta .tinta__arm { transition: none; }
+}

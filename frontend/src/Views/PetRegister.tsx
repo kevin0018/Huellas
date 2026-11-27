@@ -3,8 +3,6 @@ import { localeByLanguage } from '../i18n/locale';
 import { useTranslation } from '../i18n/hooks/hook';
 import React from "react";
 import GoBackButton from '../Components/GoBackButton';
-import NavBar from "../Components/NavBar";
-import Footer from "../Components/footer";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import type { Pet, PetSize, PetType, Sex } from "../modules/pet/domain/Pet";
@@ -160,8 +158,7 @@ const PetRegister: React.FC = () => {
 
   return (
     <>
-      <NavBar />
-      <main className="form-page bg-dogs-userhome-mobile bg-cover bg-center md:bg-dogs-userhome-tablet lg:bg-dogs-userhome-desktop dark:bg-dogs-userhome-mobile">
+      <main className="form-page">
         <div className="form-page__content form-page__content--wide">
           <header className="form-page__header relative justify-items-center text-center">
             <GoBackButton
@@ -341,7 +338,6 @@ const PetRegister: React.FC = () => {
           </form>
         </div>
       </main>
-      <Footer />
     </>
   );
 };

@@ -18,7 +18,7 @@ function AppErrorFallback({ onRetry }: { onRetry: () => void }) {
   const { translate } = useTranslation();
 
   return (
-    <main className="workspace-page grid min-h-dvh place-items-center">
+    <main className="workspace-page grid min-h-[calc(100dvh-var(--nav-height))] place-items-center">
       <section className="workspace-main max-w-xl text-center" role="alert">
         <Link
           to="/"

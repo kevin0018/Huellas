@@ -1,6 +1,4 @@
 import { useTranslation } from '../i18n/hooks/hook';
-import NavBar from '../Components/NavBar';
-import Footer from '../Components/footer';
 import '../Styles/about.css';
 
 const team = [
@@ -15,7 +13,6 @@ export default function AboutUs() {
 
   return (
     <>
-      <NavBar />
       <main className="public-page about-page">
         <div className="public-shell">
           <header className="about-cover">
@@ -85,7 +82,6 @@ export default function AboutUs() {
           <p className="about-team__closing">{translate('meetTheTeamText2')}</p>
         </section>
       </main>
-      <Footer />
     </>
   );
 }

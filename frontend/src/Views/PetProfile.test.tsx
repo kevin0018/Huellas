@@ -23,8 +23,6 @@ vi.mock("../composition/applicationServices", () => ({
 vi.mock("../modules/auth/infra/AuthService", () => ({
   AuthService: { isAuthenticated: () => true },
 }));
-vi.mock("../Components/NavBar", () => ({ default: () => null }));
-vi.mock("../Components/footer", () => ({ default: () => null }));
 vi.mock("../Components/GoBackButton", () => ({
   ArrowLeftIcon: () => <svg aria-hidden="true" />,
 }));

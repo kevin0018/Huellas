@@ -4,8 +4,10 @@
  */
 
 import React, { Suspense } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, matchRoutes, useLocation } from 'react-router-dom';
 import LanguageProvider from './i18n/LanguageProvider';
+import NavBar from './Components/NavBar';
+import Footer from './Components/footer';
 import ThemeProvider from './Components/theme/ThemeProvider';
 import HomePage from './Views/HomePage';
 import NotFoundView from './Views/NotFoundView';
@@ -32,12 +34,16 @@ const HealthBookView = lazyView(() => import('./Views/HealthBookView'));
 const TermsView = lazyView(() => import('./Views/TermsView'));
 const ResetPasswordView = lazyView(() => import('./Views/ResetPasswordView'));
 
+const routesWithoutFooter = [{ path: '/login' }, { path: '/register' }, { path: '/chat' }];
+
 const App: React.FC = () => {
   const location = useLocation();
+  const showFooter = matchRoutes(routesWithoutFooter, location) === null;
 
   return (
     <LanguageProvider>
       <ThemeProvider>
+        <NavBar />
         <AppErrorBoundary key={location.pathname}>
           <Suspense fallback={<RouteLoading />}>
             <Routes location={location}>
@@ -68,6 +74,7 @@ const App: React.FC = () => {
             </Routes>
           </Suspense>
         </AppErrorBoundary>
+        {showFooter && <Footer />}
       </ThemeProvider>
     </LanguageProvider>
   );

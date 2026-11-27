@@ -2,8 +2,6 @@ import { messageFromError, translateMessage } from '../i18n/message';
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import NavBar from "../Components/NavBar";
-import Footer from "../Components/footer";
 import AnuncioCard from "../Components/AnuncioCard";
 
 import { useVolunteerPosts } from "../modules/posts/application/useVolunteerPosts";
@@ -103,7 +101,6 @@ function VolunteerBoard() {
 
   return (
     <>
-      <NavBar />
       <main className="workspace-page">
         <div className="workspace-shell">
           <header className="workspace-header workspace-header--primary">
@@ -217,7 +214,6 @@ function VolunteerBoard() {
           </section>
         </div>
       </main>
-      <Footer />
     </>
   );
 }

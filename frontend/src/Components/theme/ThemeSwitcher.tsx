@@ -1,70 +1,60 @@
-/**
- * Animated, accessible theme switcher (light ↔ dark).
- * Reusable component used across the app (e.g., NavBar).
-*/
+import { flushSync } from 'react-dom';
+import { useTranslation } from '../../i18n/hooks/hook';
+import { useTheme } from './useTheme';
+import './ThemeSwitcher.css';
 
-import type { FC } from 'react';
-import { useTheme } from './useTheme.ts';
+// Both navigation layouts control the same document transition.
+let activeReveal: ViewTransition | null = null;
 
-export type ThemeSwitcherProps = {
-  className?: string;
-  ariaLabelLight?: string; // label shown when switching to light
-  ariaLabelDark?: string;  // label shown when switching to dark
-};
-
-const ThemeSwitcher: FC<ThemeSwitcherProps> = ({
-  className,
-  ariaLabelLight = 'Cambiar a tema claro',
-  ariaLabelDark = 'Cambiar a tema oscuro',
-}) => {
+export default function ThemeSwitcher() {
   const { theme, toggleTheme } = useTheme();
+  const { translate } = useTranslation();
   const isDark = theme === 'dark';
 
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={isDark}
-      aria-label={isDark ? ariaLabelLight : ariaLabelDark}
-      onClick={toggleTheme}
-      className={`relative inline-flex h-8 w-16 3xl:h-10 3xl:w-20 items-center rounded-full transition-colors duration-[var(--duration-medium)] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-focus)] ${
-        isDark ? 'bg-[var(--color-accent)]' : 'bg-[var(--color-rule)]'
-      } ${className ?? ''}`}
-      title={isDark ? 'Dark' : 'Light'}
-    >
-      {/* Knob */}
-      <span
-        aria-hidden
-        className={`pointer-events-none absolute left-1 top-1 flex h-6 w-6 3xl:h-8 3xl:w-8 items-center justify-center rounded-full transition-transform duration-300 ${
-          isDark ? 'translate-x-8 bg-[var(--color-surface-raised)]' : 'translate-x-0 bg-[var(--color-surface-raised)]'
-        }`}
-      >
-        {isDark ? (
-          // Moon
-          <svg viewBox="0 0 24 24" className="h-4 w-4 text-[var(--color-warning)]" fill="currentColor">
-            <path d="M21.64 13a1 1 0 0 0-1-.77 8 8 0 0 1-8.87-8.87 1 1 0 0 0-1.27-1A10 10 0 1 0 22.4 14.27a1 1 0 0 0-1-1.27Z"/>
-          </svg>
-        ) : (
-          // Sun
-          <svg viewBox="0 0 24 24" className="h-4 w-4 text-[var(--color-warning)]" fill="currentColor">
-            <path d="M6.76 4.84l-1.8-1.79-1.41 1.41 1.79 1.8 1.42-1.42zm10.45 14.32l1.79 1.8 1.41-1.41-1.8-1.79-1.4 1.4zM12 4V1h-1v3h1zm0 19v-3h-1v3h1zM4 13H1v-1h3v1zm19 0h-3v-1h3v1zM6.76 19.16l-1.42 1.42-1.79-1.8 1.41-1.41 1.8 1.79zM19.16 6.76l1.42-1.42 1.8 1.79-1.41 1.41-1.81-1.78zM12 6a6 6 0 100 12 6 6 0 000-12z"/>
-          </svg>
-        )}
-      </span>
+  function switchAt(button: HTMLButtonElement) {
+    if (!document.startViewTransition || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      toggleTheme();
+      return;
+    }
 
-      {/* Stars overlay for dark */}
-      <span
-        aria-hidden
-        className={`absolute inset-0 overflow-hidden rounded-full transition-opacity duration-300 ${
-          isDark ? 'opacity-100' : 'opacity-0'
-        }`}
-      >
-        <span className="absolute left-3 top-2 h-1 w-1 rounded-full bg-[var(--color-accent-ink)]"></span>
-        <span className="absolute left-6 top-3 h-0.5 w-0.5 rounded-full bg-[var(--color-accent-ink)]"></span>
-        <span className="absolute left-8 top-1.5 h-0.5 w-0.5 rounded-full bg-[var(--color-accent-ink)]"></span>
+    const root = document.documentElement;
+    const { left, top, width, height } = button.getBoundingClientRect();
+    root.style.setProperty('--theme-origin', `${left + width / 2}px ${top + height / 2}px`);
+    root.dataset.themeReveal = '';
+    const reveal = document.startViewTransition(() => flushSync(toggleTheme));
+    activeReveal = reveal;
+    void reveal.finished.finally(() => {
+      if (activeReveal !== reveal) return;
+      activeReveal = null;
+      delete root.dataset.themeReveal;
+      root.style.removeProperty('--theme-origin');
+    });
+  }
+
+  return (
+    <button className="theme-switch" type="button" role="switch" aria-checked={isDark}
+      aria-label={translate('darkMode')} title={translate('darkMode')} onClick={event => switchAt(event.currentTarget)}>
+      <span className="theme-switch__track" aria-hidden="true">
+        <svg className="theme-switch__sky" viewBox="0 0 64 32" fill="none">
+          <g className="theme-switch__clouds" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <path d="M37 12h5a3 3 0 0 1 6 0h4M46 20h9"/>
+          </g>
+          <g className="theme-switch__stars" fill="currentColor">
+            <path d="m13 8 1.2 3 3.2 1.1-3.2 1.2-1.2 3-1.1-3-3.1-1.2 3.1-1.1Z"/>
+            <circle cx="22" cy="20" r="1.2"/><circle cx="25" cy="9" r=".9"/>
+          </g>
+        </svg>
+        <span className="theme-switch__thumb">
+          <svg viewBox="0 0 24 24" fill="none">
+            <g className="theme-switch__sun">
+              <circle cx="12" cy="12" r="4" fill="currentColor"/>
+              <path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"
+                stroke="currentColor" strokeLinecap="round" strokeWidth="1.8"/>
+            </g>
+            <path className="theme-switch__moon" fill="currentColor" d="M18.9 15.1A8.2 8.2 0 0 1 9 4a8.3 8.3 0 1 0 9.9 11.1Z"/>
+          </svg>
+        </span>
       </span>
     </button>
   );
-};
-
-export default ThemeSwitcher;
+}

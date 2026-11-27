@@ -26,21 +26,21 @@ it('reveals the same input without submitting or losing typing focus, and animat
   const submit = vi.fn();
   const { container } = render(<Form submit={submit} />);
   const field = screen.getByLabelText('Secret');
-  const cat = container.querySelector('.huellas-cat');
-  expect(cat).toHaveAttribute('data-mood', 'idle');
+  const mascot = container.querySelector('.tinta');
+  expect(mascot).toHaveAttribute('data-mood', 'idle');
   await user.type(field, 'miso-secret');
-  expect(cat).toHaveAttribute('data-mood', 'hiding');
+  expect(mascot).toHaveAttribute('data-mood', 'hiding');
   expect(field).toHaveAttribute('type', 'password');
   await user.click(screen.getByRole('button', { name: 'Mostrar contraseña' }));
   expect(field).toHaveAttribute('type', 'text');
   expect(field).toHaveFocus();
-  expect(cat).toHaveAttribute('data-mood', 'watching');
+  expect(mascot).toHaveAttribute('data-mood', 'watching');
   expect(screen.getByRole('button', { name: 'Ocultar contraseña' })).toHaveAttribute('aria-controls', 'secret');
   await user.keyboard('-extra');
   await user.click(screen.getByRole('button', { name: 'Ocultar contraseña' }));
   expect(field).toHaveAttribute('type', 'password');
   expect(field).toHaveValue('miso-secret-extra');
-  expect(cat?.outerHTML).not.toContain('miso-secret');
+  expect(mascot?.outerHTML).not.toContain('miso-secret');
   expect(submit).not.toHaveBeenCalled();
   await user.keyboard('{Enter}');
   expect(submit).toHaveBeenCalledExactlyOnceWith('miso-secret-extra');
@@ -65,7 +65,7 @@ it('supports keyboard toggling and translates the active action without resettin
   await user.click(field);
   await user.tab();
   await user.tab();
-  expect(container.querySelector('.huellas-cat')).toHaveAttribute('data-mood', 'idle');
+  expect(container.querySelector('.tinta')).toHaveAttribute('data-mood', 'idle');
 });
 
 it('disables the reveal action along with the field', () => {

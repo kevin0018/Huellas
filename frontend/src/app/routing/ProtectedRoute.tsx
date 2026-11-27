@@ -36,7 +36,7 @@ export default function ProtectedRoute() {
 
   if (status === 'checking') {
     return (
-      <main className="ui-page min-h-screen grid place-items-center" aria-live="polite">
+      <main className="ui-page grid min-h-[calc(100dvh-var(--nav-height))] place-items-center" aria-live="polite">
         <p>{translate('checkingSession')}</p>
       </main>
     );

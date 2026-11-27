@@ -10,7 +10,6 @@ const mocks = vi.hoisted(() => ({
   selectConversation: vi.fn(),
 }));
 
-vi.mock('../Components/NavBar', () => ({ default: () => <nav>Huellas</nav> }));
 vi.mock('../modules/auth/infra/AuthService', () => ({
   AuthService: { getUser: () => ({ id: 1 }) },
 }));

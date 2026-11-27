@@ -14,8 +14,6 @@ const useAppointmentsMock = vi.hoisted(() => vi.fn());
 vi.mock('../features/appointments/useAppointments', () => ({
   useAppointments: useAppointmentsMock,
 }));
-vi.mock('../Components/NavBar', () => ({ default: () => null }));
-vi.mock('../Components/footer', () => ({ default: () => null }));
 vi.mock('../Components/GoBackButton', () => ({ default: () => null }));
 vi.mock('../Components/AppointmentModal', () => ({ default: () => null }));
 

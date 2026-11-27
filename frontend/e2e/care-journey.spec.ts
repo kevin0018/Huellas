@@ -3,14 +3,15 @@ import { test, expect } from './fixtures';
 for (const width of [375, 1440]) {
   test(`pet → health event → next care persists at ${width}px`, async ({ page, accounts }) => {
     const account = await accounts.create();
+    const petName = 'MisoBigotesLargosDeLaCasaDelJardín';
     await page.setViewportSize({ width, height: 900 });
     await page.goto('/login');
     await page.getByLabel('Correo Electrónico', { exact: true }).fill(account.email);
     await page.getByLabel('Contraseña', { exact: true }).fill(account.password);
     await page.getByRole('button', { name: 'Iniciar Sesión', exact: true }).click();
     await expect(page).toHaveURL(/\/user-home$/);
-    await page.goto('/pet-register');
-    await page.getByLabel(/^Nombre/).fill('Miso E2E');
+    await page.getByRole('link', { name: 'Añadir mascota', exact: true }).click();
+    await page.getByLabel(/^Nombre/).fill(petName);
     await page.locator('#type').selectOption('cat');
     await page.locator('#birthDate').fill('2020-04-03');
     const created = page.waitForResponse(response => response.url().endsWith('/api/pets') && response.request().method() === 'POST');
@@ -23,14 +24,23 @@ for (const width of [375, 1440]) {
     const { id } = await response.json();
     await expect(page).toHaveURL(/\/user-home$/);
 
-    await page.goto(`/procedures-view/${id}`);
+    await page.getByRole('link', { name: `Abrir el perfil de ${petName}`, exact: true }).click();
+    await expect(page).toHaveURL(new RegExp(`/pets/${id}$`));
+    const profileTitle = page.getByRole('heading', { name: petName, level: 1, exact: true });
+    await expect(profileTitle).toBeVisible();
+    await page.evaluate(() => document.fonts.ready.then(() => undefined));
+    expect(await profileTitle.evaluate(heading => heading.scrollWidth - heading.clientWidth)).toBeLessThanOrEqual(0);
+    await page.getByRole('link', { name: 'Ver procedimientos', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'E2E annual checkup', exact: true })).toBeVisible();
     await expect(page.getByText('Vencido', { exact: true })).toBeVisible();
     const before = await (await account.api.get('reminders')).json();
     const overdue = before.reminders.find((item: { petId: number; title: string }) => item.petId === id && item.title === 'E2E annual checkup');
     expect(overdue).toBeDefined();
 
-    await page.goto(`/pets/${id}/health`);
+    await page.getByRole('link', { name: 'Abrir cartilla', exact: true }).click();
+    const bookDescription = page.getByText(`Consultas, vacunas y tratamientos de ${petName}, ordenados para entender su evolución.`);
+    await expect(bookDescription).toBeVisible();
+    expect(await bookDescription.evaluate(description => description.scrollWidth - description.clientWidth)).toBeLessThanOrEqual(0);
     await page.getByRole('button', { name: 'Añadir evento', exact: true }).click();
     await page.getByLabel('Tipo', { exact: true }).selectOption('GENERAL_CHECKUP');
     await page.getByLabel('Título', { exact: true }).fill('E2E annual checkup');
@@ -40,7 +50,7 @@ for (const width of [375, 1440]) {
     await page.reload();
     await expect(page.getByRole('heading', { name: 'E2E annual checkup', exact: true })).toBeVisible();
 
-    await page.goto(`/procedures-view/${id}`);
+    await page.getByRole('link', { name: 'Ver procedimientos', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'E2E annual checkup', exact: true })).toBeVisible();
     await expect(page.locator('article').getByText('Al día', { exact: true })).toBeVisible();
     const plan = await (await account.api.get(`pets/${id}/procedures`)).json();

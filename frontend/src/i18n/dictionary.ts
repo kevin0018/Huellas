@@ -4,9 +4,10 @@
 */
 
 export const en = {
+  interfaceSounds: "Interface sounds",
   showPassword: "Show password",
   hidePassword: "Hide password",
-  homeTitleAccent: "You care for their story.",
+  homeTitleAccent: "in one book.",
   homePetTab: "Your pet",
   homeRecordTab: "Their record",
   homeNextTab: "What’s next",
@@ -99,7 +100,7 @@ export const en = {
   viewProcedures: "View procedures",
   editPetDetails: "Edit details",
   noPetNotes: "No additional notes.",
-  careAgenda: "Your care agenda",
+  careAgenda: "My health books",
   now: "Now",
   urgentCareOne: "{{count}} care task needs your attention",
   urgentCareMany: "{{count}} care tasks need your attention",
@@ -124,8 +125,8 @@ export const en = {
   cancelReminder: "Cancel reminder",
   noPendingCare: "There are no pending actions. Upcoming appointments or care tasks will appear here.",
   remindersPaused: "Reminders are paused. Enable notifications to see upcoming priorities here.",
-  yourFamily: "Your family",
-  familyDescription: "Open each profile to view their health book and health details.",
+  yourFamily: "My animals",
+  familyDescription: "Choose an animal to open their profile or health book.",
   noPetsYet: "You don't have any pets yet",
   addFirstPet: "Add your first pet to start managing their health book.",
   emptyPetGrid: "You don't have any pets yet.",
@@ -392,11 +393,11 @@ export const en = {
   shareHealthBookError: "The health book could not be shared",
 
   // --- Landing & App ---
-  homeEyebrow: "Everyday care, together",
-  homeTitle: "They leave pawprints.",
-  homeDescription: "Health records, appointments and upcoming care. Keep what matters close, and spend more time enjoying life with your pets.",
+  homeEyebrow: "Digital pet records",
+  homeTitle: "Their life,",
+  homeDescription: "A health book for each of your animals. Keep their details, vaccinations and vet visits together, and see which care is coming up.",
   homeCareEyebrow: "From the first day",
-  homeCareTitle: "A little order. More peace of mind.",
+  homeCareTitle: "Inside the health book",
   homeCareDescription: "Huellas helps you keep track of each pet’s care, one step at a time.",
   homePetTitle: "Meet your pet",
   homePetDescription: "Create their profile and record allergies, medication and the details that matter.",
@@ -416,7 +417,7 @@ export const en = {
   aboutUs: "About us",
   contact: "Contact",
   welcome: "Welcome to Huellas",
-  getStarted: "Get Started",
+  getStarted: "Create my first record",
   howToHelp: "How You Can Help",
   howToHelpText:
     "We are a non-profit organization, and we rely on your help to continue our work. Here's how you can support us and the animals in our care.",
@@ -584,7 +585,7 @@ export const en = {
   
   // --- Home page ---
   homePageTitle: "Welcome back, {{name}}!",
-  homePageSubtitle: "Here’s a look at how your pets are doing today.",
+  homePageSubtitle: "All your animals’ health records and upcoming care.",
   addPetButton: "Add a New Pet",
   agendaButton: "My Agenda",
 
@@ -634,9 +635,10 @@ export type TranslationKey = keyof typeof en;
 export type LocaleMap = Record<TranslationKey, string>;
 
 export const es: LocaleMap = {
+  interfaceSounds: "Sonidos de la interfaz",
   showPassword: "Mostrar contraseña",
   hidePassword: "Ocultar contraseña",
-  homeTitleAccent: "Tú cuidas su historia.",
+  homeTitleAccent: "en una cartilla.",
   homePetTab: "Tu mascota",
   homeRecordTab: "Su cartilla",
   homeNextTab: "Lo que viene",
@@ -729,7 +731,7 @@ export const es: LocaleMap = {
   viewProcedures: "Ver procedimientos",
   editPetDetails: "Editar datos",
   noPetNotes: "Sin notas adicionales.",
-  careAgenda: "Tu agenda de cuidados",
+  careAgenda: "Mis cartillas",
   now: "Ahora",
   urgentCareOne: "{{count}} cuidado necesita tu atención",
   urgentCareMany: "{{count}} cuidados necesitan tu atención",
@@ -754,8 +756,8 @@ export const es: LocaleMap = {
   cancelReminder: "Cancelar aviso",
   noPendingCare: "No hay acciones pendientes. Cuando haya una cita o cuidado próximo, aparecerá aquí.",
   remindersPaused: "Los recordatorios están pausados. Activa las notificaciones para ver aquí las próximas prioridades.",
-  yourFamily: "Tu familia",
-  familyDescription: "Entra en cada perfil para consultar su cartilla y sus datos de salud.",
+  yourFamily: "Mis animales",
+  familyDescription: "Elige un animal para abrir su ficha o consultar su cartilla.",
   noPetsYet: "Todavía no tienes mascotas",
   addFirstPet: "Añade la primera para empezar a gestionar su cartilla.",
   emptyPetGrid: "Aún no tienes mascotas.",
@@ -1022,11 +1024,11 @@ export const es: LocaleMap = {
   shareHealthBookError: "No se pudo compartir la cartilla",
 
   // --- Landing & App ---
-  homeEyebrow: "El cuidado de cada día",
-  homeTitle: "Ellos dejan huella.",
-  homeDescription: "Cartilla, citas y próximos cuidados. Ten a mano lo importante y dedica más tiempo a disfrutar con tus mascotas.",
+  homeEyebrow: "Cartilla digital de animales",
+  homeTitle: "Su vida,",
+  homeDescription: "Una cartilla para cada uno de tus animales. Guarda sus datos, vacunas y visitas al veterinario, y consulta cuándo toca el próximo cuidado.",
   homeCareEyebrow: "Desde el primer día",
-  homeCareTitle: "Un poco de orden. Más tranquilidad.",
+  homeCareTitle: "Dentro de la cartilla",
   homeCareDescription: "Huellas te ayuda a seguir el cuidado de cada mascota, paso a paso.",
   homePetTitle: "Conoce a tu mascota",
   homePetDescription: "Crea su perfil y anota alergias, medicación y esos detalles que conviene tener presentes.",
@@ -1046,7 +1048,7 @@ export const es: LocaleMap = {
   aboutUs: "Sobre Nosotros",
   contact: "Contacto",
   welcome: "Bienvenidx a Huellas",
-  getStarted: "Empieza ahora",
+  getStarted: "Crear mi primera cartilla",
   howToHelp: "Cómo ayudarnos",
   howToHelpText:
     "Somos una organización sin fines de lucro, pero también necesitamos tu ayuda para seguir adelante. Aquí te mostramos cómo puedes ayudarnos a nosotros y a los peluditos que cuidamos.",
@@ -1214,7 +1216,7 @@ export const es: LocaleMap = {
 
   // --- Home page ---
   homePageTitle: "¡Hola de nuevo, {{name}}!",
-  homePageSubtitle: "Aquí tienes todo lo que necesitas para cuidar de tus animales hoy.",
+  homePageSubtitle: "Las fichas de tus animales y los próximos cuidados, a mano.",
   addPetButton: "Añadir una nueva mascota",
   agendaButton: "Mi agenda",
 
@@ -1259,9 +1261,10 @@ export const es: LocaleMap = {
 };
 
 export const ca: LocaleMap = {
+  interfaceSounds: "Sons de la interfície",
   showPassword: "Mostra la contrasenya",
   hidePassword: "Amaga la contrasenya",
-  homeTitleAccent: "Tu cuides la seva història.",
+  homeTitleAccent: "en una cartilla.",
   homePetTab: "La teva mascota",
   homeRecordTab: "La seva cartilla",
   homeNextTab: "El que ve",
@@ -1354,7 +1357,7 @@ export const ca: LocaleMap = {
   viewProcedures: "Consulta els procediments",
   editPetDetails: "Edita les dades",
   noPetNotes: "Sense notes addicionals.",
-  careAgenda: "La teva agenda de cures",
+  careAgenda: "Les meves cartilles",
   now: "Ara",
   urgentCareOne: "{{count}} cura necessita la teva atenció",
   urgentCareMany: "{{count}} cures necessiten la teva atenció",
@@ -1379,8 +1382,8 @@ export const ca: LocaleMap = {
   cancelReminder: "Cancel·la l'avís",
   noPendingCare: "No hi ha accions pendents. Quan hi hagi una cita o cura propera, apareixerà aquí.",
   remindersPaused: "Els recordatoris estan pausats. Activa les notificacions per veure aquí les properes prioritats.",
-  yourFamily: "La teva família",
-  familyDescription: "Entra a cada perfil per consultar la seva cartilla i les seves dades de salut.",
+  yourFamily: "Els meus animals",
+  familyDescription: "Tria un animal per obrir-ne la fitxa o consultar-ne la cartilla.",
   noPetsYet: "Encara no tens mascotes",
   addFirstPet: "Afegeix la primera per començar a gestionar la seva cartilla.",
   emptyPetGrid: "Encara no tens mascotes.",
@@ -1647,11 +1650,11 @@ export const ca: LocaleMap = {
   shareHealthBookError: "No s'ha pogut compartir la cartilla",
 
   // --- Landing & App ---
-  homeEyebrow: "La cura de cada dia",
-  homeTitle: "Ells deixen petjada.",
-  homeDescription: "Cartilla, cites i properes cures. Tingues a mà el que importa i dedica més temps a gaudir amb les teves mascotes.",
+  homeEyebrow: "Cartilla digital d’animals",
+  homeTitle: "La seva vida,",
+  homeDescription: "Una cartilla per a cadascun dels teus animals. Desa-hi les dades, les vacunes i les visites al veterinari, i consulta quan toca la propera cura.",
   homeCareEyebrow: "Des del primer dia",
-  homeCareTitle: "Una mica d’ordre. Més tranquil·litat.",
+  homeCareTitle: "Dins de la cartilla",
   homeCareDescription: "Huellas t’ajuda a seguir la cura de cada mascota, pas a pas.",
   homePetTitle: "Coneix la teva mascota",
   homePetDescription: "Crea el seu perfil i anota al·lèrgies, medicació i els detalls que convé tenir presents.",
@@ -1671,7 +1674,7 @@ export const ca: LocaleMap = {
   aboutUs: "Sobre Nosaltres",
   contact: "Contacte",
   welcome: "Benvingut/da a Huellas",
-  getStarted: "Comença ara",
+  getStarted: "Crea la meva primera cartilla",
   howToHelp: "Com ens pots ajudar",
   howToHelpText:
     "Som una organització sense ànim de lucre, però també necessitem la teva ajuda per seguir endavant. Aquí et mostrem com pots ajudar-nos a nosaltres i als peluts que cuidem.",
@@ -1839,7 +1842,7 @@ export const ca: LocaleMap = {
 
   // --- Home page ---
   homePageTitle: "Hola de nou, {{name}}!",
-  homePageSubtitle: "Aquí tens tot el que necessites per cuidar dels teus animals avui.",
+  homePageSubtitle: "Les fitxes dels teus animals i les properes cures, a mà.",
   addPetButton: "Afegir una nova mascota",
   agendaButton: "La meva agenda",
 

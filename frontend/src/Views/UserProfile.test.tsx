@@ -10,8 +10,6 @@ import UserProfile from './UserProfile';
 
 const actions = vi.hoisted(() => ({ currentUser: vi.fn(), updateProfile: vi.fn(), changePassword: vi.fn(), toggleVolunteer: vi.fn() }));
 vi.mock('../features/auth/authActions', () => ({ authActions: actions }));
-vi.mock('../Components/NavBar', () => ({ default: () => null }));
-vi.mock('../Components/footer', () => ({ default: () => null }));
 const profile = { id: 1, name: 'María', lastName: 'García', email: 'maria@example.com', type: 'owner', roles: ['owner'] };
 
 beforeAll(() => {

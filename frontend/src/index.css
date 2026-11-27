@@ -2,6 +2,7 @@
 @import "./Styles/tokens.css";
 @import "./shared/ui/Dialog.css";
 @import "./Styles/workspaces.css";
+@import "./Styles/care.css";
 @import "./Styles/publicPages.css";
 @import "tailwindcss";
 
@@ -121,9 +122,26 @@ a { color: inherit; text-decoration-thickness: 0.08em; text-underline-offset: 0.
 
 .ui-contrast-action { color: var(--color-accent-ink); }
 
-.ui-page {
-  background: var(--color-paper);
-  color: var(--color-ink);
+main {
+  --animal-pattern: url("/media/bg_phone_userhome.png");
+  --paper-wash: color-mix(in srgb, var(--color-paper) 40%, transparent);
+  background-color: var(--color-paper);
+  background-image: linear-gradient(var(--paper-wash), var(--paper-wash)), var(--animal-pattern);
+  background-position: center top;
+}
+
+.dark main {
+  --paper-wash: color-mix(in srgb, var(--color-paper) 54%, transparent);
+  background-color: white;
+  background-blend-mode: normal, difference;
+}
+
+@media (min-width: 48rem) {
+  main { --animal-pattern: url("/media/bg_tablet_userhome.png"); }
+}
+
+@media (min-width: 64rem) {
+  main { --animal-pattern: url("/media/bg_desktop_userhome.png"); }
 }
 
 .ui-panel,
@@ -249,12 +267,6 @@ fieldset:disabled {
 @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
 .animate-fade-in { animation: fade-in var(--duration-medium) var(--ease-out); }
 
-/* Compatibility layer for screens that will migrate in later Phase 4 checkpoints. */
-.bg-dogs-userhome-mobile,
-.dark .bg-dogs-userhome-mobile {
-  background-image: url("/media/bg_phone_userhome.png");
-}
-
 .themed-card-invL {
   box-shadow: var(--shadow-card);
 }
@@ -275,18 +287,6 @@ fieldset:disabled {
 
 .register-link { color: var(--color-accent); }
 
-@media (min-width: 48rem) {
-  .md\:bg-dogs-userhome-tablet {
-    background-image: url("/media/bg_tablet_userhome.png");
-  }
-}
-
-@media (min-width: 64rem) {
-  .lg\:bg-dogs-userhome-desktop {
-    background-image: url("/media/bg_desktop_userhome.png");
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     scroll-behavior: auto !important;
@@ -294,4 +294,29 @@ fieldset:disabled {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+.care-icon { width: 1.15rem; height: 1.15rem; flex: none; }
+.nav-paw {
+  display: grid; place-items: center; width: 2.45rem; height: 2.45rem;
+  border-radius: .85rem .85rem .85rem .28rem; background: var(--color-accent); color: var(--color-accent-ink);
+  transform: rotate(-5deg);
+}
+.nav-paw .care-icon { width: 1.5rem; height: 1.5rem; }
+.nav-wordmark { font: 700 1.65rem/1 Georgia, serif; letter-spacing: -.065em; }
+.nav-sound {
+  display: grid; place-items: center; width: 2.75rem; height: 2.75rem;
+  color: var(--color-accent); border-radius: var(--radius-pill);
+}
+.nav-sound:hover, .nav-sound[aria-pressed="true"] { background: var(--color-paper-3); }
+.ui-action, .ui-button {
+  border-radius: 1.15rem 1.15rem 1.15rem .35rem;
+  box-shadow: 0 2px 0 color-mix(in srgb, var(--color-ink) 30%, transparent);
+}
+.ui-action:active, .ui-button:active:not(:disabled) { transform: translateY(2px); box-shadow: none; }
+
+@media (hover: hover) and (pointer: fine) {
+  body { cursor: url("/media/paw-cursor.svg") 2 2, auto; }
+  a, button:not(:disabled), [role="tab"], select:not(:disabled), label[for], input[type="checkbox"]:enabled { cursor: pointer; }
+  input:not([type]), input:is([type="text"], [type="search"], [type="password"], [type="email"], [type="number"]), textarea { cursor: text; }
 }

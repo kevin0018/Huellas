@@ -17,8 +17,6 @@ vi.mock('../modules/auth/infra/AuthService', () => ({ AuthService: {
   isAuthenticated: () => true,
   getUser: () => ({ id: 1, name: 'María', lastName: 'García', email: 'maria@example.com', type: 'owner' }),
 } }));
-vi.mock('../Components/NavBar', () => ({ default: () => null }));
-vi.mock('../Components/footer', () => ({ default: () => null }));
 
 const feed: ReminderFeed = {
   preferences: { enabled: true, leadDays: 7 },

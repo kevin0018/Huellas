@@ -23,8 +23,6 @@ vi.mock('../composition/applicationServices', () => ({
   applicationServices: { pets: petRepository },
 }));
 
-vi.mock('../Components/NavBar', () => ({ default: () => null }));
-vi.mock('../Components/footer', () => ({ default: () => null }));
 vi.mock('../Components/GoBackButton', () => ({ default: () => null }));
 
 afterEach(() => {

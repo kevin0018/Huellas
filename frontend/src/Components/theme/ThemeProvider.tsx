@@ -4,7 +4,7 @@
  * - Applies `.dark` on <html> when theme is 'dark' (Tailwind v4 compatible).
 */
 
-import { createElement, useCallback, useMemo, useState, useEffect } from 'react';
+import { createElement, useCallback, useMemo, useState, useLayoutEffect } from 'react';
 import type { ReactNode } from 'react';
 import { ThemeContext, type Theme } from './ThemeContext';
 
@@ -45,7 +45,7 @@ const ThemeProvider: React.FC<ThemeProviderProps> = ({
   const [theme, setThemeState] = useState<Theme>(() => readInitialTheme(defaultTheme));
 
   // Sync the <html> class so Tailwind v4 `dark:` utilities respond globally
-  useEffect(() => {
+  useLayoutEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
   }, [theme]);
 

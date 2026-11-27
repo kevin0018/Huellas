@@ -12,7 +12,6 @@ import { expectNoCriticalAccessibilityViolations } from '../test/accessibility';
 import Login from './Login';
 import { ApiError } from '../shared/api/apiClient';
 
-vi.mock('../Components/NavBar', () => ({ default: () => <nav aria-label="Principal" /> }));
 vi.mock('../Components/GoBackButton', () => ({ default: () => null }));
 vi.mock('../features/auth/authActions', () => ({
   authActions: { login: vi.fn() },

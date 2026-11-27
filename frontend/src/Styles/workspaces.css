@@ -4,8 +4,6 @@
 .workspace-page {
   min-height: calc(100vh - var(--nav-height));
   padding: clamp(var(--space-6), 4vw, var(--space-12)) var(--page-gutter) var(--space-16);
-  background:
-    linear-gradient(180deg, var(--color-paper-2) 0, var(--color-paper) 15rem);
   color: var(--color-ink);
 }
 

@@ -3,28 +3,26 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import { afterEach, expect, it, vi } from 'vitest';
+import { afterEach, expect, it } from 'vitest';
 import { TestLanguageProvider, switchLanguage } from '../test/language';
 import { expectNoCriticalAccessibilityViolations } from '../test/accessibility';
 import HomePage from './HomePage';
 
-vi.mock('../Components/NavBar', () => ({ default: () => null }));
-vi.mock('../Components/footer', () => ({ default: () => null }));
 afterEach(() => { cleanup(); localStorage.clear(); });
 
 it('presents care steps and working calls to action in all three languages', async () => {
   const { container } = render(<MemoryRouter><TestLanguageProvider><HomePage /></TestLanguageProvider></MemoryRouter>);
   const user = userEvent.setup();
-  expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Ellos dejan huella.');
+  expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Su vida, en una cartilla.');
   expect(screen.getAllByRole('tab')).toHaveLength(3);
-  expect(screen.getByRole('link', { name: 'Empieza ahora' })).toHaveAttribute('href', '/register');
+  expect(screen.getByRole('link', { name: 'Crear mi primera cartilla' })).toHaveAttribute('href', '/register');
   expect(screen.getByRole('link', { name: 'Conoce al Equipo' })).toHaveAttribute('href', '/about');
   await user.click(screen.getByRole('tab', { name: 'Lo que viene' }));
   switchLanguage('English');
-  expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('They leave pawprints.');
+  expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Their life, in one book.');
   expect(screen.getByRole('heading', { name: 'Know what comes next' })).toBeInTheDocument();
   switchLanguage('Català');
-  expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Ells deixen petjada.');
+  expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('La seva vida, en una cartilla.');
   expect(screen.getByRole('heading', { name: 'Mira què ve després' })).toBeInTheDocument();
   await expectNoCriticalAccessibilityViolations(container);
 });

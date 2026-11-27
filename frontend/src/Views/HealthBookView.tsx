@@ -1,11 +1,9 @@
-/* Hallmark · pre-emit critique: P5 H5 E4 S5 R5 V5 · genre: playful · macrostructure: Narrative Workflow · theme: Huellas · enrichment: existing pet avatar · nav/footer: preserved · contrast: pass (40–41) · slop: 58/58 pass · mobile: pass (34, 49, 50–57) */
+import { PetBookNavigation } from '../Components/pet/PetBookNavigation';
 import { LocalizedError, messageFromError, translateMessage, type LocalizedMessage } from '../i18n/message';
 import type { TranslationKey } from '../i18n/dictionary';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import Footer from '../Components/footer';
 import { ArrowLeftIcon } from '../Components/GoBackButton';
-import NavBar from '../Components/NavBar';
 import { getPetImageUrl } from '../Components/pet/petImage';
 import { applicationServices } from '../composition/applicationServices.js';
 import { healthEventTypes, type HealthEvent, type HealthEventDraft, type HealthEventType } from '../modules/health/HealthEvent.js';
@@ -174,31 +172,32 @@ export default function HealthBookView() {
   };
 
   return <>
-    <NavBar />
-    <main className="relative min-h-[calc(100dvh-var(--nav-height))] overflow-x-clip bg-[var(--color-paper)] px-[var(--page-gutter)] py-8 text-[var(--color-ink)] sm:py-12">
-      <div aria-hidden="true" className="bg-dogs-userhome-mobile pointer-events-none fixed inset-0 bg-repeat opacity-45 dark:opacity-10 md:bg-dogs-userhome-tablet lg:bg-dogs-userhome-desktop" />
-      <div className="relative z-10 mx-auto w-full max-w-[var(--page-max)]">
-        <header className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-[var(--color-rule-strong)] pb-6 sm:gap-6">
-          <div className="min-w-0">
+    <main className="care-page">
+      <div className="care-shell">
+        <header className="care-hero care-hero--pet">
+          <div className="care-hero__copy">
             <nav aria-label={translate('breadcrumbNavigation')}>
-              <Link className="ui-hover-accent inline-flex min-h-11 items-center gap-2 rounded-[var(--radius-control)] pr-3 text-sm font-bold text-[var(--color-accent)] no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus)]" to={`/pets/${petId}`}>
-                <ArrowLeftIcon className="size-4" /> {translate('petProfile')}
+              <Link className="care-hero__back" to="/user-home">
+                <ArrowLeftIcon className="size-4" /> {translate('yourPets')}
               </Link>
             </nav>
-            <h1 className="mt-1 font-caprasimo text-[clamp(2.15rem,7vw,4.25rem)] leading-[1.05]">{translate('healthBookTitle')}</h1>
-            <p className="mt-2 max-w-[65ch] text-[var(--color-ink-soft)]">
+            <h1 className="care-hero__title">{translate('healthBookTitle')}</h1>
+            <p className="care-hero__description">
               {pet ? translate('healthBookDescriptionForPet', { pet: pet.name }) : translate('healthBookDescription')}
             </p>
-            <button aria-controls="health-event-form" aria-expanded={showForm} className="ui-button mt-5" onClick={showForm ? closeEventForm : startCreating} type="button">
+          </div>
+          {pet && <span aria-hidden="true" className="care-hero__portrait">
+            <img alt="" className="size-full object-cover" height="128" src={getPetImageUrl(pet)} width="128" />
+          </span>}
+          <div className="care-hero__actions">
+            <button aria-controls="health-event-form" aria-expanded={showForm} className="ui-button whitespace-nowrap" onClick={showForm ? closeEventForm : startCreating} type="button">
               <span aria-hidden="true">{showForm ? '×' : '+'}</span>{showForm ? (editingEventId === null ? translate('closeHealthForm') : translate('cancelHealthEdit')) : translate('addHealthEvent')}
             </button>
           </div>
-          {pet && <span aria-hidden="true" className="avatar-circle size-20 shrink-0 bg-[var(--color-surface-raised)] shadow-[var(--shadow-card)] sm:size-28 lg:size-32">
-            <img alt="" className="size-full object-cover" height="128" src={getPetImageUrl(pet)} width="128" />
-          </span>}
         </header>
+        {pet && <PetBookNavigation petId={pet.id} />}
 
-        {showForm && <form className="mt-8 grid scroll-mt-24 gap-5 rounded-[var(--radius-card)] border border-[var(--color-rule-strong)] bg-[var(--color-surface-raised)] p-5 shadow-[var(--shadow-card)] sm:p-6" id="health-event-form" onSubmit={submit} ref={eventFormRef}>
+        {showForm && <form className="grid scroll-mt-24 gap-5 rounded-[var(--radius-card)] border border-[var(--color-rule-strong)] bg-[var(--color-surface-raised)] p-5 shadow-[var(--shadow-card)] sm:p-6" id="health-event-form" onSubmit={submit} ref={eventFormRef}>
           <div><h2 className="font-nunito text-xl font-bold tracking-normal">{editingEventId === null ? translate('newHealthEvent') : translate('editHealthEvent')}</h2><p className="mt-1 max-w-[65ch] text-sm text-[var(--color-muted)]">{editingEventId === null ? translate('newHealthEventDescription') : translate('editHealthEventDescription')}</p></div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="form-field"><label className="form-label" htmlFor="health-event-type">{translate('healthType')}</label><select className="form-control" id="health-event-type" value={type} onChange={(event) => setType(event.target.value as HealthEventType)}>{healthEventTypes.map((value) => <option key={value} value={value}>{translate(healthEventTranslationKeys[value])}</option>)}</select></div>
@@ -217,24 +216,26 @@ export default function HealthBookView() {
           </div>
         </form>}
 
-        <div className="mt-10 grid min-w-0 gap-10 md:grid-cols-[15rem_minmax(0,1fr)] md:items-start md:gap-6 lg:grid-cols-[18rem_minmax(0,1fr)] lg:gap-10">
-          <section aria-labelledby="timeline-title" className="min-w-0 md:col-start-2 md:row-start-1">
-            <div className="mb-6 flex flex-wrap items-end justify-between gap-3 border-b border-[var(--color-rule-strong)] pb-4">
-              <div><h2 className="font-caprasimo text-[var(--text-xl)] leading-tight" id="timeline-title">{translate('healthHistory')}</h2><p className="mt-1 text-sm text-[var(--color-muted)]">{translate('healthHistoryDescription')}</p></div>
-              {!loading && !error && <p className="text-sm font-semibold tabular-nums text-[var(--color-ink-soft)]">{translate(events.length === 1 ? 'healthEventCountOne' : 'healthEventCountMany', { count: events.length })} · {translate(documentCount === 1 ? 'healthDocumentCountOne' : 'healthDocumentCountMany', { count: documentCount })}</p>}
+        <div className="care-book">
+          <section aria-labelledby="timeline-title" className="min-w-0">
+            <div className="care-section-heading care-history-heading">
+              <div><h2 className="care-section-title" id="timeline-title">{translate('healthHistory')}</h2><p className="care-section-description">{translate('healthHistoryDescription')}</p></div>
+              {!loading && !error && <p className="care-history-count">{translate(events.length === 1 ? 'healthEventCountOne' : 'healthEventCountMany', { count: events.length })} · {translate(documentCount === 1 ? 'healthDocumentCountOne' : 'healthDocumentCountMany', { count: documentCount })}</p>}
             </div>
             <AsyncContent empty={events.length === 0} emptyDescription={translate('noHealthEventsDescription')} emptyTitle={translate('noHealthEventsTitle')} error={translateMessage(error, translate)} loading={loading} loadingLabel={translate('loadingHealthHistory')} onRetry={load}>
-              <div className="grid gap-10">
-                {groupedEvents.map(([year, yearEvents]) => <section aria-labelledby={`health-year-${year}`} className="grid min-w-0 gap-4 sm:grid-cols-[5rem_minmax(0,1fr)] sm:gap-6" key={year}>
-                  <h3 className="whitespace-nowrap font-caprasimo text-2xl text-[var(--color-accent)] sm:sticky sm:top-24 sm:h-fit" id={`health-year-${year}`}>{year}</h3>
-                  <div className="relative grid min-w-0 gap-5 border-l border-[var(--color-rule-strong)] pl-5 sm:pl-7">
-                    {yearEvents.map((healthEvent) => <article className="relative min-w-0 rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-surface-raised)] p-5 shadow-[var(--shadow-card)] sm:p-6" key={healthEvent.id}>
-                      <span aria-hidden="true" className="absolute -left-[1.625rem] top-7 size-3 rounded-full border-2 border-[var(--color-paper)] bg-[var(--color-accent)] sm:-left-[2.125rem]" />
+              <div className="care-timeline">
+                {groupedEvents.map(([year, yearEvents]) => <section aria-labelledby={`health-year-${year}`} className="care-timeline__year" key={year}>
+                  <h3 className="care-timeline__year-label" id={`health-year-${year}`}>{year}</h3>
+                  <div className="care-timeline__entries">
+                    {yearEvents.map((healthEvent) => <article className="care-entry" key={healthEvent.id}>
                       <div className="flex min-w-0 flex-wrap items-start justify-between gap-3"><div className="min-w-0">
-                        <p className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--color-accent)]">{translate(healthEventTranslationKeys[healthEvent.type])}</p>
+                        <div className="care-entry__meta">
+                          <time dateTime={healthEvent.occurredAt}>{formatDate(healthEvent.occurredAt, locale)}</time>
+                          <span>{translate(healthEventTranslationKeys[healthEvent.type])}</span>
+                        </div>
                         <h4 className="mt-1 break-words font-nunito text-xl font-bold tracking-normal">{healthEvent.title}</h4>
-                        <p className="mt-1 text-sm text-[var(--color-muted)]"><time dateTime={healthEvent.occurredAt}>{formatDate(healthEvent.occurredAt, locale)}</time>{' · '}{healthEvent.provider || translate('recordedAtHome')}</p>
-                      </div><span className={`inline-flex min-h-8 items-center rounded-[var(--radius-pill)] border px-3 text-xs font-bold ${healthEvent.verification === 'VERIFIED' ? 'border-[var(--color-success)] text-[var(--color-success)]' : 'border-[var(--color-warning)] text-[var(--color-warning)]'}`}>{healthEvent.verification === 'VERIFIED' ? translate('healthVerified') : translate('healthOwnerReported')}</span></div>
+                        <p className="mt-1 text-sm text-[var(--color-muted)]">{healthEvent.provider || translate('recordedAtHome')}</p>
+                      </div><span className="care-status" data-status={healthEvent.verification === 'VERIFIED' ? 'DONE' : 'ALL'}>{healthEvent.verification === 'VERIFIED' ? translate('healthVerified') : translate('healthOwnerReported')}</span></div>
                       {(healthEvent.result || healthEvent.dose || healthEvent.lotNumber || healthEvent.expiresAt) && <dl className="mt-5 grid gap-x-5 gap-y-3 border-y border-[var(--color-rule)] py-4 text-sm sm:grid-cols-2">
                         {healthEvent.result && <div><dt className="font-bold text-[var(--color-muted)]">{translate('healthResult')}</dt><dd className="mt-1 break-words">{healthEvent.result}</dd></div>}
                         {healthEvent.dose && <div><dt className="font-bold text-[var(--color-muted)]">{translate('healthDose')}</dt><dd className="mt-1 break-words">{healthEvent.dose}</dd></div>}
@@ -263,7 +264,7 @@ export default function HealthBookView() {
             </AsyncContent>
           </section>
 
-          <aside aria-labelledby="summary-title" className="rounded-[var(--radius-card)] border border-[var(--color-rule-strong)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-card)] md:col-start-1 md:row-start-1 md:sticky md:top-24">
+          <aside aria-labelledby="summary-title" className="care-book__summary">
             <h2 className="font-nunito text-xl font-bold tracking-normal" id="summary-title">{translate('prepareHealthSummary')}</h2>
             <p className="mt-1 text-sm leading-5 text-[var(--color-muted)]">{translate('prepareHealthSummaryDescription')}</p>
             <fieldset className="form-choice-set mt-5"><legend className="form-legend">{translate('healthSummarySections')}</legend><div className="grid gap-2">
@@ -280,6 +281,5 @@ export default function HealthBookView() {
         </div>
       </div>
     </main>
-    <Footer />
   </>;
 }

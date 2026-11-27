@@ -1,6 +1,4 @@
 import { Link } from 'react-router-dom';
-import Footer from '../Components/footer';
-import NavBar from '../Components/NavBar';
 import { useTranslation } from '../i18n/hooks/hook';
 
 export default function TermsView() {
@@ -15,7 +13,6 @@ export default function TermsView() {
 
   return (
     <>
-      <NavBar />
       <main className="workspace-page">
         <article className="workspace-shell max-w-[52rem]">
           <header className="workspace-header workspace-header--primary">
@@ -39,7 +36,6 @@ export default function TermsView() {
           </div>
         </article>
       </main>
-      <Footer />
     </>
   );
 }

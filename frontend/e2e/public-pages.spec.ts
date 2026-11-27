@@ -67,7 +67,7 @@ for (const width of [320, 375, 414, 768, 1440]) {
 test('home links lead to registration and the team without a full-page navigation', async ({ page }) => {
   await page.goto('/');
   await page.evaluate(() => { document.documentElement.dataset.navigationProbe = 'same-document'; });
-  await page.getByRole('link', { name: 'Empieza ahora', exact: true }).click();
+  await page.getByRole('link', { name: 'Crear mi primera cartilla', exact: true }).click();
   await expect(page).toHaveURL(/\/register$/);
   await expect(page.locator('html')).toHaveAttribute('data-navigation-probe', 'same-document');
   await page.goto('/');
@@ -76,4 +76,58 @@ test('home links lead to registration and the team without a full-page navigatio
   await expect(page.getByText('Kevin Hernandez', { exact: true })).toBeVisible();
   await page.reload();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Más tiempo juntos. Más cuidado.');
+});
+
+test('interface sounds are opt-in and follow the user across pages and reloads', async ({ page }) => {
+  await page.addInitScript(() => {
+    const start = OscillatorNode.prototype.start;
+    OscillatorNode.prototype.start = function (when) {
+      document.documentElement.dataset.chimes = String(Number(document.documentElement.dataset.chimes || 0) + 1);
+      start.call(this, when);
+    };
+  });
+  await page.goto('/');
+  const sound = page.getByRole('button', { name: 'Sonidos de la interfaz' });
+  const chimes = () => page.evaluate(() => Number(document.documentElement.dataset.chimes || 0));
+  await expect(sound).toHaveAttribute('aria-pressed', 'false');
+  await page.getByRole('tab', { name: 'Su cartilla' }).click();
+  expect(await chimes()).toBe(0);
+  await sound.click();
+  await expect.poll(chimes).toBe(1);
+  await page.getByRole('tab', { name: 'Lo que viene' }).click();
+  await expect.poll(chimes).toBe(2);
+  await page.getByRole('link', { name: 'Crear mi primera cartilla' }).click();
+  await expect(page).toHaveURL(/\/register$/);
+  await expect(sound).toHaveAttribute('aria-pressed', 'true');
+  await page.reload();
+  await sound.click();
+  await expect(sound).toHaveAttribute('aria-pressed', 'false');
+  expect(await chimes()).toBe(0);
+});
+
+test('keeps the theme thumb evenly inset at both ends and preserves keyboard selection', async ({ page }) => {
+  await page.goto('/');
+  const control = page.getByRole('switch', { name: 'Modo oscuro' });
+  const aligned = (dark: boolean) => control.evaluate((button, night) => {
+    const track = button.querySelector('.theme-switch__track')!.getBoundingClientRect();
+    const thumb = button.querySelector('.theme-switch__thumb')!.getBoundingClientRect();
+    const above = thumb.top - track.top;
+    const below = track.bottom - thumb.bottom;
+    const end = night ? track.right - thumb.right : thumb.left - track.left;
+    return above > 0 && Math.abs(above - below) < 1 && Math.abs(above - end) < 1;
+  }, dark);
+
+  await expect(control).toHaveAttribute('aria-checked', 'false');
+  expect(await aligned(false)).toBe(true);
+  await control.focus();
+  await page.keyboard.press('Space');
+  await expect(control).toHaveAttribute('aria-checked', 'true');
+  await expect.poll(() => aligned(true)).toBe(true);
+  await page.reload();
+  await expect(control).toHaveAttribute('aria-checked', 'true');
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await control.click();
+  await expect(control).toHaveAttribute('aria-checked', 'false');
+  expect(await aligned(false)).toBe(true);
+  await expect(page.locator('html')).not.toHaveAttribute('data-theme-reveal', '');
 });

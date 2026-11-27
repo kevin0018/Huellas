@@ -2,13 +2,11 @@
 
 import '@testing-library/jest-dom/vitest';
 import { cleanup, render, screen } from '@testing-library/react';
-import { afterEach, expect, it, vi } from 'vitest';
+import { afterEach, expect, it } from 'vitest';
 import { TestLanguageProvider, switchLanguage } from '../test/language';
 import AboutUs from './AboutUs';
 import { expectNoCriticalAccessibilityViolations } from '../test/accessibility';
 
-vi.mock('../Components/NavBar', () => ({ default: () => null }));
-vi.mock('../Components/footer', () => ({ default: () => null }));
 afterEach(() => { cleanup(); localStorage.clear(); });
 
 it('switches the manifesto and team roles in place while preserving names', () => {

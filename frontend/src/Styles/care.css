@@ -1,0 +1,628 @@
+/* Cloth-bound health books, pet portraits and dated care records. */
+.care-page {
+  --care-cover: var(--art-book-dark);
+  --care-cover-ink: var(--art-paper);
+  --care-cover-muted: #e0e8d5;
+  --care-cover-rule: #849981;
+  --care-cover-focus: var(--art-gold);
+  --care-radius: 1.25rem;
+  min-height: calc(100dvh - var(--nav-height));
+  padding: clamp(1.25rem, 4vw, 3rem) var(--page-gutter) 4rem;
+}
+
+.care-shell {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 2.5rem);
+  width: 100%;
+  max-width: var(--page-max);
+  margin-inline: auto;
+}
+
+.care-hero {
+  display: grid;
+  min-width: 0;
+  align-items: center;
+  gap: 1rem;
+  padding: clamp(1.125rem, 4vw, 3rem);
+  border: 1px solid var(--care-cover-rule);
+  border-radius: var(--care-radius);
+  outline: 1px dashed var(--care-cover-rule);
+  outline-offset: -.5rem;
+  box-shadow: 0 4px 0 -1px var(--color-surface), 0 5px 0 var(--color-rule-strong);
+  background: var(--care-cover);
+  color: var(--care-cover-ink);
+}
+
+.care-hero--pet {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.care-hero__copy { min-width: 0; }
+
+.care-hero__title {
+  margin: 0;
+  color: var(--care-cover-ink);
+  font: 400 clamp(1.8rem, 5.2vw, 4rem) / 1.04 var(--font-display);
+  letter-spacing: -0.035em;
+}
+
+.care-hero--dashboard .care-hero__title { font-size: clamp(2.25rem, 6.5vw, 4.75rem); }
+
+.care-hero__description {
+  max-width: 49ch;
+  margin-top: .65rem;
+  color: var(--care-cover-muted);
+  overflow-wrap: anywhere;
+}
+
+.care-hero__label {
+  margin-bottom: .625rem;
+  color: var(--care-cover-muted);
+  font-size: .8125rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.care-hero__back {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: .5rem;
+  color: var(--care-cover-ink);
+  font-size: .875rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.care-hero__back {
+  margin-bottom: .25rem;
+  text-decoration: none;
+}
+
+.care-hero__back:hover { color: var(--care-cover-focus); }
+
+.care-hero :focus-visible { outline-color: var(--care-cover-focus); }
+
+.care-hero__portrait {
+  display: block;
+  width: clamp(3.25rem, 16vw, 9.5rem);
+  aspect-ratio: 1;
+  padding: .25rem .25rem .65rem;
+  background: var(--art-paper);
+  transform: rotate(3deg);
+  border-radius: .25rem;
+}
+
+.care-hero__portrait img { border-radius: inherit; }
+.care-hero__companion { width: clamp(4rem, 11vw, 10rem); justify-self: end; }
+.care-hero--dashboard { grid-template-columns: minmax(0, 1fr) auto; }
+.care-hero--dashboard .care-today { grid-column: 1/-1; }
+
+.care-hero__actions {
+  display: flex;
+  grid-column: 1 / -1;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .25rem 1.125rem;
+}
+
+.care-hero .ui-button {
+  border-color: var(--care-cover-ink);
+  background: var(--care-cover-ink);
+  color: var(--care-cover);
+}
+
+.care-hero .ui-button:hover,
+.care-hero .ui-button:active {
+  border-color: var(--care-cover-focus);
+  background: var(--care-cover-focus);
+  color: var(--care-cover);
+}
+
+.care-today {
+  min-width: 0;
+  padding: clamp(.875rem, 2.5vw, 1.625rem);
+  border: 1px solid var(--color-rule);
+  border-radius: calc(var(--care-radius) - .25rem);
+  background: var(--color-surface-raised);
+  color: var(--color-ink);
+}
+
+.care-today__label {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin-bottom: .5rem;
+  color: var(--color-success);
+  font-size: .8125rem;
+  font-weight: 700;
+}
+
+.care-today__label span {
+  display: grid;
+  width: 1.5rem;
+  aspect-ratio: 1;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-success-soft);
+}
+
+.care-today[data-attention="true"] .care-today__label { color: var(--color-warning); }
+.care-today[data-attention="true"] .care-today__label span { background: var(--color-warning-soft); }
+
+.care-today h2 { font-size: clamp(1.1875rem, 2.6vw, 1.6rem); }
+
+.care-today__description {
+  margin-top: .45rem;
+  color: var(--color-ink-soft);
+  font-size: .875rem;
+  line-height: 1.45;
+}
+
+.care-today__link {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: .5rem;
+  margin-top: .375rem;
+  color: var(--color-accent);
+  font-size: .875rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.care-today :focus-visible { outline-color: var(--color-focus); }
+
+.care-dashboard,
+.care-plan {
+  display: grid;
+  min-width: 0;
+  gap: clamp(2rem, 5vw, 3.5rem);
+}
+
+.care-section-heading {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: .875rem 1.5rem;
+}
+
+.care-section-heading > div { min-width: 0; }
+
+.care-section-title {
+  font: 400 clamp(1.5rem, 3.3vw, 2.4rem) / 1.1 var(--font-display);
+}
+
+.care-section-description {
+  max-width: 65ch;
+  margin-top: .375rem;
+  color: var(--color-ink-soft);
+  font-size: .875rem;
+  line-height: 1.5;
+}
+
+.care-empty {
+  padding: 1rem;
+  border: 1px dashed var(--color-rule-strong);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  color: var(--color-ink-soft);
+  font-size: .875rem;
+}
+
+.care-family > .care-empty { margin-top: 1rem; }
+
+.care-pet-grid {
+  display: grid;
+  gap: .875rem;
+  margin-top: 1rem;
+}
+
+.care-pet-file {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--color-rule-strong);
+  border-top: .3rem solid var(--color-accent);
+  border-radius: .45rem 1rem 1rem .45rem;
+  background: var(--color-surface-raised);
+  box-shadow: 0 3px 0 var(--color-paper-2);
+}
+.care-pet-book {
+  display: flex; gap: .5rem; align-items: center; min-height: 2.75rem;
+  margin-top: auto; padding: .5rem .8rem; background: var(--color-paper-3);
+  color: var(--color-accent); font-weight: 700; text-decoration: none; font-size: .875rem;
+}
+.care-pet-book .care-icon:last-child { margin-inline-start: auto; }
+.care-pet-book:hover { text-decoration: underline; }
+.care-pet-file a:focus-visible { outline-offset: -3px; }
+.care-pet-card {
+  display: grid;
+  min-height: 5.25rem;
+  grid-template-columns: minmax(0, 4rem) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: .75rem;
+  padding: .5rem .75rem .5rem .5rem;
+  color: var(--color-ink);
+  text-decoration: none;
+}
+
+.care-pet-card__photo {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: var(--radius-control);
+  background: var(--color-paper-2);
+}
+
+.care-pet-card__photo img {
+  width: 100%;
+  height: 100%;
+  padding: 3.5%;
+  object-fit: contain;
+}
+
+.care-pet-card__photo[data-placeholder="true"] img {
+  padding: .25rem;
+}
+
+.care-pet-card__copy {
+  display: grid;
+  min-width: 0;
+  gap: .125rem;
+}
+
+.care-pet-card__name,
+.care-pet-card__type {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.care-pet-card__name { font: 400 1.4rem / 1.25 var(--font-display); }
+.care-pet-card__type { color: var(--color-ink-soft); font-size: .8125rem; }
+.care-pet-card__arrow { width: 1.25rem; color: var(--color-accent); }
+
+.care-agenda {
+  padding-top: 1.375rem;
+  border-top: 1px solid var(--color-rule-strong);
+}
+
+.care-reminder-settings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1.25rem;
+  color: var(--color-ink-soft);
+  font-size: .875rem;
+}
+
+.care-reminder-list {
+  display: grid;
+  gap: .875rem;
+}
+
+.care-reminder {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  padding: 1.125rem;
+  border: 1px solid var(--color-rule);
+  border-inline-start-width: .25rem;
+  border-radius: var(--radius-card);
+  background: var(--color-surface-raised);
+  overflow-wrap: anywhere;
+}
+
+.care-reminder[data-attention="true"] {
+  --care-status-ink: var(--color-warning);
+  --care-status-wash: var(--color-warning-soft);
+  border-inline-start-color: var(--care-status-ink);
+}
+
+.care-reminder__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin-top: auto;
+  padding-top: 1rem;
+}
+
+.pet-book-nav {
+  display: flex;
+  gap: .35rem;
+  padding-inline: .25rem;
+  border-bottom: 1px solid var(--color-rule-strong);
+  margin-top: -.5rem;
+}
+.pet-book-nav a {
+  display: flex; align-items: center; justify-content: center; gap: .5rem;
+  min-width: 0; min-height: 2.85rem; padding: .65rem 1.25rem;
+  border: 1px solid var(--color-rule); border-bottom: 0;
+  border-radius: .75rem 1.3rem 0 0;
+  background: var(--color-paper-2); color: var(--color-ink); font-size: .9rem;
+  font-weight: 700; text-decoration: none;
+}
+.pet-book-nav a:nth-child(2) { background: var(--folder-peach); }
+.pet-book-nav a:nth-child(3) { background: var(--folder-lilac); }
+.pet-book-nav a[aria-current="page"] { background: var(--color-accent); color: var(--color-accent-ink); }
+.pet-book-nav a:hover { text-decoration: underline; }
+.pet-book-nav a:focus-visible { outline-offset: -4px; outline-color: currentColor; }
+@media (max-width: 37rem) {
+  .pet-book-nav a { flex: 1; flex-direction: column; gap: .2rem; padding: .6rem .25rem; text-align: center; font-size: .8rem; }
+}
+
+.care-book {
+  display: grid;
+  min-width: 0;
+  gap: 2rem;
+}
+
+.care-history-heading,
+.care-plan__heading {
+  padding-bottom: .9rem;
+  border-bottom: 1px solid var(--color-rule);
+}
+
+.care-history-count {
+  width: fit-content;
+  padding: .25rem .625rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-paper-3);
+  color: var(--color-ink-soft);
+  font-size: .8125rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.care-timeline {
+  display: grid;
+  gap: 1.625rem;
+  margin-top: 1.25rem;
+}
+
+.care-timeline__year { display: grid; min-width: 0; gap: .75rem; }
+
+.care-timeline__year-label {
+  width: max-content;
+  padding: .375rem .625rem;
+  border-radius: var(--radius-control);
+  background: var(--color-paper-3);
+  color: var(--color-accent);
+  font: 400 1rem / 1.4 var(--font-display);
+  letter-spacing: 0;
+}
+
+.care-timeline__entries {
+  display: grid;
+  min-width: 0;
+  gap: .875rem;
+  margin-inline-start: .375rem;
+  padding-inline-start: .75rem;
+  border-inline-start: 1px solid var(--color-rule-strong);
+}
+
+.care-entry {
+  position: relative;
+  min-width: 0;
+  padding: clamp(.875rem, 3vw, 1.5rem);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-card);
+  background: var(--color-surface-raised);
+  overflow-wrap: anywhere;
+}
+
+.care-entry::before {
+  position: absolute;
+  inset: 1.125rem auto auto -1.125rem;
+  width: .625rem;
+  aspect-ratio: 1;
+  border: 2px solid var(--color-paper);
+  border-radius: 50%;
+  background: var(--color-accent);
+  content: "";
+}
+
+.care-entry__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .25rem .625rem;
+  margin-bottom: .375rem;
+  color: var(--color-accent);
+  font-size: .8125rem;
+  font-weight: 700;
+}
+
+.care-entry__meta time {
+  padding: .125rem .5rem;
+  border-radius: var(--radius-control);
+  background: var(--color-paper-3);
+}
+
+.care-entry label:focus-within {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+.care-book__summary {
+  min-width: 0;
+  padding: clamp(1rem, 3vw, 1.5rem);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--care-radius);
+  background: var(--color-paper-2);
+}
+
+.care-plan { gap: 1.75rem; }
+
+.care-plan__overview {
+  display: grid;
+  min-width: 0;
+  gap: .75rem;
+}
+
+.care-plan__filters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .5rem;
+}
+
+.care-plan__note { color: var(--color-ink-soft); font-size: .8125rem; }
+
+[data-status="MISSING"] { --care-status-ink: var(--color-error); --care-status-wash: var(--color-error-soft); }
+[data-status="UPCOMING"] { --care-status-ink: var(--color-warning); --care-status-wash: var(--color-warning-soft); }
+[data-status="DONE"] { --care-status-ink: var(--color-success); --care-status-wash: var(--color-success-soft); }
+[data-status="ALL"] { --care-status-ink: var(--color-accent); --care-status-wash: var(--color-paper-3); }
+
+.care-plan-filter {
+  display: grid;
+  min-height: 4.75rem;
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-content: center;
+  align-items: center;
+  justify-items: start;
+  gap: .125rem .5rem;
+  padding: .5rem .75rem;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-card);
+  background: var(--color-surface-raised);
+  color: var(--color-ink);
+  text-align: start;
+  cursor: pointer;
+}
+
+.care-plan-filter[aria-pressed="true"] {
+  border-color: var(--care-status-ink);
+  background: var(--care-status-wash);
+  box-shadow: inset 0 -.1875rem var(--care-status-ink);
+}
+
+.care-plan-filter:disabled { color: var(--color-muted); cursor: default; }
+.care-plan-filter:enabled:hover { border-color: var(--care-status-ink); }
+.care-plan-filter:enabled:active { background: var(--care-status-wash); }
+
+.care-plan-filter__icon {
+  display: grid;
+  width: 1.5rem;
+  aspect-ratio: 1;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--care-status-wash);
+  color: var(--care-status-ink);
+  font-weight: 700;
+}
+
+.care-plan-filter__count {
+  color: var(--care-status-ink);
+  font: 400 clamp(1.5rem, 3vw, 2.25rem) / 1 var(--font-display);
+  font-variant-numeric: tabular-nums;
+}
+
+.care-plan-filter:disabled :is(.care-plan-filter__icon, .care-plan-filter__count) { color: var(--color-muted); }
+
+.care-plan-filter__label {
+  grid-column: 1 / -1;
+  font-size: .875rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.care-plan__entries {
+  display: grid;
+  gap: .875rem;
+  margin-top: .875rem;
+}
+
+.care-procedure {
+  display: grid;
+  min-width: 0;
+  align-items: start;
+  gap: .5rem 1.5rem;
+  padding: clamp(1rem, 3vw, 1.625rem);
+  border: 1px solid var(--color-rule);
+  border-inline-start: .25rem solid var(--care-status-ink);
+  border-radius: var(--radius-card);
+  background: var(--color-surface-raised);
+  overflow-wrap: anywhere;
+}
+
+.care-procedure__heading {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem .875rem;
+}
+
+.care-status {
+  display: inline-flex;
+  min-height: 1.75rem;
+  width: fit-content;
+  align-items: center;
+  gap: .375rem;
+  padding: .125rem .625rem;
+  border-radius: var(--radius-pill);
+  background: var(--care-status-wash);
+  color: var(--care-status-ink);
+  font-size: .75rem;
+  font-weight: 700;
+}
+
+.care-procedure__details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 8.5rem), 1fr));
+  gap: .875rem;
+  margin-top: 1rem;
+  padding: .75rem;
+  border-radius: var(--radius-control);
+  background: var(--color-paper-2);
+  font-size: .875rem;
+}
+
+@media (min-width: 35rem) {
+  .care-pet-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .care-plan__filters { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .care-plan-filter { min-height: 5.625rem; padding: .625rem 1rem; }
+}
+
+@media (min-width: 48rem) {
+  .care-hero--dashboard { grid-template-columns: minmax(0, 1fr) auto minmax(14rem, .7fr); }
+  .care-hero--dashboard .care-today { grid-column: auto; }
+  .care-hero__actions { grid-column: 1; }
+  .care-hero:has(.care-hero__actions) .care-hero__portrait { grid-column: 2; grid-row: 1 / span 2; }
+  .care-pet-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .care-reminder-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .care-procedure { grid-template-columns: minmax(0, 1fr) auto; }
+  .care-timeline__year { grid-template-columns: 4rem minmax(0, 1fr); align-items: start; }
+  .care-timeline__year-label { position: sticky; top: calc(var(--nav-height) + .75rem); }
+}
+
+@media (min-width: 60rem) {
+  .care-pet-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+  .care-pet-card {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: .625rem;
+    padding: .5rem;
+  }
+
+  .care-pet-card__photo { grid-column: 1 / -1; aspect-ratio: 5 / 4; }
+  .care-pet-card__copy { margin: 0 0 .25rem .375rem; }
+  .care-pet-card__arrow { margin-inline-end: .375rem; }
+
+  .care-book { grid-template-columns: minmax(0, 1fr) minmax(16rem, 19rem); align-items: start; }
+  .care-book__summary { position: sticky; top: calc(var(--nav-height) + 1rem); }
+}
+
+@media (max-width: 35rem) {
+  .care-hero--dashboard { position: relative; display: block; }
+  .care-hero--dashboard .care-hero__label { padding-inline-end: 3rem; }
+  .care-hero--dashboard .care-hero__title { padding-inline-end: 2.5rem; font-size: clamp(1.85rem, 8vw, 2.75rem); }
+  .care-hero__companion { position: absolute; width: 3.4rem; top: 1.15rem; right: .85rem; }
+  .care-hero--dashboard .care-today { margin-top: 1rem; }
+  .care-today__description { display: none; }
+}
