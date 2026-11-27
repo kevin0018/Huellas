@@ -17,3 +17,5 @@ preventive plan. The preventive catalog retains its stored Spanish procedure nam
 | Appointments | [Spanish](appointments-es.jpg) | [English](appointments-en.jpg) |
 
 [Compact Spanish home cover (720 × 900)](home-compact-es.png)
+
+[Video walkthrough of the current interface, with Juan’s demo account](../media/huellas-tour.mp4)

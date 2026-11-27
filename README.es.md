@@ -25,20 +25,20 @@ permiten ejecutar la aplicación en local.
 - Enlaces de resumen de salud con caducidad y revocación; las secciones y el intervalo de fechas seleccionados determinan qué se comparte.
 - Capacidades de propietario y voluntario, tablón comunitario y chat autenticado con Socket.IO.
 - Interfaz en español, inglés y catalán, fechas localizadas, temas claro/oscuro, diálogos accesibles con teclado y soporte de movimiento reducido.
-- Controles para mostrar contraseñas con Tinta, un hurón que sigue el cursor y reacciona a la escritura.
+- Las mascotas animadas del inicio de sesión y del registro reaccionan al foco y a la visibilidad de la contraseña.
 
 ## Interfaz
 
 [![Ver el tour actual de Huellas con Juan y sus mascotas](docs/huellas-tour-preview.png)](docs/media/huellas-tour.mp4)
 
-[Ver el recorrido guiado (MP4 · 3:10 · 12,2 MB)](docs/media/huellas-tour.mp4): Inicio, Nosotros,
-el gato del login, panel de cuidados, perfil de mascota, cartilla, plan preventivo,
-citas, registro, perfil de usuario, comunidad y chat. Grabado en español, con
-temas claro/oscuro y cambios reales a inglés y catalán.
+[Ver el recorrido por la interfaz actual (MP4)](docs/media/huellas-tour.mp4). El
+vídeo muestra la portada ilustrada, las mascotas del inicio de sesión y el
+registro, y la agenda de Juan. También recorre el perfil y la cartilla de
+Rocky, los filtros del plan preventivo y las próximas citas. Al final se ve el
+modo oscuro y el cambio de idioma a inglés.
 
-La grabación usa la cuenta local de Juan y las fotos existentes de sus mascotas.
-Muestra la aplicación en funcionamiento; el texto visible en el campo de contraseña
-es solo un ejemplo para enseñar el gato y la contraseña de la cuenta queda oculta.
+La grabación usa la cuenta local de demostración de Juan. La contraseña
+visible durante la animación es un ejemplo.
 
 [Cartilla en español](docs/huellas-preview-es.png) · [Health record in English](docs/huellas-preview.png) · [Todas las capturas del portfolio](docs/portfolio/README.md) · [Vídeo del prototipo original](docs/media/legacy-demo.mp4)
 

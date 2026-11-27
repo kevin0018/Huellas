@@ -24,20 +24,20 @@ demo URL is configured in this repository; the instructions below run the app lo
 - Health summary links with expiry and revocation; selected sections and date ranges control what is shared.
 - Owner and volunteer capabilities, a community board and authenticated Socket.IO chat.
 - English, Spanish and Catalan UI, localized dates, light/dark themes, keyboard-accessible dialogs and reduced-motion support.
-- Password visibility controls with Tinta, a ferret mascot that follows the cursor and reacts to password entry.
+- Animated pets on the sign-in and registration forms react to field focus and password visibility.
 
 ## Interface
 
 [![Watch the current Huellas tour with Juan and his pets](docs/huellas-tour-preview.png)](docs/media/huellas-tour.mp4)
 
-[Watch the guided tour (MP4 · 3:10 · 12.2 MB)](docs/media/huellas-tour.mp4): Home, About, the
-interactive login cat, care dashboard, pet profile, health book, preventive plan,
-appointments, registration, user profile, community and chat. Recorded in Spanish,
-with light/dark themes and live switches to English and Catalan.
+[Watch the current walkthrough (MP4)](docs/media/huellas-tour.mp4). Explore the
+illustrated home page, the animated sign-in and registration forms, and Juan’s
+care dashboard. Open Rocky’s profile and health book, filter the preventive
+plan, and check upcoming appointments. The recording also shows dark mode and
+switching the interface to English.
 
-The recording uses Juan's local account and the pets' existing photos. It shows
-the running application; the visible password example belongs only to the cat
-demonstration, and the account password remains hidden.
+The walkthrough uses Juan’s seeded local demo account. The password shown
+during the animation uses a sample value.
 
 [Health record in English](docs/huellas-preview.png) · [Cartilla en español](docs/huellas-preview-es.png) · [All portfolio screenshots](docs/portfolio/README.md) · [Original prototype video](docs/media/legacy-demo.mp4)
 
