@@ -12,7 +12,7 @@ mascota en un solo lugar, con una interfaz en español, inglés y catalán.
 
 [![Cartilla de Huellas: historial, documentos privados y controles para compartir](docs/huellas-preview-es.png)](docs/huellas-preview-es.png)
 
-Captura real de la aplicación con una cuenta y una mascota ficticias. El
+Captura de la cartilla de Rocky con la cuenta local de demostración de Juan. El
 repositorio no configura una URL de demo pública; las instrucciones de abajo
 permiten ejecutar la aplicación en local.
 
@@ -40,12 +40,10 @@ La grabación usa la cuenta local de Juan y las fotos existentes de sus mascotas
 Muestra la aplicación en funcionamiento; el texto visible en el campo de contraseña
 es solo un ejemplo para enseñar el gato y la contraseña de la cuenta queda oculta.
 
-[Cartilla en español](docs/huellas-preview-es.png) · [Health record in English](docs/huellas-preview.png) · [Vídeo del prototipo original](docs/media/legacy-demo.mp4)
+[Cartilla en español](docs/huellas-preview-es.png) · [Health record in English](docs/huellas-preview.png) · [Todas las capturas del portfolio](docs/portfolio/README.md) · [Vídeo del prototipo original](docs/media/legacy-demo.mp4)
 
 El vídeo del prototipo original se conserva como referencia histórica.
-Las capturas de la cartilla proceden de una compilación de producción del frontend conectada
-a la API real con datos de demostración desechables; los registros médicos
-son ficticios.
+Las capturas muestran la aplicación local y los datos de demostración de Juan y sus mascotas.
 
 ## Arquitectura
 

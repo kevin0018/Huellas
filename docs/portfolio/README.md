@@ -1,9 +1,9 @@
 # Huellas portfolio screenshots
 
 Captured at 1440 × 900 in Spanish and English from Huellas at commit
-`18cb48f`, using the local React frontend, API and MySQL with a disposable
-demonstration account. The pet records, appointments and attached report are
-fictional. The preventive catalog retains its stored Spanish procedure names.
+`18cb48f`, using the local React frontend, API and MySQL. The signed-in views show Juan’s
+local demo account from the Huellas tour, including Rocky’s health book and
+preventive plan. The preventive catalog retains its stored Spanish procedure names.
 
 | View | Español | English |
 | --- | --- | --- |

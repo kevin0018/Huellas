@@ -12,7 +12,7 @@ in one place, with an interface in English, Spanish and Catalan.
 
 [![Huellas health record: event history, private documents and sharing controls](docs/huellas-preview.png)](docs/huellas-preview.png)
 
-Actual application capture with a fictional account and pet. No public hosted
+Application screenshot from Juan’s local demo account, showing Rocky’s health book. No public hosted
 demo URL is configured in this repository; the instructions below run the app locally.
 
 ## Highlights
@@ -39,11 +39,10 @@ The recording uses Juan's local account and the pets' existing photos. It shows
 the running application; the visible password example belongs only to the cat
 demonstration, and the account password remains hidden.
 
-[Health record in English](docs/huellas-preview.png) · [Cartilla en español](docs/huellas-preview-es.png) · [Original prototype video](docs/media/legacy-demo.mp4)
+[Health record in English](docs/huellas-preview.png) · [Cartilla en español](docs/huellas-preview-es.png) · [All portfolio screenshots](docs/portfolio/README.md) · [Original prototype video](docs/media/legacy-demo.mp4)
 
 The original prototype video is kept as a historical reference.
-The health-record screenshots were captured from a production frontend build against the real
-API using disposable demonstration data; their medical entries are fictional.
+The screenshots show the local application and the seeded records for Juan and his pets.
 
 ## Architecture
 
