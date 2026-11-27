@@ -3,9 +3,7 @@ import { LocalizedError, messageFromError, translateMessage, type LocalizedMessa
 import type { TranslationKey } from '../i18n/dictionary';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import Footer from '../Components/footer';
 import { ArrowLeftIcon } from '../Components/GoBackButton';
-import NavBar from '../Components/NavBar';
 import { getPetImageUrl } from '../Components/pet/petImage';
 import { applicationServices } from '../composition/applicationServices.js';
 import { healthEventTypes, type HealthEvent, type HealthEventDraft, type HealthEventType } from '../modules/health/HealthEvent.js';
@@ -174,7 +172,6 @@ export default function HealthBookView() {
   };
 
   return <>
-    <NavBar />
     <main className="care-page">
       <div className="care-shell">
         <header className="care-hero care-hero--pet">
@@ -284,6 +281,5 @@ export default function HealthBookView() {
         </div>
       </div>
     </main>
-    <Footer />
   </>;
 }

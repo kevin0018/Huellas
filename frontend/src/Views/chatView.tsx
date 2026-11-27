@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
-import NavBar from "../Components/NavBar";
 import { useChat } from "../modules/chat/application/useChat";
 import { AuthService } from "../modules/auth/infra/AuthService";
 import type { ConversationListItem, Message } from "../modules/chat/domain/Conversation";
@@ -204,7 +203,6 @@ export default function ChatView() {
 
   return (
     <>
-      <NavBar />
       <main className="workspace-page">
         <div className="workspace-shell">
           <header className="workspace-header workspace-header--primary">

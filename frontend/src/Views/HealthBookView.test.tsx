@@ -35,8 +35,6 @@ vi.mock('../composition/applicationServices', () => ({
     reminders: {},
   },
 }));
-vi.mock('../Components/NavBar', () => ({ default: () => null }));
-vi.mock('../Components/footer', () => ({ default: () => null }));
 
 const pet: Pet = {
   birthDate: '2021-04-03T00:00:00.000Z',

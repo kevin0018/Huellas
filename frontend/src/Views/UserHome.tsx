@@ -2,10 +2,8 @@ import { messageFromError, translateMessage, type LocalizedMessage } from '../i1
 import { localeByLanguage } from '../i18n/locale';
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import NavBar from "../Components/NavBar";
 import Tinta from "../shared/ui/Tinta";
 import CareIcon from "../shared/ui/CareIcon";
-import Footer from "../Components/footer";
 import { PetAvatarGrid } from "../Components/pet/PetAvatarGrid";
 import { applicationServices, type ReminderFeed } from "../composition/applicationServices.js";
 import { useTranslation } from "../i18n/hooks/hook";
@@ -117,7 +115,6 @@ function UserHomeContent() {
 
   return (
     <>
-      <NavBar />
       <main className="care-page">
         <div className="care-shell">
           <header className="care-hero care-hero--dashboard">
@@ -266,7 +263,6 @@ function UserHomeContent() {
           </AsyncContent>
         </div>
       </main>
-      <Footer />
     </>
   );
 }

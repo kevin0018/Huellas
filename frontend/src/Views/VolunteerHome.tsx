@@ -3,8 +3,6 @@ import { messageFromError, translateMessage, type LocalizedMessage } from '../i1
 import React, { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-import NavBar from "../Components/NavBar";
-import Footer from "../Components/footer";
 
 import type { PostCategory } from "../modules/posts/domain/types";
 import { AuthService } from "../modules/auth/infra/AuthService";
@@ -82,7 +80,6 @@ function VolunteerHome() {
 
   return (
     <>
-      <NavBar />
       <main className="workspace-page">
         <div className="workspace-shell">
           <header className="workspace-header workspace-header--primary">
@@ -218,7 +215,6 @@ function VolunteerHome() {
           </div>
         </div>
       </main>
-      <Footer />
     </>
   );
 }

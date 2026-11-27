@@ -30,8 +30,6 @@ vi.mock('../../modules/auth/infra/AuthService', () => ({ AuthService: {
 vi.mock('../../modules/chat/infra/SocketService', () => ({ socketService: {
   connect: vi.fn(), addEventListener: vi.fn(), removeEventListener: vi.fn(),
 } }));
-vi.mock('../../Components/NavBar', () => ({ default: () => null }));
-vi.mock('../../Components/footer', () => ({ default: () => null }));
 
 const fetchMock = vi.fn();
 beforeEach(() => { vi.clearAllMocks(); localStorage.clear(); fetchMock.mockReset(); vi.stubGlobal('fetch', fetchMock); });

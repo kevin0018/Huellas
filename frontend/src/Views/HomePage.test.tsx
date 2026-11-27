@@ -3,13 +3,11 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import { afterEach, expect, it, vi } from 'vitest';
+import { afterEach, expect, it } from 'vitest';
 import { TestLanguageProvider, switchLanguage } from '../test/language';
 import { expectNoCriticalAccessibilityViolations } from '../test/accessibility';
 import HomePage from './HomePage';
 
-vi.mock('../Components/NavBar', () => ({ default: () => null }));
-vi.mock('../Components/footer', () => ({ default: () => null }));
 afterEach(() => { cleanup(); localStorage.clear(); });
 
 it('presents care steps and working calls to action in all three languages', async () => {

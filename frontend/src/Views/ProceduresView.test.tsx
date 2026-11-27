@@ -20,8 +20,6 @@ const services = vi.hoisted(() => ({
 }));
 
 vi.mock('../composition/applicationServices', () => ({ applicationServices: services }));
-vi.mock('../Components/NavBar', () => ({ default: () => null }));
-vi.mock('../Components/footer', () => ({ default: () => null }));
 vi.mock('../Components/GoBackButton', () => ({ ArrowLeftIcon: () => <svg aria-hidden="true" /> }));
 vi.mock('../Components/ProceduresModal', () => ({
   default: ({ isOpen, procedure }: { isOpen: boolean; procedure: PetProcedure }) => isOpen

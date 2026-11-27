@@ -1,7 +1,5 @@
 /* Hallmark · genre: playful · macrostructure: Index-First · theme: Huellas · enrichment: existing pattern · nav/footer: preserved · critique: P5 H5 E4 S5 R5 V5 */
 import { useState } from 'react';
-import NavBar from '../Components/NavBar';
-import Footer from '../Components/footer';
 import GoBackButton from '../Components/GoBackButton.js';
 import AppointmentCard from '../Components/AppointmentCard';
 import AppointmentModal from '../Components/AppointmentModal';
@@ -76,7 +74,6 @@ function AppointmentsView() {
 
   return (
     <>
-      <NavBar />
       <main className="relative min-h-[calc(100dvh-var(--nav-height))] text-[var(--color-ink)]">
         <div className="relative z-10 mx-auto w-full max-w-[var(--page-max)] px-[var(--page-gutter)] py-8 sm:py-12">
           <GoBackButton className="w-fit bg-[var(--color-surface-raised)]" variant="outline" hideIfNoHistory />
@@ -190,7 +187,6 @@ function AppointmentsView() {
           pets={pets}
         />
       </main>
-      <Footer />
     </>
   );
 }

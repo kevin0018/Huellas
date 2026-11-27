@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import '@testing-library/jest-dom/vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
@@ -52,17 +52,33 @@ describe('application route loading', () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it('navigates between deferred public views and preserves the selected language', async () => {
+  it('keeps the navbar mounted when navigating between deferred public views', async () => {
     renderAt('/reset-password');
     await screen.findByRole('heading', { name: 'Recuperar contraseña' });
+    const navigation = screen.getByRole('navigation', { name: 'Navegación principal' });
     // The real navbar has a switcher for desktop and another for mobile.
     fireEvent.click(screen.getAllByRole('button', { name: 'Cambiar idioma' })[0]);
     fireEvent.click(screen.getByRole('button', { name: 'English' }));
     fireEvent.click(screen.getByRole('link', { name: 'Back to sign in' }));
     expect(await screen.findByRole('heading', { name: 'Log In' })).toBeInTheDocument();
+    expect(screen.getByRole('navigation', { name: 'Main navigation' })).toBe(navigation);
     expect(window.location.pathname).toBe('/login');
     expect(localStorage.getItem('language')).toBe('en');
     expect(document.documentElement.lang).toBe('en');
+  });
+
+  it('keeps the same footer across pages that show it and hides it on sign-in', async () => {
+    renderAt('/terms');
+    await screen.findByRole('heading', { name: 'Términos y privacidad' });
+    const footer = screen.getByRole('contentinfo');
+
+    fireEvent.click(within(footer).getByRole('link', { name: 'Sobre Nosotros' }));
+    await screen.findByRole('heading', { name: 'Más tiempo juntos. Más cuidado.' });
+    expect(screen.getByRole('contentinfo')).toBe(footer);
+
+    fireEvent.click(screen.getByRole('link', { name: 'Iniciar Sesión' }));
+    await screen.findByRole('heading', { name: 'Iniciar Sesión' });
+    expect(screen.queryByRole('contentinfo')).not.toBeInTheDocument();
   });
 
   it('restores a private deep route and locale after remounting at the same URL', async () => {

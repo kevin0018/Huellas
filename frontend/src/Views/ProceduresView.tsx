@@ -4,9 +4,7 @@ import type { TranslationKey } from '../i18n/dictionary';
 import { useTranslation } from '../i18n/hooks/hook';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import Footer from '../Components/footer';
 import { ArrowLeftIcon } from '../Components/GoBackButton';
-import NavBar from '../Components/NavBar';
 import ProcedureCard from '../Components/ProcedureCard';
 import ProcedureModal from '../Components/ProceduresModal';
 import { getPetImageUrl } from '../Components/pet/petImage';
@@ -138,7 +136,6 @@ function ProceduresView() {
 
   return (
     <>
-      <NavBar />
       <main className="care-page">
         <div className="care-shell">
           <header className="care-hero care-hero--pet">
@@ -226,7 +223,6 @@ function ProceduresView() {
           />
         )}
       </main>
-      <Footer />
     </>
   );
 }

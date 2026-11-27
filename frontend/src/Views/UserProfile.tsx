@@ -3,8 +3,6 @@ import { LocalizedError, messageFromError, translateMessage, type LocalizedMessa
 import { useTranslation } from '../i18n/hooks/hook';
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import NavBar from "../Components/NavBar";
-import Footer from "../Components/footer";
 import GoBackButton from "../Components/GoBackButton";
 import VolunteerModal from "../Components/VolunteerModal";
 import { authActions } from '../features/auth/authActions';
@@ -196,7 +194,6 @@ export default function UserProfile() {
 
   return (
     <>
-      <NavBar />
       <main className="workspace-page">
         <div className="workspace-shell">
           <header className="workspace-header">
@@ -422,7 +419,6 @@ export default function UserProfile() {
         </div>
       )}
 
-      <Footer />
     </>
   );
 }

@@ -3,8 +3,6 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from '../i18n/hooks/hook';
 import { useSessionUser } from '../features/auth/useSessionUser';
 import { Capability, hasCapability } from '../modules/auth/domain/User';
-import NavBar from '../Components/NavBar';
-import Footer from '../Components/footer';
 import BookCoverArt from '../Components/BookCoverArt';
 import CareIcon from '../shared/ui/CareIcon';
 import '../Styles/home.css';
@@ -36,7 +34,6 @@ export default function HomePage() {
 
   return (
     <>
-      <NavBar />
       <main className="public-page home-page">
         <div className="public-shell">
           <section className="home-cover" aria-labelledby="home-title">
@@ -81,7 +78,6 @@ export default function HomePage() {
           </section>
         </div>
       </main>
-      <Footer />
     </>
   );
 }

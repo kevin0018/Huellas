@@ -2,7 +2,6 @@ import PasswordInput, { PasswordCompanion } from '../shared/ui/PasswordInput';
 import type { TranslationKey } from '../i18n/dictionary';
 import { ClientError } from '../shared/errors/ClientError';
 import { useTranslation } from '../i18n/hooks/hook';
-import NavBar from '../Components/NavBar';
 import { useEffect, useState } from 'react';
 import { useSearchParams, Link, useLocation, useNavigate } from 'react-router-dom';
 import { authActions } from '../features/auth/authActions';
@@ -11,7 +10,7 @@ import type { ChangeEvent, FormEvent } from 'react';
 import GoBackButton from '../Components/GoBackButton';
 import { ApiError } from '../shared/api/apiClient';
 
-function LoginContent() {
+export default function Login() {
   const { translate } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -181,12 +180,3 @@ function LoginContent() {
     </main>
   );
 }
-
-export default function Login() {
-  return (
-    <>
-      <NavBar />
-      <LoginContent />
-    </>
-  );
-};

@@ -6,13 +6,12 @@ import { useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from '../i18n/hooks/hook';
-import NavBar from '../Components/NavBar';
 import GoBackButton from '../Components/GoBackButton';
 
 type UserType = 'owner' | 'volunteer';
 
 
-function RegisterForm() {
+export default function Register() {
   const { translate } = useTranslation();
   const navigate = useNavigate();
   const [userType, setUserType] = useState<UserType>('owner');
@@ -242,14 +241,5 @@ function RegisterForm() {
         </form>
       </div>
     </main>
-  );
-};
-
-export default function Register() {
-  return (
-    <>
-      <NavBar />
-      <RegisterForm />
-    </>
   );
 }

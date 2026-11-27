@@ -4,9 +4,7 @@ import { localeByLanguage } from '../i18n/locale';
 import { useTranslation } from '../i18n/hooks/hook';
 import { useEffect, useState, type ReactNode } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import Footer from "../Components/footer";
 import { ArrowLeftIcon } from "../Components/GoBackButton";
-import NavBar from "../Components/NavBar";
 import { getPetImageUrl } from "../Components/pet/petImage";
 import { applicationServices } from "../composition/applicationServices";
 import { AuthService } from "../modules/auth/infra/AuthService";
@@ -115,7 +113,6 @@ function PetProfile() {
 
   return (
     <>
-      <NavBar />
       <main className="care-page">
         <div className="care-shell">
           <header className="care-hero care-hero--pet">
@@ -216,7 +213,6 @@ function PetProfile() {
           </div>
         </div>
       </main>
-      <Footer />
     </>
   );
 }

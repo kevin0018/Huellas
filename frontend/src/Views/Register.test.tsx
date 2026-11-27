@@ -11,7 +11,6 @@ import Register from './Register';
 import { registerUser } from '../features/registration/registerUser';
 
 vi.mock('../features/registration/registerUser', () => ({ registerUser: vi.fn() }));
-vi.mock('../Components/NavBar', () => ({ default: () => <nav aria-label="Navegación principal" /> }));
 vi.mock('../Components/GoBackButton', () => ({ default: () => <button type="button">Volver</button> }));
 
 const mockedRegisterUser = vi.mocked(registerUser);
